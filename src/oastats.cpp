@@ -52,13 +52,12 @@ class KDLineProcessor // kills/deaths
 : public LineProcessor
 {
 private:
-	siz iid = 0;
 	const WEAPON weapon;
-	siz_map k; // internal codes -> score
-	siz_map d; // internal codes -> score
+	str_siz_map k; // guid -> score
+	str_siz_map d; // guid -> score
 
-	str_siz_map names; // GUID -> internal codes
-	siz_map codes; // game codes -> internal codes
+//	str_siz_map names; // GUID -> internal codes
+	siz_str_map codes; // game codes -> guid
 
 	str data;
 	std::istringstream iss;
@@ -71,20 +70,14 @@ private:
 public:
 	KDLineProcessor(const WEAPON weapon): weapon(weapon), re_guid(".*\\\\(.*)") {}
 
-	str_siz_map get_kills()
+	const str_siz_map& get_kills()
 	{
-		str_siz_map m;
-		for(const str_siz_pair& p: names)
-			m[p.first] = k[p.second];
-		return m;
+		return k;
 	}
 
-	str_siz_map get_deaths()
+	const str_siz_map& get_deaths()
 	{
-		str_siz_map m;
-		for(const str_siz_pair& p: names)
-			m[p.first] = d[p.second];
-		return m;
+		return d;
 	}
 
 	bool operator()(const str& line)
@@ -92,6 +85,7 @@ public:
 //		bug_func();
 //		bug_var(line);
 
+		iss.clear();
 		iss.str(line);
 
 		iss >> data >> data;
@@ -104,26 +98,14 @@ public:
 				return false;
 			}
 
-//			bug_var(p1);
-//			bug_var(guid);
+//			bug_var(line);
+			bug_var(p1);
+			bug_var(guid);
+			bug("");
 
-			if(guid.empty()) // bot
-				codes.erase(p1);
-			else
-			{
-				if(!names.count(guid)) // new guid needs internal code
-				{
-					names[guid] = iid++;
-					//codes[p1] = names[guid];
-					bug_var(names[guid]);
-				}
-
-				codes[p1] = names[guid]; // map game to new internal
-//				{
-//					log("error: Unknown player: " << p1);
-//					log("line : " << line);
-//				}
-			}
+//			if(guid.empty())
+//				codes.erase(p1);
+			codes[p1] = guid;
 
 			return true;
 		}
@@ -132,19 +114,20 @@ public:
 		if(iss && data == "Kill:" && (iss >> p1 >> p2 >> w) && w == to_underlying(weapon))
 		{
 			// p1 killed 2 by w
-//			bug_var(p1);
-//			bug_var(p2);
-//			bug_var(w);
+			bug_var(p1);
+			bug_var(p2);
+			bug_var(codes[p1]);
+			bug_var(codes[p2]);
+			bug("");
 
-			if(codes.count(p1) && codes.count(p2)) // avoid bots
+			if(!codes[p1].empty() && !codes[p2].empty()) // avoid bots
+//			if(codes.count(p1) && codes.count(p2)) // avoid bots
 			{
 				++k[codes[p1]];
 				++d[codes[p2]];
 			}
 			return true;
 		}
-
-		iss.clear();
 
 		return false;
 	}
@@ -154,7 +137,9 @@ int main(int argc, char* argv[])
 {
 	bug_func();
 	bug_var(argc);
-	std::cout << "oastats: " << VERSION << '\n';
+
+	con("oastats: " << VERSION);
+	con("");
 
 	std::ifstream ifs;
 	std::ofstream ofs;
@@ -192,7 +177,8 @@ int main(int argc, char* argv[])
 	str line;
 	while(std::getline(is, line))
 	{
-		//bug_var(line);
+//		bug_var(line);
+//		bug("");
 		for(LineProcessorSPtr& processor: processors)
 			(*processor)(line);
 	}

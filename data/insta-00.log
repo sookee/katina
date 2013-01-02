@@ -1,11 +1,9 @@
-  0:00 ClientUserinfoChanged: 0 n\^5A^6lien ^5S^6urf ^5G^6irl\t\1\model\ayumi/red\hmodel\ayumi/red\g_redteam\\g_blueteam\\c1\4\c2\4\hc\100\w\0\l\0\tt\0\tl\1\id\C7BAB277F578F6BD9285FB7D6BD92C7E
-  0:00 ClientUserinfoChanged: 1 n\(drunk)Mosey\t\2\model\neko/default\hmodel\neko/default\g_redteam\\g_blueteam\\c1\1\c2\1\hc\100\w\0\l\0\tt\0\tl\1\id\E033A89C4B3E6AA02BEA932A65C25652
-  0:00 ClientUserinfoChanged: 2 n\Wark\t\1\model\assassin/red\hmodel\assassin/red\g_redteam\\g_blueteam\\c1\4\c2\4\hc\100\w\0\l\0\tt\0\tl\0\id\B6ABA11AFC1A75EA060033123EA47384
-  0:00 ClientUserinfoChanged: 3 n\Next map\t\2\model\assassin/ghost\hmodel\assassin/ghost\g_redteam\\g_blueteam\\c1\1\c2\1\hc\100\w\0\l\0\tt\0\tl\0\id\121448F033A7BE2CD65F48BFAD0221E3
-  0:00 ClientUserinfoChanged: 4 n\^1S^3amus ^1A^3ran\t\1\model\major/red\hmodel\major/red\g_redteam\\g_blueteam\\c1\4\c2\4\hc\100\w\0\l\0\tt\0\tl\0\id\31A7063B9740DB3D5B057989E13151CB
-  0:00 ClientUserinfoChanged: 5 n\^1Lord ^2Zeus\t\2\model\gargoyle/stone\hmodel\gargoyle/stone\g_redteam\\g_blueteam\\c1\1\c2\1\hc\100\w\0\l\0\tt\0\tl\0\id\901B30E426727757588FB964A07F901E
-  0:03 ClientUserinfoChanged: 4 n\^1S^3amus ^1A^3ran\t\1\model\major/red\hmodel\major/red\g_redteam\\g_blueteam\\c1\4\c2\4\hc\100\w\0\l\0\tt\0\tl\0\id\31A7063B9740DB3D5B057989E13151CB
-  0:23 ClientUserinfoChanged: 5 n\^1Lord ^2Zeus\t\2\model\gargoyle/stone\hmodel\gargoyle/stone\g_redteam\\g_blueteam\\c1\1\c2\1\hc\100\w\0\l\0\tt\0\tl\0\id\901B30E426727757588FB964A07F901E
+  0:01 ClientUserinfoChanged: 0 n\^5A^6lien ^5S^6urf ^5G^6irl\t\1\model\ayumi/red\hmodel\ayumi/red\g_redteam\\g_blueteam\\c1\4\c2\4\hc\100\w\0\l\0\tt\0\tl\1\id\C7BAB277F578F6BD9285FB7D6BD92C7E
+  0:02 ClientUserinfoChanged: 1 n\(drunk)Mosey\t\2\model\neko/default\hmodel\neko/default\g_redteam\\g_blueteam\\c1\1\c2\1\hc\100\w\0\l\0\tt\0\tl\1\id\E033A89C4B3E6AA02BEA932A65C25652
+  0:03 ClientUserinfoChanged: 2 n\Wark\t\1\model\assassin/red\hmodel\assassin/red\g_redteam\\g_blueteam\\c1\4\c2\4\hc\100\w\0\l\0\tt\0\tl\0\id\B6ABA11AFC1A75EA060033123EA47384
+  0:04 ClientUserinfoChanged: 3 n\Next map\t\2\model\assassin/ghost\hmodel\assassin/ghost\g_redteam\\g_blueteam\\c1\1\c2\1\hc\100\w\0\l\0\tt\0\tl\0\id\121448F033A7BE2CD65F48BFAD0221E3
+  0:05 ClientUserinfoChanged: 4 n\^1S^3amus ^1A^3ran\t\1\model\major/red\hmodel\major/red\g_redteam\\g_blueteam\\c1\4\c2\4\hc\100\w\0\l\0\tt\0\tl\0\id\31A7063B9740DB3D5B057989E13151CB
+  0:06 ClientUserinfoChanged: 5 n\^1Lord ^2Zeus\t\2\model\gargoyle/stone\hmodel\gargoyle/stone\g_redteam\\g_blueteam\\c1\1\c2\1\hc\100\w\0\l\0\tt\0\tl\0\id\901B30E426727757588FB964A07F901E
   
   
   0:29 Kill: 0 3 10: ^5A^6lien ^5S^6urf ^5G^6irl killed Next map by MOD_RAILGUN
@@ -20,6 +18,7 @@ B6ABA11AFC1A75EA060033123EA47384 2 0k 1d
 121448F033A7BE2CD65F48BFAD0221E3 3 0k 1d
 31A7063B9740DB3D5B057989E13151CB 4 0k 1d
 901B30E426727757588FB964A07F901E 5 2k 1d
+total:
   
   1:00 ClientUserinfoChanged: 6 n\^4*M*^^4^2r00t\t\3\model\Grims\hmodel\Skelebot\g_redteam\\g_blueteam\\c1\\c2\\hc\100\w\0\l\0\tt\0\tl\0\id\A875B37CF7C2B30F7444828C9E0624B1
   1:04 ClientUserinfoChanged: 7 n\zorr\t\3\model\sarge/red\hmodel\sarge/red\g_redteam\\g_blueteam\\c1\\c2\\hc\100\w\0\l\0\tt\0\tl\0\id\34F2D8A86E7113634AC8E56F7BC0A21E
@@ -49,6 +48,7 @@ B6ABA11AFC1A75EA060033123EA47384 2 4k 1d
 901B30E426727757588FB964A07F901E 5 4k 2d
 A875B37CF7C2B30F7444828C9E0624B1 6 0k 2d
 34F2D8A86E7113634AC8E56F7BC0A21E 7 0k 2d
+total:
 
   1:52 ClientUserinfoChanged: 6 n\Shiro\t\3\model\angelyss/dark\hmodel\angelyss/dark\g_redteam\\g_blueteam\\c1\?\c2\\hc\100\w\0\l\0\tt\0\tl\0\id\432547A713EE34093FD473E280953BA4
 
@@ -70,6 +70,7 @@ B6ABA11AFC1A75EA060033123EA47384 2 2k 0d
 901B30E426727757588FB964A07F901E 5 1k 2d
 432547A713EE34093FD473E280953BA4 6 0k 2d
 34F2D8A86E7113634AC8E56F7BC0A21E 7 1k 2d
+total:
 
  12:18 ClientUserinfoChanged: 6 n\^1LE^7O^4HX ^3(Raa)\t\3\model\penguin/default\hmodel\penguin/default\g_redteam\\g_blueteam\\c1\\c2\\hc\100\w\0\l\0\tt\0\tl\0\id\185D5DC86E3543AB479659DBE70B1017
 
@@ -90,6 +91,7 @@ B6ABA11AFC1A75EA060033123EA47384 2 0k 0d
 901B30E426727757588FB964A07F901E 5 4k 1d
 185D5DC86E3543AB479659DBE70B1017 6 1k 2d
 34F2D8A86E7113634AC8E56F7BC0A21E 7 1k 1d
+total:
 
  16:19 ClientUserinfoChanged: 0 n\Merman\t\2\model\merman\hmodel\merman\c1\1\c2\1\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
  16:28 ClientUserinfoChanged: 7 n\Cyber_Ape\t\3\model\angelyss/retro\hmodel\angelyss/retro\g_redteam\\g_blueteam\\c1\\c2\\hc\100\w\0\l\0\tt\0\tl\0\id\67AD092055D42CB2D645924EA55A8967
@@ -113,6 +115,7 @@ B6ABA11AFC1A75EA060033123EA47384 2 2k 1d
 901B30E426727757588FB964A07F901E 5 1k 1d
 185D5DC86E3543AB479659DBE70B1017 6 0k 2d
 67AD092055D42CB2D645924EA55A8967 7 3k 1d
+total:
 
 
 

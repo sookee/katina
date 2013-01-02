@@ -74,14 +74,14 @@ typedef std::multimap<str, str> str_mmap;
 typedef std::pair<const str, str> str_pair;
 typedef std::deque<str> str_deq;
 
-typedef std::map<str, siz> str_siz_map;
-typedef std::pair<const str, siz> str_siz_pair;
-
 typedef std::map<siz, siz> siz_map;
 typedef std::pair<const siz, siz> siz_pair;
 
-typedef std::map<const str, str_set> str_set_map;
-typedef std::pair<const str, str_set> str_set_pair;
+typedef std::map<str, siz> str_siz_map;
+typedef std::pair<const str, siz> str_siz_pair;
+
+typedef std::map<siz, str> siz_str_map;
+typedef std::pair<const siz, str> siz_str_pair;
 
 typedef std::lock_guard<std::mutex> lock_guard;
 typedef std::chrono::steady_clock steady_clock;
