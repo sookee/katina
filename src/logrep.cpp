@@ -28,6 +28,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 '-----------------------------------------------------------------*/
 
+#include "types.h"
 #include "logrep.h"
 #include "str.h"
 
@@ -38,8 +39,8 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace oastats { namespace utils {
 
-using namespace skivvy::types;
-using namespace skivvy::string;
+using namespace oastats::types;
+using namespace oastats::string;
 
 str thread_name()
 {

@@ -35,9 +35,9 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <algorithm>
 #include <thread>
 
-namespace skivvy { namespace string {
+namespace oastats { namespace string {
 
-using namespace skivvy::types;
+using namespace oastats::types;
 
 /**
  * Remove surrounding whitespace from a std::string.
@@ -139,4 +139,4 @@ str_vec split_params(const str& s, char d)
 	return v;
 }
 
-}} // sookee::string
+}} // oastats::string

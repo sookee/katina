@@ -1,0 +1,75 @@
+##########################
+# AWARDS #
+##########################
+award syntax: Award: #1 #2: S1 gained the S2 award
+#1 and S1 are the client number and nick
+#2 and S2 are the award types, corresponding to the following table:
+Code:
+
+#2 | S2
+----------------
+ 0 | GAUNTLET
+ 1 | Excellent
+ 2 | Impressive
+ 3 | Defense
+ 4 | Capture
+ 5 | Assist
+
+##########################
+# CTF #
+##########################
+
+CTF syntax: CTF: #1 #2 #3: S1 got the S2 flag! / S1 captured the S2 flag! / The S2 flag has returned! / S1 returned the S2 flag / S1 fragged S2's flag carrier
+#1 and S1 are the client number and nick, when there is no client involved #1 = -1
+#2 and S2 are the team number and name
+#3 is the event number, corresponding to the following table:
+Code:
+
+#3 | Event description
+----------------------
+ 0 | Flag is taken
+ 1 | Flag is captured
+ 2 | Flag is returned
+ 3 | Flagcarrier got killed
+
+##########################
+# KILL #
+##########################
+
+KILL syntax: Kill: #1 #2 #3: S1 killed S2 by S3
+#1 and S1 are the client number and nick, when there is no client involved #1 = 1022
+#2 and S2 are the victim number and nick
+#3 is the weapon number, corresponding to the following table:
+Code:
+
+#3 | Weapon description
+----------------------
+ 0 | MOD_UNKNOWN
+ 1 | MOD_SHOTGUN
+ 2 | MOD_GAUNTLET
+ 3 | MOD_MACHINEGUN
+ 4 | MOD_GRENADE
+ 5 | MOD_GRENADE_SPLASH
+ 6 | MOD_ROCKET
+ 7 | MOD_ROCKET_SPLASH
+ 8 | MOD_PLASMA
+ 9 | MOD_PLASMA_SPLASH
+10 | MOD_RAILGUN
+11 | MOD_LIGHTNING
+12 | MOD_BFG
+13 | MOD_BFG_SPLASH
+14 | MOD_WATER
+15 | MOD_SLIME
+16 | MOD_LAVA
+17 | MOD_CRUSH
+18 | MOD_TELEFRAG
+19 | MOD_FALLING
+20 | MOD_SUICIDE
+21 | MOD_TARGET_LASER
+22 | MOD_TRIGGER_HURT
+23 | MOD_NAIL
+24 | MOD_CHAINGUN
+25 | MOD_PROXIMITY_MINE
+26 | MOD_KAMIKAZE
+27 | MOD_JUICED
+28 | MOD_GRAPPLE

@@ -9,6 +9,8 @@ DEF_FLAGS = \
 	-D COMMITS=\"$(shell printf %04d \"$(git log --after={yesterday} --pretty=oneline|wc -l)\")\" \
 	-D REVISION=\"$(shell git log -n 1 --pretty=format:%h|tr [:lower:] [:upper:])\"
 	
+DEBUG = 1
+	
 MYSQL_INCL = $(shell mysql_config --include)
 MYSQL_LIBS = $(shell mysql_config --libs)
 
@@ -20,14 +22,19 @@ ALL_LIBS = $(MYSQL_LIBS) $(PCRE_LIBS)
 
 CXX = $(GCC_HOME)/bin/g++
 CC = $(GCC_HOME)/bin/g++
-CXXFLAGS = -std=c++11 $(DEF_FLAGS) $(ALL_INCL)
+CXXFLAGS = -std=c++11 $(DEF_FLAGS) $(ALL_INCL) -pthread
 LDFLAGS = $(ALL_LIBS)
 
 INCLUDES = $(wildcard *.h)
 
 all: oastats
 
-oastats.o: $(INCLUDES)
+logrep.o: logrep.h types.h
+str.o: str.h logrep.h types.h
+types.o: types.h
+oastats.o: str.h logrep.h types.h
+
+oastats: oastats.o logrep.o str.o types.o
 
 clean:
 	rm -f *.o *.so oastats

@@ -26,7 +26,7 @@ enum class CTF
 	, KILLED
 };
 
-enum class KILL
+enum class WEAPON
 {
 	MOD_UNKNOWN
 	, MOD_SHOTGUN
@@ -59,4 +59,10 @@ enum class KILL
 	, MOD_GRAPPLE
 };
 
- #endif /* LOGEVENTS_H_ */
+template <typename E>
+typename std::underlying_type<E>::type to_underlying(E e)
+{
+    return static_cast<typename std::underlying_type<E>::type>(e);
+}
+
+#endif /* LOGEVENTS_H_ */

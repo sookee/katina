@@ -68,8 +68,8 @@ std::ostream& botbug(std::ostream* os = 0)
 str thread_name();
 str obj_name(void* id);
 
-#define THREAD skivvy::utils::thread_name()
-#define OBJECT skivvy::utils::obj_name(this)
+#define THREAD oastats::utils::thread_name()
+#define OBJECT oastats::utils::obj_name(this)
 
 #ifndef DEBUG
 #define bug(m)
@@ -78,7 +78,7 @@ str obj_name(void* id);
 #define bug_func()
 #define BUG_COMMAND(m)
 #else
-#define bug(m) do{skivvy::utils::botbug() << m << std::endl;}while(false)
+#define bug(m) do{oastats::utils::botbug() << m << std::endl;}while(false)
 
 struct __scope__bomb__
 {

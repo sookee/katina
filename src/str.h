@@ -33,9 +33,9 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include "types.h"
 
-namespace skivvy { namespace string {
+namespace oastats { namespace string {
 
-using namespace skivvy::types;
+using namespace oastats::types;
 
 inline str& ltrim(str& s, const char* t = " \t\n\r\f\v")
 {
@@ -80,6 +80,6 @@ siz extract_delimited_text(const str& in, const str& d1, const str& d2, str& out
 str_vec split(const str& s, char d = ' ');
 str_vec split_params(const str& s, char d);
 
-}} // skivvy::string
+}} // oastats::string
 
 #endif /* _SKIVVY_STR_H_ */
