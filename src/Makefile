@@ -8,9 +8,19 @@ DEF_FLAGS = \
 	-D DEV=\"$(shell git diff --quiet || echo -dev)\" \
 	-D COMMITS=\"$(shell printf %04d \"$(git log --after={yesterday} --pretty=oneline|wc -l)\")\" \
 	-D REVISION=\"$(shell git log -n 1 --pretty=format:%h|tr [:lower:] [:upper:])\"
+	
+MYSQL_INCL = $(shell mysql_config --include)
+MYSQL_LIBS = $(shell mysql_config --libs)
+
+PCRE_INCL = $(pkg-config libpcrecpp --include)
+PCRE_LIBS = $(pkg-config libpcrecpp --libs)
+
+ALL_INCL = $(MYSQL_INCL) $(PCRE_INCL)
+ALL_LIBS = $(MYSQL_LIBS) $(PCRE_LIBS)
 
 CXX = $(GCC_HOME)/bin/g++
-CXXFLAGS = -std=c++11 $(DEF_FLAGS)
+CXXFLAGS = -std=c++11 $(DEF_FLAGS) $(ALL_INCL)
+LDFLAGS = $(ALL_LIBS)
 
 all: oastats
 
