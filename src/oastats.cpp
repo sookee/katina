@@ -63,15 +63,16 @@ public:
 
 	bool operator()(const str& line)
 	{
-		bug_func();
-		bug_var(line);
+//		bug_func();
+//		bug_var(line);
 		//  0:48 Kill: 1 4 10: (drunk)Mosey killed ^1S^3amus ^1A^3ran by MOD_RAILGUN
 		iss.str(line);
-//		if((iss >> data >> data) && data == "Kill:" && (iss >> p1 >> p2 >> w) && w == weapon)
-		if((iss >> data >> data) && data == "Kill:")
+		if((iss >> data >> data) && data == "Kill:" && (iss >> p1 >> p2 >> w) && w == to_underlying(weapon))
 		{
-			if((iss >> p1 >> p2 >> w) && w == to_underlying(weapon))
 			// p1 killed 2 by w
+			bug_var(p1);
+			bug_var(p2);
+			bug_var(w);
 			++k[p1];
 			++d[p2];
 			return true;
@@ -116,7 +117,7 @@ int main(int argc, char* argv[])
 	std::vector<LineProcessorSPtr> processors;
 
 	processors.push_back(LineProcessorSPtr(new KDLineProcessor(WEAPON::MOD_RAILGUN)));
-	processors.push_back(LineProcessorSPtr(new KDLineProcessor(WEAPON::MOD_GAUNTLET)));
+	//processors.push_back(LineProcessorSPtr(new KDLineProcessor(WEAPON::MOD_GAUNTLET)));
 
 	str line;
 	while(std::getline(is, line))
