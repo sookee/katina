@@ -31,7 +31,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 '-----------------------------------------------------------------*/
 
-#include <skivvy/types.h>
+#include "types.h"
 
 namespace skivvy { namespace string {
 
