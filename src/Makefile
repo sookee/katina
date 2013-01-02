@@ -19,10 +19,15 @@ ALL_INCL = $(MYSQL_INCL) $(PCRE_INCL)
 ALL_LIBS = $(MYSQL_LIBS) $(PCRE_LIBS)
 
 CXX = $(GCC_HOME)/bin/g++
+CC = $(GCC_HOME)/bin/g++
 CXXFLAGS = -std=c++11 $(DEF_FLAGS) $(ALL_INCL)
 LDFLAGS = $(ALL_LIBS)
 
+INCLUDES = $(wildcard *.h)
+
 all: oastats
+
+oastats.o: $(INCLUDES)
 
 clean:
 	rm -f *.o *.so oastats
