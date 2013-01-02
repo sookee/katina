@@ -14,8 +14,8 @@ DEBUG = 1
 MYSQL_INCL = $(shell mysql_config --include)
 MYSQL_LIBS = $(shell mysql_config --libs)
 
-PCRE_INCL = $(pkg-config libpcrecpp --include)
-PCRE_LIBS = $(pkg-config libpcrecpp --libs)
+PCRE_INCL = $(shell pkg-config libpcrecpp --include)
+PCRE_LIBS = $(shell pkg-config libpcrecpp --libs)
 
 ALL_INCL = $(MYSQL_INCL) $(PCRE_INCL)
 ALL_LIBS = $(MYSQL_LIBS) $(PCRE_LIBS)
@@ -29,10 +29,10 @@ INCLUDES = $(wildcard *.h)
 
 all: oastats
 
-logrep.o: logrep.h types.h
-str.o: str.h logrep.h types.h
-types.o: types.h
-oastats.o: str.h logrep.h types.h
+logrep.o: logrep.h types.h stl.h
+str.o: str.h logrep.h types.h stl.h
+types.o: types.h stl.h
+oastats.o: str.h logrep.h types.h stl.h
 
 oastats: oastats.o logrep.o str.o types.o
 

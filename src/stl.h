@@ -33,7 +33,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include <algorithm>
 
-namespace skivvy { namespace stl {
+namespace oastats { namespace stl {
 
 template<typename Container, typename T>
 size_t count(const Container& c, const T& t)
@@ -101,6 +101,6 @@ typename Container::iterator erase_if(Container& c, Pred pred)
 	return c.erase(std::remove_if(c.begin(), c.end(), pred), c.end());
 }
 
-}} // sookee::stl
+}} // oastats::stl
 
 #endif /* _SKIVVY_STL_H_ */

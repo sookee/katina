@@ -150,7 +150,7 @@ std::ostream& botlog(std::ostream* os = 0)
 	return *osp;
 }
 
-#define log(m) do{skivvy::utils::botlog() << skivvy::utils::get_stamp() << ": " << m << std::endl;}while(false)
+#define log(m) do{oastats::utils::botlog() << oastats::utils::get_stamp() << ": " << m << std::endl;}while(false)
 
 // Console output
 #define con(m) do{std::cout << m << std::endl;}while(false)
