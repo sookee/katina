@@ -1,32 +1,43 @@
 /*
- * logevents.h
+ * codees.h
  *
  *  Created on: Jan 2, 2013
  *      Author: oasookee@gmail.com
  */
 
-#ifndef LOGEVENTS_H_
-#define LOGEVENTS_H_
+#ifndef _OASTATS_CODES_H_
+#define _OASTATS_CODES_H_
 
-enum class AWARD
+enum // AWARD
 {
-	GAUNTLET
-	, EXCELLENT
-	, IMPRESSIVE
-	, DEFENCE
-	, CAPTURE
-	, ASSIST
+	AW_GAUNTLET
+	, AW_EXCELLENT
+	, AW_IMPRESSIVE
+	, AW_DEFENCE
+	, AW_CAPTURE
+	, AW_ASSIST
 };
 
-enum class CTF
+enum // FLAG
 {
-	TAKEN
-	, CAPTURED
-	, RETURNED
-	, KILLED
+	FL_TAKEN = 0
+	, FL_RED = 0
+	, FL_BLUE = 1
+	, FL_CAPTURED = 1
+	, FL_RETURNED = 2
+	, FL_DROPPED = 3
+	, FL_SIZE
 };
 
-enum class WEAPON
+//enum class CTF
+//{
+//	TAKEN
+//	, CAPTURED
+//	, RETURNED
+//	, KILLED
+//};
+
+enum // WEAPON
 {
 	MOD_UNKNOWN
 	, MOD_SHOTGUN
@@ -65,4 +76,4 @@ typename std::underlying_type<E>::type to_underlying(E e)
     return static_cast<typename std::underlying_type<E>::type>(e);
 }
 
-#endif /* LOGEVENTS_H_ */
+#endif /* _OASTATS_CODES_H_ */

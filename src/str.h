@@ -80,6 +80,24 @@ siz extract_delimited_text(const str& in, const str& d1, const str& d2, str& out
 str_vec split(const str& s, char d = ' ');
 str_vec split_params(const str& s, char d);
 
+template<typename T, typename P>
+T to(const P& p)
+{
+	T t;
+	sss ss;
+	ss << p;
+	ss >> t;
+	return t;
+}
+
+template<typename T>
+T to(const str& s)
+{
+	T t;
+	siss(s) >> t;
+	return t;
+}
+
 }} // oastats::string
 
 #endif /* _SKIVVY_STR_H_ */
