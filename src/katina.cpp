@@ -1012,6 +1012,8 @@ int main(const int argc, const char* argv[])
 					str msg = players[clients[num]] + "^3 has ^7" + to_string(caps[clients[num]]) + "^3 flag" + (caps[clients[num]]==1?"":"s") + "!";
 					server.cp(msg);
 					skivvy.chat(msg);
+
+					skivvy.chat("^1RED^3: ^7" + to_string(flags[FL_RED]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_BLUE]));
 				}
 				else if(act == FL_TAKEN)
 				{
@@ -1089,6 +1091,7 @@ int main(const int argc, const char* argv[])
 					}
 					bug("mapname: " << mapname);
 				}
+				skivvy.chat("^3Map: ^7" + mapname + "^3.");
 			}
 		}
 		if(cmd == "say:")
