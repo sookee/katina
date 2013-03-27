@@ -271,7 +271,6 @@ GUID bot_guid(siz num)
 
 void delay(siz msecs)
 {
-//	std::this_thread::sleep_for(std::chrono::milliseconds(msecs));
 	timespec requested_time;
 	timespec remaining;
 	requested_time.tv_sec = 0;
@@ -1019,11 +1018,10 @@ int main(const int argc, const char* argv[])
 					bug("FL_TAKEN");
 					if(dashing[col])
 					{
-//						rcon.chat("^1DEBUG:^3 Begin dash with the " + flag[col] + "^3 flag.");
-//						dash[col] = clock_p::now();//std::clock();//std::time(0); // begin a dash
 						clock_gettime(CLOCK_REALTIME, &dash[col]);
 					}
 					dasher[col] = clients[num];
+					skivvy.chat(players[clients[num]] + "^3 has taken the " + flag[col] + " ^3flag!");
 				}
 				else if(act == FL_DROPPED)
 				{
@@ -1031,6 +1029,7 @@ int main(const int argc, const char* argv[])
 //					rcon.chat("^1DEBUG:^3 End dash & disable dashing for the " + flag[ncol] + "^3 flag.");
 					dasher[ncol] = null_guid;; // end a dash
 					dashing[ncol] = false; // no more dashes until return, capture or suicide
+					skivvy.chat(players[clients[num]] + "^3 has dropped the " + flag[col] + " ^3flag!");
 				}
 				else if(act == FL_RETURNED)
 				{
@@ -1038,6 +1037,7 @@ int main(const int argc, const char* argv[])
 //					rcon.chat("^1DEBUG:^3 (Re)enable dashing for the " + flag[col] + "^3 flag.");
 					dasher[col] = null_guid;; // end a dash
 					dashing[col] = true; // new dash now possible
+					skivvy.chat(players[clients[num]] + "^3 has returned the " + flag[col] + " ^3flag!");
 				}
 			}
 			else if(cmd == "Award:")
