@@ -258,6 +258,19 @@ sis& operator>>(sis& is, GUID& guid)
 
 const GUID null_guid = "0000000000000000";
 
+GUID bot_guid()
+{
+	static siz count = 0;
+	++count;
+	soss oss;
+	oss << count;
+	str id = oss.str();
+	if(id.size() < 16)
+		id = str(16 - id.size(), '0') + id;
+
+	return GUID(id.c_str());
+}
+
 void delay(siz msecs)
 {
 //	std::this_thread::sleep_for(std::chrono::milliseconds(msecs));
@@ -883,7 +896,7 @@ int main(const int argc, const char* argv[])
 					str guid = line.substr(pos + 3, 32);
 					bug("guid: " << guid);
 					if(guid.size() != 32)
-						clients[num] = null_guid;
+						clients[num] = bot_guid();//null_guid;
 					else
 						clients[num] = to<GUID>(guid);
 					players[clients[num]] = name;
@@ -950,10 +963,9 @@ int main(const int argc, const char* argv[])
 					bug("FL_CAPTURED");
 					if(dashing[col] && dasher[col] != null_guid)
 					{
-//						time_p now = clock_p::now();
 						timespec now;
 						clock_gettime(CLOCK_REALTIME, &now);
-//						auto diff = clock_p::now() - dash[col];
+
 						timespec diff;
 						diff.tv_sec = now.tv_sec - dash[col].tv_sec;
 						diff.tv_nsec = now.tv_nsec - dash[col].tv_nsec;
@@ -962,8 +974,6 @@ int main(const int argc, const char* argv[])
 							diff.tv_nsec += 1000000000;
 							--diff.tv_sec;
 						}
-
-//						double sec = double(diff.count() * period_p::num) / period_p::den;
 
 						double sec = diff.tv_sec + (diff.tv_nsec / 1000000000.0);
 
