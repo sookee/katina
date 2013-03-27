@@ -326,7 +326,7 @@ bool aocom(const str& cmd, str_vec& packets, const str& host, int port
 	timeout.tv_nsec = wait * 1000;
 	if(timeout.tv_nsec > 1000000)
 	{
-		timeout.tv_nsec -= 1000000;
+		timeout.tv_nsec -= 1000000000;
 		++timeout.tv_sec;
 	}
 
@@ -959,13 +959,13 @@ int main(const int argc, const char* argv[])
 						diff.tv_nsec = now.tv_nsec - dash[col].tv_nsec;
 						if(diff.tv_nsec < 0)
 						{
-							diff.tv_nsec += 1000000;
+							diff.tv_nsec += 1000000000;
 							--diff.tv_sec;
 						}
 
 //						double sec = double(diff.count() * period_p::num) / period_p::den;
 
-						double sec = diff.tv_sec + (diff.tv_nsec / 1000000);
+						double sec = diff.tv_sec + (diff.tv_nsec / 1000000000.0);
 
 						std::ostringstream oss;
 						oss.precision(2);
