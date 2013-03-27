@@ -988,8 +988,8 @@ int main(const int argc, const char* argv[])
 						else if(sec < rec)
 						{
 							chat(players[clients[num]] + "^3 beat "
-								+ recs["dash." + mapname + ".name"] + "'s "
-								+ recs["dash." + mapname + ".secs"] + " seconds.");
+								+ recs["dash." + mapname + ".name"] + "'^3s ^7"
+								+ recs["dash." + mapname + ".secs"] + " ^3seconds.");
 							recs["dash." + mapname + ".guid"] = to_string(clients[num]);
 							recs["dash." + mapname + ".name"] = players[clients[num]];
 							recs["dash." + mapname + ".secs"] = oss.str();
