@@ -33,28 +33,28 @@ INCLUDES = $(wildcard *.h)
 all: katina
 
 oastats: oastats.o logrep.o str.o types.o
-	g++ -o $@ $< $(OASTATS_FLAGS)
+	$(CXX) -o $@ $< $(OASTATS_FLAGS)
 
 katina: katina.o
-	g++ -o $@ $< $(KATINA_LIBS)
+	$(CXX) -o $@ $< $(KATINA_LIBS)
 	
 katina.o: katina.cpp
-	g++ -c $(KATINA_FLAGS) -o $@ $<
+	$(CXX) -c $(KATINA_FLAGS) -o $@ $<
 
 rcon.o: rcon.cpp rcon.h
-	g++ -c -o $@ $<
+	$(CXX) -c -o $@ $<
 
 logrep.o: logrep.cpp logrep.h types.h stl.h
-	g++ -c -std=c++11 -o $@ $<
+	$(CXX) -c -std=c++11 -o $@ $<
 
 str.o: str.cpp str.h logrep.h types.h stl.h
-	g++ -c -std=c++11 -o $@ $<
+	$(CXX) -c -std=c++11 -o $@ $<
 
 types.o: types.cpp types.h stl.h
-	g++ -c -std=c++11 -o $@ $<
+	$(CXX) -c -std=c++11 -o $@ $<
 
 oastats.o: oastats.cpp str.h logrep.h types.h stl.h
-	g++ -c -std=c++11 $(OASTATS_FLAGS) -o $@ $<
+	$(CXX) -c -std=c++11 $(OASTATS_FLAGS) -o $@ $<
 
 clean:
 	rm -f *.o *.so oastats katina

@@ -593,13 +593,17 @@ class SkivvyClient
 {
 private:
 //	std::mutex mtx;
+	bool active;
 	net::socketstream ss;
 	str host;
 	siz port;
 	str_set chans;
 
 public:
-	SkivvyClient(): host("localhost"), port(7334) {}
+	SkivvyClient(): active(false), host("localhost"), port(7334) {}
+
+	void on() { active = true; }
+	void off() { active = false; }
 
 	void config(const str& host, siz port, const str_set& chans)
 	{
@@ -632,6 +636,9 @@ public:
 	bool send(const str& cmd, str& res)
 	{
 //		lock_guard lock(mtx);
+		if(!active)
+			return true;
+
 		if(!ss.open(host, port))
 		{
 			log("error: " << std::strerror(errno));
@@ -775,6 +782,8 @@ int main(const int argc, const char* argv[])
 		while(iss >> res)
 			chans.insert(res);
 		skivvy.config(recs["skivvy.host"], to<siz>(recs["skivvy.port"]), chans);
+		if(recs["skivvy.active"] == "true")
+			skivvy.on();
 	}
 
 	chat("^3Stats System v^70.1^3-alpha - ^1ONLINE");
