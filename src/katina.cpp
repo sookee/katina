@@ -74,7 +74,9 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <arpa/inet.h>
 #include <netdb.h>
 
-//using namespace oastats;
+#include "socketstream.h"
+
+using namespace oastats;
 //using namespace oastats::types;
 //using namespace oastats::string;
 
@@ -95,6 +97,7 @@ typedef str_vec::const_iterator str_vec_citer;
 
 // sets
 typedef std::set<str> str_set;
+typedef str_set::iterator str_set_iter;
 typedef str_set::const_iterator str_set_citer;
 
 typedef std::multiset<str> str_mset;
@@ -515,6 +518,61 @@ public:
 
 };
 
+const str irc_katina = "08K14at08i14na";
+
+class SkivvyClient
+{
+private:
+//	std::mutex mtx;
+	net::socketstream ss;
+	str host;
+	siz port;
+	str_set chans;
+
+public:
+	SkivvyClient(): host("localhost"), port(7334) {}
+
+	void config(const str& host, siz port, const str_set& chans)
+	{
+//		bug_func();
+//		bug_var(host);
+//		bug_var(port);
+		for(str_set_iter chan = chans.begin(); chan != chans.end(); ++chan)
+			bug("chan: " << *chan);
+		this->host = host;
+		this->port = port;
+		this->chans = chans;
+	}
+
+	bool say(const str& text)
+	{
+		if(!ss.open(host, port))
+		{
+			log("error: " << std::strerror(errno));
+			return false;
+		}
+		str res;
+		bool good = true;
+		for(str_set_iter chan = chans.begin(); chan != chans.end(); ++chan)
+			good = good && send("/say " + *chan + " [" + irc_katina + "] " + text, res);
+		return good;
+	}
+
+	bool send(const str& cmd, str& res)
+	{
+//		lock_guard lock(mtx);
+		if(!ss.open(host, port))
+		{
+			log("error: " << std::strerror(errno));
+			return false;
+		}
+		(ss << cmd).put('\0') << std::flush;
+		return std::getline(ss, res, '\0');
+	}
+};
+
+SkivvyClient skivvy;
+
 void report_clients(const siz_guid_map& clients)
 {
 	for(siz_guid_citer i = clients.begin(); i != clients.end(); ++i)
@@ -630,6 +688,16 @@ int main(const int argc, const char* argv[])
 	}
 
 	RCon rcon(recs["rcon.host"], to<siz>(recs["rcon.port"]), recs["rcon.pass"]);
+
+	{
+		str res; // skivvy result
+		str_set chans; // skivvy channels
+		res = recs["skivvy.chan"];
+		siss iss(res);
+		while(iss >> res)
+			chans.insert(res);
+		skivvy.config(recs["skivvy.host"], to<siz>(recs["skivvy.port"]), chans);
+	}
 
 	rcon.chat("^3Stats system v^70.1^3-alpha - ^1ONLINE");
 
