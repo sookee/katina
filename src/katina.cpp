@@ -163,6 +163,45 @@ typedef std::stringstream sss;
 //typedef clock_p::period period_p;
 //typedef clock_p::time_point time_p;
 
+// -- STRING -------------------------------------------------
+
+/**
+ * Remove leading characters from a std::string.
+ * @param s The std::string to be modified.
+ * @param t The set of characters to delete from the beginning
+ * of the string.
+ * @return The same string passed in as a parameter reference.
+ */
+inline std::string& ltrim(std::string& s, const char* t = " \t\n\r\f\v")
+{
+	s.erase(0, s.find_first_not_of(t));
+	return s;
+}
+
+/**
+ * Remove trailing characters from a std::string.
+ * @param s The std::string to be modified.
+ * @param t The set of characters to delete from the end
+ * of the string.
+ * @return The same string passed in as a parameter reference.
+ */
+inline std::string& rtrim(std::string& s, const char* t = " \t\n\r\f\v")
+{
+	s.erase(s.find_last_not_of(t) + 1);
+	return s;
+}
+
+/**
+ * Remove surrounding characters from a std::string.
+ * @param s The string to be modified.
+ * @param t The set of characters to delete from each end
+ * of the string.
+ * @return The same string passed in as a parameter reference.
+ */
+inline std::string& trim(std::string& s, const char* t = " \t\n\r\f\v")
+{
+	return ltrim(rtrim(s, t), t);
+}
 
 // -- LOGGING ------------------------------------------------
 
@@ -521,6 +560,11 @@ public:
 		this->pass = pass;
 	}
 
+	bool command(const str& cmd, str& reply)
+	{
+		return rcon("rcon " + pass + " " + cmd, reply, host, port);
+	}
+
 	str chat(const str& msg) const
 	{
 		str ret;
@@ -813,6 +857,7 @@ int main(const int argc, const char* argv[])
 	onevone_map onevone; // GUID -> GUID -> <count> //
 	guid_siz_map caps; // GUID -> <count> // TODO: caps container duplicated in stats::caps
 	guid_stat_map stats; // GUID -> <stat>
+	guid_siz_map teams; // GUID -> 'R' | 'B'
 	str mapname; // current map name
 
 	typedef std::map<str, time_t> str_utime_map; // GUID -> time
@@ -900,6 +945,31 @@ int main(const int argc, const char* argv[])
 					if(stats[clients[num]].first_seen)
 						stats[clients[num]].logged_time += std::time(0) - stats[clients[num]].first_seen;
 					stats[clients[num]].first_seen = time + secs;
+
+					teams[clients[num]] = 'U'; // unknown
+
+					str reply;
+					server.command("!listplayers", reply); // TODO:
+					trim(reply);
+					// !listplayers: 4 players connected:
+					//  1 R 0   Unknown Player (*)   Major
+					//  2 B 0   Unknown Player (*)   Tony
+					//  4 B 0   Unknown Player (*)   Sorceress
+					//  5 R 0   Unknown Player (*)   Sergei
+					if(!reply.empty())
+					{
+						siz n;
+						char team;
+						siss iss(reply);
+						str line;
+						std::getline(iss, line); // skip command
+						while(std::getline(iss,line))
+						{
+							siss iss(line);
+							if(iss >> n >> team)
+								teams[clients[n]] = team;
+						}
+					}
 				}
 			}
 			else if(cmd == "Kill:")
@@ -951,6 +1021,12 @@ int main(const int argc, const char* argv[])
 
 				--col; // make 0-1 for array index
 				siz ncol = col ? 0 : 1;
+
+				str nums_team = "^7[^2U^7]"; // unknown team
+				if(teams[clients[num]] == 'R')
+					nums_team = "^7[^1R^7]";
+				else if(teams[clients[num]] == 'B')
+					nums_team = "^7[^4B^7]";
 
 				bug("inc stats");
 				++stats[clients[num]].flags[act];
@@ -1013,7 +1089,7 @@ int main(const int argc, const char* argv[])
 					server.cp(msg);
 					skivvy.chat(msg);
 
-					skivvy.chat("^1RED^3: ^7" + to_string(flags[FL_RED]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_BLUE]));
+					skivvy.chat("^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED]));
 				}
 				else if(act == FL_TAKEN)
 				{
@@ -1023,7 +1099,7 @@ int main(const int argc, const char* argv[])
 						clock_gettime(CLOCK_REALTIME, &dash[col]);
 					}
 					dasher[col] = clients[num];
-					skivvy.chat(players[clients[num]] + "^3 has taken the " + flag[col] + " ^3flag!");
+					skivvy.chat(nums_team + " ^7" + players[clients[num]] + "^3 has taken the " + flag[col] + " ^3flag!");
 				}
 				else if(act == FL_DROPPED)
 				{
@@ -1031,7 +1107,7 @@ int main(const int argc, const char* argv[])
 //					rcon.chat("^1DEBUG:^3 End dash & disable dashing for the " + flag[ncol] + "^3 flag.");
 					dasher[ncol] = null_guid;; // end a dash
 					dashing[ncol] = false; // no more dashes until return, capture or suicide
-					skivvy.chat(players[clients[num]] + "^3 has dropped the " + flag[col] + " ^3flag!");
+					skivvy.chat(nums_team + " ^7" + players[clients[num]] + "^3 has dropped the " + flag[col] + " ^3flag!");
 				}
 				else if(act == FL_RETURNED)
 				{
@@ -1039,7 +1115,7 @@ int main(const int argc, const char* argv[])
 //					rcon.chat("^1DEBUG:^3 (Re)enable dashing for the " + flag[col] + "^3 flag.");
 					dasher[col] = null_guid;; // end a dash
 					dashing[col] = true; // new dash now possible
-					skivvy.chat(players[clients[num]] + "^3 has returned the " + flag[col] + " ^3flag!");
+					skivvy.chat(nums_team + " ^7" + players[clients[num]] + "^3 has returned the " + flag[col] + " ^3flag!");
 				}
 			}
 			else if(cmd == "Award:")
