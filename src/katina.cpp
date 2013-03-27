@@ -372,8 +372,8 @@ bool aocom(const str& cmd, str_vec& packets, const str& host, int port
 //	st_time_point timeout = st_clk::now() + std::chrono::milliseconds(wait);
 	timespec timeout;
 	clock_gettime(CLOCK_REALTIME, &timeout);
-	timeout.tv_nsec = wait * 1000;
-	if(timeout.tv_nsec > 1000000)
+	timeout.tv_nsec = wait * 1000000;
+	if(timeout.tv_nsec > 1000000000)
 	{
 		timeout.tv_nsec -= 1000000000;
 		++timeout.tv_sec;
