@@ -372,7 +372,7 @@ bool aocom(const str& cmd, str_vec& packets, const str& host, int port
 //	st_time_point timeout = st_clk::now() + std::chrono::milliseconds(wait);
 	timespec timeout;
 	clock_gettime(CLOCK_REALTIME, &timeout);
-	timeout.tv_nsec = wait * 1000000;
+	timeout.tv_nsec += wait * 1000000;
 	if(timeout.tv_nsec > 1000000000)
 	{
 		timeout.tv_nsec -= 1000000000;
@@ -945,7 +945,7 @@ int main(const int argc, const char* argv[])
 					str guid = line.substr(pos + 3, 32);
 					bug("guid: " << guid);
 					if(guid.size() != 32)
-						clients[num] = null_guid;//bot_guid(num);//null_guid;
+						clients[num] = bot_guid(num);//null_guid;
 					else
 						clients[num] = to<GUID>(guid);
 					players[clients[num]] = name;
