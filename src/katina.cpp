@@ -948,33 +948,41 @@ int main(const int argc, const char* argv[])
 						clients[num] = bot_guid(num);//null_guid;
 					else
 						clients[num] = to<GUID>(guid);
+
+					bug("clients[num]: " << clients[num]);
+
 					players[clients[num]] = name;
+
+					bug("players[clients[num]]: " << players[clients[num]]);
+
 					if(stats[clients[num]].first_seen)
 						stats[clients[num]].logged_time += std::time(0) - stats[clients[num]].first_seen;
 					stats[clients[num]].first_seen = time + secs;
 
-					//teams[clients[num]] = 'U'; // unknown
+					teams[clients[num]] = 'X'; // unknown
 
 					str reply;
-					server.command("!listplayers", reply); // TODO:
-					trim(reply);
-					// !listplayers: 4 players connected:
-					//  1 R 0   Unknown Player (*)   Major
-					//  2 B 0   Unknown Player (*)   Tony
-					//  4 B 0   Unknown Player (*)   Sorceress
-					//  5 R 0   Unknown Player (*)   Sergei
-					if(!reply.empty())
+					if(server.command("!listplayers", reply))
 					{
-						siz n;
-						char team;
-						siss iss(reply);
-						str line;
-						std::getline(iss, line); // skip command
-						while(std::getline(iss,line))
+						trim(reply);
+						// !listplayers: 4 players connected:
+						//  1 R 0   Unknown Player (*)   Major
+						//  2 B 0   Unknown Player (*)   Tony
+						//  4 B 0   Unknown Player (*)   Sorceress
+						//  5 R 0   Unknown Player (*)   Sergei
+						if(!reply.empty())
 						{
-							siss iss(line);
-							if(iss >> n >> team && n == num)
-								teams[clients[n]] = team;
+							siz n;
+							char team;
+							siss iss(reply);
+							str line;
+							std::getline(iss, line); // skip command
+							while(std::getline(iss,line))
+							{
+								siss iss(line);
+								if(iss >> n >> team && n == num)
+									teams[clients[n]] = team;
+							}
 						}
 					}
 				}
