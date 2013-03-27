@@ -587,7 +587,7 @@ str oa_to_IRC(const str& msg)
 	return oa_to_IRC(msg.c_str());
 }
 
-const str irc_katina = "08K00at08i00na";
+const str irc_katina = "04K00at08i00na";
 
 class SkivvyClient
 {
