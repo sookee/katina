@@ -700,6 +700,7 @@ int main(const int argc, const char* argv[])
 	}
 
 	rcon.chat("^3Stats system v^70.1^3-alpha - ^1ONLINE");
+	skivvy.say("08Stats system v000.108-alpha - 04ONLINE");
 
 	std::time_t time = 0;
 	char c;
