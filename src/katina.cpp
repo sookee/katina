@@ -536,13 +536,13 @@ public:
 const int oatoirctab[8] =
 {
 	1 // "black"
-	, 5 // "red"
+	, 4 // "red"
 	, 3 // "lime"
 	, 8 // "yellow"
 	, 2 // "blue"
 	, 12 // "cyan"
 	, 6 // "magenta"
-	, 1 // "white"
+	, 0 // "white"
 };
 
 const str IRC_BOLD = "";
@@ -587,7 +587,7 @@ str oa_to_IRC(const str& msg)
 	return oa_to_IRC(msg.c_str());
 }
 
-const str irc_katina = "08K14at08i14na";
+const str irc_katina = "08K00at08i00na";
 
 class SkivvyClient
 {
