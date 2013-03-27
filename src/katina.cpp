@@ -526,6 +526,68 @@ public:
 
 };
 
+// -- IRC --------------------------------------------------------------
+
+#define ColorIndex(c)	( ( (c) - '0' ) & 7 )
+#define Q_COLOR_ESCAPE	'^'
+#define Q_IsColorString(p)	( p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && isalnum(*((p)+1)) ) // ^[0-9a-zA-Z]
+#define Q_IsSpecialChar(c) ((c) && ((c) < 32))
+
+const int oatoirctab[8] =
+{
+	1 // "black"
+	, 5 // "red"
+	, 3 // "lime"
+	, 8 // "yellow"
+	, 2 // "blue"
+	, 12 // "cyan"
+	, 6 // "magenta"
+	, 1 // "white"
+};
+
+const str IRC_BOLD = "";
+const str IRC_NORMAL = "";
+const str IRC_COLOR = "";
+
+str oa_to_IRC(const char* msg)
+{
+	std::ostringstream oss;
+
+	oss << IRC_BOLD;
+
+	while(*msg)
+	{
+		if(Q_IsColorString(msg))
+		{
+			oss << IRC_NORMAL;
+			siz code = (*(msg + 1)) % 8;
+			oss << IRC_COLOR << (oatoirctab[code] < 10 ? "0" : "") << oatoirctab[code];
+			msg += 2;
+		}
+		else if(Q_IsSpecialChar(*msg))
+		{
+			oss << "#";
+			msg++;
+		}
+		else
+		{
+
+			oss << *msg;
+			msg++;
+		}
+	}
+
+	oss << IRC_NORMAL;
+
+	return oss.str();
+}
+
+str oa_to_IRC(const str& msg)
+{
+	return oa_to_IRC(msg.c_str());
+}
+
+
 const str irc_katina = "08K14at08i14na";
 
 class SkivvyClient
@@ -587,7 +649,7 @@ SkivvyClient skivvy;
 void chat(const str& msg)
 {
 	server.chat(msg);
-	skivvy.chat(msg);
+	skivvy.chat(oa_to_IRC(msg));
 }
 
 void report_clients(const siz_guid_map& clients)
@@ -700,7 +762,7 @@ int main(const int argc, const char* argv[])
 
 	if(!is)
 	{
-		std::cout << "Input error: " << '\n';
+		log("Input error:");
 		return -2;
 	}
 
@@ -716,8 +778,7 @@ int main(const int argc, const char* argv[])
 		skivvy.config(recs["skivvy.host"], to<siz>(recs["skivvy.port"]), chans);
 	}
 
-	server.chat("^3Stats System v^70.1^3-alpha - ^1ONLINE");
-	skivvy.chat("08Stats System v000.108-alpha - 04ONLINE");
+	chat("^3Stats System v^70.1^3-alpha - ^1ONLINE");
 
 	std::time_t time = 0;
 	char c;
