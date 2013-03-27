@@ -973,7 +973,7 @@ int main(const int argc, const char* argv[])
 						while(std::getline(iss,line))
 						{
 							siss iss(line);
-							if(iss >> n >> team)
+							if(iss >> n >> team && n == num)
 								teams[clients[n]] = team;
 						}
 					}
