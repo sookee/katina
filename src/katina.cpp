@@ -501,7 +501,15 @@ private:
 	str pass;
 
 public:
+	RCon() {}
 	RCon(const str& host, siz port, const str& pass): host(host), port(port), pass(pass) {}
+
+	void config(const str& host, siz port, const str& pass)
+	{
+		this->host = host;
+		this->port = port;
+		this->pass = pass;
+	}
 
 	str chat(const str& msg) const
 	{
@@ -558,6 +566,8 @@ public:
 		return good;
 	}
 
+	bool chat(const str& text) { return say(text); }
+
 	bool send(const str& cmd, str& res)
 	{
 //		lock_guard lock(mtx);
@@ -571,7 +581,14 @@ public:
 	}
 };
 
+RCon server;
 SkivvyClient skivvy;
+
+void chat(const str& msg)
+{
+	server.chat(msg);
+	skivvy.chat(msg);
+}
 
 void report_clients(const siz_guid_map& clients)
 {
@@ -600,7 +617,7 @@ typedef std::multimap<siz, GUID> siz_guid_mmap;
 typedef std::pair<const siz, GUID> siz_guid_pair;
 typedef siz_guid_mmap::reverse_iterator siz_guid_mmap_ritr;
 
-void report_caps(const RCon& rcon, const guid_siz_map& caps, const guid_str_map& players)
+void report_caps(const guid_siz_map& caps, const guid_str_map& players)
 {
 	siz_guid_mmap sorted;
 	for(guid_siz_citer c = caps.begin(); c != caps.end(); ++c)
@@ -624,10 +641,10 @@ void report_caps(const RCon& rcon, const guid_siz_map& caps, const guid_str_map&
 			max = oss.str().size();
 	}
 
-	rcon.chat("^5== ^6RESULTS ^5" + str(max - 23, '='));
+	chat("^5== ^6RESULTS ^5" + str(max - 23, '='));
 	for(siz i = 0; i < results.size(); ++i)
-		rcon.chat(results[i]);
-	rcon.chat("^5" + str(max - 12, '-'));
+		chat(results[i]);
+	chat("^5" + str(max - 12, '-'));
 }
 
 siz map_get(const siz_map& m, siz key)
@@ -687,7 +704,7 @@ int main(const int argc, const char* argv[])
 		return -2;
 	}
 
-	RCon rcon(recs["rcon.host"], to<siz>(recs["rcon.port"]), recs["rcon.pass"]);
+	server.config(recs["rcon.host"], to<siz>(recs["rcon.port"]), recs["rcon.pass"]);
 
 	{
 		str res; // skivvy result
@@ -699,8 +716,8 @@ int main(const int argc, const char* argv[])
 		skivvy.config(recs["skivvy.host"], to<siz>(recs["skivvy.port"]), chans);
 	}
 
-	rcon.chat("^3Stats system v^70.1^3-alpha - ^1ONLINE");
-	skivvy.say("08Stats system v000.108-alpha - 04ONLINE");
+	server.chat("^3Stats System v^70.1^3-alpha - ^1ONLINE");
+	skivvy.chat("08Stats System v000.108-alpha - 04ONLINE");
 
 	std::time_t time = 0;
 	char c;
@@ -748,13 +765,13 @@ int main(const int argc, const char* argv[])
 		{
 			if(cmd == "Exit:")
 			{
-				rcon.chat("^3Exit:");
+				chat("^3Exit:");
 				in_game = false;
 
 				try
 				{
 					if(!caps.empty())
-						report_caps(rcon, caps, players);
+						report_caps(caps, players);
 
 					// report
 					con("Report:");
@@ -774,7 +791,7 @@ int main(const int argc, const char* argv[])
 			}
 			else if(cmd == "ShutdownGame:")
 			{
-				rcon.chat("^ShutdownGame:");
+				chat("^ShutdownGame:");
 				in_game = false;
 			}
 			else if(cmd == "Warmup:")
@@ -884,7 +901,7 @@ int main(const int argc, const char* argv[])
 						std::ostringstream oss;
 						oss.precision(2);
 						oss << std::fixed << sec;
-						rcon.chat(players[clients[num]] + "^3 took ^7" + oss.str()
+						chat(players[clients[num]] + "^3 took ^7" + oss.str()
 							+ "^3 seconds to capture the " + flag[col] + "^3 flag.");
 
 						double rec = to<double>(recs["dash." + mapname + ".secs"]);
@@ -893,7 +910,7 @@ int main(const int argc, const char* argv[])
 
 						if(rec < 0.5)
 						{
-							rcon.chat(players[clients[num]] + "^3 has set the record for this map.");
+							chat(players[clients[num]] + "^3 has set the record for this map.");
 							recs["dash." + mapname + ".guid"] = to_string(clients[num]);
 							recs["dash." + mapname + ".name"] = players[clients[num]];
 							recs["dash." + mapname + ".secs"] = oss.str();
@@ -901,7 +918,7 @@ int main(const int argc, const char* argv[])
 						}
 						else if(sec < rec)
 						{
-							rcon.chat(players[clients[num]] + "^3 beat "
+							chat(players[clients[num]] + "^3 beat "
 								+ recs["dash." + mapname + ".name"] + "'s "
 								+ recs["dash." + mapname + ".secs"] + " seconds.");
 							recs["dash." + mapname + ".guid"] = to_string(clients[num]);
@@ -915,7 +932,10 @@ int main(const int argc, const char* argv[])
 					dashing[col] = true; // new dash now possible
 					++flags[col];
 					++caps[clients[num]];
-					rcon.cp(players[clients[num]] + "^3 has ^7" + to_string(caps[clients[num]]) + "^3 flag" + (caps[clients[num]]==1?"":"s") + "!");
+
+					str msg = players[clients[num]] + "^3 has ^7" + to_string(caps[clients[num]]) + "^3 flag" + (caps[clients[num]]==1?"":"s") + "!";
+					server.cp(msg);
+					skivvy.chat(msg);
 				}
 				else if(act == FL_TAKEN)
 				{
@@ -959,7 +979,7 @@ int main(const int argc, const char* argv[])
 		{
 			if(cmd == "InitGame:")
 			{
-				rcon.chat("^3InitGame:");
+				chat("^3InitGame:");
 
 				time = std::time(0);
 				in_game = true;
@@ -976,7 +996,9 @@ int main(const int argc, const char* argv[])
 				dashing[FL_RED] = true;
 				dashing[FL_BLUE] = true;
 
-				rcon.cp("^1K^7at^3i^7na ^3Stats system v^70.1^3-alpha.");
+				str msg = "^1K^7at^3i^7na ^3Stats system v^70.1^3-alpha.";
+				server.cp(msg);
+				skivvy.chat(msg);
 
 				siz pos;
 				if((pos = line.find("mapname\\")) != str::npos)
@@ -1009,7 +1031,7 @@ int main(const int argc, const char* argv[])
 					{
 						bug("mapname: " << mapname);
 
-						rcon.chat("^3MAP RECORD: ^7"
+						chat("^3MAP RECORD: ^7"
 							+ recs["dash." + mapname + ".secs"]
 							+ "^3 set by ^7" + recs["dash." + mapname + ".name"]);
 					}
