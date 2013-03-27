@@ -258,12 +258,10 @@ sis& operator>>(sis& is, GUID& guid)
 
 const GUID null_guid = "0000000000000000";
 
-GUID bot_guid()
+GUID bot_guid(siz num)
 {
-	static siz count = 0;
-	++count;
 	soss oss;
-	oss << count;
+	oss << num;
 	str id = oss.str();
 	if(id.size() < 16)
 		id = str(16 - id.size(), '0') + id;
@@ -896,7 +894,7 @@ int main(const int argc, const char* argv[])
 					str guid = line.substr(pos + 3, 32);
 					bug("guid: " << guid);
 					if(guid.size() != 32)
-						clients[num] = bot_guid();//null_guid;
+						clients[num] = bot_guid(num);//null_guid;
 					else
 						clients[num] = to<GUID>(guid);
 					players[clients[num]] = name;
