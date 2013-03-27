@@ -29,38 +29,28 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 '-----------------------------------------------------------------*/
 
-#include "logrep.h"
-#include "str.h"
-#include "types.h"
-#include "rcon.h"
+//#include "logrep.h"
+//#include "str.h"
+//#include "types.h"
+//#include "rcon.h"
 #include "codes.h"
 
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <thread>
+//#include <thread>
 #include <exception>
 #include <stdexcept>
 
 #include <map>
-#include <array>
+//#include <array>
 
 #include <ctime>
 
-#include <chrono>
+//#include <chrono>
 
-using namespace oastats;
-using namespace oastats::types;
-using namespace oastats::string;
-
-typedef st_clk clock_p;
-typedef clock_p::period period_p;
-typedef clock_p::time_point time_p;
-
-
-// Console output
-#define con(m) do{std::cout << m << std::endl;}while(false)
-
+#include <sys/time.h>
+#include <pthread.h>
 
 // STACK TRACE
 #include <cstdio>
@@ -70,6 +60,363 @@ typedef clock_p::time_point time_p;
 
 #include <sys/resource.h>
 #include <cassert>
+
+#include <vector>
+#include <map>
+#include <set>
+
+// rcon
+#include <cerrno>
+#include <cstring>
+#include <sys/socket.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+
+//using namespace oastats;
+//using namespace oastats::types;
+//using namespace oastats::string;
+
+//-- TYPES ---------------------------------------------
+
+typedef std::size_t siz;
+
+typedef std::string str;
+typedef str::iterator str_iter;
+typedef str::const_iterator str_citer;
+
+typedef std::vector<int> int_vec;
+typedef std::vector<siz> siz_vec;
+
+typedef std::vector<str> str_vec;
+typedef str_vec::iterator str_vec_iter;
+typedef str_vec::const_iterator str_vec_citer;
+
+// sets
+typedef std::set<str> str_set;
+typedef str_set::const_iterator str_set_citer;
+
+typedef std::multiset<str> str_mset;
+
+// maps
+typedef std::map<str, str> str_map;
+typedef str_map::iterator str_map_iter;
+typedef str_map::const_iterator str_map_citer;
+
+typedef std::pair<const str, str> str_map_pair;
+
+typedef std::map<siz, siz> siz_map;
+typedef siz_map::iterator siz_map_iter;
+typedef siz_map::const_iterator siz_map_citer;
+typedef std::pair<const siz, siz> siz_map_pair;
+
+typedef std::map<str, siz> str_siz_map;
+typedef str_siz_map::iterator str_siz_map_iter;
+typedef str_siz_map::const_iterator str_siz_map_citer;
+typedef std::pair<const str, siz> str_siz_map_pair;
+
+typedef std::map<siz, str> siz_str_map;
+typedef siz_str_map::iterator siz_str_map_iter;
+typedef siz_str_map::const_iterator siz_str_map_citer;
+typedef std::pair<const siz, str> siz_str_map_pair;
+
+typedef std::map<str, time_t> str_time_map;
+typedef str_time_map::iterator str_time_map_iter;
+typedef str_time_map::const_iterator str_time_map_citer;
+typedef std::pair<const str, time_t> str_time_map_pair;
+
+typedef std::map<str, str_set> str_set_map;
+typedef str_set_map::iterator str_set_map_iter;
+typedef str_set_map::const_iterator str_set_map_citer;
+typedef std::pair<const str, str_set> str_set_map_pair;
+
+typedef std::map<const str, str_vec> str_vec_map;
+typedef str_vec_map::iterator str_vec_map_iter;
+typedef str_vec_map::const_iterator str_vec_map_citer;
+typedef std::pair<const str, str_vec> str_vec_map_pair;
+
+typedef std::multimap<str, str> str_mmap;
+typedef str_mmap::iterator str_mmap_iter;
+typedef str_mmap::const_iterator str_mmap_citer;
+
+// streams
+typedef std::istream sis;
+typedef std::ostream sos;
+typedef std::iostream sios;
+
+typedef std::stringstream sss;
+typedef std::istringstream siss;
+typedef std::ostringstream soss;
+
+typedef std::fstream sfs;
+typedef std::ifstream sifs;
+typedef std::ofstream sofs;
+
+typedef std::stringstream sss;
+
+
+//typedef st_clk clock_p;
+//typedef clock_p::period period_p;
+//typedef clock_p::time_point time_p;
+
+
+// -- LOGGING ------------------------------------------------
+
+str get_stamp()
+{
+	time_t rawtime = std::time(0);
+	tm* timeinfo = std::localtime(&rawtime);
+	char buffer[32];
+	std::strftime(buffer, 32, "%Y-%m-%d %H:%M:%S", timeinfo);
+
+	return str(buffer);
+}
+
+#ifndef DEBUG
+#define bug(m)
+#else
+#define bug(m) do{std::cout << m << std::endl;}while(false)
+#endif
+#define con(m) do{std::cout << m << std::endl;}while(false)
+#define log(m) do{std::cout << get_stamp() << ": " << m << std::endl;}while(false)
+
+template<typename T, siz SIZE>
+struct array
+{
+	T data[SIZE];
+
+	array()
+	{
+		for(siz i = 0; i < SIZE; ++i)
+			this->data[i] = '0';
+	}
+
+	array(const char data[SIZE])
+	{
+		for(siz i = 0; i < SIZE; ++i)
+			this->data[i] = data[i];
+	}
+
+	array(const array<T, SIZE>& a)
+	{
+		for(siz i = 0; i < SIZE; ++i)
+			this->data[i] = a.data[i];
+	}
+
+	const array& operator=(const array<T, SIZE>& a)
+	{
+		for(siz i = 0; i < SIZE; ++i)
+			this->data[i] = a.data[i];
+		return *this;
+	}
+
+	bool operator==(const array<T, SIZE>& a) const
+	{
+		for(siz i = 0; i < SIZE; ++i)
+			if(this->data[i] != a.data[i])
+				return false;
+		return true;
+	}
+
+	bool operator!=(const array<T, SIZE>& a) const
+	{
+		return !(*this == a);
+	}
+
+	bool operator<(const array<T, SIZE>& a) const
+	{
+		for(siz i = 0; i < SIZE; ++i)
+			if(this->data[i] < a.data[i])
+				return true;
+		return false;
+	}
+
+	T& operator[](siz i) { return data[i]; }
+	const T& operator[](siz i) const { return data[i]; }
+	siz size() const { return SIZE; }
+};
+
+typedef array<char, 16> GUID;
+
+sos& operator<<(sos& os, const GUID& guid)
+{
+	for(siz i = 0; i < guid.size(); ++i)
+		os << guid[i];
+	return os;
+}
+
+sis& operator>>(sis& is, GUID& guid)
+{
+	for(siz i = 0; i < guid.size(); ++i)
+		is.get(guid[i]);
+	return is;
+}
+
+const GUID null_guid = "0000000000000000";
+
+void delay(siz msecs)
+{
+//	std::this_thread::sleep_for(std::chrono::milliseconds(msecs));
+	timespec requested_time;
+	timespec remaining;
+	requested_time.tv_sec = 0;
+	requested_time.tv_nsec = msecs * 1000;
+	while(true)
+	{
+		if(!nanosleep(&requested_time, &remaining))
+			break;
+		if(!remaining.tv_nsec)
+			break;
+		requested_time.tv_nsec = remaining.tv_nsec;
+	}
+}
+
+template<typename T>
+str to_string(const T& t)
+{
+	soss oss;
+	oss << t;
+	return oss.str();
+}
+
+template<typename T>
+T to(const str& s)
+{
+	T t;
+	siss iss(s);
+	iss >> t;
+	return t;
+}
+
+// -- RCON ----------------------------------------------
+
+#define TIMEOUT 1000
+
+/**
+ * IPv4 IPv6 agnostic OOB (out Of Band) comms
+ * @param cmd
+ * @param packets Returned packets
+ * @param host Host to connect to
+ * @param port Port to connect on
+ * @param wait Timeout duration in milliseconds
+ * @return false if failed to connect/send or receive else true
+ */
+bool aocom(const str& cmd, str_vec& packets, const str& host, int port
+	, siz wait = TIMEOUT)
+{
+	addrinfo hints;
+	memset(&hints, 0, sizeof hints);
+	hints.ai_family = AF_UNSPEC; // AF_INET or AF_INET6
+	hints.ai_socktype = SOCK_DGRAM;
+
+	addrinfo* res;
+	if(int status = getaddrinfo(host.c_str(), to_string(port).c_str(), &hints, &res) != 0)
+	{
+		log(gai_strerror(status));
+		return false;
+	}
+
+//	st_time_point timeout = st_clk::now() + std::chrono::milliseconds(wait);
+	timespec timeout;
+	clock_gettime(CLOCK_REALTIME, &timeout);
+	timeout.tv_nsec = wait * 1000;
+	if(timeout.tv_nsec > 1000000)
+	{
+		timeout.tv_nsec -= 1000000;
+		++timeout.tv_sec;
+	}
+
+	// try to connect to each
+	int cs;
+	addrinfo* p;
+	for(p = res; p; p = p->ai_next)
+	{
+		if((cs = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1)
+			continue;
+		if(!connect(cs, p->ai_addr, p->ai_addrlen))
+			break;
+		::close(cs);
+	}
+
+	freeaddrinfo(res);
+
+	if(!p)
+	{
+		log("aocom: failed to connect: " << host << ":" << port);
+		return false;
+	}
+
+	// cs good
+
+	const str msg = "\xFF\xFF\xFF\xFF" + cmd;
+
+	int n = 0;
+	if((n = send(cs, msg.c_str(), msg.size(), 0)) < 0 || n < (int)msg.size())
+	{
+		log("cs send: " << strerror(errno));
+		return false;
+	}
+
+	packets.clear();
+
+	char buf[2048];
+
+	n = sizeof(buf);
+	while(n == sizeof(buf))
+	{
+		while((n = recv(cs, buf, sizeof(buf), MSG_DONTWAIT)) ==  -1 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR))
+		{
+			timespec now;
+			clock_gettime(CLOCK_REALTIME, &now);
+			if(now.tv_sec > timeout.tv_sec || now.tv_nsec > timeout.tv_nsec)
+			{
+				log("socket timed out connecting to: " << host << ":" << port);
+				return false;
+			}
+//			std::this_thread::yield();
+//			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			delay(10);
+		}
+		if(n < 0)
+			log("cs recv: " << strerror(errno));
+		if(n > 0)
+			packets.push_back(str(buf, n));
+	}
+
+	close(cs);
+
+	return true;
+}
+
+bool rcon(const str& cmd, str& reply, const str& host, int port)
+{
+	str_vec packets;
+	if(!aocom(cmd, packets, host, port, TIMEOUT))
+		return false;
+
+	const str header = "\xFF\xFF\xFF\xFFprint\x0A";
+
+	if(packets.empty())
+	{
+		log("Empty response.");
+		return false;
+	}
+
+	reply.clear();
+	for(str_vec_iter packet = packets.begin(); packet != packets.end(); ++packet)
+	{
+		if(packet->find(header) != 0)
+		{
+			log("Unrecognised response.");
+			return false;
+		}
+
+		reply.append(packet->substr(header.size()));
+	}
+
+	return true;
+}
 
 struct stats
 {
@@ -90,52 +437,30 @@ bool usage()
 	return -1;
 }
 
-typedef std::array<char, 16> GUID;
-
-sos& operator<<(sos& os, const GUID& guid)
-{
-	for(char c: guid)
-		os << c;
-	return os;
-}
-
-sos& operator<<(sos&& os, const GUID& guid)
-{
-	return os << guid;
-}
-
-sis& operator>>(sis& is, GUID& guid)
-{
-	for(char& c: guid)
-		is.get(c);
-	return is;
-}
-
-sis& operator>>(sis&& is, GUID& guid)
-{
-	return is >> guid;
-}
-
-const GUID null_guid = {};
-
 void test()
 {
-	GUID guid;
-//	siss("FD3FED56A7F7FB2A") >> guid;
-	guid = to<GUID>("FD3FED56A7F7FB2A");
+	GUID guid("FD3FED56A7F7FB2A");
 }
 
 typedef std::map<GUID, str> guid_str_map;
 typedef std::pair<const GUID, str> guid_str_pair;
+typedef std::map<GUID, str>::iterator guid_str_iter;
+typedef std::map<GUID, str>::const_iterator guid_str_citer;
 
 typedef std::map<siz, GUID> siz_guid_map;
 typedef std::pair<const siz, GUID> siz_guid_pair;
+typedef std::map<siz, GUID>::iterator siz_guid_iter;
+typedef std::map<siz, GUID>::const_iterator siz_guid_citer;
 
 typedef std::map<GUID, siz> guid_siz_map;
 typedef std::pair<const GUID, siz> guid_siz_pair;
+typedef std::map<GUID, siz>::iterator guid_siz_iter;
+typedef std::map<GUID, siz>::const_iterator guid_siz_citer;
 
 typedef std::map<GUID, stats> guid_stat_map;
 typedef std::pair<const GUID, stats> guid_stat_pair;
+typedef std::map<GUID, stats>::iterator guid_stat_iter;
+typedef std::map<GUID, stats>::const_iterator guid_stat_citer;
 
 void testxxx()
 {
@@ -151,9 +476,13 @@ void testxxx()
 
 typedef std::map<GUID, guid_siz_map> onevone_map;
 typedef std::pair<const GUID, guid_siz_map> onevone_pair;
+typedef std::map<GUID, guid_siz_map>::iterator onevone_iter;
+typedef std::map<GUID, guid_siz_map>::const_iterator onevone_citer;
 
 typedef std::multimap<siz, str> siz_str_mmap;
 typedef siz_str_mmap::reverse_iterator siz_str_mmap_ritr;
+typedef siz_str_mmap::iterator siz_str_mmap_iter;
+typedef siz_str_mmap::const_iterator siz_str_mmap_citer;
 
 //typedef std::pair<const str, siz> str_siz_pair;
 
@@ -174,38 +503,38 @@ public:
 	str chat(const str& msg) const
 	{
 		str ret;
-		net::rcon("rcon " + pass + " chat ^1K^7at^3i^7na^8: ^7" + msg, ret, host, port);
+		rcon("rcon " + pass + " chat ^1K^7at^3i^7na^8: ^7" + msg, ret, host, port);
 		return ret;
 	}
 
 	void cp(const str& msg) const
 	{
 		str ret;
-		net::rcon("rcon " + pass + " cp " + msg, ret, host, port);
+		rcon("rcon " + pass + " cp " + msg, ret, host, port);
 	}
 
 };
 
 void report_clients(const siz_guid_map& clients)
 {
-	for(const siz_guid_pair& c: clients)
-		con("slot: " << c.first << ", " << c.second);
+	for(siz_guid_citer i = clients.begin(); i != clients.end(); ++i)
+		con("slot: " << i->first << ", " << i->second);
 }
 
 void report_players(const guid_str_map& players)
 {
-	for(const guid_str_pair& p: players)
-		con("player: " << p.first << ", " << p.second);
+	for(guid_str_citer i = players.begin(); i != players.end(); ++i)
+		con("player: " << i->first << ", " << i->second);
 }
 
 void report_onevone(const onevone_map& onevone, const guid_str_map& players)
 {
-	for(const onevone_pair& o: onevone)
-		for(const guid_siz_pair& p: o.second)
+	for(onevone_citer o = onevone.begin(); o != onevone.end(); ++o)
+		for(guid_siz_citer p = o->second.begin(); p != o->second.end(); ++p)
 		{
-			str p1 = players.at(o.first);
-			str p2 = players.at(p.first);
-			con("player: " << p1 << " killed " << p2 << " " << p.second << " times.");
+			str p1 = players.at(o->first);
+			str p2 = players.at(p->first);
+			con("player: " << p1 << " killed " << p2 << " " << p->second << " times.");
 		}
 }
 
@@ -216,8 +545,8 @@ typedef siz_guid_mmap::reverse_iterator siz_guid_mmap_ritr;
 void report_caps(const RCon& rcon, const guid_siz_map& caps, const guid_str_map& players)
 {
 	siz_guid_mmap sorted;
-	for(const guid_siz_pair& c: caps)
-		sorted.insert(siz_guid_pair(c.second, c.first));
+	for(guid_siz_citer c = caps.begin(); c != caps.end(); ++c)
+		sorted.insert(siz_guid_pair(c->second, c->first));
 
 	siz i = 0;
 	siz d = 1;
@@ -238,46 +567,41 @@ void report_caps(const RCon& rcon, const guid_siz_map& caps, const guid_str_map&
 	}
 
 	rcon.chat("^5== ^6RESULTS ^5" + str(max - 23, '='));
-	for(const str& s: results)
-		rcon.chat(s);
+	for(siz i = 0; i < results.size(); ++i)
+		rcon.chat(results[i]);
 	rcon.chat("^5" + str(max - 12, '-'));
 }
 
 siz map_get(const siz_map& m, siz key)
 {
-	return m.find(key) == m.cend() ? 0 : m.at(key);
+	return m.find(key) == m.end() ? 0 : m.at(key);
 }
 
 void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 {
-	for(const guid_stat_pair& p: stats)
+	for(guid_stat_citer p = stats.begin(); p != stats.end(); ++p)
 	{
-		const str& player = players.at(p.first);
+		const str& player = players.at(p->first);
 		con("player: " << player);
-		con("\t caps: " << map_get(p.second.flags, FL_CAPTURED));
-		con("\tkills: " << map_get(p.second.kills, MOD_RAILGUN));
-		con("\t defs: " << map_get(p.second.awards, AW_DEFENCE));
-		con("\tgaunt: " << map_get(p.second.awards, AW_GAUNTLET));
+		con("\t caps: " << map_get(p->second.flags, FL_CAPTURED));
+		con("\tkills: " << map_get(p->second.kills, MOD_RAILGUN));
+		con("\t defs: " << map_get(p->second.awards, AW_DEFENCE));
+		con("\tgaunt: " << map_get(p->second.awards, AW_GAUNTLET));
 	}
-}
-
-inline void delay(siz msecs)
-{
-	std::this_thread::sleep_for(std::chrono::milliseconds(msecs));
 }
 
 void save_records(const str_map& recs)
 {
-	std::ofstream ofs(str(getenv("HOME")) + "/.katina/high-scores.txt");
+	std::ofstream ofs((str(getenv("HOME")) + "/.katina/high-scores.txt").c_str());
 
 	str sep;
-	for(const str_pair& r: recs)
-		{ ofs << sep << r.first << ": " << r.second; sep = "\n"; }
+	for(str_map_citer r = recs.begin(); r != recs.end(); ++r)
+		{ ofs << sep << r->first << ": " << r->second; sep = "\n"; }
 }
 
 void load_records(str_map& recs)
 {
-	std::ifstream ifs(str(getenv("HOME")) + "/.katina/high-scores.txt");
+	std::ifstream ifs((str(getenv("HOME")) + "/.katina/high-scores.txt").c_str());
 
 	recs.clear();
 	str key;
@@ -329,7 +653,7 @@ int main(const int argc, const char* argv[])
 	typedef std::map<str, time_t> str_utime_map; // GUID -> time
 	typedef std::pair<const str, time_t> str_utime_pair;
 //	str_utime_map dash[2];
-	time_p dash[2];// = {0, 0}; // time of dash start
+	timespec dash[2];// = {0, 0}; // time of dash start
 	GUID dasher[2]; // who is dashing
 	bool dashing[2] = {true, true}; // flag dash in progress?
 
@@ -427,7 +751,7 @@ int main(const int argc, const char* argv[])
 				if(weap == MOD_SUICIDE)
 				{
 					// 14:22 Kill: 2 2 20: ^1S^2oo^3K^5ee killed ^1S^2oo^3K^5ee by MOD_SUICIDE
-					for(siz i: {0, 1})
+					for(siz i = 0; i < 2; ++i)
 					{
 						if(dasher[i] == clients[num1])
 						{
@@ -472,8 +796,22 @@ int main(const int argc, const char* argv[])
 					if(dashing[col] && dasher[col] != null_guid)
 					{
 //						time_p now = clock_p::now();
-						auto diff = clock_p::now() - dash[col];
-						double sec = double(diff.count() * period_p::num) / period_p::den;
+						timespec now;
+						clock_gettime(CLOCK_REALTIME, &now);
+//						auto diff = clock_p::now() - dash[col];
+						timespec diff;
+						diff.tv_sec = now.tv_sec - dash[col].tv_sec;
+						diff.tv_nsec = now.tv_nsec - dash[col].tv_nsec;
+						if(diff.tv_nsec < 0)
+						{
+							diff.tv_nsec += 1000000;
+							--diff.tv_sec;
+						}
+
+//						double sec = double(diff.count() * period_p::num) / period_p::den;
+
+						double sec = diff.tv_sec + (diff.tv_nsec / 1000000);
+
 						std::ostringstream oss;
 						oss.precision(2);
 						oss << std::fixed << sec;
@@ -487,7 +825,7 @@ int main(const int argc, const char* argv[])
 						if(rec < 0.5)
 						{
 							rcon.chat(players[clients[num]] + "^3 has set the record for this map.");
-							recs["dash." + mapname + ".guid"] = to<str>(clients[num]);
+							recs["dash." + mapname + ".guid"] = to_string(clients[num]);
 							recs["dash." + mapname + ".name"] = players[clients[num]];
 							recs["dash." + mapname + ".secs"] = oss.str();
 							save_records(recs);
@@ -497,7 +835,7 @@ int main(const int argc, const char* argv[])
 							rcon.chat(players[clients[num]] + "^3 beat "
 								+ recs["dash." + mapname + ".name"] + "'s "
 								+ recs["dash." + mapname + ".secs"] + " seconds.");
-							recs["dash." + mapname + ".guid"] = to<str>(clients[num]);
+							recs["dash." + mapname + ".guid"] = to_string(clients[num]);
 							recs["dash." + mapname + ".name"] = players[clients[num]];
 							recs["dash." + mapname + ".secs"] = oss.str();
 							save_records(recs);
@@ -508,7 +846,7 @@ int main(const int argc, const char* argv[])
 					dashing[col] = true; // new dash now possible
 					++flags[col];
 					++caps[clients[num]];
-					rcon.cp(players[clients[num]] + "^3 has ^7" + std::to_string(caps[clients[num]]) + "^3 flag" + (caps[clients[num]]==1?"":"s") + "!");
+					rcon.cp(players[clients[num]] + "^3 has ^7" + to_string(caps[clients[num]]) + "^3 flag" + (caps[clients[num]]==1?"":"s") + "!");
 				}
 				else if(act == FL_TAKEN)
 				{
@@ -516,7 +854,8 @@ int main(const int argc, const char* argv[])
 					if(dashing[col])
 					{
 //						rcon.chat("^1DEBUG:^3 Begin dash with the " + flag[col] + "^3 flag.");
-						dash[col] = clock_p::now();//std::clock();//std::time(0); // begin a dash
+//						dash[col] = clock_p::now();//std::clock();//std::time(0); // begin a dash
+						clock_gettime(CLOCK_REALTIME, &dash[col]);
 					}
 					dasher[col] = clients[num];
 				}

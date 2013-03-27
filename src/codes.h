@@ -70,10 +70,10 @@ enum // WEAPON
 	, MOD_GRAPPLE
 };
 
-template <typename E>
-typename std::underlying_type<E>::type to_underlying(E e)
-{
-    return static_cast<typename std::underlying_type<E>::type>(e);
-}
+//template <typename E>
+//typename std::underlying_type<E>::type to_underlying(E e)
+//{
+//    return static_cast<typename std::underlying_type<E>::type>(e);
+//}
 
 #endif /* _OASTATS_CODES_H_ */

@@ -8,29 +8,52 @@ MYSQL_INCL = -I/usr/include/mysql
 MYSQL_LIBS = -L/usr/lib/mysql -lmysqlclient -lz -lm -lrt -lssl -lcrypto -ldl
 MYSQL_FLAG = 
 
-PCRE_INCL = $(shell pkg-config libpcrecpp --include)
+PCRE_INCL = $(shell pkg-config libpcrecpp --cflags)
 PCRE_LIBS = $(shell pkg-config libpcrecpp --libs)
 
 ALL_INCL = $(MYSQL_INCL) $(PCRE_INCL)
 ALL_LIBS = $(MYSQL_LIBS) $(PCRE_LIBS)
 
+KATINA_FLAGS = $(DEF_FLAGS) $(MYSQL_FLAG) $(ALL_INCL) -pthread
+OASTATS_FLAGS = -std=c++11 $(DEF_FLAGS) $(MYSQL_FLAG) $(ALL_INCL) -pthread
+
+KATINA_LIBS = $(MYSQL_LIBS) $(PCRE_LIBS) -lrt
+OASTATS_LIBS = $(MYSQL_LIBS) $(PCRE_LIBS)
+
 CXX = g++
 CC = g++
-CXXFLAGS = -std=c++11 $(DEF_FLAGS) $(MYSQL_FLAG) $(ALL_INCL) -pthread
-LDFLAGS = $(ALL_LIBS)  -std=c++11 -pthread
+CXXFLAGS = $(ALL_INCL)
+#CXXFLAGS = -std=c++11 $(DEF_FLAGS) $(MYSQL_FLAG) $(ALL_INCL) -pthread
+#LDFLAGS = $(ALL_LIBS) -pthread
 
 INCLUDES = $(wildcard *.h)
 
-all: oastats katina
-
-rcon.o: rcon.h
-logrep.o: logrep.h types.h stl.h
-str.o: str.h logrep.h types.h stl.h
-types.o: types.h stl.h
-oastats.o: str.h logrep.h types.h stl.h
+#all: oastats katina
+all: katina
 
 oastats: oastats.o logrep.o str.o types.o
-katina: katina.o rcon.o logrep.o str.o types.o
+	g++ -o $@ $< $(OASTATS_FLAGS)
+
+katina: katina.o
+	g++ -o $@ $< $(KATINA_LIBS)
+	
+katina.o: katina.cpp
+	g++ -c $(KATINA_FLAGS) -o $@ $<
+
+rcon.o: rcon.cpp rcon.h
+	g++ -c -o $@ $<
+
+logrep.o: logrep.cpp logrep.h types.h stl.h
+	g++ -c -std=c++11 -o $@ $<
+
+str.o: str.cpp str.h logrep.h types.h stl.h
+	g++ -c -std=c++11 -o $@ $<
+
+types.o: types.cpp types.h stl.h
+	g++ -c -std=c++11 -o $@ $<
+
+oastats.o: oastats.cpp str.h logrep.h types.h stl.h
+	g++ -c -std=c++11 $(OASTATS_FLAGS) -o $@ $<
 
 clean:
 	rm -f *.o *.so oastats katina

@@ -69,21 +69,44 @@ typedef std::multiset<str> str_mset;
 
 // maps
 typedef std::map<str, str> str_map;
-typedef std::pair<const str, str> str_pair;
+typedef str_map::iterator str_map_iter;
+typedef str_map::const_iterator str_map_citer;
+
+typedef std::pair<const str, str> str_map_pair;
+
 typedef std::map<siz, siz> siz_map;
-typedef std::pair<const siz, siz> siz_pair;
+typedef siz_map::iterator siz_map_iter;
+typedef siz_map::const_iterator siz_map_citer;
+typedef std::pair<const siz, siz> siz_map_pair;
+
 typedef std::map<str, siz> str_siz_map;
-typedef std::pair<const str, siz> str_siz_pair;
+typedef str_siz_map::iterator str_siz_map_iter;
+typedef str_siz_map::const_iterator str_siz_map_citer;
+typedef std::pair<const str, siz> str_siz_map_pair;
+
 typedef std::map<siz, str> siz_str_map;
-typedef std::pair<const siz, str> siz_str_pair;
+typedef siz_str_map::iterator siz_str_map_iter;
+typedef siz_str_map::const_iterator siz_str_map_citer;
+typedef std::pair<const siz, str> siz_str_map_pair;
+
 typedef std::map<str, time_t> str_time_map;
-typedef std::pair<const str, time_t> str_time_pair;
+typedef str_time_map::iterator str_time_map_iter;
+typedef str_time_map::const_iterator str_time_map_citer;
+typedef std::pair<const str, time_t> str_time_map_pair;
+
 typedef std::map<str, str_set> str_set_map;
-typedef std::pair<const str, str_set> str_set_pair;
+typedef str_set_map::iterator str_set_map_iter;
+typedef str_set_map::const_iterator str_set_map_citer;
+typedef std::pair<const str, str_set> str_set_map_pair;
+
 typedef std::map<const str, str_vec> str_vec_map;
-typedef std::pair<const str, str_vec> str_vec_pair;
+typedef str_vec_map::iterator str_vec_map_iter;
+typedef str_vec_map::const_iterator str_vec_map_citer;
+typedef std::pair<const str, str_vec> str_vec_map_pair;
 
 typedef std::multimap<str, str> str_mmap;
+typedef str_mmap::iterator str_mmap_iter;
+typedef str_mmap::const_iterator str_mmap_citer;
 
 // queues
 typedef std::deque<str> str_deq;
