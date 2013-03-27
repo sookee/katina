@@ -885,6 +885,7 @@ int main(const int argc, const char* argv[])
 		iss >> m >> c >> s >> cmd;
 		secs = (m * 60) + s;
 		bug("cmd: " << cmd);
+		bug("in_game: " << in_game);
 		if(in_game)
 		{
 			if(cmd == "Exit:")
@@ -1197,7 +1198,6 @@ int main(const int argc, const char* argv[])
 							+ recs["dash." + mapname + ".secs"]
 							+ "^3 set by ^7" + recs["dash." + mapname + ".name"]);
 					}
-
 				}
 			}
 		}
