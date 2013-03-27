@@ -587,7 +587,6 @@ str oa_to_IRC(const str& msg)
 	return oa_to_IRC(msg.c_str());
 }
 
-
 const str irc_katina = "08K14at08i14na";
 
 class SkivvyClient
@@ -628,7 +627,7 @@ public:
 		return good;
 	}
 
-	bool chat(const str& text) { return say(text); }
+	bool chat(const str& text) { return say(oa_to_IRC(text)); }
 
 	bool send(const str& cmd, str& res)
 	{
@@ -649,7 +648,7 @@ SkivvyClient skivvy;
 void chat(const str& msg)
 {
 	server.chat(msg);
-	skivvy.chat(oa_to_IRC(msg));
+	skivvy.chat(msg);
 }
 
 void report_clients(const siz_guid_map& clients)
