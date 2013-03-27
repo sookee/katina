@@ -924,6 +924,7 @@ int main(const int argc, const char* argv[])
 			}
 			else if(cmd == "ClientUserinfoChanged:")
 			{
+				bug("ClientUserinfoChanged:");
 				//do_rcon("^3ClientUserinfoChanged:");
 				// 0:23 ClientUserinfoChanged: 2 n\^1S^2oo^3K^5ee\t\2\model\ayumi/red\hmodel\ayumi/red\g_redteam\\g_blueteam\\c1\1\c2\1\hc\100\w\0\l\0\tt\0\tl\1\id\1A7C66BACBA16F0C9068D8B82C1D55DE
 				siz num;
@@ -932,6 +933,11 @@ int main(const int argc, const char* argv[])
 					std::cout << "Error parsing ClientUserinfoChanged: "  << line << '\n';
 					continue;
 				}
+
+				bug("num: " << num);
+				bug("skip: " << skip);
+				bug("name: " << name);
+
 				siz pos = line.find("id\\");
 				if(pos != str::npos)
 				{
@@ -946,7 +952,7 @@ int main(const int argc, const char* argv[])
 						stats[clients[num]].logged_time += std::time(0) - stats[clients[num]].first_seen;
 					stats[clients[num]].first_seen = time + secs;
 
-					teams[clients[num]] = 'U'; // unknown
+					//teams[clients[num]] = 'U'; // unknown
 
 					str reply;
 					server.command("!listplayers", reply); // TODO:
