@@ -11,7 +11,7 @@ KATINA_LOG=$KATINA_DATA/katina.log
 SERVER_LOG=$HOME/.openarena/CTF/insta.log
 
 NAME=katina
-COMMAND=$KATINA $SERVER_LOG
+COMMAND="$KATINA $SERVER_LOG"
 LOG=$KATINA_LOG
 PID=$KATINA_DATA/.pid
 
@@ -64,9 +64,15 @@ stop()
 	fi
 }
 
-restart() { stop; sleep 3; start; }
+restart()
+{
+	stop; sleep 3; start;
+}
 
-show() { echo nohup $COMMAND '>' $LOG '2>&1 &' }
+show()
+{
+	echo nohup $COMMAND '>' $LOG '2>&1 &'
+}
 
 case $CMD in
 	"help")
