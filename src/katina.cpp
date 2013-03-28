@@ -306,15 +306,22 @@ GUID bot_guid(siz num)
 
 void delay(siz msecs)
 {
+//	usleep(msecs * 1000);
 	timespec requested_time;
 	timespec remaining;
 	requested_time.tv_sec = 0;
 	requested_time.tv_nsec = msecs * 1000000;
+	if(requested_time.tv_nsec > 1000000000)
+	{
+		requested_time.tv_nsec -= 1000000000;
+		++requested_time.tv_sec;
+	}
+
 	while(true)
 	{
 		if(!nanosleep(&requested_time, &remaining))
 			break;
-		if(!remaining.tv_nsec)
+		if(!remaining.tv_nsec && !remaining.tv_sec)
 			break;
 		requested_time.tv_nsec = remaining.tv_nsec;
 	}
