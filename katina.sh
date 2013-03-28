@@ -43,7 +43,6 @@ clear()
 
 start()
 {
-	links
 	if [[ -f $PID ]]; then
 		echo "$NAME already running."
 	else
