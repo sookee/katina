@@ -845,6 +845,42 @@ void* set_teams(void* td_vp)
 	{
 		delay(td.delay);
 
+		// cvar controls
+
+		static siz c = 0;
+
+		switch(c++)
+		{
+			case 0:
+				if(!rconset("katina_active", katina_active))
+					rconset("katina_active", katina_active); // one retry
+			break;
+			case 1:
+				if(!rconset("katina_skivvy_active", katina_skivvy_active))
+					rconset("katina_skivvy_active", katina_skivvy_active); // one retry
+
+				if(katina_skivvy_active)
+					skivvy.on();
+				else
+					skivvy.off();
+			break;
+			case 2:
+				if(!rconset("katina_skivvy_chats", katina_skivvy_chats))
+					rconset("katina_skivvy_chats", katina_skivvy_chats); // one retry
+			break;
+			case 3:
+				if(!rconset("katina_skivvy_flags", katina_skivvy_flags))
+					rconset("katina_skivvy_flags", katina_skivvy_flags); // one retry
+			break;
+			case 4:
+				if(!rconset("katina_skivvy_kills", katina_skivvy_kills))
+					rconset("katina_skivvy_kills", katina_skivvy_kills); // one retry
+			break;
+			default:
+				c = 0;
+			break;
+		}
+
 		if(!katina_skivvy_active || !katina_active)
 			continue;
 
@@ -986,8 +1022,6 @@ int main(const int argc, const char* argv[])
 	thread_data td = {thread_delay, &clients, &teams};
 	pthread_create(&teams_thread, NULL, &set_teams, (void*) &td);
 
-	milliseconds cvars_set = get_millitime();
-
 	bool done = false;
 	std::ios::streampos pos = is.tellg();
 	str line;
@@ -998,37 +1032,10 @@ int main(const int argc, const char* argv[])
 
 		pos = is.tellg();
 
-		if(!rconset("katina_active", katina_active))
-			rconset("katina_active", katina_active); // one retry
-
 		if(!katina_active)
 			continue;
 
 		bug("line: " << line);
-
-		if(get_millitime() - cvars_set > 3000) // every three seconds
-		{
-
-			// cvar controls
-			if(!rconset("katina_skivvy_active", katina_skivvy_active))
-				rconset("katina_skivvy_active", katina_skivvy_active); // one retry
-
-			if(!rconset("katina_skivvy_chats", katina_skivvy_chats))
-				rconset("katina_skivvy_chats", katina_skivvy_chats); // one retry
-
-			if(!rconset("katina_skivvy_flags", katina_skivvy_flags))
-				rconset("katina_skivvy_flags", katina_skivvy_flags); // one retry
-
-			if(!rconset("katina_skivvy_kills", katina_skivvy_kills))
-				rconset("katina_skivvy_kills", katina_skivvy_kills); // one retry
-
-			if(katina_skivvy_active)
-				skivvy.on();
-			else
-				skivvy.off();
-
-			cvars_set = get_millitime();
-		}
 
 		iss.clear();
 		iss.str(line);
