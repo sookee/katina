@@ -309,7 +309,7 @@ void delay(siz msecs)
 	timespec requested_time;
 	timespec remaining;
 	requested_time.tv_sec = 0;
-	requested_time.tv_nsec = msecs * 1000;
+	requested_time.tv_nsec = msecs * 1000000;
 	while(true)
 	{
 		if(!nanosleep(&requested_time, &remaining))
