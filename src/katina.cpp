@@ -364,16 +364,6 @@ bool aocom(const str& cmd, str_vec& packets, const str& host, int port
 		return false;
 	}
 
-//	st_time_point timeout = st_clk::now() + std::chrono::milliseconds(wait);
-
-//	timespec timeout;
-//	clock_gettime(CLOCK_REALTIME, &timeout);
-//	timeout.tv_nsec += wait * 1000000;
-//	if(timeout.tv_nsec > 1000000000)
-//	{
-//		timeout.tv_nsec -= 1000000000;
-//		++timeout.tv_sec;
-//	}
 	milliseconds timeout = get_millitime() + wait;
 
 	// try to connect to each
@@ -514,11 +504,6 @@ void testxxx()
 	m[0] = guid;
 }
 
-//typedef std::map<str, str> str_str_map;
-//typedef std::pair<const str, str> str_str_pair;
-//typedef std::map<siz, str> siz_str_map;
-//typedef std::pair<const siz, str> siz_str_pair;
-
 typedef std::map<GUID, guid_siz_map> onevone_map;
 typedef std::pair<const GUID, guid_siz_map> onevone_pair;
 typedef std::map<GUID, guid_siz_map>::iterator onevone_iter;
@@ -528,12 +513,6 @@ typedef std::multimap<siz, str> siz_str_mmap;
 typedef siz_str_mmap::reverse_iterator siz_str_mmap_ritr;
 typedef siz_str_mmap::iterator siz_str_mmap_iter;
 typedef siz_str_mmap::const_iterator siz_str_mmap_citer;
-
-//typedef std::pair<const str, siz> str_siz_pair;
-
-//siz_str_map clients; // slot -> GUID
-//str_str_map players; // GUID -> name
-//onevone_map onevone; // GUID -> GUID -> <count> //
 
 class RCon
 {
@@ -654,11 +633,8 @@ public:
 
 	void config(const str& host, siz port, const str_set& chans)
 	{
-//		bug_func();
-//		bug_var(host);
-//		bug_var(port);
 		for(str_set_iter chan = chans.begin(); chan != chans.end(); ++chan)
-			bug("chan: " << *chan);
+			log("sending to channel: " << *chan);
 		this->host = host;
 		this->port = port;
 		this->chans = chans;
@@ -805,6 +781,7 @@ void load_records(str_map& recs)
 pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
 struct thread_data
 {
+	milliseconds delay;
 	siz_guid_map* clients_p;
 	guid_siz_map* teams_p;
 };
@@ -820,7 +797,7 @@ void* set_teams(void* td_vp)
 	{
 		// TODO:
 
-		delay(3000);
+		delay(td.delay);
 
 		str reply;
 		if(server.command("!listplayers", reply))
@@ -920,7 +897,7 @@ int main(const int argc, const char* argv[])
 	const str flag[2] = {"^1RED", "^4BLUE"};
 
 	pthread_t teams_thread;
-	thread_data td = {&clients, &teams};
+	thread_data td = {to<milliseconds>(recs["rcon.delay"]), &clients, &teams};
 	pthread_create(&teams_thread, NULL, &set_teams, (void*) &td);
 
 	bool done = false;
@@ -997,51 +974,17 @@ int main(const int argc, const char* argv[])
 				if(pos != str::npos)
 				{
 					str guid = line.substr(pos + 3, 32);
-					bug("guid: " << guid);
+
 					if(guid.size() != 32)
 						clients[num] = bot_guid(num);//null_guid;
 					else
 						clients[num] = to<GUID>(guid);
 
-					bug("clients[num]: " << clients[num]);
-
 					players[clients[num]] = name;
-
-					bug("players[clients[num]]: " << players[clients[num]]);
 
 					if(stats[clients[num]].first_seen)
 						stats[clients[num]].logged_time += std::time(0) - stats[clients[num]].first_seen;
 					stats[clients[num]].first_seen = time + secs;
-
-//					teams[clients[num]] = 'X'; // unknown
-//
-//					str reply;
-//					if(server.command("!listplayers", reply))
-//					{
-//						trim(reply);
-//						bug("reply: " << reply);
-//						// !listplayers: 4 players connected:
-//						//  1 R 0   Unknown Player (*)   Major
-//						//  2 B 0   Unknown Player (*)   Tony
-//						//  4 B 0   Unknown Player (*)   Sorceress
-//						//  5 R 0   Unknown Player (*)   Sergei
-//						if(!reply.empty())
-//						{
-//							siz n;
-//							char team;
-//							siss iss(reply);
-//							str line;
-//							std::getline(iss, line); // skip command
-//							bug("\tline: " << line);
-//							while(std::getline(iss, line))
-//							{
-//								bug("\t\tline: " << line);
-//								siss iss(line);
-//								if(iss >> n >> team && n == num)
-//									teams[clients[n]] = team;
-//							}
-//						}
-//					}
 				}
 			}
 			else if(cmd == "Kill:")
@@ -1111,20 +1054,7 @@ int main(const int argc, const char* argv[])
 					bug("FL_CAPTURED");
 					if(dashing[col] && dasher[col] != null_guid)
 					{
-//						timespec now;
-//						clock_gettime(CLOCK_REALTIME, &now);
-//
-//						timespec diff;
-//						diff.tv_sec = now.tv_sec - dash[col].tv_sec;
-//						diff.tv_nsec = now.tv_nsec - dash[col].tv_nsec;
-//						if(diff.tv_nsec < 0)
-//						{
-//							diff.tv_nsec += 1000000000;
-//							--diff.tv_sec;
-//						}
-						milliseconds diff = get_millitime() - dash[col];
-
-						double sec = diff / 1000.0;
+						double sec = (get_millitime() - dash[col]) / 1000.0;
 
 						std::ostringstream oss;
 						oss.precision(2);
