@@ -1,0 +1,15 @@
+katina-manual.txt
+
+ Created on: Mar 28, 2013
+     Author: SooKee
+     
+
+cvars:
+
+katina_active (1 | 0)
+
+katina_skivvy_active (1 | 0)
+katina_skivvy_chans #chan1 #chan2 #chan3
+katina_skivvy_flags (1 | 0)
+katina_skivvy_chats (1 | 0)
+katina_skivvy_kills (1 | 0)
