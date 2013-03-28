@@ -24,6 +24,7 @@ help()
 	echo -e "\tstart   - Start $NAME"
 	echo -e "\tstop    - Stop $NAME"
 	echo -e "\trestart - Restart $NAME"
+	echo -e "\tstatus  - Is $NAME running?"
 	echo -e "\tshow    - Show the $NAME start command."
 }
 
@@ -68,6 +69,15 @@ restart()
 	stop; sleep 3; start;
 }
 
+status()
+{
+	if [[ -f $PID ]]; then
+		echo "$NAME is running."
+	else
+		echo "$NAME is not running."
+	fi
+}
+
 show()
 {
 	echo nohup $COMMAND '>' $LOG '2>&1 &'
@@ -84,7 +94,9 @@ case $CMD in
 		stop ;;
 	"restart")
 		restart ;;
-	"show")
+	"status")
+		status ;;
+		"show")
 		show ;;
 	*)
 		help ;;
