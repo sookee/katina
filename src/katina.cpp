@@ -959,6 +959,7 @@ int main(const int argc, const char* argv[])
 					if(server.command("!listplayers", reply))
 					{
 						trim(reply);
+						bug("reply: " << reply);
 						// !listplayers: 4 players connected:
 						//  1 R 0   Unknown Player (*)   Major
 						//  2 B 0   Unknown Player (*)   Tony
@@ -971,8 +972,10 @@ int main(const int argc, const char* argv[])
 							siss iss(reply);
 							str line;
 							std::getline(iss, line); // skip command
-							while(std::getline(iss,line))
+							bug("\tline: " << line);
+							while(std::getline(iss, line))
 							{
+								bug("\t\tline: " << line);
 								siss iss(line);
 								if(iss >> n >> team && n == num)
 									teams[clients[n]] = team;
@@ -1079,7 +1082,7 @@ int main(const int argc, const char* argv[])
 						}
 						else if(sec < rec)
 						{
-							chat(players[clients[num]] + "^3 beat "
+							chat(players[clients[num]] + "^3 beat ^7"
 								+ recs["dash." + mapname + ".name"] + "'^3s ^7"
 								+ recs["dash." + mapname + ".secs"] + " ^3seconds.");
 							recs["dash." + mapname + ".guid"] = to_string(clients[num]);
