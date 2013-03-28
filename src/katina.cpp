@@ -897,7 +897,10 @@ int main(const int argc, const char* argv[])
 	const str flag[2] = {"^1RED", "^4BLUE"};
 
 	pthread_t teams_thread;
-	thread_data td = {to<milliseconds>(recs["rcon.delay"]), &clients, &teams};
+	milliseconds thread_delay = 6000; // default
+	if(recs.count("rcon.delay"))
+		thread_delay = to<milliseconds>(recs["rcon.delay"]);
+	thread_data td = {thread_delay, &clients, &teams};
 	pthread_create(&teams_thread, NULL, &set_teams, (void*) &td);
 
 	bool done = false;
