@@ -50,6 +50,8 @@ http://www.gnu.org/licenses/gpl-2.0.html
 //#include <chrono>
 
 #include <sys/time.h>
+#include <unistd.h>
+
 #include <pthread.h>
 
 // STACK TRACE
@@ -160,6 +162,14 @@ typedef std::ofstream sofs;
 
 typedef std::stringstream sss;
 
+typedef long milliseconds;
+
+milliseconds get_millitime()
+{
+	timespec ts;
+	clock_gettime(CLOCK_REALTIME, &ts);
+	return (ts.tv_sec * 1000) + (ts.tv_nsec / 1000000);
+}
 
 //typedef st_clk clock_p;
 //typedef clock_p::period period_p;
@@ -307,24 +317,6 @@ GUID bot_guid(siz num)
 void delay(siz msecs)
 {
 	usleep(msecs * 1000);
-//	timespec requested_time;
-//	timespec remaining;
-//	requested_time.tv_sec = 0;
-//	requested_time.tv_nsec = msecs * 1000000;
-//	if(requested_time.tv_nsec > 1000000000)
-//	{
-//		requested_time.tv_nsec -= 1000000000;
-//		++requested_time.tv_sec;
-//	}
-//
-//	while(true)
-//	{
-//		if(!nanosleep(&requested_time, &remaining))
-//			break;
-//		if(!remaining.tv_nsec && !remaining.tv_sec)
-//			break;
-//		requested_time.tv_nsec = remaining.tv_nsec;
-//	}
 }
 
 template<typename T>
@@ -373,14 +365,16 @@ bool aocom(const str& cmd, str_vec& packets, const str& host, int port
 	}
 
 //	st_time_point timeout = st_clk::now() + std::chrono::milliseconds(wait);
-	timespec timeout;
-	clock_gettime(CLOCK_REALTIME, &timeout);
-	timeout.tv_nsec += wait * 1000000;
-	if(timeout.tv_nsec > 1000000000)
-	{
-		timeout.tv_nsec -= 1000000000;
-		++timeout.tv_sec;
-	}
+
+//	timespec timeout;
+//	clock_gettime(CLOCK_REALTIME, &timeout);
+//	timeout.tv_nsec += wait * 1000000;
+//	if(timeout.tv_nsec > 1000000000)
+//	{
+//		timeout.tv_nsec -= 1000000000;
+//		++timeout.tv_sec;
+//	}
+	milliseconds timeout = get_millitime() + wait;
 
 	// try to connect to each
 	int cs;
@@ -422,15 +416,11 @@ bool aocom(const str& cmd, str_vec& packets, const str& host, int port
 	{
 		while((n = recv(cs, buf, sizeof(buf), MSG_DONTWAIT)) ==  -1 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR))
 		{
-			timespec now;
-			clock_gettime(CLOCK_REALTIME, &now);
-			if(now.tv_sec > timeout.tv_sec || now.tv_nsec > timeout.tv_nsec)
+			if(get_millitime() > timeout)
 			{
 				log("socket timed out connecting to: " << host << ":" << port);
 				return false;
 			}
-//			std::this_thread::yield();
-//			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			delay(10);
 		}
 		if(n < 0)
@@ -923,7 +913,7 @@ int main(const int argc, const char* argv[])
 	typedef std::map<str, time_t> str_utime_map; // GUID -> time
 	typedef std::pair<const str, time_t> str_utime_pair;
 //	str_utime_map dash[2];
-	timespec dash[2];// = {0, 0}; // time of dash start
+	milliseconds dash[2];// = {0, 0}; // time of dash start
 	GUID dasher[2]; // who is dashing
 	bool dashing[2] = {true, true}; // flag dash in progress?
 
@@ -1121,19 +1111,20 @@ int main(const int argc, const char* argv[])
 					bug("FL_CAPTURED");
 					if(dashing[col] && dasher[col] != null_guid)
 					{
-						timespec now;
-						clock_gettime(CLOCK_REALTIME, &now);
+//						timespec now;
+//						clock_gettime(CLOCK_REALTIME, &now);
+//
+//						timespec diff;
+//						diff.tv_sec = now.tv_sec - dash[col].tv_sec;
+//						diff.tv_nsec = now.tv_nsec - dash[col].tv_nsec;
+//						if(diff.tv_nsec < 0)
+//						{
+//							diff.tv_nsec += 1000000000;
+//							--diff.tv_sec;
+//						}
+						milliseconds diff = get_millitime() - dash[col];
 
-						timespec diff;
-						diff.tv_sec = now.tv_sec - dash[col].tv_sec;
-						diff.tv_nsec = now.tv_nsec - dash[col].tv_nsec;
-						if(diff.tv_nsec < 0)
-						{
-							diff.tv_nsec += 1000000000;
-							--diff.tv_sec;
-						}
-
-						double sec = diff.tv_sec + (diff.tv_nsec / 1000000000.0);
+						double sec = diff / 1000.0;
 
 						std::ostringstream oss;
 						oss.precision(2);
@@ -1181,7 +1172,7 @@ int main(const int argc, const char* argv[])
 					bug("FL_TAKEN");
 					if(dashing[col])
 					{
-						clock_gettime(CLOCK_REALTIME, &dash[col]);
+						dash[col] = get_millitime();
 					}
 					dasher[col] = clients[num];
 					skivvy.chat(nums_team + " ^7" + players[clients[num]] + "^3 has taken the " + flag[col] + " ^3flag!");
