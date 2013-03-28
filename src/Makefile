@@ -5,8 +5,10 @@ DEF_FLAGS = \
 	-D _GLIBCXX_USE_SCHED_YIELD	
 DEBUG = 1
 	
-MYSQL_INCL = -I/usr/include/mysql
-MYSQL_LIBS = -L/usr/lib/mysql -lmysqlclient -lz -lm -lrt -lssl -lcrypto -ldl
+#MYSQL_INCL = -I/usr/include/mysql
+#MYSQL_LIBS = -L/usr/lib/mysql -lmysqlclient -lz -lm -lrt -lssl -lcrypto -ldl
+MYSQL_INCL = 
+MYSQL_LIBS = 
 MYSQL_FLAG = 
 
 PCRE_INCL = $(shell pkg-config libpcrecpp --cflags)
