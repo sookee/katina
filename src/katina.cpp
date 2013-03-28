@@ -223,63 +223,57 @@ str get_stamp()
 #define con(m) do{std::cout << m << std::endl;}while(false)
 #define log(m) do{std::cout << get_stamp() << ": " << m << std::endl;}while(false)
 
-template<typename T, siz SIZE>
-struct array
+struct GUID
 {
-	T data[SIZE];
+	str data;
 
-	array()
+	GUID(): data(16, '0')
 	{
-		for(siz i = 0; i < SIZE; ++i)
+		for(siz i = 0; i < 16; ++i)
 			this->data[i] = '0';
 	}
 
-	array(const char data[SIZE])
+	GUID(const char data[16]): data(16, '0')
 	{
-		for(siz i = 0; i < SIZE; ++i)
+		for(siz i = 0; i < 16; ++i)
 			this->data[i] = data[i];
 	}
 
-	array(const array<T, SIZE>& a)
+	GUID(const GUID& guid): data(16, '0')
 	{
-		for(siz i = 0; i < SIZE; ++i)
-			this->data[i] = a.data[i];
+		for(siz i = 0; i < 16; ++i)
+			this->data[i] = guid.data[i];
 	}
 
-	const array& operator=(const array<T, SIZE>& a)
+	const GUID& operator=(const GUID& guid)
 	{
-		for(siz i = 0; i < SIZE; ++i)
-			this->data[i] = a.data[i];
+		for(siz i = 0; i < 16; ++i)
+			this->data[i] = guid.data[i];
 		return *this;
 	}
 
-	bool operator==(const array<T, SIZE>& a) const
+	bool operator==(const GUID& guid) const
 	{
-		for(siz i = 0; i < SIZE; ++i)
-			if(this->data[i] != a.data[i])
+		for(siz i = 0; i < 16; ++i)
+			if(this->data[i] != guid.data[i])
 				return false;
 		return true;
 	}
 
-	bool operator!=(const array<T, SIZE>& a) const
+	bool operator!=(const GUID& guid) const
 	{
-		return !(*this == a);
+		return !(*this == guid);
 	}
 
-	bool operator<(const array<T, SIZE>& a) const
+	bool operator<(const GUID& guid) const
 	{
-		for(siz i = 0; i < SIZE; ++i)
-			if(this->data[i] < a.data[i])
-				return true;
-		return false;
+		return data < guid.data;
 	}
 
-	T& operator[](siz i) { return data[i]; }
-	const T& operator[](siz i) const { return data[i]; }
-	siz size() const { return SIZE; }
+	char& operator[](siz i) { return data[i]; }
+	const char& operator[](siz i) const { return data[i]; }
+	siz size() const { return 16; }
 };
-
-typedef array<char, 16> GUID;
 
 sos& operator<<(sos& os, const GUID& guid)
 {
