@@ -996,6 +996,9 @@ int main(const int argc, const char* argv[])
 
 		pos = is.tellg();
 
+		if(!rconset("katina_active", katina_active))
+			rconset("katina_active", katina_active); // one retry
+
 		if(!katina_active)
 			continue;
 
