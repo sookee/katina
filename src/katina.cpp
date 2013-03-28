@@ -1041,12 +1041,17 @@ int main(const int argc, const char* argv[])
 				siz ncol = col ? 0 : 1;
 
 				str nums_team = "^7[^2U^7]"; // unknown team
+				str nums_nteam = "^7[^2U^7]"; // unknown team
 
 				pthread_mutex_lock(&mtx);
 				if(teams[clients[num]] == 'R')
 					nums_team = "^7[^1R^7]";
 				else if(teams[clients[num]] == 'B')
 					nums_team = "^7[^4B^7]";
+				if(teams[clients[num]] == 'B')
+					nums_nteam = "^7[^1R^7]";
+				else if(teams[clients[num]] == 'R')
+					nums_nteam = "^7[^4B^7]";
 				pthread_mutex_unlock(&mtx);
 
 				bug("inc stats");
@@ -1114,9 +1119,10 @@ int main(const int argc, const char* argv[])
 				{
 					bug("FL_DROPPED");
 //					rcon.chat("^1DEBUG:^3 End dash & disable dashing for the " + flag[ncol] + "^3 flag.");
+					skivvy.chat(nums_team + " ^7" + players[clients[num]] + "^3 has killed the " + flag[col] + " ^3flag carrier!");
+					skivvy.chat(nums_nteam + " ^7" + players[dasher[ncol]] + "^3 has dropped the " + flag[ncol] + " ^3flag!");
 					dasher[ncol] = null_guid;; // end a dash
 					dashing[ncol] = false; // no more dashes until return, capture or suicide
-					skivvy.chat(nums_team + " ^7" + players[clients[num]] + "^3 has dropped the " + flag[col] + " ^3flag!");
 				}
 				else if(act == FL_RETURNED)
 				{
