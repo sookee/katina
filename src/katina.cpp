@@ -444,10 +444,10 @@ bool aocom(const str& cmd, str_vec& packets, const str& host, int port
 	return true;
 }
 
-bool rcon(const str& cmd, str& reply, const str& host, int port)
+bool rcon(const str& cmd, str& reply, const str& host, int port, siz wait = TIMEOUT)
 {
 	str_vec packets;
-	if(!aocom(cmd, packets, host, port, TIMEOUT))
+	if(!aocom(cmd, packets, host, port, wait))
 		return false;
 
 	const str header = "\xFF\xFF\xFF\xFFprint\x0A";
@@ -565,7 +565,7 @@ public:
 
 	bool command(const str& cmd, str& reply)
 	{
-		return rcon("rcon " + pass + " " + cmd, reply, host, port);
+		return rcon("rcon " + pass + " " + cmd, reply, host, port, 2000);
 	}
 
 	str chat(const str& msg) const
