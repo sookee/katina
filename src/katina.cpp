@@ -74,6 +74,8 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <arpa/inet.h>
 #include <netdb.h>
 
+#include <pthread.h>
+
 #include "socketstream.h"
 
 using namespace oastats;
@@ -801,6 +803,63 @@ void load_records(str_map& recs)
 		recs[key] = val;
 }
 
+// teams thread
+
+pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
+struct thread_data
+{
+	siz_guid_map* clients_p;
+	guid_siz_map* teams_p;
+};
+
+bool done = false;
+void* set_teams(void* td_vp)
+{
+	thread_data& td = *reinterpret_cast<thread_data*>(td_vp);
+	siz_guid_map& clients = *td.clients_p;
+	guid_siz_map& teams = *td.teams_p;
+
+	while(!done)
+	{
+		// TODO:
+
+		delay(3000);
+
+		str reply;
+		if(server.command("!listplayers", reply))
+		{
+			trim(reply);
+			bug("reply: " << reply);
+			// !listplayers: 4 players connected:
+			//  1 R 0   Unknown Player (*)   Major
+			//  2 B 0   Unknown Player (*)   Tony
+			//  4 B 0   Unknown Player (*)   Sorceress
+			//  5 R 0   Unknown Player (*)   Sergei
+			if(!reply.empty())
+			{
+				siz n;
+				char team;
+				siss iss(reply);
+				str line;
+				std::getline(iss, line); // skip command
+				bug("\tline: " << line);
+				while(std::getline(iss, line))
+				{
+					bug("\t\tline: " << line);
+					siss iss(line);
+					if(iss >> n >> team)
+					{
+						pthread_mutex_lock(&mtx);
+						teams[clients[n]] = team;
+						pthread_mutex_unlock(&mtx);
+					}
+				}
+			}
+		}
+	}
+	pthread_exit(0);
+}
+
 int main(const int argc, const char* argv[])
 {
 	str_map recs; // high scores
@@ -862,6 +921,10 @@ int main(const int argc, const char* argv[])
 	bool dashing[2] = {true, true}; // flag dash in progress?
 
 	const str flag[2] = {"^1RED", "^4BLUE"};
+
+	pthread_t teams_thread;
+	thread_data td = {&clients, &teams};
+	pthread_create(&teams_thread, NULL, &set_teams, (void*) &td);
 
 	bool done = false;
 	std::ios::streampos pos = is.tellg();
@@ -953,35 +1016,35 @@ int main(const int argc, const char* argv[])
 						stats[clients[num]].logged_time += std::time(0) - stats[clients[num]].first_seen;
 					stats[clients[num]].first_seen = time + secs;
 
-					teams[clients[num]] = 'X'; // unknown
-
-					str reply;
-					if(server.command("!listplayers", reply))
-					{
-						trim(reply);
-						bug("reply: " << reply);
-						// !listplayers: 4 players connected:
-						//  1 R 0   Unknown Player (*)   Major
-						//  2 B 0   Unknown Player (*)   Tony
-						//  4 B 0   Unknown Player (*)   Sorceress
-						//  5 R 0   Unknown Player (*)   Sergei
-						if(!reply.empty())
-						{
-							siz n;
-							char team;
-							siss iss(reply);
-							str line;
-							std::getline(iss, line); // skip command
-							bug("\tline: " << line);
-							while(std::getline(iss, line))
-							{
-								bug("\t\tline: " << line);
-								siss iss(line);
-								if(iss >> n >> team && n == num)
-									teams[clients[n]] = team;
-							}
-						}
-					}
+//					teams[clients[num]] = 'X'; // unknown
+//
+//					str reply;
+//					if(server.command("!listplayers", reply))
+//					{
+//						trim(reply);
+//						bug("reply: " << reply);
+//						// !listplayers: 4 players connected:
+//						//  1 R 0   Unknown Player (*)   Major
+//						//  2 B 0   Unknown Player (*)   Tony
+//						//  4 B 0   Unknown Player (*)   Sorceress
+//						//  5 R 0   Unknown Player (*)   Sergei
+//						if(!reply.empty())
+//						{
+//							siz n;
+//							char team;
+//							siss iss(reply);
+//							str line;
+//							std::getline(iss, line); // skip command
+//							bug("\tline: " << line);
+//							while(std::getline(iss, line))
+//							{
+//								bug("\t\tline: " << line);
+//								siss iss(line);
+//								if(iss >> n >> team && n == num)
+//									teams[clients[n]] = team;
+//							}
+//						}
+//					}
 				}
 			}
 			else if(cmd == "Kill:")
@@ -1035,10 +1098,13 @@ int main(const int argc, const char* argv[])
 				siz ncol = col ? 0 : 1;
 
 				str nums_team = "^7[^2U^7]"; // unknown team
+
+				pthread_mutex_lock(&mtx);
 				if(teams[clients[num]] == 'R')
 					nums_team = "^7[^1R^7]";
 				else if(teams[clients[num]] == 'B')
 					nums_team = "^7[^4B^7]";
+				pthread_mutex_unlock(&mtx);
 
 				bug("inc stats");
 				++stats[clients[num]].flags[act];
@@ -1207,4 +1273,6 @@ int main(const int argc, const char* argv[])
 			}
 		}
 	}
+	done = true;
+	pthread_join(teams_thread, 0);
 }
