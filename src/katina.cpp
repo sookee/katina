@@ -986,6 +986,8 @@ int main(const int argc, const char* argv[])
 	thread_data td = {thread_delay, &clients, &teams};
 	pthread_create(&teams_thread, NULL, &set_teams, (void*) &td);
 
+	milliseconds cvars_set = get_millitime();
+
 	bool done = false;
 	std::ios::streampos pos = is.tellg();
 	str line;
@@ -1004,23 +1006,29 @@ int main(const int argc, const char* argv[])
 
 		bug("line: " << line);
 
-		// cvar controls
-		if(!rconset("katina_skivvy_active", katina_skivvy_active))
-			rconset("katina_skivvy_active", katina_skivvy_active); // one retry
+		if(get_millitime() - cvars_set > 3000) // every three seconds
+		{
 
-		if(!rconset("katina_skivvy_chats", katina_skivvy_chats))
-			rconset("katina_skivvy_chats", katina_skivvy_chats); // one retry
+			// cvar controls
+			if(!rconset("katina_skivvy_active", katina_skivvy_active))
+				rconset("katina_skivvy_active", katina_skivvy_active); // one retry
 
-		if(!rconset("katina_skivvy_flags", katina_skivvy_flags))
-			rconset("katina_skivvy_flags", katina_skivvy_flags); // one retry
+			if(!rconset("katina_skivvy_chats", katina_skivvy_chats))
+				rconset("katina_skivvy_chats", katina_skivvy_chats); // one retry
 
-		if(!rconset("katina_skivvy_kills", katina_skivvy_kills))
-			rconset("katina_skivvy_kills", katina_skivvy_kills); // one retry
+			if(!rconset("katina_skivvy_flags", katina_skivvy_flags))
+				rconset("katina_skivvy_flags", katina_skivvy_flags); // one retry
 
-		if(katina_skivvy_active)
-			skivvy.on();
-		else
-			skivvy.off();
+			if(!rconset("katina_skivvy_kills", katina_skivvy_kills))
+				rconset("katina_skivvy_kills", katina_skivvy_kills); // one retry
+
+			if(katina_skivvy_active)
+				skivvy.on();
+			else
+				skivvy.off();
+
+			cvars_set = get_millitime();
+		}
 
 		iss.clear();
 		iss.str(line);
