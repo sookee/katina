@@ -644,7 +644,7 @@ public:
 	{
 		if(!ss.open(host, port))
 		{
-			log("error: " << std::strerror(errno));
+			log("error: " << std::strerror(errno) << " host: " << host << " port: " << port);
 			return false;
 		}
 		str res;

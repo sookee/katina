@@ -13,3 +13,8 @@ katina_skivvy_chans #chan1 #chan2 #chan3
 katina_skivvy_flags (1 | 0)
 katina_skivvy_chats (1 | 0)
 katina_skivvy_kills (1 | 0)
+
+!rcon zim seta katina_active 1
+!rcon zim seta katina_skivvy_flags 1
+!rcon zim seta katina_skivvy_chats 0
+!rcon zim seta katina_skivvy_kills 0
