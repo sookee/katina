@@ -628,11 +628,13 @@ public:
 
 	void set_chans(const str& chans)
 	{
+		bug("set_chans(): " << chans);
 		clear_flags();
 		str chan;
 		siss iss(chans);
 		while(iss >> chan) // #channel(flags)
 		{
+			bug("chan: " << chan);
 			str flags;
 			siss iss(chan);
 			std::getline(iss, chan, '(');
@@ -700,8 +702,7 @@ SkivvyClient skivvy;
  * @param cvar The name of the cvar whose value is wanted
  * @param val The variable to set to the cvar's value.
  */
-template<typename T>
-bool rconset(const str& cvar, T& val)
+bool rconset(const str& cvar, str& val)
 {
 	str response;
 	if(!server.command(cvar, response))
@@ -713,6 +714,7 @@ bool rconset(const str& cvar, T& val)
 	// Possible responses:
 	// -> unknown command: <var>
 	// -> "<var>" is:"<val>^7", the default
+	// -> "katina_skivvy_chans" is:"#katina-test(c) #katina(c)^7" default:"#katina-test(c)^7"
 
 	str sval;
 
@@ -727,6 +729,21 @@ bool rconset(const str& cvar, T& val)
 		}
 	}
 
+	val = sval;
+	return true;
+}
+
+/**
+ * Set a variable from a cvar using rcon.
+ * @param cvar The name of the cvar whose value is wanted
+ * @param val The variable to set to the cvar's value.
+ */
+template<typename T>
+bool rconset(const str& cvar, T& val)
+{
+	str sval;
+	if(!rconset(cvar, sval))
+		return false;
 	siss iss(sval);
 	return iss >> val;
 }
@@ -965,7 +982,6 @@ void* set_teams(void* td_vp)
 		if(server.command("!listplayers", reply))
 		{
 			trim(reply);
-			bug("reply: " << reply);
 			// !listplayers: 4 players connected:
 			//  1 R 0   Unknown Player (*)   Major
 			//  2 B 0   Unknown Player (*)   Tony
@@ -978,10 +994,9 @@ void* set_teams(void* td_vp)
 				siss iss(reply);
 				str line;
 				std::getline(iss, line); // skip command
-				bug("\tline: " << line);
 				while(std::getline(iss, line))
 				{
-					bug("\t\tline: " << line);
+					//bug("\t\tline: " << line);
 					siss iss(line);
 					if(iss >> n >> team)
 					{
@@ -1016,14 +1031,7 @@ int main(const int argc, const char* argv[])
 	}
 
 	server.config(recs["rcon.host"], to<siz>(recs["rcon.port"]), recs["rcon.pass"]);
-
-	{
-//		str_set chans; // skivvy channels
-//		str res; // skivvy result
-		skivvy.config(recs["skivvy.host"], to<siz>(recs["skivvy.port"]));
-//		if(recs["skivvy.active"] == "true")
-//			skivvy.on();
-	}
+	skivvy.config(recs["skivvy.host"], to<siz>(recs["skivvy.port"]));
 
 	server.chat("^3Stats System v^70.1^3-alpha - ^1ONLINE");
 	skivvy.chat('*', "^3Stats System v^70.1^3-alpha - ^1ONLINE");
