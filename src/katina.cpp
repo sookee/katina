@@ -311,6 +311,7 @@ template<typename T>
 str to_string(const T& t)
 {
 	soss oss;
+	oss.precision(2);
 	oss << t;
 	return oss.str();
 }
@@ -629,7 +630,7 @@ public:
 	void set_chans(const str& chans)
 	{
 		bug("set_chans(): " << chans);
-		clear_flags();
+		this->chans.clear();
 		str chan;
 		siss iss(chans);
 		while(iss >> chan) // #channel(flags)
@@ -769,6 +770,7 @@ struct skivvy_conf
 	bool do_chats;
 	bool do_kills;
 	bool do_infos;
+	bool do_stats;
 	str chans;
 
 	skivvy_conf()
@@ -777,6 +779,7 @@ struct skivvy_conf
 	, do_chats(false)
 	, do_kills(false)
 	, do_infos(false)
+	, do_stats(false)
 	{
 	}
 };
@@ -864,6 +867,22 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 		con("\tkills: " << map_get(p->second.kills, MOD_RAILGUN));
 		con("\t defs: " << map_get(p->second.awards, AW_DEFENCE));
 		con("\tgaunt: " << map_get(p->second.awards, AW_GAUNTLET));
+		if(sk_cfg.do_stats)
+		{
+			siz k = map_get(p->second.kills, MOD_RAILGUN);
+			siz d = map_get(p->second.deaths, MOD_RAILGUN);
+			siz c = map_get(p->second.flags, FL_CAPTURED);
+
+			str kd, cd;
+			if(!d)
+				kd = cd = "perfect";
+			else
+			{
+				kd = to_string(double(k) / d);
+				cd = to_string(double(c * 100) / d);
+			}
+			skivvy.chat('s', "^7" + player + "^7: " + "^3kills^7/^3d ^5(^7" + kd + "^5) ^3caps^7/^3d ^5(^7" + cd + "^5)");
+		}
 	}
 }
 
@@ -975,6 +994,15 @@ void* set_teams(void* td_vp)
 				}
 			break;
 			case 6:
+				if(!rconset("katina_skivvy_stats", sk_cfg.do_stats))
+					rconset("katina_skivvy_stats", sk_cfg.do_stats); // one retry
+				if(sk_cfg.do_stats != old_sk_cfg.do_stats)
+				{
+					log("skivvy: stats reporting is now: " << (sk_cfg.do_stats ? "on":"off"));
+					skivvy.chat('*', "^stats reports ^1" + str(sk_cfg.do_stats ? "on":"off") + "^3.");
+				}
+			break;
+			case 7:
 				if(!rconset("katina_skivvy_chans", sk_cfg.chans))
 					rconset("katina_skivvy_chans", sk_cfg.chans); // one retry
 				if(old_sk_cfg.chans != sk_cfg.chans)
@@ -1274,7 +1302,7 @@ int main(const int argc, const char* argv[])
 					nums_nteam = "^7[^4B^7]";
 				pthread_mutex_unlock(&mtx);
 
-				bug("inc stats");
+				//bug("inc stats");
 				++stats[clients[num]].flags[act];
 
 				if(act == FL_CAPTURED) // In Game Announcer

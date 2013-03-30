@@ -14,18 +14,27 @@ katina_skivvy_flags (1 | 0)
 katina_skivvy_chats (1 | 0)
 katina_skivvy_kills (1 | 0)
 
+i = infos (maps, results)
+c = chats
+f = flags
+k = kills
+s = stats (k/d c/d)
+
 !rcon zim seta katina_active 1
 !rcon zim seta katina_skivvy_active 1
-!rcon zim seta katina_skivvy_flags 1
-!rcon zim seta katina_skivvy_chats 0
+!rcon zim seta katina_skivvy_infos 1
+!rcon zim seta katina_skivvy_chats 1
+!rcon zim seta katina_skivvy_flags 0
 !rcon zim seta katina_skivvy_kills 0
-!rcon zim seta katina_skivvy_chans #katina(f) #katina-test(c)
-
-c = chats f = flags k = kills i = infos (maps, results)
+!rcon zim seta katina_skivvy_stats 0
+!rcon zim seta katina_skivvy_chans #katina(icfks)
 
 !rcon soo seta katina_active 1
 !rcon soo seta katina_skivvy_active 1
-!rcon soo seta katina_skivvy_flags 1
+!rcon soo seta katina_skivvy_infos 1
 !rcon soo seta katina_skivvy_chats 1
+!rcon soo seta katina_skivvy_flags 0
 !rcon soo seta katina_skivvy_kills 0
-!rcon soo seta katina_skivvy_chans #katina-test(fc)
+!rcon soo seta katina_skivvy_stats 0
+!rcon soo seta katina_skivvy_chans #katina-test(icfks)
+
