@@ -892,8 +892,9 @@ void* set_teams(void* td_vp)
 					rconset("katina_active", katina_active); // one retry
 				if(katina_active != old_katina_active)
 				{
-					server.chat("^3going off-line.");
-					skivvy.chat('*', "^3going off-line.");
+					log("katina: " + str(katina_active?"":"de-") + "activated");
+					server.chat("^3going ^1" + str(katina_active?"on":"off") + "-line^3.");
+					skivvy.chat('*', "^3going ^1" + str(katina_active?"on":"off") + "-line^3.");
 				}
 			break;
 			case 1:
@@ -903,11 +904,13 @@ void* set_teams(void* td_vp)
 				{
 					if(sk_cfg.active)
 					{
+						log("skivvy: reporting activated");
 						skivvy.chat('*', "^3reporting turned on.");
 						skivvy.on();
 					}
 					else
 					{
+						log("skivvy: reporting deactivated");
 						skivvy.chat('*', "^3reporting turned off.");
 						skivvy.off();
 					}
@@ -917,25 +920,35 @@ void* set_teams(void* td_vp)
 				if(!rconset("katina_skivvy_chats", sk_cfg.do_chats))
 					rconset("katina_skivvy_chats", sk_cfg.do_chats); // one retry
 				if(sk_cfg.do_chats != old_sk_cfg.do_chats)
+				{
+					log("skivvy: chat reporting is now: " << (sk_cfg.do_chats ? "on":"off"));
 					skivvy.chat('*', "^3Chat reports ^1" + str(sk_cfg.do_chats ? "on":"off") + "^3.");
+				}
 			break;
 			case 3:
 				if(!rconset("katina_skivvy_flags", sk_cfg.do_flags))
 					rconset("katina_skivvy_flags", sk_cfg.do_flags); // one retry
 				if(sk_cfg.do_flags != old_sk_cfg.do_flags)
+				{
+					log("skivvy: flag reporting is now: " << (sk_cfg.do_flags ? "on":"off"));
 					skivvy.chat('*', "^3Flag reports ^1" + str(sk_cfg.do_flags ? "on":"off") + "^3.");
+				}
 			break;
 			case 4:
 				if(!rconset("katina_skivvy_kills", sk_cfg.do_kills))
 					rconset("katina_skivvy_kills",sk_cfg. do_kills); // one retry
 				if(sk_cfg.do_kills != old_sk_cfg.do_kills)
+				{
+					log("skivvy: kill reporting is now: " << (sk_cfg.do_kills ? "on":"off"));
 					skivvy.chat('*', "^3Kill reports ^1" + str(sk_cfg.do_kills ? "on":"off") + "^3.");
+				}
 			break;
 			case 5:
 				if(!rconset("katina_skivvy_chans", sk_cfg.chans))
 					rconset("katina_skivvy_chans", sk_cfg.chans); // one retry
 				if(old_sk_cfg.chans != sk_cfg.chans)
 				{
+					log("skivvy: new chans: " << sk_cfg.chans);
 					skivvy.set_chans(sk_cfg.chans);
 					skivvy.chat('*', "^3Now reporting to ^7" + sk_cfg.chans);
 				}
