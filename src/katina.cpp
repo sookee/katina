@@ -750,6 +750,40 @@ bool rconset(const str& cvar, T& val)
 
 str_vec weapons;
 
+// teams thread
+
+pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
+struct thread_data
+{
+	milliseconds delay;
+	siz_guid_map* clients_p;
+	guid_siz_map* teams_p;
+};
+
+bool done = false;
+
+struct skivvy_conf
+{
+	bool active;
+	bool do_flags;
+	bool do_chats;
+	bool do_kills;
+	bool do_infos;
+	str chans;
+
+	skivvy_conf()
+	: active(false)
+	, do_flags(false)
+	, do_chats(false)
+	, do_kills(false)
+	, do_infos(false)
+	{
+	}
+};
+
+bool katina_active = false;
+skivvy_conf sk_cfg;
+
 void report_clients(const siz_guid_map& clients)
 {
 	for(siz_guid_citer i = clients.begin(); i != clients.end(); ++i)
@@ -806,10 +840,13 @@ void report_caps(const guid_siz_map& caps, const guid_str_map& players)
 		server.chat(results[i]);
 	server.chat("^5" + str(max - 12, '-'));
 
-	skivvy.chat('f', "^5== ^6RESULTS ^5" + str(max - 23, '='));
-	for(siz i = 0; i < results.size(); ++i)
-		skivvy.chat('f', results[i]);
-	skivvy.chat('f', "^5" + str(max - 12, '-'));
+	if(sk_cfg.do_infos)
+	{
+		skivvy.chat('i', "^5== ^6RESULTS ^5" + str(max - 23, '='));
+		for(siz i = 0; i < results.size(); ++i)
+			skivvy.chat('f', results[i]);
+		skivvy.chat('i', "^5" + str(max - 12, '-'));
+	}
 }
 
 siz map_get(const siz_map& m, siz key)
@@ -849,38 +886,6 @@ void load_records(str_map& recs)
 	while(std::getline(std::getline(ifs, key, ':') >> std::ws, val))
 		recs[key] = val;
 }
-
-// teams thread
-
-pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
-struct thread_data
-{
-	milliseconds delay;
-	siz_guid_map* clients_p;
-	guid_siz_map* teams_p;
-};
-
-bool done = false;
-
-struct skivvy_conf
-{
-	bool active;
-	bool do_flags;
-	bool do_chats;
-	bool do_kills;
-	str chans;
-
-	skivvy_conf()
-	: active(false)
-	, do_flags(false)
-	, do_chats(false)
-	, do_kills(false)
-	{
-	}
-};
-
-bool katina_active = false;
-skivvy_conf sk_cfg;
 
 void* set_teams(void* td_vp)
 {
@@ -961,6 +966,15 @@ void* set_teams(void* td_vp)
 				}
 			break;
 			case 5:
+				if(!rconset("katina_skivvy_infos", sk_cfg.do_infos))
+					rconset("katina_skivvy_infos", sk_cfg.do_infos); // one retry
+				if(sk_cfg.do_kills != old_sk_cfg.do_kills)
+				{
+					log("skivvy: info reporting is now: " << (sk_cfg.do_infos ? "on":"off"));
+					skivvy.chat('*', "^3info reports ^1" + str(sk_cfg.do_infos ? "on":"off") + "^3.");
+				}
+			break;
+			case 6:
 				if(!rconset("katina_skivvy_chans", sk_cfg.chans))
 					rconset("katina_skivvy_chans", sk_cfg.chans); // one retry
 				if(old_sk_cfg.chans != sk_cfg.chans)
@@ -1398,7 +1412,8 @@ int main(const int argc, const char* argv[])
 					}
 					bug("mapname: " << mapname);
 				}
-				skivvy.chat('*', "^3Map: ^7" + mapname + "^3.");
+				if(sk_cfg.do_infos)
+					skivvy.chat('i', "^3Map: ^7" + mapname + "^3.");
 			}
 		}
 		if(cmd == "say:")
