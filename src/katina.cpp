@@ -1114,13 +1114,13 @@ int main(const int argc, const char* argv[])
 		if(!katina_active)
 			continue;
 
-		bug("line: " << line);
+//		bug("line: " << line);
 
 		iss.clear();
 		iss.str(line);
 		iss >> m >> c >> s >> cmd;
 		secs = (m * 60) + s;
-		bug("cmd: " << cmd);
+//		bug("cmd: " << cmd);
 		bug("in_game: " << in_game);
 		if(in_game)
 		{
@@ -1161,7 +1161,7 @@ int main(const int argc, const char* argv[])
 			}
 			else if(cmd == "ClientUserinfoChanged:")
 			{
-				bug("ClientUserinfoChanged:");
+				//bug("ClientUserinfoChanged:");
 				//do_rcon("^3ClientUserinfoChanged:");
 				// 0:23 ClientUserinfoChanged: 2 n\^1S^2oo^3K^5ee\t\2\model\ayumi/red\hmodel\ayumi/red\g_redteam\\g_blueteam\\c1\1\c2\1\hc\100\w\0\l\0\tt\0\tl\1\id\1A7C66BACBA16F0C9068D8B82C1D55DE
 				siz num;
@@ -1171,9 +1171,9 @@ int main(const int argc, const char* argv[])
 					continue;
 				}
 
-				bug("num: " << num);
-				bug("skip: " << skip);
-				bug("name: " << name);
+				//bug("num: " << num);
+				//bug("skip: " << skip);
+				//bug("name: " << name);
 
 				siz pos = line.find("id\\");
 				if(pos != str::npos)
