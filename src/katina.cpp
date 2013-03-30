@@ -1005,11 +1005,11 @@ int main(const int argc, const char* argv[])
 	server.config(recs["rcon.host"], to<siz>(recs["rcon.port"]), recs["rcon.pass"]);
 
 	{
-		str_set chans; // skivvy channels
-		str res; // skivvy result
+//		str_set chans; // skivvy channels
+//		str res; // skivvy result
 		skivvy.config(recs["skivvy.host"], to<siz>(recs["skivvy.port"]));
-		if(recs["skivvy.active"] == "true")
-			skivvy.on();
+//		if(recs["skivvy.active"] == "true")
+//			skivvy.on();
 	}
 
 	server.chat("^3Stats System v^70.1^3-alpha - ^1ONLINE");
