@@ -29,25 +29,16 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 '-----------------------------------------------------------------*/
 
-//#include "logrep.h"
-//#include "str.h"
-//#include "types.h"
-//#include "rcon.h"
 #include "codes.h"
 
 #include <fstream>
 #include <sstream>
 #include <iostream>
-//#include <thread>
 #include <exception>
 #include <stdexcept>
 
 #include <map>
-//#include <array>
-
 #include <ctime>
-
-//#include <chrono>
 
 #include <sys/time.h>
 #include <unistd.h>
@@ -81,8 +72,6 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include "socketstream.h"
 
 using namespace oastats;
-//using namespace oastats::types;
-//using namespace oastats::string;
 
 //-- TYPES ---------------------------------------------
 
@@ -170,10 +159,6 @@ milliseconds get_millitime()
 	clock_gettime(CLOCK_REALTIME, &ts);
 	return (ts.tv_sec * 1000) + (ts.tv_nsec / 1000000);
 }
-
-//typedef st_clk clock_p;
-//typedef clock_p::period period_p;
-//typedef clock_p::time_point time_p;
 
 // -- STRING -------------------------------------------------
 
@@ -303,6 +288,9 @@ sis& operator>>(sis& is, GUID& guid)
 
 const GUID null_guid = "0000000000000000";
 
+/*
+ * Create a GUID for bots based on their slot number
+ */
 GUID bot_guid(siz num)
 {
 	soss oss;
@@ -314,7 +302,7 @@ GUID bot_guid(siz num)
 	return GUID(id.c_str());
 }
 
-void delay(siz msecs)
+void thread_sleep_millis(siz msecs)
 {
 	usleep(msecs * 1000);
 }
@@ -411,7 +399,7 @@ bool aocom(const str& cmd, str_vec& packets, const str& host, int port
 				log("socket timed out connecting to: " << host << ":" << port);
 				return false;
 			}
-			delay(10);
+			thread_sleep_millis(10);
 		}
 		if(n < 0)
 			log("cs recv: " << strerror(errno));
@@ -496,13 +484,6 @@ typedef std::map<GUID, stats> guid_stat_map;
 typedef std::pair<const GUID, stats> guid_stat_pair;
 typedef std::map<GUID, stats>::iterator guid_stat_iter;
 typedef std::map<GUID, stats>::const_iterator guid_stat_citer;
-
-void testxxx()
-{
-	siz_guid_map m;
-	GUID guid;
-	m[0] = guid;
-}
 
 typedef std::map<GUID, guid_siz_map> onevone_map;
 typedef std::pair<const GUID, guid_siz_map> onevone_pair;
@@ -623,7 +604,13 @@ private:
 	net::socketstream ss;
 	str host;
 	siz port;
-	str_set chans;
+	//str_set chans;
+	typedef std::map<str, std::set<char> > chan_map;
+	typedef chan_map::iterator chan_map_iter;
+	typedef chan_map::const_iterator chan_map_citer;
+
+	chan_map chans; // #channel -> {'c','f','k'}
+
 
 public:
 	SkivvyClient(): active(false), host("localhost"), port(7334) {}
@@ -631,16 +618,33 @@ public:
 	void on() { active = true; }
 	void off() { active = false; }
 
-	void config(const str& host, siz port, const str_set& chans)
+	void config(const str& host, siz port)
 	{
-		for(str_set_iter chan = chans.begin(); chan != chans.end(); ++chan)
-			log("sending to channel: " << *chan);
+		for(chan_map_iter chan = chans.begin(); chan != chans.end(); ++chan)
+			log("sending to channel: " << chan->first);
 		this->host = host;
 		this->port = port;
-		this->chans = chans;
 	}
 
-	bool say(const str& text)
+	void set_chans(const str& chans)
+	{
+		clear_flags();
+		str chan;
+		siss iss(chans);
+		while(iss >> chan) // #channel(flags)
+		{
+			str flags;
+			siss iss(chan);
+			std::getline(iss, chan, '(');
+			if(std::getline(iss, flags, ')'))
+			{
+				// config flags c = chats f = flags k = kills
+				set_flags(chan, flags);
+			}
+		}
+	}
+
+	bool say(char f, const str& text)
 	{
 		if(!ss.open(host, port))
 		{
@@ -649,12 +653,28 @@ public:
 		}
 		str res;
 		bool good = true;
-		for(str_set_iter chan = chans.begin(); chan != chans.end(); ++chan)
-			good = good && send("/say " + *chan + " [" + irc_katina + "] " + text, res);
+		for(chan_map_iter chan = chans.begin(); chan != chans.end(); ++chan)
+			if(f == '*' || chan->second.count(f))
+				good = good && send("/say " + chan->first + " [" + irc_katina + "] " + text, res);
 		return good;
 	}
 
-	bool chat(const str& text) { return say(oa_to_IRC(text)); }
+	void add_flag(const str& chan, char f) { chans[chan].insert(f); }
+	void del_flag(const str& chan, char f) { chans[chan].erase(f); }
+	void set_flags(const str& chan, const str& flags)
+	{
+		for(siz i = 0; i < flags.size(); ++i)
+			add_flag(chan, flags[i]);
+	}
+
+	void clear_flags()
+	{
+		for(chan_map_iter chan = chans.begin(); chan != chans.end(); ++chan)
+			chan->second.clear();
+	}
+	void clear_flags(const str& chan) { chans[chan].clear(); }
+
+	bool chat(char f, const str& text) { return say(f, oa_to_IRC(text)); }
 
 	bool send(const str& cmd, str& res)
 	{
@@ -674,12 +694,6 @@ public:
 
 RCon server;
 SkivvyClient skivvy;
-
-void chat(const str& msg)
-{
-	server.chat(msg);
-	skivvy.chat(msg);
-}
 
 /**
  * Set a variable from a cvar using rcon.
@@ -770,10 +784,15 @@ void report_caps(const guid_siz_map& caps, const guid_str_map& players)
 			max = oss.str().size();
 	}
 
-	chat("^5== ^6RESULTS ^5" + str(max - 23, '='));
+	server.chat("^5== ^6RESULTS ^5" + str(max - 23, '='));
 	for(siz i = 0; i < results.size(); ++i)
-		chat(results[i]);
-	chat("^5" + str(max - 12, '-'));
+		server.chat(results[i]);
+	server.chat("^5" + str(max - 12, '-'));
+
+	skivvy.chat('f', "^5== ^6RESULTS ^5" + str(max - 23, '='));
+	for(siz i = 0; i < results.size(); ++i)
+		skivvy.chat('f', results[i]);
+	skivvy.chat('f', "^5" + str(max - 12, '-'));
 }
 
 siz map_get(const siz_map& m, siz key)
@@ -826,11 +845,25 @@ struct thread_data
 
 bool done = false;
 
+struct skivvy_conf
+{
+	bool active;
+	bool do_flags;
+	bool do_chats;
+	bool do_kills;
+	str chans;
+
+	skivvy_conf()
+	: active(false)
+	, do_flags(false)
+	, do_chats(false)
+	, do_kills(false)
+	{
+	}
+};
+
 bool katina_active = false;
-bool katina_skivvy_active = false;
-bool katina_skivvy_flags = false;
-bool katina_skivvy_chats = false;
-bool katina_skivvy_kills = false;
+skivvy_conf sk_cfg;
 
 void* set_teams(void* td_vp)
 {
@@ -843,45 +876,76 @@ void* set_teams(void* td_vp)
 
 	while(!done)
 	{
-		delay(td.delay);
+		thread_sleep_millis(td.delay);
 
 		// cvar controls
 
 		static siz c = 0;
+
+		skivvy_conf old_sk_cfg = sk_cfg;
+		bool old_katina_active = katina_active;
 
 		switch(c++)
 		{
 			case 0:
 				if(!rconset("katina_active", katina_active))
 					rconset("katina_active", katina_active); // one retry
+				if(katina_active != old_katina_active)
+				{
+					server.chat("^3going off-line.");
+					skivvy.chat('*', "^3going off-line.");
+				}
 			break;
 			case 1:
-				if(!rconset("katina_skivvy_active", katina_skivvy_active))
-					rconset("katina_skivvy_active", katina_skivvy_active); // one retry
-
-				if(katina_skivvy_active)
-					skivvy.on();
-				else
-					skivvy.off();
+				if(!rconset("katina_skivvy_active", sk_cfg.active))
+					rconset("katina_skivvy_active", sk_cfg.active); // one retry
+				if(sk_cfg.active != old_sk_cfg.active)
+				{
+					if(sk_cfg.active)
+					{
+						skivvy.chat('*', "^3reporting turned on.");
+						skivvy.on();
+					}
+					else
+					{
+						skivvy.chat('*', "^3reporting turned off.");
+						skivvy.off();
+					}
+				}
 			break;
 			case 2:
-				if(!rconset("katina_skivvy_chats", katina_skivvy_chats))
-					rconset("katina_skivvy_chats", katina_skivvy_chats); // one retry
+				if(!rconset("katina_skivvy_chats", sk_cfg.do_chats))
+					rconset("katina_skivvy_chats", sk_cfg.do_chats); // one retry
+				if(sk_cfg.do_chats != old_sk_cfg.do_chats)
+					skivvy.chat('*', "^3Chat reports ^1" + str(sk_cfg.do_chats ? "on":"off") + "^3.");
 			break;
 			case 3:
-				if(!rconset("katina_skivvy_flags", katina_skivvy_flags))
-					rconset("katina_skivvy_flags", katina_skivvy_flags); // one retry
+				if(!rconset("katina_skivvy_flags", sk_cfg.do_flags))
+					rconset("katina_skivvy_flags", sk_cfg.do_flags); // one retry
+				if(sk_cfg.do_flags != old_sk_cfg.do_flags)
+					skivvy.chat('*', "^3Flag reports ^1" + str(sk_cfg.do_flags ? "on":"off") + "^3.");
 			break;
 			case 4:
-				if(!rconset("katina_skivvy_kills", katina_skivvy_kills))
-					rconset("katina_skivvy_kills", katina_skivvy_kills); // one retry
+				if(!rconset("katina_skivvy_kills", sk_cfg.do_kills))
+					rconset("katina_skivvy_kills",sk_cfg. do_kills); // one retry
+				if(sk_cfg.do_kills != old_sk_cfg.do_kills)
+					skivvy.chat('*', "^3Kill reports ^1" + str(sk_cfg.do_kills ? "on":"off") + "^3.");
+			break;
+			case 5:
+				if(!rconset("katina_skivvy_chans", sk_cfg.chans))
+					rconset("katina_skivvy_chans", sk_cfg.chans); // one retry
+				if(old_sk_cfg.chans != sk_cfg.chans)
+				{
+					skivvy.set_chans(sk_cfg.chans);
+					skivvy.chat('*', "^3Now reporting to ^7" + sk_cfg.chans);
+				}
 			break;
 			default:
 				c = 0;
 			break;
 		}
 
-		if(!katina_skivvy_active || !katina_active)
+		if(!sk_cfg.active || !katina_active)
 			continue;
 
 		str reply;
@@ -943,18 +1007,13 @@ int main(const int argc, const char* argv[])
 	{
 		str_set chans; // skivvy channels
 		str res; // skivvy result
-		if(!rconset("katina_skivvy_chans", res))
-			res.clear();
-		res += " " + recs["skivvy.chan"];
-		siss iss(res);
-		while(iss >> res)
-			chans.insert(res);
-		skivvy.config(recs["skivvy.host"], to<siz>(recs["skivvy.port"]), chans);
+		skivvy.config(recs["skivvy.host"], to<siz>(recs["skivvy.port"]));
 		if(recs["skivvy.active"] == "true")
 			skivvy.on();
 	}
 
-	chat("^3Stats System v^70.1^3-alpha - ^1ONLINE");
+	server.chat("^3Stats System v^70.1^3-alpha - ^1ONLINE");
+	skivvy.chat('*', "^3Stats System v^70.1^3-alpha - ^1ONLINE");
 
 	// weapons
 	weapons.push_back("unknown weapon");
@@ -986,7 +1045,6 @@ int main(const int argc, const char* argv[])
 	weapons.push_back("kamikazi");
 	weapons.push_back("juiced");
 	weapons.push_back("grappled");
-
 
 	std::time_t time = 0;
 	char c;
@@ -1028,7 +1086,7 @@ int main(const int argc, const char* argv[])
 	while(!done)
 	{
 		if(!std::getline(is, line) || is.eof())
-			{ delay(10); is.clear(); is.seekg(pos); continue; }
+			{ thread_sleep_millis(10); is.clear(); is.seekg(pos); continue; }
 
 		pos = is.tellg();
 
@@ -1047,7 +1105,7 @@ int main(const int argc, const char* argv[])
 		{
 			if(cmd == "Exit:")
 			{
-				chat("^3Exit:");
+				skivvy.chat('*', "^3Game Over");
 				in_game = false;
 
 				try
@@ -1073,7 +1131,7 @@ int main(const int argc, const char* argv[])
 			}
 			else if(cmd == "ShutdownGame:")
 			{
-				chat("^ShutdownGame:");
+				//chat("^3ShutdownGame:");
 				in_game = false;
 			}
 			else if(cmd == "Warmup:")
@@ -1146,8 +1204,8 @@ int main(const int argc, const char* argv[])
 						++stats[clients[num2]].deaths[weap];
 						++onevone[clients[num1]][clients[num2]];
 
-						if(katina_skivvy_kills)
-							skivvy.chat("^7" + players[clients[num1]] + " ^4killed ^7" + players[clients[num2]]
+						if(sk_cfg.do_kills)
+							skivvy.chat('k', "^7" + players[clients[num1]] + " ^4killed ^7" + players[clients[num2]]
 								+ " ^4with a ^7" + weapons[weap]);
 					}
 				}
@@ -1194,8 +1252,11 @@ int main(const int argc, const char* argv[])
 						std::ostringstream oss;
 						oss.precision(2);
 						oss << std::fixed << sec;
-						chat(players[clients[num]] + "^3 took ^7" + oss.str()
+						server.chat(players[clients[num]] + "^3 took ^7" + oss.str()
 							+ "^3 seconds to capture the " + flag[col] + "^3 flag.");
+						if(sk_cfg.do_flags)
+							skivvy.chat('f', players[clients[num]] + "^3 took ^7" + oss.str()
+								+ "^3 seconds to capture the " + flag[col] + "^3 flag.");
 
 						double rec = to<double>(recs["dash." + mapname + ".secs"]);
 
@@ -1203,7 +1264,8 @@ int main(const int argc, const char* argv[])
 
 						if(rec < 0.5)
 						{
-							chat(players[clients[num]] + "^3 has set the record for this map.");
+							server.chat(players[clients[num]] + "^3 has set the record for this map.");
+							skivvy.chat('f', players[clients[num]] + "^3 has set the record for this map.");
 							recs["dash." + mapname + ".guid"] = to_string(clients[num]);
 							recs["dash." + mapname + ".name"] = players[clients[num]];
 							recs["dash." + mapname + ".secs"] = oss.str();
@@ -1211,7 +1273,10 @@ int main(const int argc, const char* argv[])
 						}
 						else if(sec < rec)
 						{
-							chat(players[clients[num]] + "^3 beat ^7"
+							server.chat(players[clients[num]] + "^3 beat ^7"
+								+ recs["dash." + mapname + ".name"] + "'^3s ^7"
+								+ recs["dash." + mapname + ".secs"] + " ^3seconds.");
+							skivvy.chat('f', players[clients[num]] + "^3 beat ^7"
 								+ recs["dash." + mapname + ".name"] + "'^3s ^7"
 								+ recs["dash." + mapname + ".secs"] + " ^3seconds.");
 							recs["dash." + mapname + ".guid"] = to_string(clients[num]);
@@ -1228,10 +1293,10 @@ int main(const int argc, const char* argv[])
 
 					str msg = players[clients[num]] + "^3 has ^7" + to_string(caps[clients[num]]) + "^3 flag" + (caps[clients[num]]==1?"":"s") + "!";
 					server.cp(msg);
-					if(katina_skivvy_flags)
+					if(sk_cfg.do_flags)
 					{
-						skivvy.chat(msg);
-						skivvy.chat("^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED]));
+						skivvy.chat('f', msg);
+						skivvy.chat('f', "^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED]));
 					}
 				}
 				else if(act == FL_TAKEN)
@@ -1241,23 +1306,23 @@ int main(const int argc, const char* argv[])
 
 					dasher[col] = clients[num];
 
-					if(katina_skivvy_flags)
-						skivvy.chat(nums_team + " ^7" + players[clients[num]] + "^3 has taken the " + flag[col] + " ^3flag!");
+					if(sk_cfg.do_flags)
+						skivvy.chat('f', nums_team + " ^7" + players[clients[num]] + "^3 has taken the " + flag[col] + " ^3flag!");
 				}
 				else if(act == FL_DROPPED)
 				{
-					if(katina_skivvy_flags)
+					if(sk_cfg.do_flags)
 					{
-						skivvy.chat(nums_team + " ^7" + players[clients[num]] + "^3 has killed the " + flag[col] + " ^3flag carrier!");
-						skivvy.chat(nums_nteam + " ^7" + players[dasher[ncol]] + "^3 has dropped the " + flag[ncol] + " ^3flag!");
+						skivvy.chat('f', nums_team + " ^7" + players[clients[num]] + "^3 has killed the " + flag[col] + " ^3flag carrier!");
+						skivvy.chat('f', nums_nteam + " ^7" + players[dasher[ncol]] + "^3 has dropped the " + flag[ncol] + " ^3flag!");
 					}
 					dasher[ncol] = null_guid;; // end a dash
 					dashing[ncol] = false; // no more dashes until return, capture or suicide
 				}
 				else if(act == FL_RETURNED)
 				{
-					if(katina_skivvy_flags)
-						skivvy.chat(nums_team + " ^7" + players[clients[num]] + "^3 has returned the " + flag[col] + " ^3flag!");
+					if(sk_cfg.do_flags)
+						skivvy.chat('f', nums_team + " ^7" + players[clients[num]] + "^3 has returned the " + flag[col] + " ^3flag!");
 
 					dasher[col] = null_guid;; // end a dash
 					dashing[col] = true; // new dash now possible
@@ -1279,7 +1344,7 @@ int main(const int argc, const char* argv[])
 		{
 			if(cmd == "InitGame:")
 			{
-				chat("^3InitGame:");
+				//chat("^3InitGame:");
 
 				time = std::time(0);
 				in_game = true;
@@ -1298,7 +1363,7 @@ int main(const int argc, const char* argv[])
 
 				str msg = "^1K^7at^3i^7na ^3Stats system v^70.1^3-alpha.";
 				server.cp(msg);
-				skivvy.chat(msg);
+				skivvy.chat('*', msg);
 
 				siz pos;
 				if((pos = line.find("mapname\\")) != str::npos)
@@ -1312,7 +1377,7 @@ int main(const int argc, const char* argv[])
 					}
 					bug("mapname: " << mapname);
 				}
-				skivvy.chat("^3Map: ^7" + mapname + "^3.");
+				skivvy.chat('*', "^3Map: ^7" + mapname + "^3.");
 			}
 		}
 		if(cmd == "say:")
@@ -1320,11 +1385,11 @@ int main(const int argc, const char* argv[])
 			// 0:23 say: ^5A^6lien ^5S^6urf ^5G^6irl: yes, 3-4 players max
 			bug("line: " << line);
 
-			if(katina_skivvy_chats)
+			if(sk_cfg.do_chats)
 			{
 				str text;
 				if(std::getline(iss >> std::ws, text))
-					skivvy.chat("^7say: ^2" + text);
+					skivvy.chat('c', "^7say: ^2" + text);
 			}
 
 			siz pos;
@@ -1340,7 +1405,7 @@ int main(const int argc, const char* argv[])
 					{
 						bug("mapname: " << mapname);
 
-						chat("^3MAP RECORD: ^7"
+						server.chat("^3MAP RECORD: ^7"
 							+ recs["dash." + mapname + ".secs"]
 							+ "^3 set by ^7" + recs["dash." + mapname + ".name"]);
 					}
