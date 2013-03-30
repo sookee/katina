@@ -1125,7 +1125,7 @@ int main(const int argc, const char* argv[])
 	guid_siz_map caps; // GUID -> <count> // TODO: caps container duplicated in stats::caps
 	guid_stat_map stats; // GUID -> <stat>
 	guid_siz_map teams; // GUID -> 'R' | 'B'
-	str mapname; // current map name
+	str mapname, old_mapname; // current/previous map name
 
 	typedef std::map<str, time_t> str_utime_map; // GUID -> time
 	typedef std::pair<const str, time_t> str_utime_pair;
@@ -1424,9 +1424,9 @@ int main(const int argc, const char* argv[])
 				dashing[FL_RED] = true;
 				dashing[FL_BLUE] = true;
 
-				str msg = "^1K^7at^3i^7na ^3Stats system v^70.1^3-alpha.";
+				str msg = "^1K^7at^3i^7na ^3Stats System v^70.1^3-alpha.";
 				server.cp(msg);
-				skivvy.chat('*', msg);
+				//skivvy.chat('*', msg);
 
 				siz pos;
 				if((pos = line.find("mapname\\")) != str::npos)
@@ -1440,8 +1440,11 @@ int main(const int argc, const char* argv[])
 					}
 					bug("mapname: " << mapname);
 				}
-				if(sk_cfg.do_infos)
+				if(sk_cfg.do_infos && mapname != old_mapname)
+				{
 					skivvy.chat('i', "^3Map: ^7" + mapname + "^3.");
+					old_mapname = mapname;
+				}
 			}
 		}
 		if(cmd == "say:")
