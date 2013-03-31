@@ -859,6 +859,8 @@ siz map_get(const siz_map& m, siz key)
 
 void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 {
+	std::multimap<double, str> skivvy_scores;
+	std::multimap<double, str>::iterator i;
 	for(guid_stat_citer p = stats.begin(); p != stats.end(); ++p)
 	{
 		const str& player = players.at(p->first);
@@ -873,18 +875,25 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 			siz d = map_get(p->second.deaths, MOD_RAILGUN);
 			siz c = map_get(p->second.flags, FL_CAPTURED);
 
+			double rkd = 0.0;
+			double rcd = 0.0;
 			str kd, cd;
 			if(!d)
 				kd = cd = "perfect";
 			else
 			{
-				kd = to_string(double(k) / d);
-				cd = to_string(double(c * 100) / d);
+				rkd = double(k) / d;
+				rcd = double(c * 100) / d;
+				kd = to_string(rkd);
+				cd = to_string(rcd);
 			}
 			if(k || c || d)
-				skivvy.chat('s', "^7" + player + "^7: " + "^3kills^7/^3d ^5(^7" + kd + "^5) ^3caps^7/^3d ^5(^7" + cd + "^5)");
+				i = skivvy_scores.insert(i, std::make_pair(rkd, "^7" + player + "^7: " + "^3kills^7/^3d ^5(^7" + kd + "^5) ^3caps^7/^3d ^5(^7" + cd + "^5)"));
 		}
 	}
+	if(sk_cfg.do_stats)
+		for(std::multimap<double, str>::reverse_iterator r = skivvy_scores.rbegin(); r != skivvy_scores.rend(); ++r)
+			skivvy.chat('s', r->second);
 }
 
 void save_records(const str_map& recs)
