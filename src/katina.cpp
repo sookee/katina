@@ -1543,11 +1543,14 @@ int main(const int argc, const char* argv[])
 			// 0:23 say: ^5A^6lien ^5S^6urf ^5G^6irl: yes, 3-4 players max
 			//bug("line: " << line);
 
+			static str_set spam;
+
 			if(sk_cfg.do_chats)
 			{
 				str text;
 				if(std::getline(iss >> std::ws, text))
-					skivvy.chat('c', "^7say: ^2" + text);
+					if(!spam.count(text))
+						skivvy.chat('c', "^7say: ^2" + *spam.insert(spam.end(), text));
 			}
 
 			siz pos;
@@ -1560,6 +1563,7 @@ int main(const int argc, const char* argv[])
 			str cmd;
 			iss >> cmd;
 			bug("cmd: " << cmd);
+			lower(cmd);
 
 			if(cmd == "!record")
 			{
