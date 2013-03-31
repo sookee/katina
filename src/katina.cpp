@@ -233,38 +233,41 @@ str get_stamp()
 #define con(m) do{std::cout << m << std::endl;}while(false)
 #define log(m) do{std::cout << get_stamp() << ": " << m << std::endl;}while(false)
 
-struct GUID
+class GUID
 {
 	str data;
 
-	GUID(): data(16, '0')
+public:
+	const static siz SIZE = 8;
+
+	GUID(): data(SIZE, '0')
 	{
-		for(siz i = 0; i < 16; ++i)
+		for(siz i = 0; i < SIZE; ++i)
 			this->data[i] = '0';
 	}
 
-	GUID(const char data[16]): data(16, '0')
+	GUID(const char data[SIZE]): data(SIZE, '0')
 	{
-		for(siz i = 0; i < 16; ++i)
+		for(siz i = 0; i < SIZE; ++i)
 			this->data[i] = data[i];
 	}
 
-	GUID(const GUID& guid): data(16, '0')
+	GUID(const GUID& guid): data(SIZE, '0')
 	{
-		for(siz i = 0; i < 16; ++i)
+		for(siz i = 0; i < SIZE; ++i)
 			this->data[i] = guid.data[i];
 	}
 
 	const GUID& operator=(const GUID& guid)
 	{
-		for(siz i = 0; i < 16; ++i)
+		for(siz i = 0; i < SIZE; ++i)
 			this->data[i] = guid.data[i];
 		return *this;
 	}
 
 	bool operator==(const GUID& guid) const
 	{
-		for(siz i = 0; i < 16; ++i)
+		for(siz i = 0; i < SIZE; ++i)
 			if(this->data[i] != guid.data[i])
 				return false;
 		return true;
@@ -282,7 +285,7 @@ struct GUID
 
 	char& operator[](siz i) { return data[i]; }
 	const char& operator[](siz i) const { return data[i]; }
-	siz size() const { return 16; }
+	siz size() const { return SIZE; }
 
 	operator str() const { return data; }
 };
@@ -301,7 +304,7 @@ sis& operator>>(sis& is, GUID& guid)
 	return is;
 }
 
-const GUID null_guid = "0000000000000000";
+const GUID null_guid = "00000000";
 
 /*
  * Create a GUID for bots based on their slot number
@@ -311,8 +314,8 @@ GUID bot_guid(siz num)
 	soss oss;
 	oss << num;
 	str id = oss.str();
-	if(id.size() < 16)
-		id = str(16 - id.size(), '0') + id;
+	if(id.size() < GUID::SIZE)
+		id = str(GUID::SIZE - id.size(), '0') + id;
 
 	return GUID(id.c_str());
 }
@@ -1313,7 +1316,7 @@ int main(const int argc, const char* argv[])
 					if(guid.size() != 32)
 						clients[num] = bot_guid(num);//null_guid;
 					else
-						clients[num] = to<GUID>(guid);
+						clients[num] = to<GUID>(guid.substr(24));
 
 					players[clients[num]] = name;
 
