@@ -897,6 +897,7 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 		con("\tdeaths: " << map_get(p->second.kills, MOD_RAILGUN));
 		con("\t  defs: " << map_get(p->second.awards, AW_DEFENCE));
 		con("\t gaunt: " << map_get(p->second.awards, AW_GAUNTLET));
+		// TODO: modify this to add AW options as well as insta
 		if(sk_cfg.do_stats)
 		{
 			siz c = map_get(p->second.flags, FL_CAPTURED);
@@ -915,16 +916,16 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 			if(!d)
 			{
 				if(k)
-					kd = "perfect";
+					kd = "perf  ";
 				if(c)
-					cd = "perfect";
+					cd = "perf  ";
 			}
 			else
 			{
 				rkd = double(k) / d;
 				rcd = double(c * 100) / d;
-				kd = to_string(rkd);
-				cd = to_string(rcd);
+				kd = to_string(rkd, 6);
+				cd = to_string(rcd, 6);
 			}
 			if(k || c || d)
 				skivvy_scores.insert(std::make_pair(rkd, "^3kills^7/^3d ^5(^7" + kd + "^5) ^3caps^7/^3d ^5(^7" + cd + "^5)^7: " + player));
