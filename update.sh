@@ -4,4 +4,4 @@ git pull
 make
 
 mkdir -p $HOME/bin
-cp katina $HOME/bin
+cp src/katina $HOME/bin
