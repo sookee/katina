@@ -892,15 +892,22 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 	{
 		const str& player = players.at(p->first);
 		con("player: " << player);
-		con("\t caps: " << map_get(p->second.flags, FL_CAPTURED));
-		con("\tkills: " << map_get(p->second.kills, MOD_RAILGUN));
-		con("\t defs: " << map_get(p->second.awards, AW_DEFENCE));
-		con("\tgaunt: " << map_get(p->second.awards, AW_GAUNTLET));
+		con("\t  caps: " << map_get(p->second.flags, FL_CAPTURED));
+		con("\t kills: " << map_get(p->second.kills, MOD_RAILGUN));
+		con("\tdeaths: " << map_get(p->second.kills, MOD_RAILGUN));
+		con("\t  defs: " << map_get(p->second.awards, AW_DEFENCE));
+		con("\t gaunt: " << map_get(p->second.awards, AW_GAUNTLET));
 		if(sk_cfg.do_stats)
 		{
-			siz k = map_get(p->second.kills, MOD_RAILGUN);
-			siz d = map_get(p->second.deaths, MOD_RAILGUN);
 			siz c = map_get(p->second.flags, FL_CAPTURED);
+			siz k = map_get(p->second.kills, MOD_RAILGUN);
+			k += map_get(p->second.kills, MOD_GAUNTLET);
+			siz d = map_get(p->second.deaths, MOD_RAILGUN);
+			d += map_get(p->second.deaths, MOD_GAUNTLET);
+
+			con("c: " << c);
+			con("k: " << k);
+			con("d: " << d);
 
 			double rkd = 0.0;
 			double rcd = 0.0;
@@ -1532,34 +1539,35 @@ int main(const int argc, const char* argv[])
 
 			if(cmd == "!record")
 			{
+				con("!record");
 				server.chat("^3MAP RECORD: ^7"
 					+ recs["dash." + mapname + ".secs"]
 					+ "^3 set by ^7" + recs["dash." + mapname + ".name"]);
 			}
 			else if(cmd == "!love") // TODO:
 			{
-				bug("!love");
+				con("!love");
 				str love;
 				GUID guid;
 				if(!extract_name_from_text(line, guid, love))
 					continue;
 
-				bug("guid: " << guid);
-				bug("love: " << love);
+				con("guid: " << guid);
+				con("love: " << love);
 
 				if(lower(trim(love)) == "map")
 					++map_votes[guid][mapname];
 			}
 			else if(cmd == "!hate") // TODO:
 			{
-				bug("!hate");
+				con("!hate");
 				str hate;
 				GUID guid;
 				if(!extract_name_from_text(line, guid, hate))
 					continue;
 
-				bug("guid: " << guid);
-				bug("hate: " << hate);
+				con("guid: " << guid);
+				con("hate: " << hate);
 
 				if(lower(trim(hate)) == "map")
 					++map_votes[guid][mapname];
