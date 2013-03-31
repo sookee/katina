@@ -881,7 +881,8 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 				kd = to_string(double(k) / d);
 				cd = to_string(double(c * 100) / d);
 			}
-			skivvy.chat('s', "^7" + player + "^7: " + "^3kills^7/^3d ^5(^7" + kd + "^5) ^3caps^7/^3d ^5(^7" + cd + "^5)");
+			if(k || c || d)
+				skivvy.chat('s', "^7" + player + "^7: " + "^3kills^7/^3d ^5(^7" + kd + "^5) ^3caps^7/^3d ^5(^7" + cd + "^5)");
 		}
 	}
 }
