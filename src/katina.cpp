@@ -1536,7 +1536,10 @@ int main(const int argc, const char* argv[])
 			if((pos = line.find('!', pos)) == str::npos)
 				continue;
 
-			str cmd = line.substr(pos);
+			siss iss(line.substr(pos));
+			str cmd;
+			iss >> cmd;
+			bug("cmd: " << cmd);
 
 			if(cmd == "!record")
 			{
