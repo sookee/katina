@@ -321,10 +321,12 @@ void thread_sleep_millis(siz msecs)
 }
 
 template<typename T>
-str to_string(const T& t)
+str to_string(const T& t, siz width = 0, siz precision = 2)
 {
 	soss oss;
-	oss.precision(2);
+	oss.setf(std::ios::fixed, std::ios::floatfield);
+	oss.width(width);
+	oss.precision(precision);
 	oss << t;
 	return oss.str();
 }
@@ -904,7 +906,12 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 			double rcd = 0.0;
 			str kd, cd;
 			if(!d)
-				kd = cd = "perfect";
+			{
+				if(k)
+					kd = "perfect";
+				if(d)
+					cd = "perfect";
+			}
 			else
 			{
 				rkd = double(k) / d;
@@ -913,7 +920,7 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 				cd = to_string(rcd);
 			}
 			if(k || c || d)
-				skivvy_scores.insert(std::make_pair(rkd, "^7" + player + "^7: " + "^3kills^7/^3d ^5(^7" + kd + "^5) ^3caps^7/^3d ^5(^7" + cd + "^5)"));
+				skivvy_scores.insert(std::make_pair(rkd, "^3kills^7/^3d ^5(^7" + kd + "^5) ^3caps^7/^3d ^5(^7" + cd + "^5)^7: " + player));
 		}
 	}
 	if(sk_cfg.do_stats)
