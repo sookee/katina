@@ -1103,7 +1103,6 @@ void* set_teams(void* td_vp)
 	pthread_exit(0);
 }
 
-
 GUID guid_from_name(const str& name)
 {
 	for(guid_str_iter i = players.begin(); i != players.end(); ++i)
@@ -1112,21 +1111,27 @@ GUID guid_from_name(const str& name)
 	return null_guid;
 }
 
-
 bool extract_name_from_text(const str& line, GUID& guid, str& text)
 {
+	bug("extract_name_from_text: " << line);
 	// longest ": " to ": " substring that exixts in names database
 	GUID candidate;
 	siz pos = 0;
 	siz beg = 0;
 	if((beg = line.find(": ")) == str::npos) // "say: "
 		return false;
-	pos = beg;
+
+	beg += 2;
+	bug("beg: " << beg);
+
 	bool found = false;
-	while((pos = line.find(": ", pos)) != str::npos)
+	for(pos = beg; (pos = line.find(": ", pos)) != str::npos; pos += 2)
 	{
+		bug("beg: " << beg);
+		bug("pos: " << pos);
 		if((candidate = guid_from_name(line.substr(beg, pos - beg))) != null_guid)
 		{
+			bug("candidate: " << candidate);
 			guid = candidate;
 			text = line.substr(pos + 2);
 			found = true;
@@ -1555,7 +1560,7 @@ int main(const int argc, const char* argv[])
 				GUID guid;
 				if(!extract_name_from_text(line, guid, love))
 					continue;
-
+				iss >> love;
 				con("guid: " << guid);
 				con("love: " << love);
 
@@ -1570,6 +1575,7 @@ int main(const int argc, const char* argv[])
 				if(!extract_name_from_text(line, guid, hate))
 					continue;
 
+				iss >> hate;
 				con("guid: " << guid);
 				con("hate: " << hate);
 
