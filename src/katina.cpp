@@ -36,9 +36,11 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <iostream>
 #include <exception>
 #include <stdexcept>
+#include <algorithm>
 
 #include <map>
 #include <ctime>
+#include <cctype>
 
 #include <sys/time.h>
 #include <unistd.h>
@@ -111,6 +113,11 @@ typedef std::map<str, siz> str_siz_map;
 typedef str_siz_map::iterator str_siz_map_iter;
 typedef str_siz_map::const_iterator str_siz_map_citer;
 typedef std::pair<const str, siz> str_siz_map_pair;
+
+typedef std::map<str, int> str_int_map;
+typedef str_int_map::iterator str_int_map_iter;
+typedef str_int_map::const_iterator str_int_map_citer;
+typedef std::pair<const str, int> str_int_map_pair;
 
 typedef std::map<siz, str> siz_str_map;
 typedef siz_str_map::iterator siz_str_map_iter;
@@ -198,6 +205,12 @@ inline std::string& rtrim(std::string& s, const char* t = " \t\n\r\f\v")
 inline std::string& trim(std::string& s, const char* t = " \t\n\r\f\v")
 {
 	return ltrim(rtrim(s, t), t);
+}
+
+inline str& lower(str& s)
+{
+	std::transform(s.begin(), s.end(), s.begin(), std::ptr_fun<int, int>(std::tolower));
+	return s;
 }
 
 // -- LOGGING ------------------------------------------------
@@ -787,6 +800,18 @@ struct skivvy_conf
 bool katina_active = false;
 skivvy_conf sk_cfg;
 
+siz_guid_map clients; // slot -> GUID
+guid_str_map players; // GUID -> name
+onevone_map onevone; // GUID -> GUID -> <count> //
+guid_siz_map caps; // GUID -> <count> // TODO: caps container duplicated in stats::caps
+guid_stat_map stats; // GUID -> <stat>
+guid_siz_map teams; // GUID -> 'R' | 'B'
+str mapname, old_mapname; // current/previous map name
+
+typedef std::map<GUID, str_int_map> guid_str_int_map;
+
+guid_str_int_map map_votes; // GUID -> { "mapname" -> 3 }
+
 void report_clients(const siz_guid_map& clients)
 {
 	for(siz_guid_citer i = clients.begin(); i != clients.end(); ++i)
@@ -860,7 +885,7 @@ siz map_get(const siz_map& m, siz key)
 void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 {
 	std::multimap<double, str> skivvy_scores;
-	std::multimap<double, str>::iterator i;
+	//std::multimap<double, str>::iterator i;
 	for(guid_stat_citer p = stats.begin(); p != stats.end(); ++p)
 	{
 		const str& player = players.at(p->first);
@@ -888,7 +913,7 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 				cd = to_string(rcd);
 			}
 			if(k || c || d)
-				i = skivvy_scores.insert(i, std::make_pair(rkd, "^7" + player + "^7: " + "^3kills^7/^3d ^5(^7" + kd + "^5) ^3caps^7/^3d ^5(^7" + cd + "^5)"));
+				skivvy_scores.insert(std::make_pair(rkd, "^7" + player + "^7: " + "^3kills^7/^3d ^5(^7" + kd + "^5) ^3caps^7/^3d ^5(^7" + cd + "^5)"));
 		}
 	}
 	if(sk_cfg.do_stats)
@@ -1063,6 +1088,38 @@ void* set_teams(void* td_vp)
 	pthread_exit(0);
 }
 
+
+GUID guid_from_name(const str& name)
+{
+	for(guid_str_iter i = players.begin(); i != players.end(); ++i)
+		if(i->second == name)
+			return i->first;
+	return null_guid;
+}
+
+
+bool extract_name_from_text(const str& line, GUID& guid, str& text)
+{
+	// longest ": " to ": " substring that exixts in names database
+	GUID candidate;
+	siz pos = 0;
+	siz beg = 0;
+	if((beg = line.find(": ")) == str::npos) // "say: "
+		return false;
+	pos = beg;
+	bool found = false;
+	while((pos = line.find(": ", pos)) != str::npos)
+	{
+		if((candidate = guid_from_name(line.substr(beg, pos - beg))) != null_guid)
+		{
+			guid = candidate;
+			text = line.substr(pos + 2);
+			found = true;
+		}
+	}
+	return found;
+}
+
 int main(const int argc, const char* argv[])
 {
 	str_map recs; // high scores
@@ -1129,17 +1186,6 @@ int main(const int argc, const char* argv[])
 
 	siz flags[2];
 
-	siz_guid_map clients; // slot -> GUID
-	guid_str_map players; // GUID -> name
-	onevone_map onevone; // GUID -> GUID -> <count> //
-	guid_siz_map caps; // GUID -> <count> // TODO: caps container duplicated in stats::caps
-	guid_stat_map stats; // GUID -> <stat>
-	guid_siz_map teams; // GUID -> 'R' | 'B'
-	str mapname, old_mapname; // current/previous map name
-
-	typedef std::map<str, time_t> str_utime_map; // GUID -> time
-	typedef std::pair<const str, time_t> str_utime_pair;
-//	str_utime_map dash[2];
 	milliseconds dash[2];// = {0, 0}; // time of dash start
 	GUID dasher[2]; // who is dashing
 	bool dashing[2] = {true, true}; // flag dash in progress?
@@ -1452,7 +1498,7 @@ int main(const int argc, const char* argv[])
 				}
 				if(sk_cfg.do_infos && mapname != old_mapname)
 				{
-					skivvy.chat('i', "^3Map: ^7" + mapname + "^3.");
+					skivvy.chat('i', "^3== Playing Map: ^7" + mapname + "^3 ==");
 					old_mapname = mapname;
 				}
 			}
@@ -1460,7 +1506,7 @@ int main(const int argc, const char* argv[])
 		if(cmd == "say:")
 		{
 			// 0:23 say: ^5A^6lien ^5S^6urf ^5G^6irl: yes, 3-4 players max
-			bug("line: " << line);
+			//bug("line: " << line);
 
 			if(sk_cfg.do_chats)
 			{
@@ -1470,23 +1516,46 @@ int main(const int argc, const char* argv[])
 			}
 
 			siz pos;
-			if((pos = line.find_last_of(':')) != str::npos)
-			{
-				bug("pos: " << pos);
-				if((pos = line.find('!', pos)) != str::npos)
-				{
-					bug("pos: " << pos);
-					str cmd = line.substr(pos);
-					bug("cmd: " << cmd);
-					if(cmd == "!record")
-					{
-						bug("mapname: " << mapname);
+			if((pos = line.find_last_of(':')) == str::npos)
+				continue;
+			if((pos = line.find('!', pos)) == str::npos)
+				continue;
 
-						server.chat("^3MAP RECORD: ^7"
-							+ recs["dash." + mapname + ".secs"]
-							+ "^3 set by ^7" + recs["dash." + mapname + ".name"]);
-					}
-				}
+			str cmd = line.substr(pos);
+
+			if(cmd == "!record")
+			{
+				server.chat("^3MAP RECORD: ^7"
+					+ recs["dash." + mapname + ".secs"]
+					+ "^3 set by ^7" + recs["dash." + mapname + ".name"]);
+			}
+			else if(cmd == "!love") // TODO:
+			{
+				bug("!love");
+				str love;
+				GUID guid;
+				if(!extract_name_from_text(line, guid, love))
+					continue;
+
+				bug("guid: " << guid);
+				bug("love: " << love);
+
+				if(lower(trim(love)) == "map")
+					++map_votes[guid][mapname];
+			}
+			else if(cmd == "!hate") // TODO:
+			{
+				bug("!hate");
+				str hate;
+				GUID guid;
+				if(!extract_name_from_text(line, guid, hate))
+					continue;
+
+				bug("guid: " << guid);
+				bug("hate: " << hate);
+
+				if(lower(trim(hate)) == "map")
+					++map_votes[guid][mapname];
 			}
 		}
 	}
