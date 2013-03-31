@@ -1582,7 +1582,7 @@ int main(const int argc, const char* argv[])
 				if(lower(trim(love)) == "map")
 				{
 					if(map_votes.count(guid))
-						server.chat("^You can only vote once per week.");
+						server.chat("^3You can only vote once per week.");
 					else
 					{
 						++map_votes[guid];
@@ -1605,7 +1605,7 @@ int main(const int argc, const char* argv[])
 				if(lower(trim(hate)) == "map")
 				{
 					if(map_votes.count(guid))
-						server.chat("^You can only vote once per week.");
+						server.chat("^3You can only vote once per week.");
 					else
 					{
 						--map_votes[guid];
