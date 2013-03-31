@@ -1580,7 +1580,15 @@ int main(const int argc, const char* argv[])
 				con("love: " << love);
 
 				if(lower(trim(love)) == "map")
-					++map_votes[guid];
+				{
+					if(map_votes.count(guid))
+						server.chat("^You can only vote once per week.");
+					else
+					{
+						++map_votes[guid];
+						server.chat("^7" + players[guid] + "^7: ^3Your vote has been counted.");
+					}
+				}
 			}
 			else if(cmd == "!hate") // TODO:
 			{
@@ -1595,7 +1603,15 @@ int main(const int argc, const char* argv[])
 				con("hate: " << hate);
 
 				if(lower(trim(hate)) == "map")
-					--map_votes[guid];
+				{
+					if(map_votes.count(guid))
+						server.chat("^You can only vote once per week.");
+					else
+					{
+						--map_votes[guid];
+						server.chat("^7" + players[guid] + "^7: ^3Your vote has been counted.");
+					}
+				}
 			}
 		}
 	}
