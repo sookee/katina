@@ -1602,7 +1602,7 @@ int main(const int argc, const char* argv[])
 				str text;
 				if(std::getline(iss >> std::ws, text))
 					if(!spam.count(text))
-						skivvy.chat('c', "^7say: ^2" + *spam.insert(spam.end(), text));
+						skivvy.chat('c', "^7say: " + *spam.insert(spam.end(), text));
 			}
 
 			siz pos;
