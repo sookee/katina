@@ -283,6 +283,8 @@ struct GUID
 	char& operator[](siz i) { return data[i]; }
 	const char& operator[](siz i) const { return data[i]; }
 	siz size() const { return 16; }
+
+	operator str() const { return data; }
 };
 
 sos& operator<<(sos& os, const GUID& guid)
@@ -810,9 +812,12 @@ guid_stat_map stats; // GUID -> <stat>
 guid_siz_map teams; // GUID -> 'R' | 'B'
 str mapname, old_mapname; // current/previous map name
 
-typedef std::map<GUID, str_int_map> guid_str_int_map;
+typedef std::map<GUID, int> guid_int_map;
+typedef std::pair<const GUID, int> guid_int_map_pair;
+typedef guid_int_map::iterator guid_int_map_iter;
+typedef guid_int_map::const_iterator guid_int_map_citer;
 
-guid_str_int_map map_votes; // GUID -> { "mapname" -> 3 }
+guid_int_map map_votes; // GUID -> 3
 
 void report_clients(const siz_guid_map& clients)
 {
@@ -1262,6 +1267,13 @@ int main(const int argc, const char* argv[])
 					con("");
 					report_stats(stats, players);
 					con("");
+
+					// TODO: add votes to db
+					for(guid_int_map_iter i = map_votes.begin(); i != map_votes.end(); ++i)
+					{
+						recs["vote." + mapname + "." + str(i->first)] = to_string(i->second);
+						save_records(recs);
+					}
 				}
 				catch(std::exception& e)
 				{
@@ -1565,7 +1577,7 @@ int main(const int argc, const char* argv[])
 				con("love: " << love);
 
 				if(lower(trim(love)) == "map")
-					++map_votes[guid][mapname];
+					++map_votes[guid];
 			}
 			else if(cmd == "!hate") // TODO:
 			{
@@ -1580,7 +1592,7 @@ int main(const int argc, const char* argv[])
 				con("hate: " << hate);
 
 				if(lower(trim(hate)) == "map")
-					++map_votes[guid][mapname];
+					--map_votes[guid];
 			}
 		}
 	}
