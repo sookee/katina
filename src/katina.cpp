@@ -1018,6 +1018,7 @@ void* set_teams(void* td_vp)
 				if(ka_cfg.do_flags != old_ka_cfg.do_flags)
 				{
 					log("katina: flag counting is now: " << (ka_cfg.do_flags ? "on":"off"));
+					server.chat( "^3Flag countng ^1" + str(ka_cfg.do_flags ? "on":"off") + "^3.");
 					skivvy.chat('f', "^3Flag countng ^1" + str(ka_cfg.do_flags ? "on":"off") + "^3.");
 				}
 			break;
@@ -1027,6 +1028,7 @@ void* set_teams(void* td_vp)
 				if(ka_cfg.do_dashes != old_ka_cfg.do_dashes)
 				{
 					log("katina: flag timing is now: " << (ka_cfg.do_dashes ? "on":"off"));
+					server.chat("^3Flag timing ^1" + str(ka_cfg.do_dashes ? "on":"off") + "^3.");
 					skivvy.chat('f', "^3Flag timing ^1" + str(ka_cfg.do_dashes ? "on":"off") + "^3.");
 				}
 			break;
