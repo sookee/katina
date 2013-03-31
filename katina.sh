@@ -5,13 +5,12 @@ CMD=$1 # start|restart|stop|clear
 KATINA_HOME=$HOME/dev/oastats
 KATINA_DATA=$HOME/.katina
 
-KATINA=$KATINA_HOME/src/katina
+mkdir -p $KATINA_DATA
+
 KATINA_LOG=$KATINA_DATA/katina.log
 
-SERVER_LOG=$HOME/.openarena/CTF/insta.log
-
 NAME=katina
-COMMAND="$KATINA $SERVER_LOG"
+COMMAND="katina"
 LOG=$KATINA_LOG
 PID=$KATINA_DATA/.pid
 

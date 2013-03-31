@@ -44,6 +44,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include <sys/time.h>
 #include <unistd.h>
+#include <wordexp.h>
 
 #include <pthread.h>
 
@@ -946,7 +947,7 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 
 void save_records(const str_map& recs)
 {
-	std::ofstream ofs((str(getenv("HOME")) + "/.katina/high-scores.txt").c_str());
+	std::ofstream ofs((str(getenv("HOME")) + "/.katina/records.txt").c_str());
 
 	str sep;
 	for(str_map_citer r = recs.begin(); r != recs.end(); ++r)
@@ -955,7 +956,7 @@ void save_records(const str_map& recs)
 
 void load_records(str_map& recs)
 {
-	std::ifstream ifs((str(getenv("HOME")) + "/.katina/high-scores.txt").c_str());
+	std::ifstream ifs((str(getenv("HOME")) + "/.katina/records.txt").c_str());
 
 	recs.clear();
 	str key;
@@ -1148,6 +1149,17 @@ bool extract_name_from_text(const str& line, GUID& guid, str& text)
 	return found;
 }
 
+str expand_env(const str& var)
+{
+	str exp;
+	wordexp_t p;
+	wordexp(var.c_str(), &p, 0);
+	if(p.we_wordc)
+		exp = p.we_wordv[0];
+	wordfree(&p);
+	return exp;
+}
+
 int main(const int argc, const char* argv[])
 {
 	str_map recs; // high scores
@@ -1158,8 +1170,10 @@ int main(const int argc, const char* argv[])
 	sifs ifs;
 	if(argc > 1)
 		ifs.open(argv[1], std::ios::ate);
+	else if(!recs["logfile"].empty())
+		ifs.open(expand_env(recs["logfile"]).c_str(), std::ios::ate);
 
-	sis& is = (argc > 1) ? ifs : std::cin;
+	sis& is = ifs.is_open() ? ifs : std::cin;
 
 	if(!is)
 	{
