@@ -21,6 +21,9 @@ k = kills
 s = stats (k/d c/d)
 
 !rcon zim seta katina_active 1
+!rcon zim seta katina_dashes 1
+!rcon zim seta katina_flags 1
+
 !rcon zim seta katina_skivvy_active 1
 !rcon zim seta katina_skivvy_infos 1
 !rcon zim seta katina_skivvy_chats 1
@@ -46,4 +49,19 @@ s = stats (k/d c/d)
 !rcon soo seta katina_skivvy_kills 0
 !rcon soo seta katina_skivvy_stats 0
 !rcon soo seta katina_skivvy_chans #katina-test(icfks)
+
+## config $HOME/.katina/records.txt
+
+db.base: oadb
+db.host: localhost
+db.pass: oadb
+db.port: 3306
+db.user: oadb
+logfile: $HOME/.openarena/CTF/insta.log
+rcon.delay: 6000
+rcon.host: 192.168.0.54
+rcon.pass: <rconpassword>
+rcon.port: 27960
+skivvy.host: 192.168.0.50
+skivvy.port: 7334
 

@@ -784,6 +784,20 @@ struct thread_data
 
 bool done = false;
 
+struct katina_conf
+{
+	bool active;
+	bool do_flags;
+	bool do_dashes;
+
+	katina_conf()
+	: active(false)
+	, do_flags(false)
+	, do_dashes(false)
+	{
+	}
+};
+
 struct skivvy_conf
 {
 	bool active;
@@ -806,6 +820,7 @@ struct skivvy_conf
 };
 
 bool katina_active = false;
+katina_conf ka_cfg;
 skivvy_conf sk_cfg;
 
 siz_guid_map clients; // slot -> GUID
@@ -982,22 +997,40 @@ void* set_teams(void* td_vp)
 
 		static siz c = 0;
 
+		katina_conf old_ka_cfg = ka_cfg;
 		skivvy_conf old_sk_cfg = sk_cfg;
-		bool old_katina_active = katina_active;
 
 		switch(c++)
 		{
 			case 0:
-				if(!rconset("katina_active", katina_active))
-					rconset("katina_active", katina_active); // one retry
-				if(katina_active != old_katina_active)
+				if(!rconset("katina_active", ka_cfg.active))
+					rconset("katina_active", ka_cfg.active); // one retry
+				if(ka_cfg.active != old_ka_cfg.active)
 				{
-					log("katina: " + str(katina_active?"":"de-") + "activated");
-					server.chat("^3going ^1" + str(katina_active?"on":"off") + "-line^3.");
-					skivvy.chat('*', "^3going ^1" + str(katina_active?"on":"off") + "-line^3.");
+					log("katina: " + str(ka_cfg.active?"":"de-") + "activated");
+					server.chat("^3going ^1" + str(ka_cfg.active?"on":"off") + "-line^3.");
+					skivvy.chat('*', "^3going ^1" + str(ka_cfg.active?"on":"off") + "-line^3.");
 				}
 			break;
 			case 1:
+				if(!rconset("katina_flags", ka_cfg.do_flags))
+					rconset("katina_flags", ka_cfg.do_flags); // one retry
+				if(ka_cfg.do_flags != old_ka_cfg.do_flags)
+				{
+					log("katina: flag counting is now: " << (ka_cfg.do_flags ? "on":"off"));
+					skivvy.chat('f', "^3Flag countng ^1" + str(ka_cfg.do_flags ? "on":"off") + "^3.");
+				}
+			break;
+			case 2:
+				if(!rconset("katina_dashes", ka_cfg.do_dashes))
+					rconset("katina_dashes", ka_cfg.do_dashes); // one retry
+				if(ka_cfg.do_dashes != old_ka_cfg.do_dashes)
+				{
+					log("katina: flag timing is now: " << (ka_cfg.do_dashes ? "on":"off"));
+					skivvy.chat('f', "^3Flag timing ^1" + str(ka_cfg.do_dashes ? "on":"off") + "^3.");
+				}
+			break;
+			case 3:
 				if(!rconset("katina_skivvy_active", sk_cfg.active))
 					rconset("katina_skivvy_active", sk_cfg.active); // one retry
 				if(sk_cfg.active != old_sk_cfg.active)
@@ -1016,7 +1049,7 @@ void* set_teams(void* td_vp)
 					}
 				}
 			break;
-			case 2:
+			case 4:
 				if(!rconset("katina_skivvy_chats", sk_cfg.do_chats))
 					rconset("katina_skivvy_chats", sk_cfg.do_chats); // one retry
 				if(sk_cfg.do_chats != old_sk_cfg.do_chats)
@@ -1025,7 +1058,7 @@ void* set_teams(void* td_vp)
 					skivvy.chat('*', "^3Chat reports ^1" + str(sk_cfg.do_chats ? "on":"off") + "^3.");
 				}
 			break;
-			case 3:
+			case 5:
 				if(!rconset("katina_skivvy_flags", sk_cfg.do_flags))
 					rconset("katina_skivvy_flags", sk_cfg.do_flags); // one retry
 				if(sk_cfg.do_flags != old_sk_cfg.do_flags)
@@ -1034,7 +1067,7 @@ void* set_teams(void* td_vp)
 					skivvy.chat('*', "^3Flag reports ^1" + str(sk_cfg.do_flags ? "on":"off") + "^3.");
 				}
 			break;
-			case 4:
+			case 6:
 				if(!rconset("katina_skivvy_kills", sk_cfg.do_kills))
 					rconset("katina_skivvy_kills",sk_cfg. do_kills); // one retry
 				if(sk_cfg.do_kills != old_sk_cfg.do_kills)
@@ -1043,7 +1076,7 @@ void* set_teams(void* td_vp)
 					skivvy.chat('*', "^3Kill reports ^1" + str(sk_cfg.do_kills ? "on":"off") + "^3.");
 				}
 			break;
-			case 5:
+			case 7:
 				if(!rconset("katina_skivvy_infos", sk_cfg.do_infos))
 					rconset("katina_skivvy_infos", sk_cfg.do_infos); // one retry
 				if(sk_cfg.do_kills != old_sk_cfg.do_kills)
@@ -1052,7 +1085,7 @@ void* set_teams(void* td_vp)
 					skivvy.chat('*', "^3info reports ^1" + str(sk_cfg.do_infos ? "on":"off") + "^3.");
 				}
 			break;
-			case 6:
+			case 8:
 				if(!rconset("katina_skivvy_stats", sk_cfg.do_stats))
 					rconset("katina_skivvy_stats", sk_cfg.do_stats); // one retry
 				if(sk_cfg.do_stats != old_sk_cfg.do_stats)
@@ -1061,7 +1094,7 @@ void* set_teams(void* td_vp)
 					skivvy.chat('*', "^stats reports ^1" + str(sk_cfg.do_stats ? "on":"off") + "^3.");
 				}
 			break;
-			case 7:
+			case 9:
 				if(!rconset("katina_skivvy_chans", sk_cfg.chans))
 					rconset("katina_skivvy_chans", sk_cfg.chans); // one retry
 				if(old_sk_cfg.chans != sk_cfg.chans)
@@ -1076,7 +1109,7 @@ void* set_teams(void* td_vp)
 			break;
 		}
 
-		if(!sk_cfg.active || !katina_active)
+		if(!sk_cfg.active || !sk_cfg.active)
 			continue;
 
 		str reply;
@@ -1251,7 +1284,7 @@ int main(const int argc, const char* argv[])
 
 		pos = is.tellg();
 
-		if(!katina_active)
+		if(!sk_cfg.active)
 			continue;
 
 //		bug("line: " << line);
@@ -1271,7 +1304,7 @@ int main(const int argc, const char* argv[])
 
 				try
 				{
-					if(!caps.empty())
+					if(ka_cfg.do_flags && !caps.empty())
 						report_caps(caps, players);
 
 					// report
@@ -1413,7 +1446,7 @@ int main(const int argc, const char* argv[])
 				if(act == FL_CAPTURED) // In Game Announcer
 				{
 					bug("FL_CAPTURED");
-					if(dashing[col] && dasher[col] != null_guid)
+					if(ka_cfg.do_dashes && dashing[col] && dasher[col] != null_guid)
 					{
 						double sec = (get_millitime() - dash[col]) / 1000.0;
 
@@ -1459,12 +1492,15 @@ int main(const int argc, const char* argv[])
 					++flags[col];
 					++caps[clients[num]];
 
-					str msg = players[clients[num]] + "^3 has ^7" + to_string(caps[clients[num]]) + "^3 flag" + (caps[clients[num]]==1?"":"s") + "!";
-					server.cp(msg);
-					if(sk_cfg.do_flags)
+					if(ka_cfg.do_flags)
 					{
-						skivvy.chat('f', msg);
-						skivvy.chat('f', "^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED]));
+						str msg = players[clients[num]] + "^3 has ^7" + to_string(caps[clients[num]]) + "^3 flag" + (caps[clients[num]]==1?"":"s") + "!";
+						server.cp(msg);
+						if(sk_cfg.do_flags)
+						{
+							skivvy.chat('f', msg);
+							skivvy.chat('f', "^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED]));
+						}
 					}
 				}
 				else if(act == FL_TAKEN)

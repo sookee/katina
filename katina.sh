@@ -2,7 +2,6 @@
 
 CMD=$1 # start|restart|stop|clear
 
-KATINA_HOME=$HOME/dev/oastats
 KATINA_DATA=$HOME/.katina
 
 mkdir -p $KATINA_DATA
