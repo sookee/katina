@@ -916,7 +916,7 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 			{
 				if(k)
 					kd = "perfect";
-				if(d)
+				if(c)
 					cd = "perfect";
 			}
 			else
