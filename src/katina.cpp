@@ -255,6 +255,12 @@ public:
 			this->data[i] = data[i];
 	}
 
+	GUID(const str& data): data(SIZE, '0')
+	{
+		for(siz i = 0; i < SIZE && i < data.size(); ++i)
+			this->data[i] = data[i];
+	}
+
 	GUID(const GUID& guid): data(SIZE, '0')
 	{
 		for(siz i = 0; i < SIZE; ++i)
@@ -1502,6 +1508,7 @@ int main(const int argc, const char* argv[])
 					{
 						recs["vote." + mapname + "." + str(i->first)] = to_string(i->second);
 						save_records(recs);
+						map_votes.clear();
 					}
 				}
 				catch(std::exception& e)
@@ -1764,6 +1771,17 @@ int main(const int argc, const char* argv[])
 						continue;
 					}
 					bug("mapname: " << mapname);
+
+					// load map votes
+					map_votes.clear();
+					for(str_map_iter i = recs.begin(); i != recs.end(); ++i)
+						if(!(i->first.find("vote." + mapname + ".")))
+						{
+							str guid = i->first.substr(5 + mapname.size() + 1);
+							bug("restoring vote: " << guid << " to " << i->second);
+//							map_votes[GUID(guid)] = to<siz>(i->second);
+						}
+					// recs["vote." + mapname + "." + str(i->first)] = to_string(i->second);
 				}
 				if(sk_cfg.do_infos && mapname != old_mapname)
 				{
