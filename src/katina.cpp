@@ -1577,7 +1577,7 @@ int main(const int argc, const char* argv[])
 				// startup voting
 				str reply;
 				if(!server.command("set g_allowVote 1", reply))
-					server.command("set g_allowVote 1", reply); // 1 retry
+					server.command("set g_allowVote 1", reply); // do 1 retry
 
 
 				siz pos;
