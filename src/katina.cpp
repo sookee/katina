@@ -1093,7 +1093,7 @@ void* set_teams(void* td_vp)
 				if(sk_cfg.do_stats != old_sk_cfg.do_stats)
 				{
 					log("skivvy: stats reporting is now: " << (sk_cfg.do_stats ? "on":"off"));
-					skivvy.chat('*', "^stats reports ^1" + str(sk_cfg.do_stats ? "on":"off") + "^3.");
+					skivvy.chat('*', "^3stats reports ^1" + str(sk_cfg.do_stats ? "on":"off") + "^3.");
 				}
 			break;
 			case 9:
@@ -1301,6 +1301,10 @@ int main(const int argc, const char* argv[])
 		{
 			if(cmd == "Exit:")
 			{
+				// shutdown voting until next map
+				str reply;
+				server.command("set g_allowVote 0", reply);
+
 				skivvy.chat('*', "^3Game Over");
 				in_game = false;
 
@@ -1554,6 +1558,7 @@ int main(const int argc, const char* argv[])
 
 				time = std::time(0);
 				in_game = true;
+
 				flags[FL_RED] = 0;
 				flags[FL_BLUE] = 0;
 
@@ -1569,7 +1574,10 @@ int main(const int argc, const char* argv[])
 
 				str msg = "^1K^7at^3i^7na ^3Stats System v^70.1^3-alpha.";
 				server.cp(msg);
-				//skivvy.chat('*', msg);
+				// startup voting
+				str reply;
+				server.command("set g_allowVote 1", reply);
+
 
 				siz pos;
 				if((pos = line.find("mapname\\")) != str::npos)
@@ -1593,7 +1601,7 @@ int main(const int argc, const char* argv[])
 		if(cmd == "say:")
 		{
 			// 0:23 say: ^5A^6lien ^5S^6urf ^5G^6irl: yes, 3-4 players max
-			//bug("line: " << line);
+			bug("line: " << line);
 
 			static str_set spam;
 
