@@ -65,3 +65,12 @@ rcon.port: 27960
 skivvy.host: 192.168.0.50
 skivvy.port: 7334
 
+== DATABASE ==
+
+ kills: game_id guid weap count
+deaths: game_id guid weap count
+  caps: game_id guid count
+  time: game_id guid count // seconds in game (player not spec)
+  game: game_id host port date map
+  
+   

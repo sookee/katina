@@ -74,6 +74,8 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include "socketstream.h"
 
+#include <mysql.h>
+
 using namespace oastats;
 
 //-- TYPES ---------------------------------------------
@@ -716,8 +718,77 @@ public:
 	}
 };
 
+typedef my_ulonglong game_id;
+const game_id bad_id(-1);
+const game_id null_id(0);
+
+class Database
+{
+	bool active;
+
+	str host;
+	siz port;
+	str user;
+	str pass;
+	str base;
+
+	MYSQL mysql;
+
+public:
+	Database(): active(false) { mysql_init(&mysql); }
+	~Database() { off(); }
+
+	void config(const str& host, siz port, const str& user, const str& pass, const str& base)
+	{
+		this->host = host;
+		this->port = port;
+		this->user = user;
+		this->pass = pass;
+		this->base = base;
+	}
+
+	void on()
+	{
+		if(active)
+			return;
+		if(mysql_real_connect(&mysql, host.c_str(), user.c_str()
+			, pass.c_str(), base.c_str(), port, NULL, 0) != &mysql)
+		{
+			log("DATABASE ERROR: Unable to connect; " << mysql_error(&mysql));
+			return;
+		}
+		active = true;
+	}
+
+	void off()
+	{
+		if(!active)
+			return;
+		active = false;
+		mysql_close(&mysql);
+	}
+
+	game_id add_game(const str& host, const str& port, const str& mapname)
+	{
+		if(!active)
+			return null_id; // inactive
+		str sql = "insert into `game`"
+			" (`host`, `port`, `map`) values ('"
+			+ host + "','" + port + "','" + mapname + "')";
+
+		if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+		{
+			log("DATABASE ERROR: Unable to add_mame; " << mysql_error(&mysql));
+			return bad_id;
+		}
+
+		return mysql_insert_id(&mysql);
+	}
+};
+
 RCon server;
 SkivvyClient skivvy;
+Database db;
 
 /**
  * Set a variable from a cvar using rcon.
@@ -1218,6 +1289,9 @@ int main(const int argc, const char* argv[])
 
 	server.config(recs["rcon.host"], to<siz>(recs["rcon.port"]), recs["rcon.pass"]);
 	skivvy.config(recs["skivvy.host"], to<siz>(recs["skivvy.port"]));
+	db.config(recs["db.host"], to<siz>(recs["db.port"]), recs["db.user"], recs["db.pass"], recs["db.base"]);
+
+	db.on(); // TODO: move this to thread
 
 	server.chat("^3Stats System v^70.1^3-alpha - ^1ONLINE");
 	skivvy.chat('*', "^3Stats System v^70.1^3-alpha - ^1ONLINE");
@@ -1303,7 +1377,8 @@ int main(const int argc, const char* argv[])
 			{
 				// shutdown voting until next map
 				str reply;
-				server.command("set g_allowVote 0", reply);
+				if(!server.command("set g_allowVote 0", reply))
+					server.command("set g_allowVote 0", reply); // one retry
 
 				skivvy.chat('*', "^3Game Over");
 				in_game = false;
@@ -1312,6 +1387,13 @@ int main(const int argc, const char* argv[])
 				{
 					if(ka_cfg.do_flags && !caps.empty())
 						report_caps(caps, players);
+
+					game_id id = db.add_game(recs["rcon.host"], recs["rcon.port"], mapname);
+					bug("id; " << id);
+					if(id != null_id && id != bad_id)
+					{
+						// TODO: insert game stats here
+					}
 
 					// report
 					con("Report:");
