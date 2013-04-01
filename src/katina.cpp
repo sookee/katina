@@ -865,8 +865,13 @@ public:
 
 		log("DATABASE: add_player(" << guid << ", " << name << ")");
 
+		// You have an error in your SQL syntax; check the manual that corresponds to your
+		// MySQL server version for the right syntax to use near ''guid','name') values ('00000000','Merman')
+		// ON DUPLICATE KEY UPDATE count = coun' at line 1
+
+
 		soss oss;
-		oss << "insert into `player` ('guid','name') values ('" << guid << "','" << name
+		oss << "insert into `player` (`guid`,`name`) values ('" << guid << "','" << name
 			<< "') ON DUPLICATE KEY UPDATE count = count + 1";
 
 		str sql = oss.str();
