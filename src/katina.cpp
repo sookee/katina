@@ -757,6 +757,7 @@ public:
 			log("DATABASE ERROR: Unable to connect; " << mysql_error(&mysql));
 			return;
 		}
+		log("DATABASE: on");
 		active = true;
 	}
 
@@ -766,12 +767,14 @@ public:
 			return;
 		active = false;
 		mysql_close(&mysql);
+		log("DATABASE: off");
 	}
 
 	game_id add_game(const str& host, const str& port, const str& mapname)
 	{
 		if(!active)
 			return null_id; // inactive
+		log("DATABASE: add_game(" << host << ", " << port << ", " << mapname << ")");
 		str sql = "insert into `game`"
 			" (`host`, `port`, `map`) values ('"
 			+ host + "','" + port + "','" + mapname + "')";
