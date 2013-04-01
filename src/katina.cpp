@@ -1106,6 +1106,7 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 
 void save_records(const str_map& recs)
 {
+	log("save_records:");
 	std::ofstream ofs((str(getenv("HOME")) + "/.katina/records.txt").c_str());
 
 	str sep;
@@ -1115,6 +1116,7 @@ void save_records(const str_map& recs)
 
 void load_records(str_map& recs)
 {
+	log("load_records:");
 	std::ifstream ifs((str(getenv("HOME")) + "/.katina/records.txt").c_str());
 
 	recs.clear();
@@ -1449,6 +1451,7 @@ int main(const int argc, const char* argv[])
 			if(cmd == "Exit:")
 			{
 				// shutdown voting until next map
+				log("exit: writing stats to database and collecting votes");
 				str reply;
 				if(!server.command("set g_allowVote 0", reply))
 					server.command("set g_allowVote 0", reply); // one retry
@@ -1476,13 +1479,17 @@ int main(const int argc, const char* argv[])
 							db_weaps.insert(MOD_RAILGUN);
 							db_weaps.insert(MOD_GAUNTLET);
 
+							siz count;
 							for(std::set<siz>::iterator weap = db_weaps.begin(); weap != db_weaps.end(); ++weap)
 							{
-								db.add_weaps(id, "kills", p->first, *weap, map_get(p->second.kills, *weap));
-								db.add_weaps(id, "deaths", p->first, *weap, map_get(p->second.deaths, *weap));
+								if((count = map_get(p->second.kills, *weap)))
+									db.add_weaps(id, "kills", p->first, *weap, count);
+								if((count = map_get(p->second.deaths, *weap)))
+									db.add_weaps(id, "deaths", p->first, *weap, count);
 							}
 
-							db.add_caps(id, p->first, map_get(p->second.flags, FL_CAPTURED));
+							if((count = map_get(p->second.flags, FL_CAPTURED)))
+								db.add_caps(id, p->first, count);
 //							con("player: " << player);
 //							con("\t  caps: " << map_get(p->second.flags, FL_CAPTURED));
 //							con("\t kills: " << map_get(p->second.kills, MOD_RAILGUN));
@@ -1493,7 +1500,7 @@ int main(const int argc, const char* argv[])
 					}
 
 					// report
-					con("Report:");
+					con("-- Report: -------------------------------");
 					report_clients(clients);
 					con("");
 					report_players(players);
@@ -1501,15 +1508,17 @@ int main(const int argc, const char* argv[])
 					report_onevone(onevone, players);
 					con("");
 					report_stats(stats, players);
-					con("");
+					con("------------------------------------------");
 
 					// TODO: add votes to db
 					for(guid_int_map_iter i = map_votes.begin(); i != map_votes.end(); ++i)
 					{
+						bug("GUID: " << i->first);
 						recs["vote." + mapname + "." + str(i->first)] = to_string(i->second);
-						save_records(recs);
-						map_votes.clear();
 					}
+					save_records(recs);
+					map_votes.clear();
+					log("exit: done");
 				}
 				catch(std::exception& e)
 				{
