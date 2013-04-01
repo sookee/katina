@@ -1464,9 +1464,16 @@ int main(const int argc, const char* argv[])
 						{
 							const str& player = players.at(p->first);
 
-							for(siz weap = 0; weap < MOD_MAXVALUE; ++weap)
+							// TODO: make this global and add cvar config options
+							// aka: seta zim2 katina_db_weaps = 2 10
+							std::set<siz> db_weaps;
+							db_weaps.insert(MOD_RAILGUN);
+							db_weaps.insert(MOD_GAUNTLET);
+
+							for(std::set<siz>::iterator weap = db_weaps.begin(); weap != db_weaps.end(); ++weap)
 							{
-								db.add_weaps(id, "kills", p->first, weap, map_get(p->second.kills, weap));
+								db.add_weaps(id, "kills", p->first, *weap, map_get(p->second.kills, *weap));
+								db.add_weaps(id, "deaths", p->first, *weap, map_get(p->second.deaths, *weap));
 							}
 
 							db.add_caps(id, p->first, map_get(p->second.flags, FL_CAPTURED));
