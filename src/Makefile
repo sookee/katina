@@ -10,7 +10,7 @@ DEBUG = 1
 MYSQL_INCL = -I/usr/include/mysql
 MYSQL_LIBS = $(shell mysql_config --libs)
 
-PCRE_INCL = $(shell pkg-config libpcrecpp --include)
+PCRE_INCL = $(shell pkg-config libpcrecpp --cflags)
 PCRE_LIBS = $(shell pkg-config libpcrecpp --libs)
 
 KATINA_FLAGS = $(DEF_FLAGS) $(MYSQL_FLAG) $(MYSQL_INCL) $(PCRE_INCL) -pthread

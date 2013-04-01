@@ -68,6 +68,7 @@ enum // WEAPON
 	, MOD_KAMIKAZE
 	, MOD_JUICED
 	, MOD_GRAPPLE
+	, MOD_MAXVALUE
 };
 
 #endif /* _OASTATS_CODES_H_ */

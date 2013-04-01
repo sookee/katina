@@ -770,11 +770,22 @@ public:
 		log("DATABASE: off");
 	}
 
+	// == DATABASE ==
+	//
+	//  kills: game_id guid weap count
+	// deaths: game_id guid weap count
+	//   caps: game_id guid count
+	//   time: game_id guid count // seconds in game (player not spec)
+	//   game: game_id host port date map
+
+
 	game_id add_game(const str& host, const str& port, const str& mapname)
 	{
 		if(!active)
 			return null_id; // inactive
+
 		log("DATABASE: add_game(" << host << ", " << port << ", " << mapname << ")");
+
 		str sql = "insert into `game`"
 			" (`host`, `port`, `map`) values ('"
 			+ host + "','" + port + "','" + mapname + "')";
@@ -786,6 +797,59 @@ public:
 		}
 
 		return mysql_insert_id(&mysql);
+	}
+
+	/**
+	 *
+	 * @param id
+	 * @param table "kills" | "deaths"
+	 * @param guid
+	 * @param weap
+	 * @param count
+	 * @return
+	 */
+	bool add_weaps(game_id id, const str& table, const GUID& guid, siz weap, siz count)
+	{
+		if(!active)
+			return true; // not error
+
+		log("DATABASE: add_weaps(" << id << ", " << table << ", " << guid << ", " << weap << ", " << count << ")");
+
+		soss oss;
+		oss << "insert into `" << table << "` (`game_id`, `guid`, `weap`, `count`) values (";
+		oss << "'" << id << "','" << guid << "','" << weap << "','" << count << "')";
+
+		str sql = oss.str();
+
+		if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+		{
+			log("DATABASE ERROR: Unable to add_weaps; " << mysql_error(&mysql));
+			return false;
+		}
+
+		return true;
+	}
+
+	bool add_caps(game_id id, const GUID& guid, siz count)
+	{
+		if(!active)
+			return true; // not error
+
+		log("DATABASE: add_caps(" << id << ", " << guid << ", " << count << ")");
+
+		soss oss;
+		oss << "insert into `caps` (`game_id`, `guid`, `count`) values (";
+		oss << "'" << id << "','" << guid << "','" << count << "')";
+
+		str sql = oss.str();
+
+		if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+		{
+			log("DATABASE ERROR: Unable to add_caps; " << mysql_error(&mysql));
+			return false;
+		}
+
+		return true;
 	}
 };
 
@@ -992,7 +1056,7 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 		con("player: " << player);
 		con("\t  caps: " << map_get(p->second.flags, FL_CAPTURED));
 		con("\t kills: " << map_get(p->second.kills, MOD_RAILGUN));
-		con("\tdeaths: " << map_get(p->second.kills, MOD_RAILGUN));
+		con("\tdeaths: " << map_get(p->second.deaths, MOD_RAILGUN));
 		con("\t  defs: " << map_get(p->second.awards, AW_DEFENCE));
 		con("\t gaunt: " << map_get(p->second.awards, AW_GAUNTLET));
 		// TODO: modify this to add AW options as well as insta
@@ -1396,6 +1460,23 @@ int main(const int argc, const char* argv[])
 					if(id != null_id && id != bad_id)
 					{
 						// TODO: insert game stats here
+						for(guid_stat_citer p = stats.begin(); p != stats.end(); ++p)
+						{
+							const str& player = players.at(p->first);
+
+							for(siz weap = 0; weap < MOD_MAXVALUE; ++weap)
+							{
+								db.add_weaps(id, "kills", p->first, weap, map_get(p->second.kills, weap));
+							}
+
+							db.add_caps(id, p->first, map_get(p->second.flags, FL_CAPTURED));
+//							con("player: " << player);
+//							con("\t  caps: " << map_get(p->second.flags, FL_CAPTURED));
+//							con("\t kills: " << map_get(p->second.kills, MOD_RAILGUN));
+//							con("\tdeaths: " << map_get(p->second.kills, MOD_RAILGUN));
+//							con("\t  defs: " << map_get(p->second.awards, AW_DEFENCE));
+//							con("\t gaunt: " << map_get(p->second.awards, AW_GAUNTLET));
+						}
 					}
 
 					// report
