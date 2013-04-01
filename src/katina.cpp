@@ -857,6 +857,28 @@ public:
 
 		return true;
 	}
+
+	bool add_player(const GUID& guid, const str& name)
+	{
+		if(!active)
+			return true; // not error
+
+		log("DATABASE: add_player(" << guid << ", " << name << ")");
+
+		soss oss;
+		oss << "insert into `player` ('guid','name') values ('" << guid << "','" << name
+			<< "') ON DUPLICATE KEY UPDATE count = count + 1";
+
+		str sql = oss.str();
+
+		if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+		{
+			log("DATABASE ERROR: Unable to add_player; " << mysql_error(&mysql));
+			return false;
+		}
+
+		return true;
+	}
 };
 
 RCon server;
@@ -1490,6 +1512,7 @@ int main(const int argc, const char* argv[])
 
 							if((count = map_get(p->second.flags, FL_CAPTURED)))
 								db.add_caps(id, p->first, count);
+
 //							con("player: " << player);
 //							con("\t  caps: " << map_get(p->second.flags, FL_CAPTURED));
 //							con("\t kills: " << map_get(p->second.kills, MOD_RAILGUN));
@@ -1518,12 +1541,16 @@ int main(const int argc, const char* argv[])
 					}
 					save_records(recs);
 					map_votes.clear();
-					log("exit: done");
 				}
 				catch(std::exception& e)
 				{
 					con(e.what());
 				}
+				for(guid_str_map::iterator player = players.begin(); player != players.end(); ++player)
+				{
+					db.add_player(player->first, player->second);
+				}
+				log("exit: done");
 			}
 			else if(cmd == "ShutdownGame:")
 			{

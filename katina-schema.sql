@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.1.47, for redhat-linux-gnu (i386)
+-- MySQL dump 10.13  Distrib 5.1.67, for redhat-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: oadb
 -- ------------------------------------------------------
--- Server version	5.1.47
+-- Server version	5.1.67
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -24,7 +24,7 @@ DROP TABLE IF EXISTS `awards`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `awards` (
   `game_id` int(4) unsigned NOT NULL,
-  `player_id` varchar(16) NOT NULL,
+  `guid` varchar(8) NOT NULL,
   `type` int(1) unsigned NOT NULL,
   `count` int(2) unsigned NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
@@ -39,7 +39,7 @@ DROP TABLE IF EXISTS `caps`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `caps` (
   `game_id` int(4) unsigned NOT NULL,
-  `guid` varchar(16) NOT NULL,
+  `guid` varchar(8) NOT NULL,
   `count` int(2) unsigned NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -73,7 +73,7 @@ CREATE TABLE `game` (
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `map` varchar(32) NOT NULL,
   PRIMARY KEY (`game_id`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=30 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=47 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -99,8 +99,10 @@ DROP TABLE IF EXISTS `player`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `player` (
-  `id` varchar(16) NOT NULL,
-  `name` varchar(32) NOT NULL
+  `guid` varchar(8) NOT NULL,
+  `name` varchar(32) NOT NULL,
+  `count` int(4) unsigned NOT NULL,
+  PRIMARY KEY (`guid`,`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -127,4 +129,4 @@ CREATE TABLE `time` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-04-01  3:21:30
+-- Dump completed on 2013-04-01 20:08:50
