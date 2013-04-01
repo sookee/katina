@@ -1773,6 +1773,8 @@ int main(const int argc, const char* argv[])
 					bug("mapname: " << mapname);
 
 					// load map votes
+					// TODO: FIX map voting bypases normal end of map
+					// so votes get lost
 					map_votes.clear();
 					for(str_map_iter i = recs.begin(); i != recs.end(); ++i)
 						if(!(i->first.find("vote." + mapname + ".")))
