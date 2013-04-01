@@ -1779,7 +1779,7 @@ int main(const int argc, const char* argv[])
 						{
 							str guid = i->first.substr(5 + mapname.size() + 1);
 							bug("restoring vote: " << guid << " to " << i->second);
-//							map_votes[GUID(guid)] = to<siz>(i->second);
+							map_votes[GUID(guid)] = to<siz>(i->second);
 						}
 					// recs["vote." + mapname + "." + str(i->first)] = to_string(i->second);
 				}
