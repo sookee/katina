@@ -24,6 +24,9 @@ s = stats (k/d c/d)
 !rcon zim seta katina_dashes 1
 !rcon zim seta katina_flags 1
 
+!rcon zim seta katina_db_active 0
+!rcon zim seta katina_db_weaps 2 10
+
 !rcon zim seta katina_skivvy_active 1
 !rcon zim seta katina_skivvy_infos 1
 !rcon zim seta katina_skivvy_chats 1
@@ -33,6 +36,10 @@ s = stats (k/d c/d)
 !rcon zim seta katina_skivvy_chans #katina(icfks)
 
 !rcon zim2 seta katina_active 1
+
+!rcon zim2 seta katina_db_active 1
+!rcon zim2 seta katina_db_weaps 2 10
+
 !rcon zim2 seta katina_skivvy_active 1
 !rcon zim2 seta katina_skivvy_infos 1
 !rcon zim2 seta katina_skivvy_chats 1
@@ -42,6 +49,10 @@ s = stats (k/d c/d)
 !rcon zim2 seta katina_skivvy_chans #katina(icfks)
 
 !rcon soo seta katina_active 1
+
+!rcon zim seta katina_db_active 0
+!rcon zim seta katina_db_weaps 2 10
+
 !rcon soo seta katina_skivvy_active 1
 !rcon soo seta katina_skivvy_infos 1
 !rcon soo seta katina_skivvy_chats 1
@@ -67,10 +78,19 @@ skivvy.port: 7334
 
 == DATABASE ==
 
+player: guid name count
+  game: game_id host port date map
  kills: game_id guid weap count
 deaths: game_id guid weap count
   caps: game_id guid count
   time: game_id guid count // seconds in game (player not spec)
-  game: game_id host port date map
+
+select: year, month, map
+
+select game_id, date, map from game where date >= TIMESTAMP(year, month) and date < TIMESTAMP(year, month + 1
+
+foreach game_id as id
+	select guid, count from kills where game_id == id
+
   
    

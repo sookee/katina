@@ -297,6 +297,8 @@ public:
 	siz size() const { return SIZE; }
 
 	operator str() const { return data; }
+
+	bool is_bot() { return data < "00001000"; }
 };
 
 sos& operator<<(sos& os, const GUID& guid)
@@ -329,6 +331,7 @@ GUID bot_guid(siz num)
 	return GUID(id.c_str());
 }
 
+inline
 void thread_sleep_millis(siz msecs)
 {
 	usleep(msecs * 1000);
@@ -865,11 +868,6 @@ public:
 
 		log("DATABASE: add_player(" << guid << ", " << name << ")");
 
-		// You have an error in your SQL syntax; check the manual that corresponds to your
-		// MySQL server version for the right syntax to use near ''guid','name') values ('00000000','Merman')
-		// ON DUPLICATE KEY UPDATE count = coun' at line 1
-
-
 		soss oss;
 		oss << "insert into `player` (`guid`,`name`) values ('" << guid << "','" << name
 			<< "') ON DUPLICATE KEY UPDATE count = count + 1";
@@ -955,16 +953,23 @@ struct thread_data
 
 bool done = false;
 
+//std::set<siz> db_weaps;
+//db_weaps.insert(MOD_RAILGUN);
+//db_weaps.insert(MOD_GAUNTLET);
+
 struct katina_conf
 {
 	bool active;
 	bool do_flags;
 	bool do_dashes;
+	bool do_db; // do database writes
+	std::set<siz> db_weaps; // which weapons to record
 
 	katina_conf()
 	: active(false)
 	, do_flags(false)
 	, do_dashes(false)
+	, do_db(false)
 	{
 	}
 };
@@ -990,7 +995,8 @@ struct skivvy_conf
 	}
 };
 
-bool katina_active = false;
+
+//bool katina_active = false;
 katina_conf ka_cfg;
 skivvy_conf sk_cfg;
 
@@ -1172,6 +1178,9 @@ void* set_teams(void* td_vp)
 
 		katina_conf old_ka_cfg = ka_cfg;
 		skivvy_conf old_sk_cfg = sk_cfg;
+		str cvar;
+		siss iss;
+		siz weap;
 
 		switch(c++)
 		{
@@ -1206,6 +1215,31 @@ void* set_teams(void* td_vp)
 				}
 			break;
 			case 3:
+				if(!rconset("katina_db_active", ka_cfg.do_db))
+					rconset("katina_db_active", ka_cfg.do_db); // one retry
+				if(ka_cfg.do_db != old_ka_cfg.do_db)
+				{
+					log("katina: database writing is now: " << (ka_cfg.do_db ? "on":"off"));
+					skivvy.chat('*', "^3Flag timing ^1" + str(ka_cfg.do_db ? "on":"off") + "^3.");
+				}
+			break;
+			case 4:
+				if(!rconset("katina_db_weaps", cvar))
+					if(!rconset("katina_db", cvar))
+						break;
+
+				iss.clear();
+				iss.str(cvar);
+				while(iss >> weap)
+					ka_cfg.db_weaps.insert(weap);
+
+				if(ka_cfg.db_weaps != old_ka_cfg.db_weaps)
+				{
+					log("katina: database writing is now: " << (ka_cfg.do_db ? "on":"off"));
+					skivvy.chat('*', "^3Flag timing ^1" + str(ka_cfg.do_db ? "on":"off") + "^3.");
+				}
+			break;
+			case 5:
 				if(!rconset("katina_skivvy_active", sk_cfg.active))
 					rconset("katina_skivvy_active", sk_cfg.active); // one retry
 				if(sk_cfg.active != old_sk_cfg.active)
@@ -1224,7 +1258,7 @@ void* set_teams(void* td_vp)
 					}
 				}
 			break;
-			case 4:
+			case 6:
 				if(!rconset("katina_skivvy_chats", sk_cfg.do_chats))
 					rconset("katina_skivvy_chats", sk_cfg.do_chats); // one retry
 				if(sk_cfg.do_chats != old_sk_cfg.do_chats)
@@ -1233,7 +1267,7 @@ void* set_teams(void* td_vp)
 					skivvy.chat('*', "^3Chat reports ^1" + str(sk_cfg.do_chats ? "on":"off") + "^3.");
 				}
 			break;
-			case 5:
+			case 7:
 				if(!rconset("katina_skivvy_flags", sk_cfg.do_flags))
 					rconset("katina_skivvy_flags", sk_cfg.do_flags); // one retry
 				if(sk_cfg.do_flags != old_sk_cfg.do_flags)
@@ -1242,7 +1276,7 @@ void* set_teams(void* td_vp)
 					skivvy.chat('*', "^3Flag reports ^1" + str(sk_cfg.do_flags ? "on":"off") + "^3.");
 				}
 			break;
-			case 6:
+			case 8:
 				if(!rconset("katina_skivvy_kills", sk_cfg.do_kills))
 					rconset("katina_skivvy_kills",sk_cfg. do_kills); // one retry
 				if(sk_cfg.do_kills != old_sk_cfg.do_kills)
@@ -1251,7 +1285,7 @@ void* set_teams(void* td_vp)
 					skivvy.chat('*', "^3Kill reports ^1" + str(sk_cfg.do_kills ? "on":"off") + "^3.");
 				}
 			break;
-			case 7:
+			case 9:
 				if(!rconset("katina_skivvy_infos", sk_cfg.do_infos))
 					rconset("katina_skivvy_infos", sk_cfg.do_infos); // one retry
 				if(sk_cfg.do_kills != old_sk_cfg.do_kills)
@@ -1260,7 +1294,7 @@ void* set_teams(void* td_vp)
 					skivvy.chat('*', "^3info reports ^1" + str(sk_cfg.do_infos ? "on":"off") + "^3.");
 				}
 			break;
-			case 8:
+			case 10:
 				if(!rconset("katina_skivvy_stats", sk_cfg.do_stats))
 					rconset("katina_skivvy_stats", sk_cfg.do_stats); // one retry
 				if(sk_cfg.do_stats != old_sk_cfg.do_stats)
@@ -1269,7 +1303,7 @@ void* set_teams(void* td_vp)
 					skivvy.chat('*', "^3stats reports ^1" + str(sk_cfg.do_stats ? "on":"off") + "^3.");
 				}
 			break;
-			case 9:
+			case 11:
 				if(!rconset("katina_skivvy_chans", sk_cfg.chans))
 					rconset("katina_skivvy_chans", sk_cfg.chans); // one retry
 				if(old_sk_cfg.chans != sk_cfg.chans)
@@ -1330,7 +1364,7 @@ GUID guid_from_name(const str& name)
 
 bool extract_name_from_text(const str& line, GUID& guid, str& text)
 {
-	bug("extract_name_from_text: " << line);
+//	bug("extract_name_from_text: " << line);
 	// longest ": " to ": " substring that exixts in names database
 	GUID candidate;
 	siz pos = 0;
@@ -1339,16 +1373,16 @@ bool extract_name_from_text(const str& line, GUID& guid, str& text)
 		return false;
 
 	beg += 2;
-	bug("beg: " << beg);
+//	bug("beg: " << beg);
 
 	bool found = false;
 	for(pos = beg; (pos = line.find(": ", pos)) != str::npos; pos += 2)
 	{
-		bug("beg: " << beg);
-		bug("pos: " << pos);
+//		bug("beg: " << beg);
+//		bug("pos: " << pos);
 		if((candidate = guid_from_name(line.substr(beg, pos - beg))) != null_guid)
 		{
-			bug("candidate: " << candidate);
+//			bug("candidate: " << candidate);
 			guid = candidate;
 			text = line.substr(pos + 2);
 			found = true;
@@ -1452,13 +1486,19 @@ int main(const int argc, const char* argv[])
 	thread_data td = {thread_delay, &clients, &teams};
 	pthread_create(&teams_thread, NULL, &set_teams, (void*) &td);
 
+	milliseconds sleep_time = 100; // milliseconds
 	bool done = false;
 	std::ios::streampos pos = is.tellg();
 	str line;
 	while(!done)
 	{
+		if(ka_cfg.do_dashes)
+			sleep_time = 10;
+		else
+			sleep_time = 100;
+
 		if(!std::getline(is, line) || is.eof())
-			{ thread_sleep_millis(10); is.clear(); is.seekg(pos); continue; }
+			{ thread_sleep_millis(sleep_time); is.clear(); is.seekg(pos); continue; }
 
 		pos = is.tellg();
 
@@ -1500,14 +1540,8 @@ int main(const int argc, const char* argv[])
 						{
 							const str& player = players.at(p->first);
 
-							// TODO: make this global and add cvar config options
-							// aka: seta zim2 katina_db_weaps = 2 10
-							std::set<siz> db_weaps;
-							db_weaps.insert(MOD_RAILGUN);
-							db_weaps.insert(MOD_GAUNTLET);
-
 							siz count;
-							for(std::set<siz>::iterator weap = db_weaps.begin(); weap != db_weaps.end(); ++weap)
+							for(std::set<siz>::iterator weap = ka_cfg.db_weaps.begin(); weap != ka_cfg.db_weaps.end(); ++weap)
 							{
 								if((count = map_get(p->second.kills, *weap)))
 									db.add_weaps(id, "kills", p->first, *weap, count);
@@ -1517,13 +1551,6 @@ int main(const int argc, const char* argv[])
 
 							if((count = map_get(p->second.flags, FL_CAPTURED)))
 								db.add_caps(id, p->first, count);
-
-//							con("player: " << player);
-//							con("\t  caps: " << map_get(p->second.flags, FL_CAPTURED));
-//							con("\t kills: " << map_get(p->second.kills, MOD_RAILGUN));
-//							con("\tdeaths: " << map_get(p->second.kills, MOD_RAILGUN));
-//							con("\t  defs: " << map_get(p->second.awards, AW_DEFENCE));
-//							con("\t gaunt: " << map_get(p->second.awards, AW_GAUNTLET));
 						}
 					}
 
@@ -1624,13 +1651,13 @@ int main(const int argc, const char* argv[])
 				}
 				else if(clients.find(num1) != clients.end() && clients.find(num2) != clients.end())
 				{
-					if(num1 == 1022) // no killer
+					if(num1 == 1022 && !clients[num2].is_bot()) // no killer
 						++stats[clients[num2]].deaths[weap];
-					else
+					else if(!clients[num1].is_bot() && !clients[num2].is_bot())
 					{
-						++stats[clients[num1]].kills[weap];
-						++stats[clients[num2]].deaths[weap];
-						++onevone[clients[num1]][clients[num2]];
+							++stats[clients[num1]].kills[weap];
+							++stats[clients[num2]].deaths[weap];
+							++onevone[clients[num1]][clients[num2]];
 
 						if(sk_cfg.do_kills)
 							skivvy.chat('k', "^7" + players[clients[num1]] + " ^4killed ^7" + players[clients[num2]]
@@ -1668,7 +1695,8 @@ int main(const int argc, const char* argv[])
 				pthread_mutex_unlock(&mtx);
 
 				//bug("inc stats");
-				++stats[clients[num]].flags[act];
+				if(!clients[num].is_bot())
+					++stats[clients[num]].flags[act];
 
 				if(act == FL_CAPTURED) // In Game Announcer
 				{
