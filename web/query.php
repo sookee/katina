@@ -44,20 +44,21 @@ function get_maps_from_db()
 function create_selector($name, $list)
 {
 	$count = 0;
-	$html = '\n<select name="' . $name . '">';
+	$html = "\n" . '<select name="' . $name . '">';
 	foreach ($list as $item)
-		$html = $html . '\n\t<option value="' . $count++ . '">' . $item . '</option>';
-	$html = $html . '\n</select>';
+		$html = $html . "\n\t" . '<option value="' . $count++ . '">' . $item . '</option>';
+	$html = $html . "\n" . '</select>' . "\n";
 	return $html;
 }
 ?>
+<!DOCTYPE html>
 <html>
 <body>
 
 <form action="welcome.php" method="post">
-Year: <?php create_selector('year', get_years_from_db()) ?>
-Month: <?php create_selector('month', $months) ?>
-Map: <?php create_selector('map', get_maps_from_db()) ?>
+Year: <?php echo create_selector('year', get_years_from_db()) ?>
+Month: <?php echo create_selector('month', $months) ?>
+Map: <?php echo create_selector('map', get_maps_from_db()) ?>
 <input type="submit">
 </form>
 
