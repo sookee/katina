@@ -21,7 +21,7 @@ k = kills
 s = stats (k/d c/d)
 
 !rcon zim seta katina_active 1
-!rcon zim seta katina_dashes 1
+!rcon zim seta katina_dashes 0
 !rcon zim seta katina_flags 1
 
 !rcon zim seta katina_db_active 0
@@ -33,7 +33,8 @@ s = stats (k/d c/d)
 !rcon zim seta katina_skivvy_flags 0
 !rcon zim seta katina_skivvy_kills 0
 !rcon zim seta katina_skivvy_stats 0
-!rcon zim seta katina_skivvy_chans #katina(icfks)
+!rcon zim seta katina_skivvy_spamkill 1
+!rcon zim seta katina_skivvy_chans #katina-zim(icfks)
 
 !rcon zim2 seta katina_active 1
 
@@ -46,6 +47,7 @@ s = stats (k/d c/d)
 !rcon zim2 seta katina_skivvy_flags 0
 !rcon zim2 seta katina_skivvy_kills 0
 !rcon zim2 seta katina_skivvy_stats 0
+!rcon zim2 seta katina_skivvy_spamkill 1
 !rcon zim2 seta katina_skivvy_chans #katina(icfks)
 
 !rcon soo seta katina_active 1
@@ -59,6 +61,7 @@ s = stats (k/d c/d)
 !rcon soo seta katina_skivvy_flags 0
 !rcon soo seta katina_skivvy_kills 0
 !rcon soo seta katina_skivvy_stats 0
+!rcon soo seta katina_skivvy_spamkill 1
 !rcon soo seta katina_skivvy_chans #katina-test(icfks)
 
 ## config $HOME/.katina/records.txt
@@ -84,6 +87,7 @@ player: guid name count
 deaths: game_id guid weap count
   caps: game_id guid count
   time: game_id guid count // seconds in game (player not spec)
+  vote: type item guid count // type = 'map' item = 'piltctf'|'oasago2' etc...
 
 select: year, month, map
 

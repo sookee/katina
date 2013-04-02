@@ -107,6 +107,22 @@ CREATE TABLE `player` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `votes`
+--
+
+DROP TABLE IF EXISTS `votes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `votes` (
+  `type` varchar(8) NOT NULL,
+  `item` varchar(32) NOT NULL,
+  `guid` varchar(8) NOT NULL,
+  `count` int(4) unsigned NOT NULL,
+  PRIMARY KEY (`type`,`item`,`guid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `time`
 --
 

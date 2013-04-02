@@ -298,7 +298,7 @@ public:
 
 	operator str() const { return data; }
 
-	bool is_bot() { return data < "00001000"; }
+	bool is_bot() const { return data < "00001000"; }
 };
 
 sos& operator<<(sos& os, const GUID& guid)
@@ -404,6 +404,7 @@ bool aocom(const str& cmd, str_vec& packets, const str& host, int port
 	if(!p)
 	{
 		log("aocom: failed to connect: " << host << ":" << port);
+		::close(cs);
 		return false;
 	}
 
@@ -415,6 +416,7 @@ bool aocom(const str& cmd, str_vec& packets, const str& host, int port
 	if((n = send(cs, msg.c_str(), msg.size(), 0)) < 0 || n < (int)msg.size())
 	{
 		log("cs send: " << strerror(errno));
+		::close(cs);
 		return false;
 	}
 
@@ -430,6 +432,7 @@ bool aocom(const str& cmd, str_vec& packets, const str& host, int port
 			if(get_millitime() > timeout)
 			{
 				log("socket timed out connecting to: " << host << ":" << port);
+				::close(cs);
 				return false;
 			}
 			thread_sleep_millis(10);
@@ -441,7 +444,6 @@ bool aocom(const str& cmd, str_vec& packets, const str& host, int port
 	}
 
 	close(cs);
-
 	return true;
 }
 
@@ -882,6 +884,59 @@ public:
 
 		return true;
 	}
+
+	bool add_vote(const str& type, const str& item, const GUID& guid, int count)
+	{
+		if(!active)
+			return true; // not error
+
+		log("DATABASE: add_vote(" << type << ", " << item << ", " << guid << ", " << count << ")");
+
+		soss oss;
+		oss << "insert into `votes` (`type`,`item`,`guid`,`count`) values ('"
+			<< type << "','" << item << "','" << guid << "','" << count << "')";
+
+		str sql = oss.str();
+
+		if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+		{
+			log("DATABASE ERROR: Unable to add_player; " << mysql_error(&mysql));
+			return false;
+		}
+
+		return true;
+	}
+
+	bool read_recs(str_map& recs)
+	{
+//		recs["vote." + mapname + "." + str(i->first)] = to_string(i->second);
+		if(!active)
+			return true; // not error
+
+		log("DATABASE: read_recs()");
+
+		soss oss;
+		oss << "select `guid`,`map`,`count` from `votes` where `type` = 'map'";
+
+		str sql = oss.str();
+
+		if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+		{
+			log("DATABASE ERROR: Unable to add_player; " << mysql_error(&mysql));
+			return false;
+		}
+
+		MYSQL_RES* result = mysql_store_result(&mysql);
+
+		MYSQL_ROW row;
+		while((row = mysql_fetch_row(result)))
+		{
+			log("DATABASE: restoring vote: " << row[1] << ", " << row[2] << ", " << row[3]);
+			recs["vote." + str(row[1]) + "." + str(row[2])] = str(row[3]);
+		}
+		mysql_free_result(result);
+		return true;
+	}
 };
 
 RCon server;
@@ -982,6 +1037,7 @@ struct skivvy_conf
 	bool do_kills;
 	bool do_infos;
 	bool do_stats;
+	bool spamkill;
 	str chans;
 
 	skivvy_conf()
@@ -991,6 +1047,7 @@ struct skivvy_conf
 	, do_kills(false)
 	, do_infos(false)
 	, do_stats(false)
+	, spamkill(false)
 	{
 	}
 };
@@ -999,6 +1056,8 @@ struct skivvy_conf
 //bool katina_active = false;
 katina_conf ka_cfg;
 skivvy_conf sk_cfg;
+
+str_map recs; // high scores/ config etc
 
 siz_guid_map clients; // slot -> GUID
 guid_str_map players; // GUID -> name
@@ -1221,10 +1280,14 @@ void* set_teams(void* td_vp)
 				{
 					log("katina: database writing is now: " << (ka_cfg.do_db ? "on":"off"));
 					skivvy.chat('*', "^3Flag timing ^1" + str(ka_cfg.do_db ? "on":"off") + "^3.");
-					if(ka_cfg.do_db)
-						db.on();
-					else
+					if(!ka_cfg.do_db)
 						db.off();
+					else
+					{
+						db.on();
+//						recs["vote." + mapname + "." + str(i->first)] = to_string(i->second);
+						db.read_recs(recs);
+					}
 				}
 			break;
 			case 4:
@@ -1308,13 +1371,21 @@ void* set_teams(void* td_vp)
 				}
 			break;
 			case 11:
-				if(!rconset("katina_skivvy_chans", sk_cfg.chans))
-					rconset("katina_skivvy_chans", sk_cfg.chans); // one retry
-				if(old_sk_cfg.chans != sk_cfg.chans)
+				if(!rconset("katina_skivvy_stats", sk_cfg.do_stats))
+					rconset("katina_skivvy_stats", sk_cfg.do_stats); // one retry
+				if(sk_cfg.do_stats != old_sk_cfg.do_stats)
 				{
-					log("skivvy: new chans: " << sk_cfg.chans);
-					skivvy.set_chans(sk_cfg.chans);
-					skivvy.chat('*', "^3Now reporting to ^7" + sk_cfg.chans);
+					log("skivvy: stats reporting is now: " << (sk_cfg.do_stats ? "on":"off"));
+					skivvy.chat('*', "^3stats reports ^1" + str(sk_cfg.do_stats ? "on":"off") + "^3.");
+				}
+			break;
+			case 12:
+				if(!rconset("katina_skivvy_spamkill", sk_cfg.spamkill))
+					rconset("katina_skivvy_spamkill", sk_cfg.spamkill); // one retry
+				if(old_sk_cfg.spamkill != sk_cfg.spamkill)
+				{
+					log("skivvy: spamkill is now: " << (sk_cfg.spamkill ? "on":"off"));
+					skivvy.chat('*', "^3spamkill ^1" + str(sk_cfg.spamkill ? "on":"off") + "^3.");
 				}
 			break;
 			default:
@@ -1408,7 +1479,6 @@ str expand_env(const str& var)
 
 int main(const int argc, const char* argv[])
 {
-	str_map recs; // high scores
 	load_records(recs);
 
 	log("Records loaded: " << recs.size());
@@ -1568,23 +1638,25 @@ int main(const int argc, const char* argv[])
 					report_stats(stats, players);
 					con("------------------------------------------");
 
-					// TODO: add votes to db
+					// TODO: make votes db only
 					for(guid_int_map_iter i = map_votes.begin(); i != map_votes.end(); ++i)
 					{
-						bug("GUID: " << i->first);
+						db.add_vote("map", mapname, i->first, i->second);
 						recs["vote." + mapname + "." + str(i->first)] = to_string(i->second);
 					}
-					save_records(recs);
+
+					save_records(recs); // TODO: remoe this when vots only in db
 					map_votes.clear();
 				}
 				catch(std::exception& e)
 				{
 					con(e.what());
 				}
+
 				for(guid_str_map::iterator player = players.begin(); player != players.end(); ++player)
-				{
-					db.add_player(player->first, player->second);
-				}
+					if(!player->first.is_bot())
+						db.add_player(player->first, player->second);
+
 				log("exit: done");
 			}
 			else if(cmd == "ShutdownGame:")
@@ -1880,7 +1952,7 @@ int main(const int argc, const char* argv[])
 			{
 				str text;
 				if(std::getline(iss >> std::ws, text))
-					if(!spam.count(text))
+					if(!sk_cfg.spamkill || !spam.count(text))
 						skivvy.chat('c', "^7say: " + *spam.insert(spam.end(), text));
 			}
 
