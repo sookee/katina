@@ -1239,8 +1239,8 @@ void* set_teams(void* td_vp)
 
 				if(ka_cfg.db_weaps != old_ka_cfg.db_weaps)
 				{
-					log("katina: database writing is now: " << (ka_cfg.do_db ? "on":"off"));
-					skivvy.chat('*', "^3Flag timing ^1" + str(ka_cfg.do_db ? "on":"off") + "^3.");
+					log("katina: database weaps set to: " << cvar);
+					skivvy.chat('*', "^3Database weapons set to: ^1" + cvar + "^3.");
 				}
 			break;
 			case 5:
