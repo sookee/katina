@@ -1472,6 +1472,7 @@ int main(const int argc, const char* argv[])
 	siz secs = 0;
 	std::istringstream iss;
 	bool in_game = false;
+	bug("in_game: " << in_game);
 
 	siz flags[2];
 
@@ -1514,7 +1515,6 @@ int main(const int argc, const char* argv[])
 		iss >> m >> c >> s >> cmd;
 		secs = (m * 60) + s;
 //		bug("cmd: " << cmd);
-		bug("in_game: " << in_game);
 		if(in_game)
 		{
 			if(cmd == "Exit:")
@@ -1527,6 +1527,7 @@ int main(const int argc, const char* argv[])
 
 				skivvy.chat('*', "^3Game Over");
 				in_game = false;
+				bug("in_game: " << in_game);
 
 				try
 				{
@@ -1588,12 +1589,16 @@ int main(const int argc, const char* argv[])
 			}
 			else if(cmd == "ShutdownGame:")
 			{
-				//chat("^3ShutdownGame:");
+				bug("ShutdownGame:");
 				in_game = false;
+				bug("in_game: " << in_game);
+
 			}
 			else if(cmd == "Warmup:")
 			{
+				bug("Warmup:");
 				in_game = false;
+				bug("in_game: " << in_game);
 			}
 			else if(cmd == "ClientUserinfoChanged:")
 			{
@@ -1805,10 +1810,11 @@ int main(const int argc, const char* argv[])
 		{
 			if(cmd == "InitGame:")
 			{
-				//chat("^3InitGame:");
+				bug("InitGame:");
 
 				time = std::time(0);
 				in_game = true;
+				bug("in_game: " << in_game);
 
 				flags[FL_RED] = 0;
 				flags[FL_BLUE] = 0;

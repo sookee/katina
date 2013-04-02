@@ -1,5 +1,5 @@
 <?php
-$con = mysqli_connect("176.56.235.126","oadb","","oadb");
+$con = mysqli_connect("176.56.235.126", "oadb", "", "oadb");
 
 // Check connection
 if(mysqli_connect_errno($con))
