@@ -1,23 +1,50 @@
 <?php
-function get_years_from_db()
+$con = mysqli_connect("176.56.235.126","oadb","","oadb");
+
+// Check connection
+if(mysqli_connect_errno($con))
 {
-	
+	echo "Failed to connect to MySQL: " . mysqli_connect_error();
 }
 
-function get_months_from_db()
+$months = array
+(
+	'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'	
+);
+
+function get_years_from_db()
 {
-	
+	global $con;
+	$items = array();
+	$result = mysqli_query($con, 'select `date` from `game`');
+	while($row = mysqli_fetch_array($result))
+	{
+		$parts = date_parse($row['date']);
+		if(!in_array($parts['year'], $items))
+			$items[] = $parts['year'];
+	}
+	sort($items);
+	return $items;
 }
 
 function get_maps_from_db()
 {
-	
+	global $con;
+	$items = array();
+	$result = mysqli_query($con, 'select `map` from `game`');
+	while($row = mysqli_fetch_array($result))
+	{
+		if(!in_array($row['map'], $items))
+			$items[] = $row['map'];
+	}
+	sort($items);
+	return $items;
 }
 
-function create_selector($list)
+function create_selector($name, $list)
 {
 	$count = 0;
-	$html = '\n<select>';
+	$html = '\n<select name="' . $name . '">';
 	foreach ($list as $item)
 		$html = $html . '\n\t<option value="' . $count++ . '">' . $item . '</option>';
 	$html = $html . '\n</select>';
@@ -28,11 +55,14 @@ function create_selector($list)
 <body>
 
 <form action="welcome.php" method="post">
-Year: <?php create_selector(get_years_from_db()) ?>
-Month: <?php create_selector(get_months_from_db()) ?>
-Map: <?php create_selector(get_maps_from_db()) ?>
+Year: <?php create_selector('year', get_years_from_db()) ?>
+Month: <?php create_selector('month', $months) ?>
+Map: <?php create_selector('map', get_maps_from_db()) ?>
 <input type="submit">
 </form>
 
 </body>
 </html>
+<?php
+mysqli_close($con);
+?>
