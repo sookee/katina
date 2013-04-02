@@ -1221,6 +1221,10 @@ void* set_teams(void* td_vp)
 				{
 					log("katina: database writing is now: " << (ka_cfg.do_db ? "on":"off"));
 					skivvy.chat('*', "^3Flag timing ^1" + str(ka_cfg.do_db ? "on":"off") + "^3.");
+					if(ka_cfg.do_db)
+						db.on();
+					else
+						db.off();
 				}
 			break;
 			case 4:
@@ -1426,8 +1430,6 @@ int main(const int argc, const char* argv[])
 	server.config(recs["rcon.host"], to<siz>(recs["rcon.port"]), recs["rcon.pass"]);
 	skivvy.config(recs["skivvy.host"], to<siz>(recs["skivvy.port"]));
 	db.config(recs["db.host"], to<siz>(recs["db.port"]), recs["db.user"], recs["db.pass"], recs["db.base"]);
-
-	db.on(); // TODO: move this to thread
 
 	server.chat("^3Stats System v^70.1^3-alpha - ^1ONLINE");
 	skivvy.chat('*', "^3Stats System v^70.1^3-alpha - ^1ONLINE");
