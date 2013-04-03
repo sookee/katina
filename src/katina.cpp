@@ -1647,16 +1647,16 @@ int main(const int argc, const char* argv[])
 					con("");
 					report_stats(stats, players);
 					con("------------------------------------------");
-
-					// TODO: make votes db only
-					for(guid_int_map_iter i = map_votes.begin(); i != map_votes.end(); ++i)
-					{
-						db.add_vote("map", mapname, i->first, i->second);
-						recs["vote." + mapname + "." + str(i->first)] = to_string(i->second);
-					}
-
-					save_records(recs); // TODO: remoe this when vots only in db
-					map_votes.clear();
+//
+//					// TODO: make votes db only
+//					for(guid_int_map_iter i = map_votes.begin(); i != map_votes.end(); ++i)
+//					{
+//						db.add_vote("map", mapname, i->first, i->second);
+//						recs["vote." + mapname + "." + str(i->first)] = to_string(i->second);
+//					}
+//
+//					save_records(recs); // TODO: remoe this when vots only in db
+//					map_votes.clear();
 				}
 				catch(std::exception& e)
 				{
@@ -1893,6 +1893,23 @@ int main(const int argc, const char* argv[])
 			if(cmd == "InitGame:")
 			{
 				bug("InitGame:");
+
+
+				// SAVE mapvotes from the previous game (if any)
+				// We do this here because if the previous map was voted off
+				// end of map processing will have been avoided.
+
+				// TODO: make votes db only
+				for(guid_int_map_iter i = map_votes.begin(); i != map_votes.end(); ++i)
+				{
+					db.add_vote("map", mapname, i->first, i->second);
+					recs["vote." + mapname + "." + str(i->first)] = to_string(i->second);
+				}
+
+				save_records(recs); // TODO: remoe this when vots only in db
+				map_votes.clear();
+
+				// -----------------
 
 				time = std::time(0);
 				in_game = true;
