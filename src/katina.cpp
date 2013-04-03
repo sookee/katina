@@ -795,7 +795,6 @@ public:
 	}
 	//   game: game_id host port date map
 
-
 	game_id add_game(const str& host, const str& port, const str& mapname)
 	{
 		if(!active)
@@ -810,6 +809,7 @@ public:
 		if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
 		{
 			log("DATABASE ERROR: Unable to add_mame; " << mysql_error(&mysql));
+			log("              : sql = " << sql);
 			return bad_id;
 		}
 
@@ -841,6 +841,7 @@ public:
 		if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
 		{
 			log("DATABASE ERROR: Unable to add_weaps; " << mysql_error(&mysql));
+			log("              : sql = " << sql);
 			return false;
 		}
 
@@ -863,6 +864,7 @@ public:
 		if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
 		{
 			log("DATABASE ERROR: Unable to add_caps; " << mysql_error(&mysql));
+			log("              : sql = " << sql);
 			return false;
 		}
 
@@ -885,6 +887,7 @@ public:
 		if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
 		{
 			log("DATABASE ERROR: Unable to add_player; " << mysql_error(&mysql));
+			log("              : sql = " << sql);
 			return false;
 		}
 
@@ -907,6 +910,7 @@ public:
 		if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
 		{
 			log("DATABASE ERROR: Unable to add_player; " << mysql_error(&mysql));
+			log("              : sql = " << sql);
 			return false;
 		}
 
