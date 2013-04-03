@@ -1,14 +1,115 @@
 <?php
 date_default_timezone_set('GMT');
-
 $con = mysqli_connect("176.56.235.126", "oadb", "", "oadb");
 if(mysqli_connect_errno($con))
 	echo mysqli_connect_error();
 
 $form_year = isset($_POST['year']) ? $_POST['year'] : date('Y'); 
 $form_month = isset($_POST['month']) ? $_POST['month'] : date('M'); 
-$form_map = isset($_POST['map']) ? $_POST['map'] : false; 
+$form_map = isset($_POST['map']) ? $_POST['map'] : false;
 
+if(php_sapi_name() == 'cli')
+{
+	$form_year = '2013';
+	$form_month = 'Apr';
+	$form_map = 'oasago2';
+}
+
+#define ColorIndex(c)	( ( (c) - '0' ) & 7 )
+#define Q_COLOR_ESCAPE	'^'
+#define Q_IsColorString(p)	( p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && isalnum(*((p)+1)) ) // ^[0-9a-zA-Z]
+#define Q_IsSpecialChar(c) ((c) && ((c) < 32))
+
+$oatoirctab[8] = array
+(
+	1 // "black"
+	, 4 // "red"
+	, 3 // "lime"
+	, 8 // "yellow"
+	, 2 // "blue"
+	, 12 // "cyan"
+	, 6 // "magenta"
+	, 0 // "white"
+);
+
+$IRC_BOLD = "";
+$IRC_NORMAL = "";
+$IRC_COLOR = "";
+
+function oa_to_IRC($msg)
+{
+	global $oatoirctab;
+	$oss = $IRC_BOLD;
+	$l = strlen($msg);
+	$i = 0;
+	while($msg[$i])
+	{
+		if($i < $l && $msg[$i] == '^' && $msg[$i + 1] && ctype_alnum($msg[$i + 1]))
+		{
+			$oss = $oss . $IRC_NORMAL;
+			$code = $msg[$i + 1] % 8;
+			$oss = $oss . $IRC_COLOR . ($oatoirctab[$code] < 10 ? "0" : "") . $oatoirctab[$code];
+			$i += 2;
+		}
+		else if($msg[$i] && $msg[$i] < 32)
+		{
+			$oss . $oss . "#";
+			$i++;
+		}
+		else
+		{
+			$oss = $oss . $msg[$i];
+			$i++;
+		}
+	}
+
+	$oss = $oss . $IRC_NORMAL;
+
+	return $oss;
+}
+
+$oatohtmltab[8] = array
+(
+	'#000000' // "black"
+	, '#FF0000' // "red"
+	, '#00FF00' // "lime"
+	, '#00FFFF' // "yellow"
+	, '#0000FF' // "blue"
+	, '' // "cyan"
+	, '' // "magenta"
+	, '#FFFFFF' // "white"
+);
+function oa_to_HTML($msg)
+{
+	global $oatohtmltab;
+	$oss = '<span style="color: #FFFFFF">';
+	$l = strlen($msg);
+	$i = 0;
+	while($msg[$i])
+	{
+		if($i < $l && $msg[$i] == '^' && $msg[$i + 1] && ctype_alnum($msg[$i + 1]))
+		{
+			$oss = $oss . '</span>';
+			$code = $msg[$i + 1] % 8;
+			$oss = $oss . '<span style="color: "' . $oatoirctab[$code] . '">';
+			$i += 2;
+		}
+		else if($msg[$i] && $msg[$i] < 32)
+		{
+			$oss . $oss . "#";
+			$i++;
+		}
+		else
+		{
+			$oss = $oss . $msg[$i];
+			$i++;
+		}
+	}
+
+	$oss = $oss . '</span>';
+
+	return $oss;
+}
 
 $months = array
 (
@@ -122,7 +223,7 @@ if($form_map)
 		
 		while($row = mysqli_fetch_array($result))
 		{
-			$names[] = $row[0];
+			$names[$row[0]] = '<unknown>';
 			$players[$row[0]]['k'] += $row[1];
 		}
 
@@ -134,7 +235,7 @@ if($form_map)
 		
 		while($row = mysqli_fetch_array($result))
 		{
-			$names[] = $row[0];
+			$names[$row[0]] = '<unknown>';
 			$players[$row[0]]['d'] += $row[1];
 		}
 
@@ -146,26 +247,39 @@ if($form_map)
 		
 		while($row = mysqli_fetch_array($result))
 		{
-			$names[] = $row[0];
+			$names[$row[0]] = '&lt;unknown&gt;';
 			$players[$row[0]]['c'] += $row[1];
 		}
 	}
-	// echo '$sql: ' . $sql;
+
+	// populate $names
+	$sql = 'select * from `player` where';
+	$sep = ' ';
+	foreach($names as $guid => $name)
+	{
+		$sql = $sql . $sep . '`guid` = \'' . $guid . '\'';
+		$sep = ' or ';
+	}
 	
-// 	select game_id, date, map from game where date >= TIMESTAMP(year, month) and date < TIMESTAMP(year, month + 1
+	$sql = $sql . ' order by `count`';
 	
-// 	foreach game_id as id
-// 	select guid, count from kills where game_id == id
+	$result = mysqli_query($con, $sql);
+	if(!$result)
+		echo mysqli_error($con);
 	
+	while($row = mysqli_fetch_array($result))
+	{
+		$names[$row[0]] = $row[1];
+	}	
 ?>
 <table>
 
 <?php
 foreach($players as $guid => $stats)
 {
-	echo $guid . ': ' . $stats['k'] . ' kills<br/>';
-	echo $guid . ': ' . $stats['d'] . ' deaths<br/>';
-	echo $guid . ': ' . $stats['c'] . ' caps<br/>';
+	echo oa_to_HTML($names[$guid]) . ': ' . $stats['k'] . ' kills<br/>';
+	echo oa_to_HTML($names[$guid]) . ': ' . $stats['d'] . ' deaths<br/>';
+	echo oa_to_HTML($names[$guid]) . ': ' . $stats['c'] . ' caps<br/>';
 	echo '<hr/><br/>';
 }
 ?>

@@ -787,6 +787,12 @@ public:
 	// deaths: game_id guid weap count
 	//   caps: game_id guid count
 	//   time: game_id guid count // seconds in game (player not spec)
+
+	str escape(const str& s)
+	{
+		char buff[1024];
+		return str(buff, mysql_real_escape_string(&mysql, buff, s.c_str(), 1024));
+	}
 	//   game: game_id host port date map
 
 
@@ -795,7 +801,7 @@ public:
 		if(!active)
 			return null_id; // inactive
 
-		log("DATABASE: add_game(" << host << ", " << port << ", " << mapname << ")");
+		log("DATABASE: add_game(" << host << ", " << port << ", " << escape(mapname) << ")");
 
 		str sql = "insert into `game`"
 			" (`host`, `port`, `map`) values ('"
@@ -871,7 +877,7 @@ public:
 		log("DATABASE: add_player(" << guid << ", " << name << ")");
 
 		soss oss;
-		oss << "insert into `player` (`guid`,`name`) values ('" << guid << "','" << name
+		oss << "insert into `player` (`guid`,`name`) values ('" << guid << "','" << escape(name)
 			<< "') ON DUPLICATE KEY UPDATE count = count + 1";
 
 		str sql = oss.str();
@@ -922,7 +928,7 @@ public:
 
 		if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
 		{
-			log("DATABASE ERROR: Unable to add_player; " << mysql_error(&mysql));
+			log("DATABASE ERROR: Unable to read_recs; " << mysql_error(&mysql));
 			return false;
 		}
 
