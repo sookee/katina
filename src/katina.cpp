@@ -530,6 +530,11 @@ typedef siz_str_mmap::reverse_iterator siz_str_mmap_ritr;
 typedef siz_str_mmap::iterator siz_str_mmap_iter;
 typedef siz_str_mmap::const_iterator siz_str_mmap_citer;
 
+typedef std::map<GUID, int> guid_int_map;
+typedef std::pair<const GUID, int> guid_int_map_pair;
+typedef guid_int_map::iterator guid_int_map_iter;
+typedef guid_int_map::const_iterator guid_int_map_citer;
+
 class RCon
 {
 private:
@@ -917,16 +922,15 @@ public:
 		return true;
 	}
 
-	bool read_recs(str_map& recs)
+	bool read_map_votes(const str& mapname, guid_int_map& map_votes)
 	{
-//		recs["vote." + mapname + "." + str(i->first)] = to_string(i->second);
 		if(!active)
 			return true; // not error
 
 		log("DATABASE: read_recs()");
 
 		soss oss;
-		oss << "select `guid`,`map`,`count` from `votes` where `type` = 'map'";
+		oss << "select `guid`,`count` from `votes` where `type` = 'map' and `item` = '" << mapname << "'";
 
 		str sql = oss.str();
 
@@ -942,7 +946,7 @@ public:
 		while((row = mysql_fetch_row(result)))
 		{
 			log("DATABASE: restoring vote: " << row[1] << ", " << row[2] << ", " << row[3]);
-			recs["vote." + str(row[1]) + "." + str(row[2])] = str(row[3]);
+			map_votes[GUID(row[0])] = to<int>(row[1]);
 		}
 		mysql_free_result(result);
 		return true;
@@ -1076,11 +1080,6 @@ guid_siz_map caps; // GUID -> <count> // TODO: caps container duplicated in stat
 guid_stat_map stats; // GUID -> <stat>
 guid_siz_map teams; // GUID -> 'R' | 'B'
 str mapname, old_mapname; // current/previous map name
-
-typedef std::map<GUID, int> guid_int_map;
-typedef std::pair<const GUID, int> guid_int_map_pair;
-typedef guid_int_map::iterator guid_int_map_iter;
-typedef guid_int_map::const_iterator guid_int_map_citer;
 
 guid_int_map map_votes; // GUID -> 3
 
@@ -1295,8 +1294,7 @@ void* set_teams(void* td_vp)
 					else
 					{
 						db.on();
-//						recs["vote." + mapname + "." + str(i->first)] = to_string(i->second);
-						db.read_recs(recs);
+						db.read_map_votes(mapname, map_votes);
 					}
 				}
 			break;
@@ -1647,16 +1645,6 @@ int main(const int argc, const char* argv[])
 					con("");
 					report_stats(stats, players);
 					con("------------------------------------------");
-//
-//					// TODO: make votes db only
-//					for(guid_int_map_iter i = map_votes.begin(); i != map_votes.end(); ++i)
-//					{
-//						db.add_vote("map", mapname, i->first, i->second);
-//						recs["vote." + mapname + "." + str(i->first)] = to_string(i->second);
-//					}
-//
-//					save_records(recs); // TODO: remoe this when vots only in db
-//					map_votes.clear();
 				}
 				catch(std::exception& e)
 				{
@@ -1899,14 +1887,9 @@ int main(const int argc, const char* argv[])
 				// We do this here because if the previous map was voted off
 				// end of map processing will have been avoided.
 
-				// TODO: make votes db only
+				// NB. This MUST be done before mapname changes
 				for(guid_int_map_iter i = map_votes.begin(); i != map_votes.end(); ++i)
-				{
 					db.add_vote("map", mapname, i->first, i->second);
-					recs["vote." + mapname + "." + str(i->first)] = to_string(i->second);
-				}
-
-				save_records(recs); // TODO: remoe this when vots only in db
 				map_votes.clear();
 
 				// -----------------
@@ -1948,18 +1931,8 @@ int main(const int argc, const char* argv[])
 					}
 					bug("mapname: " << mapname);
 
-					// load map votes
-					// TODO: FIX map voting bypases normal end of map
-					// so votes get lost
-					map_votes.clear();
-					for(str_map_iter i = recs.begin(); i != recs.end(); ++i)
-						if(!(i->first.find("vote." + mapname + ".")))
-						{
-							str guid = i->first.substr(5 + mapname.size() + 1);
-							bug("restoring vote: " << guid << " to " << i->second);
-							map_votes[GUID(guid)] = to<siz>(i->second);
-						}
-					// recs["vote." + mapname + "." + str(i->first)] = to_string(i->second);
+					// load map votes for new map
+					db.read_map_votes(mapname, map_votes);
 				}
 				if(sk_cfg.do_infos && mapname != old_mapname)
 				{
