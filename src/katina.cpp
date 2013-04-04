@@ -799,8 +799,11 @@ public:
 
 	str escape(const str& s)
 	{
+		bug("escape:");
 		char buff[1024];
-		return str(buff, mysql_real_escape_string(&mysql, buff, s.c_str(), 1024));
+		str esc(buff, mysql_real_escape_string(&mysql, buff, s.c_str(), 1024));
+		bug("esc: " << esc);
+		return esc;
 	}
 	//   game: game_id host port date map
 
@@ -809,11 +812,11 @@ public:
 		if(!active)
 			return null_id; // inactive
 
-		log("DATABASE: add_game(" << host << ", " << port << ", " << escape(mapname) << ")");
+		log("DATABASE: add_game(" << host << ", " << port << ", " << mapname << ")");
 
 		str sql = "insert into `game`"
 			" (`host`, `port`, `map`) values ('"
-			+ host + "','" + port + "','" + mapname + "')";
+			+ host + "','" + port + "','" + escape(mapname) + "')";
 
 		if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
 		{
@@ -1398,7 +1401,7 @@ void* set_teams(void* td_vp)
 				if(old_sk_cfg.spamkill != sk_cfg.spamkill)
 				{
 					log("skivvy: spamkill is now: " << (sk_cfg.spamkill ? "on":"off"));
-					skivvy.chat('*', "^3spamkill ^1" + str(sk_cfg.spamkill ? "on":"off") + "^3.");
+					skivvy.chat('*', "^3Spamkill ^1" + str(sk_cfg.spamkill ? "on":"off") + "^3.");
 				}
 			break;
 			default:
@@ -1492,6 +1495,8 @@ str expand_env(const str& var)
 
 void stack_handler(int sig)
 {
+	con("Error: signal " << sig);
+
 	void *array[2048];
 	size_t size;
 
@@ -1499,8 +1504,6 @@ void stack_handler(int sig)
 	size = backtrace(array, 2048);
 
 	// print out all the frames to stderr
-	fprintf(stderr, "Error: signal %d:\n", sig);
-
 	char** trace = backtrace_symbols(array, size);
 
 	int status;
@@ -1522,6 +1525,7 @@ void stack_handler(int sig)
 int main(const int argc, const char* argv[])
 {
 	signal(11, stack_handler);
+	SIGSEGV;
 
 	load_records(recs);
 
