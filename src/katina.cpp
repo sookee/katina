@@ -37,6 +37,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <exception>
 #include <stdexcept>
 #include <algorithm>
+#include <memory>
 
 #include <map>
 #include <ctime>
@@ -53,6 +54,9 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <cstdlib>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <signal.h>
+#include <execinfo.h>
+#include <cxxabi.h>
 
 #include <sys/resource.h>
 #include <cassert>
@@ -1376,7 +1380,7 @@ void* set_teams(void* td_vp)
 				if(sk_cfg.do_kills != old_sk_cfg.do_kills)
 				{
 					log("skivvy: info reporting is now: " << (sk_cfg.do_infos ? "on":"off"));
-					skivvy.chat('*', "^3info reports ^1" + str(sk_cfg.do_infos ? "on":"off") + "^3.");
+					skivvy.chat('*', "^3Info reports ^1" + str(sk_cfg.do_infos ? "on":"off") + "^3.");
 				}
 			break;
 			case 11:
@@ -1385,19 +1389,10 @@ void* set_teams(void* td_vp)
 				if(sk_cfg.do_stats != old_sk_cfg.do_stats)
 				{
 					log("skivvy: stats reporting is now: " << (sk_cfg.do_stats ? "on":"off"));
-					skivvy.chat('*', "^3stats reports ^1" + str(sk_cfg.do_stats ? "on":"off") + "^3.");
+					skivvy.chat('*', "^3Stats reports ^1" + str(sk_cfg.do_stats ? "on":"off") + "^3.");
 				}
 			break;
 			case 12:
-				if(!rconset("katina_skivvy_stats", sk_cfg.do_stats))
-					rconset("katina_skivvy_stats", sk_cfg.do_stats); // one retry
-				if(sk_cfg.do_stats != old_sk_cfg.do_stats)
-				{
-					log("skivvy: stats reporting is now: " << (sk_cfg.do_stats ? "on":"off"));
-					skivvy.chat('*', "^3stats reports ^1" + str(sk_cfg.do_stats ? "on":"off") + "^3.");
-				}
-			break;
-			case 13:
 				if(!rconset("katina_skivvy_spamkill", sk_cfg.spamkill))
 					rconset("katina_skivvy_spamkill", sk_cfg.spamkill); // one retry
 				if(old_sk_cfg.spamkill != sk_cfg.spamkill)
@@ -1495,8 +1490,39 @@ str expand_env(const str& var)
 	return exp;
 }
 
+void stack_handler(int sig)
+{
+	void *array[2048];
+	size_t size;
+
+	// get void*'s for all entries on the stack
+	size = backtrace(array, 2048);
+
+	// print out all the frames to stderr
+	fprintf(stderr, "Error: signal %d:\n", sig);
+
+	char** trace = backtrace_symbols(array, size);
+
+	int status;
+	str obj, func;
+	for(siz i = 0; i < size; ++i)
+	{
+		siss iss(trace[i]);
+		std::getline(std::getline(iss, obj, '('), func, '+');
+
+		char* func_name = abi::__cxa_demangle(func.c_str(), 0, 0, &status);
+		std::cerr << "function: " << func_name << '\n';
+		free(func_name);
+	}
+	free(trace);
+
+	exit(1);
+}
+
 int main(const int argc, const char* argv[])
 {
+	signal(11, stack_handler);
+
 	load_records(recs);
 
 	log("Records loaded: " << recs.size());
