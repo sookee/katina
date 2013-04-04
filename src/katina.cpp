@@ -797,13 +797,16 @@ public:
 	//   caps: game_id guid count
 	//   time: game_id guid count // seconds in game (player not spec)
 
-	str escape(const str& s)
+	bool escape(const str& from, str& to)
 	{
-		bug("escape:");
+		if(from.size() > 511)
+		{
+			log("ERROR: escape: string too long at line: " << __LINE__);
+			return false;
+		}
 		char buff[1024];
-		str esc(buff, mysql_real_escape_string(&mysql, buff, s.c_str(), 1024));
-		bug("esc: " << esc);
-		return esc;
+		to.assign(buff, mysql_real_escape_string(&mysql, buff, from.c_str(), from.size()));
+		return true;
 	}
 	//   game: game_id host port date map
 
@@ -814,9 +817,16 @@ public:
 
 		log("DATABASE: add_game(" << host << ", " << port << ", " << mapname << ")");
 
+		str safe_mapname;
+		if(!escape(mapname, safe_mapname))
+		{
+			log("DATABASE: ERROR: failed to escape: " << mapname);
+			return bad_id;
+		}
+
 		str sql = "insert into `game`"
 			" (`host`, `port`, `map`) values ('"
-			+ host + "','" + port + "','" + escape(mapname) + "')";
+			+ host + "','" + port + "','" + safe_mapname + "')";
 
 		if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
 		{
@@ -890,8 +900,15 @@ public:
 
 		log("DATABASE: add_player(" << guid << ", " << name << ")");
 
+		str safe_name;
+		if(!escape(name, safe_name))
+		{
+			log("DATABASE: ERROR: failed to escape: " << name);
+			return bad_id;
+		}
+
 		soss oss;
-		oss << "insert into `player` (`guid`,`name`) values ('" << guid << "','" << escape(name)
+		oss << "insert into `player` (`guid`,`name`) values ('" << guid << "','" << safe_name
 			<< "') ON DUPLICATE KEY UPDATE count = count + 1";
 
 		str sql = oss.str();
