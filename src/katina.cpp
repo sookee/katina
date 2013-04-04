@@ -234,8 +234,10 @@ str get_stamp()
 
 #ifndef DEBUG
 #define bug(m)
+#define trace(m)
 #else
 #define bug(m) do{std::cout << m << std::endl;}while(false)
+#define trace(m) bug("TRACE: " << m << ": " << __LINE__)
 #endif
 #define con(m) do{std::cout << m << std::endl;}while(false)
 #define log(m) do{std::cout << get_stamp() << ": " << m << std::endl;}while(false)
@@ -969,7 +971,7 @@ public:
 		MYSQL_ROW row;
 		while((row = mysql_fetch_row(result)))
 		{
-			log("DATABASE: restoring vote: " << row[1] << ", " << row[2] << ", " << row[3]);
+			log("DATABASE: restoring vote: " << row[0] << ": " << row[1]);
 			map_votes[GUID(row[0])] = to<int>(row[1]);
 		}
 		mysql_free_result(result);
@@ -1542,7 +1544,6 @@ void stack_handler(int sig)
 int main(const int argc, const char* argv[])
 {
 	signal(11, stack_handler);
-	SIGSEGV;
 
 	load_records(recs);
 
@@ -1653,7 +1654,7 @@ int main(const int argc, const char* argv[])
 		{
 			if(cmd == "Exit:")
 			{
-				bug("TRACE: " << cmd << "(" << (in_game?"playing":"waiting") << ")");
+				trace(cmd << "(" << (in_game?"playing":"waiting") << ")");
 				// shutdown voting until next map
 				log("exit: writing stats to database and collecting votes");
 				str reply;
@@ -1715,18 +1716,18 @@ int main(const int argc, const char* argv[])
 			}
 			else if(cmd == "ShutdownGame:")
 			{
-				bug("TRACE: " << cmd << "(" << (in_game?"playing":"waiting") << ")");
+				trace(cmd << "(" << (in_game?"playing":"waiting") << ")");
 				in_game = false;
 
 			}
 			else if(cmd == "Warmup:")
 			{
-				bug("TRACE: " << cmd << "(" << (in_game?"playing":"waiting") << ")");
+				trace(cmd << "(" << (in_game?"playing":"waiting") << ")");
 				in_game = false;
 			}
 			else if(cmd == "ClientUserinfoChanged:")
 			{
-				bug("TRACE: " << cmd << "(" << (in_game?"playing":"waiting") << ")");
+				trace(cmd << "(" << (in_game?"playing":"waiting") << ")");
 				//bug("ClientUserinfoChanged:");
 				//do_rcon("^3ClientUserinfoChanged:");
 				// 0:23 ClientUserinfoChanged: 2 n\^1S^2oo^3K^5ee\t\2\model\ayumi/red\hmodel\ayumi/red\g_redteam\\g_blueteam\\c1\1\c2\1\hc\100\w\0\l\0\tt\0\tl\1\id\1A7C66BACBA16F0C9068D8B82C1D55DE
@@ -1760,7 +1761,7 @@ int main(const int argc, const char* argv[])
 			}
 			else if(cmd == "Kill:")
 			{
-				bug("TRACE: " << cmd << "(" << (in_game?"playing":"waiting") << ")");
+				trace(cmd << "(" << (in_game?"playing":"waiting") << ")");
 				//bug("Kill:");
 				// 3:20 Kill: 2 1 10: ^1S^2oo^3K^5ee killed Neko by MOD_RAILGUN
 				siz num1, num2, weap;
@@ -1800,7 +1801,7 @@ int main(const int argc, const char* argv[])
 			}
 			else if(cmd == "CTF:")
 			{
-				bug("TRACE: " << cmd << "(" << (in_game?"playing":"waiting") << ")");
+				trace(cmd << "(" << (in_game?"playing":"waiting") << ")");
 				// 10:26 CTF: 0 2 1: ^5A^6lien ^5S^6urf ^5G^6irl captured the BLUE flag!
 				// 0 = got, 1 = cap, 2 = ret
 				siz num, col, act;
@@ -1936,7 +1937,7 @@ int main(const int argc, const char* argv[])
 		{
 			if(cmd == "InitGame:")
 			{
-				bug("TRACE: " << cmd << "(" << (in_game?"playing":"waiting") << ")");
+				trace(cmd << "(" << (in_game?"playing":"waiting") << ")");
 
 				// SAVE mapvotes from the previous game (if any)
 				// We do this here because if the previous map was voted off
