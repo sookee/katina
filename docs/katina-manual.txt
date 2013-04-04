@@ -51,9 +51,11 @@ s = stats (k/d c/d)
 !rcon zim2 seta katina_skivvy_chans #katina(icfks)
 
 !rcon soo seta katina_active 1
+!rcon soo seta katina_dashes 0
+!rcon soo seta katina_flags 1
 
-!rcon zim seta katina_db_active 0
-!rcon zim seta katina_db_weaps 2 10
+!rcon soo seta katina_db_active 1
+!rcon soo seta katina_db_weaps 2 10
 
 !rcon soo seta katina_skivvy_active 1
 !rcon soo seta katina_skivvy_infos 1
