@@ -20,7 +20,7 @@ if(php_sapi_name() == 'cli')
 #define Q_IsColorString(p)	( p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && isalnum(*((p)+1)) ) // ^[0-9a-zA-Z]
 #define Q_IsSpecialChar(c) ((c) && ((c) < 32))
 
-$oatoirctab[8] = array
+$oatoirctab = array
 (
 	1 // "black"
 	, 4 // "red"
@@ -42,12 +42,13 @@ function oa_to_IRC($msg)
 	$oss = $IRC_BOLD;
 	$l = strlen($msg);
 	$i = 0;
-	while($msg[$i])
+	while($i < $l)
 	{
 		if($i < $l && $msg[$i] == '^' && $msg[$i + 1] && ctype_alnum($msg[$i + 1]))
 		{
 			$oss = $oss . $IRC_NORMAL;
-			$code = $msg[$i + 1] % 8;
+			//$code = $msg[$i + 1] % 8;
+			$code = ( ( ($msg[$i]) - '0' ) & 7 );
 			$oss = $oss . $IRC_COLOR . ($oatoirctab[$code] < 10 ? "0" : "") . $oatoirctab[$code];
 			$i += 2;
 		}
@@ -68,33 +69,34 @@ function oa_to_IRC($msg)
 	return $oss;
 }
 
-$oatohtmltab[8] = array
+$oatohtmltab = array
 (
-	'#000000' // "black"
-	, '#FF0000' // "red"
-	, '#00FF00' // "lime"
-	, '#00FFFF' // "yellow"
-	, '#0000FF' // "blue"
-	, '' // "cyan"
-	, '' // "magenta"
-	, '#FFFFFF' // "white"
+	"black"
+	, "red"
+	, "lime"
+	, "yellow"
+	, "blue"
+	, "cyan"
+	, "magenta"
+	, "white"
 );
 function oa_to_HTML($msg)
 {
+	//echo "\nDEBUG: $msg\n";
 	global $oatohtmltab;
-	$oss = '<span style="color: #FFFFFF">';
+	$oss = '<span style="color: white">';
 	$l = strlen($msg);
 	$i = 0;
-	while($msg[$i])
+	while($i < $l)
 	{
-		if($i < $l && $msg[$i] == '^' && $msg[$i + 1] && ctype_alnum($msg[$i + 1]))
+		if($i < $l && $msg[$i] == '^' && ($i + 1) < $l && ctype_alnum($msg[$i + 1]))
 		{
 			$oss = $oss . '</span>';
-			$code = $msg[$i + 1] % 8;
-			$oss = $oss . '<span style="color: "' . $oatoirctab[$code] . '">';
+			$code = (ord($msg[$i + 1]) - ord('0')) & 7;
+			$oss = $oss . '<span style="color: ' . $oatohtmltab[$code] . '">';
 			$i += 2;
 		}
-		else if($msg[$i] && $msg[$i] < 32)
+		else if($i < $l && ord($msg[$i]) < 32)
 		{
 			$oss . $oss . "#";
 			$i++;
@@ -106,7 +108,7 @@ function oa_to_HTML($msg)
 		}
 	}
 
-	$oss = $oss . '</span>';
+	$oss = $oss . '</span>' . "\n";
 
 	return $oss;
 }
@@ -177,7 +179,7 @@ function create_selector($name, $list, $dflt)
 ?>
 <!DOCTYPE html>
 <html>
-<body>
+<body bgcolor="#222222">
 
 <form action="query.php" method="post">
 Year: <?php echo create_selector('year', get_years_from_db(), $form_year) ?>
@@ -273,17 +275,18 @@ if($form_map)
 	}	
 ?>
 <table>
-
 <?php
 foreach($players as $guid => $stats)
 {
-	echo oa_to_HTML($names[$guid]) . ': ' . $stats['k'] . ' kills<br/>';
-	echo oa_to_HTML($names[$guid]) . ': ' . $stats['d'] . ' deaths<br/>';
-	echo oa_to_HTML($names[$guid]) . ': ' . $stats['c'] . ' caps<br/>';
-	echo '<hr/><br/>';
-}
+	$kd = $stats['k'] / $stats['d'];
+	$cd = ($stats['c'] * 100) / $stats['d'];
+	echo "<tr>\n";
+	echo "<td>" . oa_to_HTML($names[$guid]) . "</td>";
+	echo "<td>" . $kd . "</td>";
+	echo "<td>" . $cd . "</td>";
+	echo "</tr>\n";
+	}
 ?>
-
 </table>
 <?php
 }

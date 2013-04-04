@@ -82,6 +82,9 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 using namespace oastats;
 
+const std::string version = "0.4";
+const std::string tag = "alpha";
+
 //-- TYPES ---------------------------------------------
 
 typedef std::size_t siz;
@@ -234,13 +237,15 @@ str get_stamp()
 
 #ifndef DEBUG
 #define bug(m)
-#define trace(m)
 #else
 #define bug(m) do{std::cout << m << std::endl;}while(false)
-#define trace(m) bug("TRACE: " << m << ": " << __LINE__)
 #endif
+
 #define con(m) do{std::cout << m << std::endl;}while(false)
 #define log(m) do{std::cout << get_stamp() << ": " << m << std::endl;}while(false)
+
+#define trace(m)
+//#define trace(m) bug("TRACE: " << m << ": " << __LINE__)
 
 class GUID
 {
@@ -303,6 +308,14 @@ public:
 	siz size() const { return SIZE; }
 
 	operator str() const { return data; }
+
+	operator uint32_t() const
+	{
+		uint32_t i = 0;
+		siss iss(data);
+		iss >> std::hex >> i;
+		return i;
+	}
 
 	bool is_bot() const { return data < "00001000"; }
 };
@@ -817,7 +830,14 @@ public:
 		if(!active)
 			return null_id; // inactive
 
-		log("DATABASE: add_game(" << host << ", " << port << ", " << mapname << ")");
+		in_addr addr;
+		if(!inet_aton(host.c_str(), &addr))
+		{
+			log("DATABASE: ERROR: bad IP address: " << host);
+			return bad_id;
+		}
+
+		log("DATABASE: add_game(" << to_string(addr.s_addr) << ", " << port << ", " << mapname << ")");
 
 		str safe_mapname;
 		if(!escape(mapname, safe_mapname))
@@ -940,7 +960,7 @@ public:
 
 		if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
 		{
-			log("DATABASE ERROR: Unable to add_player; " << mysql_error(&mysql));
+			log("DATABASE ERROR: Unable to add_vote; " << mysql_error(&mysql));
 			log("              : sql = " << sql);
 			return false;
 		}
@@ -1047,10 +1067,6 @@ struct thread_data
 };
 
 bool done = false;
-
-//std::set<siz> db_weaps;
-//db_weaps.insert(MOD_RAILGUN);
-//db_weaps.insert(MOD_GAUNTLET);
 
 struct katina_conf
 {
@@ -1567,8 +1583,8 @@ int main(const int argc, const char* argv[])
 	skivvy.config(recs["skivvy.host"], to<siz>(recs["skivvy.port"]));
 	db.config(recs["db.host"], to<siz>(recs["db.port"]), recs["db.user"], recs["db.pass"], recs["db.base"]);
 
-	server.chat("^3Stats System v^70.1^3-alpha - ^1ONLINE");
-	skivvy.chat('*', "^3Stats System v^70.1^3-alpha - ^1ONLINE");
+	server.chat("^3Stats System v^7" + version + "^3-" + tag + " - ^1ONLINE");
+	skivvy.chat('*', "^3Stats System v^7" + version + "^3-" + tag + " - ^1ONLINE");
 
 	// weapons
 	weapons.push_back("unknown weapon");
@@ -1967,7 +1983,7 @@ int main(const int argc, const char* argv[])
 				dashing[FL_RED] = true;
 				dashing[FL_BLUE] = true;
 
-				str msg = "^1K^7at^3i^7na ^3Stats System v^70.1^3-alpha.";
+				str msg = "^1K^7at^3i^7na ^3Stats System v^7" + version + "^3-" + tag + ".";
 				server.cp(msg);
 				// startup voting
 				str reply;
@@ -2048,7 +2064,7 @@ int main(const int argc, const char* argv[])
 						server.chat("^3You can only vote once per week.");
 					else
 					{
-						++map_votes[guid];
+						map_votes[guid] = 1;
 						server.chat("^7" + players[guid] + "^7: ^3Your vote has been counted.");
 					}
 				}
@@ -2071,7 +2087,7 @@ int main(const int argc, const char* argv[])
 						server.chat("^3You can only vote once per week.");
 					else
 					{
-						--map_votes[guid];
+						map_votes[guid] = -1;
 						server.chat("^7" + players[guid] + "^7: ^3Your vote has been counted.");
 					}
 				}

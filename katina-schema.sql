@@ -117,7 +117,7 @@ CREATE TABLE `votes` (
   `type` varchar(8) NOT NULL,
   `item` varchar(32) NOT NULL,
   `guid` varchar(8) NOT NULL,
-  `count` int(4) unsigned NOT NULL,
+  `count` int(4) NOT NULL,
   PRIMARY KEY (`type`,`item`,`guid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
