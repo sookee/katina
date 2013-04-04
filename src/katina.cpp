@@ -1334,6 +1334,16 @@ void* set_teams(void* td_vp)
 				}
 			break;
 			case 6:
+				if(!rconset("katina_skivvy_chans", sk_cfg.chans))
+					rconset("katina_skivvy_chans", sk_cfg.chans); // one retry
+				if(old_sk_cfg.chans != sk_cfg.chans)
+				{
+					log("skivvy: new chans: " << sk_cfg.chans);
+					skivvy.set_chans(sk_cfg.chans);
+					skivvy.chat('*', "^3Now reporting to ^7" + sk_cfg.chans);
+				}
+			break;
+			case 7:
 				if(!rconset("katina_skivvy_chats", sk_cfg.do_chats))
 					rconset("katina_skivvy_chats", sk_cfg.do_chats); // one retry
 				if(sk_cfg.do_chats != old_sk_cfg.do_chats)
@@ -1342,7 +1352,7 @@ void* set_teams(void* td_vp)
 					skivvy.chat('*', "^3Chat reports ^1" + str(sk_cfg.do_chats ? "on":"off") + "^3.");
 				}
 			break;
-			case 7:
+			case 8:
 				if(!rconset("katina_skivvy_flags", sk_cfg.do_flags))
 					rconset("katina_skivvy_flags", sk_cfg.do_flags); // one retry
 				if(sk_cfg.do_flags != old_sk_cfg.do_flags)
@@ -1351,7 +1361,7 @@ void* set_teams(void* td_vp)
 					skivvy.chat('*', "^3Flag reports ^1" + str(sk_cfg.do_flags ? "on":"off") + "^3.");
 				}
 			break;
-			case 8:
+			case 9:
 				if(!rconset("katina_skivvy_kills", sk_cfg.do_kills))
 					rconset("katina_skivvy_kills",sk_cfg. do_kills); // one retry
 				if(sk_cfg.do_kills != old_sk_cfg.do_kills)
@@ -1360,22 +1370,13 @@ void* set_teams(void* td_vp)
 					skivvy.chat('*', "^3Kill reports ^1" + str(sk_cfg.do_kills ? "on":"off") + "^3.");
 				}
 			break;
-			case 9:
+			case 10:
 				if(!rconset("katina_skivvy_infos", sk_cfg.do_infos))
 					rconset("katina_skivvy_infos", sk_cfg.do_infos); // one retry
 				if(sk_cfg.do_kills != old_sk_cfg.do_kills)
 				{
 					log("skivvy: info reporting is now: " << (sk_cfg.do_infos ? "on":"off"));
 					skivvy.chat('*', "^3info reports ^1" + str(sk_cfg.do_infos ? "on":"off") + "^3.");
-				}
-			break;
-			case 10:
-				if(!rconset("katina_skivvy_stats", sk_cfg.do_stats))
-					rconset("katina_skivvy_stats", sk_cfg.do_stats); // one retry
-				if(sk_cfg.do_stats != old_sk_cfg.do_stats)
-				{
-					log("skivvy: stats reporting is now: " << (sk_cfg.do_stats ? "on":"off"));
-					skivvy.chat('*', "^3stats reports ^1" + str(sk_cfg.do_stats ? "on":"off") + "^3.");
 				}
 			break;
 			case 11:
@@ -1388,6 +1389,15 @@ void* set_teams(void* td_vp)
 				}
 			break;
 			case 12:
+				if(!rconset("katina_skivvy_stats", sk_cfg.do_stats))
+					rconset("katina_skivvy_stats", sk_cfg.do_stats); // one retry
+				if(sk_cfg.do_stats != old_sk_cfg.do_stats)
+				{
+					log("skivvy: stats reporting is now: " << (sk_cfg.do_stats ? "on":"off"));
+					skivvy.chat('*', "^3stats reports ^1" + str(sk_cfg.do_stats ? "on":"off") + "^3.");
+				}
+			break;
+			case 13:
 				if(!rconset("katina_skivvy_spamkill", sk_cfg.spamkill))
 					rconset("katina_skivvy_spamkill", sk_cfg.spamkill); // one retry
 				if(old_sk_cfg.spamkill != sk_cfg.spamkill)
