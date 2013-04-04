@@ -1595,10 +1595,9 @@ int main(const int argc, const char* argv[])
 //		bug("cmd: " << cmd);
 		if(in_game)
 		{
-			bug("TRACE: in game");
 			if(cmd == "Exit:")
 			{
-				bug("TRACE: " << cmd);
+				bug("TRACE: " << cmd << "(" << (in_game?"playing":"waiting") << ")");
 				// shutdown voting until next map
 				log("exit: writing stats to database and collecting votes");
 				str reply;
@@ -1661,18 +1660,18 @@ int main(const int argc, const char* argv[])
 			}
 			else if(cmd == "ShutdownGame:")
 			{
-				bug("TRACE: " << cmd);
+				bug("TRACE: " << cmd << "(" << (in_game?"playing":"waiting") << ")");
 				in_game = false;
 
 			}
 			else if(cmd == "Warmup:")
 			{
-				bug("TRACE: " << cmd);
+				bug("TRACE: " << cmd << "(" << (in_game?"playing":"waiting") << ")");
 				in_game = false;
 			}
 			else if(cmd == "ClientUserinfoChanged:")
 			{
-				bug("TRACE: " << cmd);
+				bug("TRACE: " << cmd << "(" << (in_game?"playing":"waiting") << ")");
 				//bug("ClientUserinfoChanged:");
 				//do_rcon("^3ClientUserinfoChanged:");
 				// 0:23 ClientUserinfoChanged: 2 n\^1S^2oo^3K^5ee\t\2\model\ayumi/red\hmodel\ayumi/red\g_redteam\\g_blueteam\\c1\1\c2\1\hc\100\w\0\l\0\tt\0\tl\1\id\1A7C66BACBA16F0C9068D8B82C1D55DE
@@ -1706,7 +1705,7 @@ int main(const int argc, const char* argv[])
 			}
 			else if(cmd == "Kill:")
 			{
-				bug("TRACE: " << cmd);
+				bug("TRACE: " << cmd << "(" << (in_game?"playing":"waiting") << ")");
 				//bug("Kill:");
 				// 3:20 Kill: 2 1 10: ^1S^2oo^3K^5ee killed Neko by MOD_RAILGUN
 				siz num1, num2, weap;
@@ -1746,7 +1745,7 @@ int main(const int argc, const char* argv[])
 			}
 			else if(cmd == "CTF:")
 			{
-				bug("TRACE: " << cmd);
+				bug("TRACE: " << cmd << "(" << (in_game?"playing":"waiting") << ")");
 				// 10:26 CTF: 0 2 1: ^5A^6lien ^5S^6urf ^5G^6irl captured the BLUE flag!
 				// 0 = got, 1 = cap, 2 = ret
 				siz num, col, act;
@@ -1880,10 +1879,9 @@ int main(const int argc, const char* argv[])
 		}
 		else
 		{
-			bug("TRACE: not in game");
 			if(cmd == "InitGame:")
 			{
-				bug("TRACE: " << cmd);
+				bug("TRACE: " << cmd << "(" << (in_game?"playing":"waiting") << ")");
 
 				// SAVE mapvotes from the previous game (if any)
 				// We do this here because if the previous map was voted off
