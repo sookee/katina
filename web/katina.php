@@ -183,22 +183,6 @@ function create_selector($name, $list, $dflt)
 	$html = $html . "\n" . '</select>' . "\n";
 	return $html;
 }
-?>
-<!DOCTYPE html>
-<html>
-<header>
-<link rel="stylesheet" type="text/css" href="query.css">
-</header>
-<body>
-
-<form action="query.php" method="post">
-Year: <?php echo create_selector('year', get_years_from_db(), $form_year) ?>
-Month: <?php echo create_selector('month', $months, $form_month) ?>
-Map: <?php echo create_selector('map', get_maps_from_db(), $form_map) ?>
-<input type="submit">
-</form>
-
-<?php
 
 function cmp_names($a, $b)
 {
@@ -214,7 +198,22 @@ function cmp_cd($a, $b)
 {
 	return $b['cd'] - $a['cd'];
 }
+?>
+<!DOCTYPE html>
+<html>
+<header>
+<link rel="stylesheet" type="text/css" href="katina.css">
+</header>
+<body>
 
+<form action="katina.php" method="post">
+Year: <?php echo create_selector('year', get_years_from_db(), $form_year) ?>
+Month: <?php echo create_selector('month', $months, $form_month) ?>
+Map: <?php echo create_selector('map', get_maps_from_db(), $form_map) ?>
+<input type="submit">
+</form>
+
+<?php
 if($form_map)
 {
 	$syear = $form_year;
