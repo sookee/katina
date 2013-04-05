@@ -16,60 +16,6 @@ if(php_sapi_name() == 'cli')
 	$form_map = 'oasago2';
 }
 
-#define ColorIndex(c)	( ( (c) - '0' ) & 7 )
-#define Q_COLOR_ESCAPE	'^'
-#define Q_IsColorString(p)	( p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && isalnum(*((p)+1)) ) // ^[0-9a-zA-Z]
-#define Q_IsSpecialChar(c) ((c) && ((c) < 32))
-
-$oatoirctab = array
-(
-	1 // "black"
-	, 4 // "red"
-	, 3 // "lime"
-	, 8 // "yellow"
-	, 2 // "blue"
-	, 12 // "cyan"
-	, 6 // "magenta"
-	, 0 // "white"
-);
-
-$IRC_BOLD = "";
-$IRC_NORMAL = "";
-$IRC_COLOR = "";
-
-function oa_to_IRC($msg)
-{
-	global $oatoirctab;
-	$oss = $IRC_BOLD;
-	$l = strlen($msg);
-	$i = 0;
-	while($i < $l)
-	{
-		if($i < $l && $msg[$i] == '^' && $msg[$i + 1] && ctype_alnum($msg[$i + 1]))
-		{
-			$oss = $oss . $IRC_NORMAL;
-			//$code = $msg[$i + 1] % 8;
-			$code = ( ( ($msg[$i]) - '0' ) & 7 );
-			$oss = $oss . $IRC_COLOR . ($oatoirctab[$code] < 10 ? "0" : "") . $oatoirctab[$code];
-			$i += 2;
-		}
-		else if($msg[$i] && $msg[$i] < 32)
-		{
-			$oss . $oss . "#";
-			$i++;
-		}
-		else
-		{
-			$oss = $oss . $msg[$i];
-			$i++;
-		}
-	}
-
-	$oss = $oss . $IRC_NORMAL;
-
-	return $oss;
-}
-
 $oatohtmltab = array
 (
 	"black"
@@ -291,29 +237,32 @@ if($form_map)
 		mysqli_free_result($result);
 	}
 	mysqli_free_result($games_result);
-
-	// populate $names
-	$sql = 'select * from `player` where';
-	$sep = ' ';
-	foreach($names as $guid => $name)
+	
+	if(count($names) > 0)
 	{
-		$sql = $sql . $sep . '`guid` = \'' . $guid . '\'';
-		$sep = ' or ';
-	}
+		// populate $names
+		$sql = 'select * from `player` where';
+		$sep = ' ';
+		foreach($names as $guid => $name)
+		{
+			$sql = $sql . $sep . '`guid` = \'' . $guid . '\'';
+			$sep = ' or ';
+		}
+		
+		$sql = $sql . ' order by `count` desc';
+		
+		$result = mysqli_query($con, $sql);
+		if(!$result)
+			echo mysqli_error($con);
+		
+		while($row = mysqli_fetch_array($result))
+		{
+			$names[$row[0]] = $row[1];
+		}
+		
+		mysqli_free_result($result);
+	}	
 	
-	$sql = $sql . ' order by `count` desc';
-	
-	$result = mysqli_query($con, $sql);
-	if(!$result)
-		echo mysqli_error($con);
-	
-	while($row = mysqli_fetch_array($result))
-	{
-		$names[$row[0]] = $row[1];
-	}
-	
-	mysqli_free_result($result);
-
 	$table = array();
 	foreach($players as $guid => $stats)
 	{
@@ -343,9 +292,6 @@ if($form_map)
 <table id="score-table">
 <tr id="score-table-header"><td>Player</td><td>Kills/Death</td><td>100 x Caps/Deaths</td></tr>
 <?php
-
-
-
 $odd = true;
 foreach($table as $stats)
 {
@@ -358,21 +304,6 @@ foreach($table as $stats)
 	echo "</tr>\n";
 	$odd = !$odd;
 }
-
-
-// $odd = true;
-// foreach($players as $guid => $stats)
-// {
-// 	$class = $odd ? "score-table-row-odd" : "score-table-row-even";
-// 	$kd = $stats['d'] == 0 ? ($stats['k'] ? 'perf' : 0) : $stats['k'] / $stats['d'];
-// 	$cd = $stats['d'] == 0 ? ($stats['c'] ? 'perf' : 0) : ($stats['c'] * 100) / $stats['d'];
-// 	echo "<tr class=\"" . $class . "\">\n";
-// 	echo "<td>" . oa_to_HTML($names[$guid]) . "</td>";
-// 	echo "<td>" . sprintf('%0.2f', $kd) . "</td>";
-// 	echo "<td>" . sprintf('%0.2f', $cd) . "</td>";
-// 	echo "</tr>\n";
-// 	$odd = !$odd;
-// }
 ?>
 </table>
 <?php
