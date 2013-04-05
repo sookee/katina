@@ -1,0 +1,40 @@
+@CHARSET "UTF-8";
+body
+{
+	background-color: #222222;
+}
+
+form{}
+table{}
+tr{}
+td{}
+
+#score-table
+{
+	
+}
+
+#score-table-header
+{
+	background-color: #000000;
+	color: #FFFFFF;
+}
+
+.score-table-tr-odd
+{
+	background-color: #333333;
+}
+
+.score-table-tr-even
+{
+	background-color: #444444;
+}
+
+.score-table-td-odd-name {}
+.score-table-td-odd-kd {}
+.score-table-td-odd-cd {}
+
+.score-table-td-even-name {}
+.score-table-td-even-kd {}
+.score-table-td-even-cd {}
+

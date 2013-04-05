@@ -7,6 +7,7 @@ if(mysqli_connect_errno($con))
 $form_year = isset($_POST['year']) ? mysqli_real_escape_string($con, $_POST['year']) : date('Y'); 
 $form_month = isset($_POST['month']) ? mysqli_real_escape_string($con, $_POST['month']) : date('M'); 
 $form_map = isset($_POST['map']) ? mysqli_real_escape_string($con, $_POST['map']) : false;
+$form_sort = isset($_POST['sort']) ? $_POST['sort'] : 'name';
 
 if(php_sapi_name() == 'cli')
 {
@@ -142,7 +143,10 @@ function get_years_from_db()
 		if(!in_array($parts['year'], $items))
 			$items[] = $parts['year'];
 	}
+	
+	mysqli_free_result($result);
 	sort($items);
+	
 	return $items;
 }
 
@@ -157,7 +161,10 @@ function get_maps_from_db()
 		if(!in_array($row['map'], $items))
 			$items[] = $row['map'];
 	}
+	
+	mysqli_free_result($result);
 	sort($items);
+	
 	return $items;
 }
 
@@ -179,7 +186,10 @@ function create_selector($name, $list, $dflt)
 ?>
 <!DOCTYPE html>
 <html>
-<body bgcolor="#222222">
+<header>
+<link rel="stylesheet" type="text/css" href="query.css">
+</header>
+<body>
 
 <form action="query.php" method="post">
 Year: <?php echo create_selector('year', get_years_from_db(), $form_year) ?>
@@ -189,6 +199,22 @@ Map: <?php echo create_selector('map', get_maps_from_db(), $form_map) ?>
 </form>
 
 <?php
+
+function cmp_names($a, $b)
+{
+	return $b['name'] - $a['name'];
+}
+
+function cmp_kd($a, $b)
+{
+	return $b['kd'] - $a['kd'];
+}
+
+function cmp_cd($a, $b)
+{
+	return $b['cd'] - $a['cd'];
+}
+
 if($form_map)
 {
 	$syear = $form_year;
@@ -226,8 +252,12 @@ if($form_map)
 		while($row = mysqli_fetch_array($result))
 		{
 			$names[$row[0]] = '<unknown>';
+			if(!isset($players[$row[0]]))
+				$players[$row[0]] = array('k' => 0, 'd' => 0, 'c' => 0);
 			$players[$row[0]]['k'] += $row[1];
 		}
+		
+		mysqli_free_result($result);
 
 		// DEATHS
 		$sql = 'select `guid`,`count` from `deaths` where ' . $cond1 . ' and ' . $cond2;
@@ -238,8 +268,12 @@ if($form_map)
 		while($row = mysqli_fetch_array($result))
 		{
 			$names[$row[0]] = '<unknown>';
+			if(!isset($players[$row[0]]))
+				$players[$row[0]] = array('k' => 0, 'd' => 0, 'c' => 0);
 			$players[$row[0]]['d'] += $row[1];
 		}
+		
+		mysqli_free_result($result);
 
 		// CAPS
 		$sql = 'select `guid`,`count` from `caps` where ' . $cond1;
@@ -250,9 +284,14 @@ if($form_map)
 		while($row = mysqli_fetch_array($result))
 		{
 			$names[$row[0]] = '&lt;unknown&gt;';
+			if(!isset($players[$row[0]]))
+				$players[$row[0]] = array('k' => 0, 'd' => 0, 'c' => 0);
 			$players[$row[0]]['c'] += $row[1];
 		}
+		
+		mysqli_free_result($result);
 	}
+	mysqli_free_result($games_result);
 
 	// populate $names
 	$sql = 'select * from `player` where';
@@ -263,7 +302,7 @@ if($form_map)
 		$sep = ' or ';
 	}
 	
-	$sql = $sql . ' order by `count`';
+	$sql = $sql . ' order by `count` desc';
 	
 	$result = mysqli_query($con, $sql);
 	if(!$result)
@@ -272,20 +311,69 @@ if($form_map)
 	while($row = mysqli_fetch_array($result))
 	{
 		$names[$row[0]] = $row[1];
-	}	
-?>
-<table>
-<?php
-foreach($players as $guid => $stats)
-{
-	$kd = $stats['k'] / $stats['d'];
-	$cd = ($stats['c'] * 100) / $stats['d'];
-	echo "<tr>\n";
-	echo "<td>" . oa_to_HTML($names[$guid]) . "</td>";
-	echo "<td>" . $kd . "</td>";
-	echo "<td>" . $cd . "</td>";
-	echo "</tr>\n";
 	}
+	
+	mysqli_free_result($result);
+
+	$table = array();
+	foreach($players as $guid => $stats)
+	{
+		$kd = $stats['d'] == 0 ? ($stats['k'] ? 'perf' : 0) : $stats['k'] / $stats['d'];
+		$cd = $stats['d'] == 0 ? ($stats['c'] ? 'perf' : 0) : ($stats['c'] * 100) / $stats['d'];
+
+		$table[] = array
+		(
+			'name' => oa_to_HTML($names[$guid])
+			, 'kd' => sprintf('%0.2f', $kd)
+			, 'cd' => sprintf('%0.2f', $cd)
+		);
+	}
+	
+	switch ($form_sort)
+	{
+		case 'kd':
+			usort($table, "cmp_kd");
+			break;
+		case 'cd':
+			usort($table, "cmp_cd");
+			break;
+		default:
+			usort($table, "cmp_name");
+	}
+?>
+<table id="score-table">
+<tr id="score-table-header"><td>Player</td><td>Kills/Death</td><td>100 x Caps/Deaths</td></tr>
+<?php
+
+
+
+$odd = true;
+foreach($table as $stats)
+{
+	$tr_class = $odd ? "score-table-tr-odd" : "score-table-tr-even";
+	$td_class = $odd ? "score-table-td-odd" : "score-table-td-even";
+	echo "<tr class=\"" . $tr_class . "\">\n";
+	echo "<td class=\"" . $td_class . "-name\">" . $stats['name'] . "</td>";
+	echo "<td class=\"" . $td_class . "-kd\">" . $stats['kd'] . "</td>";
+	echo "<td class=\"" . $td_class . "-cd\">" . $stats['cd'] . "</td>";
+	echo "</tr>\n";
+	$odd = !$odd;
+}
+
+
+// $odd = true;
+// foreach($players as $guid => $stats)
+// {
+// 	$class = $odd ? "score-table-row-odd" : "score-table-row-even";
+// 	$kd = $stats['d'] == 0 ? ($stats['k'] ? 'perf' : 0) : $stats['k'] / $stats['d'];
+// 	$cd = $stats['d'] == 0 ? ($stats['c'] ? 'perf' : 0) : ($stats['c'] * 100) / $stats['d'];
+// 	echo "<tr class=\"" . $class . "\">\n";
+// 	echo "<td>" . oa_to_HTML($names[$guid]) . "</td>";
+// 	echo "<td>" . sprintf('%0.2f', $kd) . "</td>";
+// 	echo "<td>" . sprintf('%0.2f', $cd) . "</td>";
+// 	echo "</tr>\n";
+// 	$odd = !$odd;
+// }
 ?>
 </table>
 <?php
