@@ -4,9 +4,9 @@ $con = mysqli_connect("176.56.235.126", "oadb", "", "oadb");
 if(mysqli_connect_errno($con))
 	echo mysqli_connect_error();
 
-$form_year = isset($_POST['year']) ? $_POST['year'] : date('Y'); 
-$form_month = isset($_POST['month']) ? $_POST['month'] : date('M'); 
-$form_map = isset($_POST['map']) ? $_POST['map'] : false;
+$form_year = isset($_POST['year']) ? mysqli_real_escape_string($con, $_POST['year']) : date('Y'); 
+$form_month = isset($_POST['month']) ? mysqli_real_escape_string($con, $_POST['month']) : date('M'); 
+$form_map = isset($_POST['map']) ? mysqli_real_escape_string($con, $_POST['map']) : false;
 
 if(php_sapi_name() == 'cli')
 {

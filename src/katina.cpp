@@ -1805,9 +1805,12 @@ int main(const int argc, const char* argv[])
 						++stats[clients[num2]].deaths[weap];
 					else if(!clients[num1].is_bot() && !clients[num2].is_bot())
 					{
+						if(num1 != num2)
+						{
 							++stats[clients[num1]].kills[weap];
-							++stats[clients[num2]].deaths[weap];
 							++onevone[clients[num1]][clients[num2]];
+						}
+						++stats[clients[num2]].deaths[weap];
 
 						if(sk_cfg.do_kills)
 							skivvy.chat('k', "^7" + players[clients[num1]] + " ^4killed ^7" + players[clients[num2]]
