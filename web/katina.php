@@ -188,16 +188,41 @@ function sort_by(type)
 <body>
 
 <form id="monthly-map-form" action="katina.php" method="post">
-<span class="monthly-map-form-heading">Year:</span> <?php echo create_selector('year', get_years_from_db(), $form_year) ?>
-<span class="monthly-map-form-heading">Month:</span> <?php echo create_selector('month', $months, $form_month) ?>
-<span class="monthly-map-form-heading">Map:</span> <?php echo create_selector('map', get_maps_from_db(), $form_map) ?>
-<input id="monthly-map-form-sort" name="sort" type="hidden" value="name"/>
-<input type="submit"/>
-</form>
-
+<table id="form-table">
+<tr id="form-table-header" class="table-header">
+	<td>Year</td>
+	<td>Month</td>
+	<td>Map Name</td>
+	<td><input id="monthly-map-form-sort" name="sort" type="hidden" value="name"/></td>
+</tr>
+<tr>
+	<td><?php echo create_selector('year', get_years_from_db(), $form_year) ?></td>
+	<td><?php echo create_selector('month', $months, $form_month) ?></td>
+	<td><?php echo create_selector('map', get_maps_from_db(), $form_map) ?></td>
+	<td><input type="submit"/></td>
+</tr>
+</table>
 <?php
 if($form_map)
 {
+	// Map Info
+	$mapvotes = '&lt;unknown&gt;';
+	$sql = 'select sum(`count`) from `votes` where `type` = \'map\' and `item` = \'' . $form_map . '\'';
+	
+	$result = mysqli_query($con, $sql);
+	if(!$result)
+		echo mysqli_error($con);
+	else if($row = mysqli_fetch_array($result))
+		$mapvotes = $row[0];
+	
+	mysqli_free_result($result);
+	
+	
+	// Stats
+	
+	$players = array();
+	$names = array();
+	
 	$syear = $form_year;
 	$eyear = $syear;
 	$smonth = get_month_number($form_month);
@@ -215,63 +240,63 @@ if($form_map)
 	$games_result = mysqli_query($con, $sql);	
 	if(!$games_result)
 		echo mysqli_error($con);
-	
-	$players = array();
-	$names = array();
-	
-	while($games_row = mysqli_fetch_array($games_result))
+	else
 	{
-		// KILLS
-		$cond1 = '(`game_id` = \'' . $games_row[0] . '\')';
-		$cond2 = '(`weap` = \'2\' or `weap` = \'10\')';
-		$sql = 'select `guid`,`count` from `kills` where ' . $cond1 . ' and ' . $cond2;
-		
-		$result = mysqli_query($con, $sql);	
-		if(!$result)
-			echo mysqli_error($con);
-		
-		while($row = mysqli_fetch_array($result))
+		while($games_row = mysqli_fetch_array($games_result))
 		{
-			$names[$row[0]] = '<unknown>';
-			if(!isset($players[$row[0]]))
-				$players[$row[0]] = array('k' => 0, 'd' => 0, 'c' => 0);
-			$players[$row[0]]['k'] += $row[1];
+			// KILLS
+			$cond1 = '(`game_id` = \'' . $games_row[0] . '\')';
+			$cond2 = '(`weap` = \'2\' or `weap` = \'10\')';
+			$sql = 'select `guid`,`count` from `kills` where ' . $cond1 . ' and ' . $cond2;
+			
+			$result = mysqli_query($con, $sql);	
+			if(!$result)
+				echo mysqli_error($con);
+			
+			while($row = mysqli_fetch_array($result))
+			{
+				$names[$row[0]] = '<unknown>';
+				if(!isset($players[$row[0]]))
+					$players[$row[0]] = array('k' => 0, 'd' => 0, 'c' => 0);
+				$players[$row[0]]['k'] += $row[1];
+			}
+			
+			mysqli_free_result($result);
+	
+			// DEATHS
+			$sql = 'select `guid`,`count` from `deaths` where ' . $cond1 . ' and ' . $cond2;
+			$result = mysqli_query($con, $sql);	
+			if(!$result)
+				echo mysqli_error($con);
+			
+			while($row = mysqli_fetch_array($result))
+			{
+				$names[$row[0]] = '<unknown>';
+				if(!isset($players[$row[0]]))
+					$players[$row[0]] = array('k' => 0, 'd' => 0, 'c' => 0);
+				$players[$row[0]]['d'] += $row[1];
+			}
+			
+			mysqli_free_result($result);
+	
+			// CAPS
+			$sql = 'select `guid`,`count` from `caps` where ' . $cond1;
+			$result = mysqli_query($con, $sql);	
+			if(!$result)
+				echo mysqli_error($con);
+			
+			while($row = mysqli_fetch_array($result))
+			{
+				$names[$row[0]] = '&lt;unknown&gt;';
+				if(!isset($players[$row[0]]))
+					$players[$row[0]] = array('k' => 0, 'd' => 0, 'c' => 0);
+				$players[$row[0]]['c'] += $row[1];
+			}
+			
+			mysqli_free_result($result);
 		}
-		
-		mysqli_free_result($result);
-
-		// DEATHS
-		$sql = 'select `guid`,`count` from `deaths` where ' . $cond1 . ' and ' . $cond2;
-		$result = mysqli_query($con, $sql);	
-		if(!$result)
-			echo mysqli_error($con);
-		
-		while($row = mysqli_fetch_array($result))
-		{
-			$names[$row[0]] = '<unknown>';
-			if(!isset($players[$row[0]]))
-				$players[$row[0]] = array('k' => 0, 'd' => 0, 'c' => 0);
-			$players[$row[0]]['d'] += $row[1];
-		}
-		
-		mysqli_free_result($result);
-
-		// CAPS
-		$sql = 'select `guid`,`count` from `caps` where ' . $cond1;
-		$result = mysqli_query($con, $sql);	
-		if(!$result)
-			echo mysqli_error($con);
-		
-		while($row = mysqli_fetch_array($result))
-		{
-			$names[$row[0]] = '&lt;unknown&gt;';
-			if(!isset($players[$row[0]]))
-				$players[$row[0]] = array('k' => 0, 'd' => 0, 'c' => 0);
-			$players[$row[0]]['c'] += $row[1];
-		}
-		
-		mysqli_free_result($result);
 	}
+	
 	mysqli_free_result($games_result);
 	
 	if(count($names) > 0)
@@ -325,11 +350,24 @@ if($form_map)
 			usort($table, "cmp_names");
 	}
 ?>
+<table id="map-table">
+<tr id="map-table-header" class="table-header">
+	<td class="table-heading">Map Name</a></td>
+	<td class="table-heading">Visitors</a></td>
+	<td class="table-heading">Votes</a></td>
+</tr>
+<tr class="map-table-tr">
+	<td class="map-table-td"><?php echo $form_map; ?></td>
+	<td class="map-table-td"><?php echo count($players); ?></td>
+	<td class="map-table-td"><?php echo $mapvotes; ?></td>
+</tr>
+</table>
+
 <table id="score-table">
-<tr id="score-table-header">
-	<td class="score-table-heading">Player <a href="#" onclick="sort_by('name');">[sort]</a></td>
-	<td class="score-table-heading">Kills/Death <a href="#" onclick="sort_by('kd');">[sort]</a></td>
-	<td class="score-table-heading">100 x Caps/Deaths <a href="#" onclick="sort_by('cd');">[sort]</a></td>
+<tr id="score-table-header" class="table-header">
+	<td class="table-heading">Player <a href="#" onclick="sort_by('name');">[sort]</a></td>
+	<td class="table-heading">Kills/Death <a href="#" onclick="sort_by('kd');">[sort]</a></td>
+	<td class="table-heading">100 x Caps/Deaths <a href="#" onclick="sort_by('cd');">[sort]</a></td>
 </tr>
 <?php
 $odd = true;
@@ -346,6 +384,7 @@ foreach($table as $stats)
 }
 ?>
 </table>
+</form>
 <?php
 }
 ?>

@@ -1,4 +1,5 @@
 @CHARSET "UTF-8";
+
 body
 {
 	background-color: #222222;
@@ -7,25 +8,44 @@ body
 form{}
 table{}
 tr{}
-td{}
+td
+{
+	color: #FFFFFF;
+}
+
+#form-table
+{
+	position: static;
+	top: 16px;
+	left: 8px;
+}
 
 .monthly-map-form-heading
 {
 	color: #FFFFFF;
 }
 
-#score-table
+#map-table
 {
-	
+	position: static;
+	top: 8px;
+	left: 8px;
 }
 
-#score-table-header
+#score-table
+{
+	position: static;
+	top: 8px;
+	left: 8px;
+}
+
+.table-header
 {
 	background-color: #000000;
 	color: #FFFFFF;
 }
 
-.score-table-heading
+.table-heading
 {
 	color: white;
 	border-bottom: medium;
