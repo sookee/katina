@@ -2011,7 +2011,17 @@ int main(const int argc, const char* argv[])
 				}
 				if(sk_cfg.do_infos && mapname != old_mapname)
 				{
-					skivvy.chat('i', "^3== Playing Map: ^7" + mapname + "^3 ==");
+					siz love = 0;
+					siz hate = 0;
+					for(guid_int_map_iter i = map_votes.begin(); i != map_votes.end(); ++i)
+					{
+						if(i->second > 0)
+							++love;
+						else
+							++hate;
+					}
+					skivvy.chat('i', "^3== Playing Map: ^7" + mapname + "^3 == ^7" + to_string(love)
+						+ " ^1LOVE ^7 " + to_string(hate) + " ^2HATE ^3==");
 					old_mapname = mapname;
 				}
 			}
