@@ -130,27 +130,53 @@ function create_selector($name, $list, $dflt)
 	return $html;
 }
 
+function strip($name)
+{
+	//echo "$name<br/>\n";
+	$stripped = '';
+	for($i = 0; $i < strlen($name); $i++)
+		if(ctype_alpha(ord($name[$i])))
+			$stripped = $stripped . $name[$i];
+	//echo "$stripped<br/>\n";
+	return $stripped;
+}
+
 function cmp_names($a, $b)
 {
-	return $b['name'] - $a['name'];
+	$name_a = strip($a['name']);
+	$name_b = strip($b['name']);
+	
+	if($name_a < $name_b)
+		return -1;
+	if($name_a > $name_b)
+		return 1;
+	return 0;
 }
 
 function cmp_kd($a, $b)
 {
-	return $b['kd'] - $a['kd'];
-}
+	if($a['kd'] > $b['kd'])
+		return -1;
+	if($a['kd'] < $b['kd'])
+		return 1;
+	return 0;
+	}
 
 function cmp_cd($a, $b)
 {
-	return $b['cd'] - $a['cd'];
-}
+	if($a['cd'] > $b['cd'])
+		return -1;
+	if($a['cd'] < $b['cd'])
+		return 1;
+	return 0;
+	}
 ?>
 <!DOCTYPE html>
 <html>
 <head>
 <link rel="stylesheet" type="text/css" href="katina.css"/>
 <script type="text/javascript">
-function sort_by(var type)
+function sort_by(type)
 {
 	var form = document.getElementById('monthly-map-form');
 	var sort = document.getElementById('monthly-map-form-sort');
@@ -161,10 +187,10 @@ function sort_by(var type)
 </head>
 <body>
 
-<form id="monthly-map-form-sort" action="katina.php" method="post">
-Year: <?php echo create_selector('year', get_years_from_db(), $form_year) ?>
-Month: <?php echo create_selector('month', $months, $form_month) ?>
-Map: <?php echo create_selector('map', get_maps_from_db(), $form_map) ?>
+<form id="monthly-map-form" action="katina.php" method="post">
+<span class="monthly-map-form-heading">Year:</span> <?php echo create_selector('year', get_years_from_db(), $form_year) ?>
+<span class="monthly-map-form-heading">Month:</span> <?php echo create_selector('month', $months, $form_month) ?>
+<span class="monthly-map-form-heading">Map:</span> <?php echo create_selector('map', get_maps_from_db(), $form_map) ?>
 <input id="monthly-map-form-sort" name="sort" type="hidden" value="name"/>
 <input type="submit"/>
 </form>
@@ -296,14 +322,14 @@ if($form_map)
 			usort($table, "cmp_cd");
 			break;
 		default:
-			usort($table, "cmp_name");
+			usort($table, "cmp_names");
 	}
 ?>
 <table id="score-table">
 <tr id="score-table-header">
-	<td>Player <a href="#" onclick="sort_by('name');">[sort]</a></td>
-	<td>Kills/Death <a href="#" onclick="sort_by('kd');">[sort]</a></td>
-	<td>100 x Caps/Deaths <a href="#" onclick="sort_by('cd');">[sort]</a></td>
+	<td class="score-table-heading">Player <a href="#" onclick="sort_by('name');">[sort]</a></td>
+	<td class="score-table-heading">Kills/Death <a href="#" onclick="sort_by('kd');">[sort]</a></td>
+	<td class="score-table-heading">100 x Caps/Deaths <a href="#" onclick="sort_by('cd');">[sort]</a></td>
 </tr>
 <?php
 $odd = true;

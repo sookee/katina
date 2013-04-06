@@ -9,6 +9,11 @@ table{}
 tr{}
 td{}
 
+.monthly-map-form-heading
+{
+	color: #FFFFFF;
+}
+
 #score-table
 {
 	
@@ -18,6 +23,14 @@ td{}
 {
 	background-color: #000000;
 	color: #FFFFFF;
+}
+
+.score-table-heading
+{
+	color: white;
+	border-bottom: medium;
+	border-bottom-color: white;
+	border-bottom-style: solid;
 }
 
 .score-table-tr-odd
