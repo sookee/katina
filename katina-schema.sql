@@ -123,6 +123,22 @@ CREATE TABLE `votes` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `votes`
+--
+
+DROP TABLE IF EXISTS `polls`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `polls` (
+  `date` TIMESTAMP NOT NULL,
+  `type` varchar(8) NOT NULL,
+  `item` varchar(32) NOT NULL,
+  `count` int(4) NOT NULL,
+  PRIMARY KEY (`date`,`type`,`item`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `time`
 --
 

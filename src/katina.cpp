@@ -1125,6 +1125,8 @@ str mapname, old_mapname; // current/previous map name
 
 guid_int_map map_votes; // GUID -> 3
 
+const str flag[2] = {"^1RED", "^4BLUE"};
+
 void report_clients(const siz_guid_map& clients)
 {
 	for(siz_guid_citer i = clients.begin(); i != clients.end(); ++i)
@@ -1152,7 +1154,7 @@ typedef std::multimap<siz, GUID> siz_guid_mmap;
 typedef std::pair<const siz, GUID> siz_guid_pair;
 typedef siz_guid_mmap::reverse_iterator siz_guid_mmap_ritr;
 
-void report_caps(const guid_siz_map& caps, const guid_str_map& players)
+void report_caps(const guid_siz_map& caps, const guid_str_map& players, siz flags[2])
 {
 	siz_guid_mmap sorted;
 	for(guid_siz_citer c = caps.begin(); c != caps.end(); ++c)
@@ -1161,14 +1163,14 @@ void report_caps(const guid_siz_map& caps, const guid_str_map& players)
 	siz i = 0;
 	siz d = 1;
 	siz max = 0;
-	siz flags = 0;
+	siz f = 0; // flags
 	str_vec results;
 	std::ostringstream oss;
 	for(siz_guid_mmap_ritr ri = sorted.rbegin(); ri != sorted.rend(); ++ri)
 	{
 		++i;
-		if(flags != ri->first)
-			{ d = i; flags = ri->first; }
+		if(f != ri->first)
+			{ d = i; f = ri->first; }
 		oss.str("");
 		oss << "^3#" << d << " ^7" << players.at(ri->second) << " ^3capped ^7" << ri->first << "^3 flags.";
 		results.push_back(oss.str());
@@ -1183,7 +1185,11 @@ void report_caps(const guid_siz_map& caps, const guid_str_map& players)
 
 	if(sk_cfg.do_infos)
 	{
-		skivvy.chat('i', "^5== ^6RESULTS ^5" + str(max - 23, '='));
+//		skivvy.chat('f', "^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED]));
+		skivvy.chat('i', "^5== ^6RESULTS ^5== ^7"
+			+ to_string(flags[FL_BLUE]) + " ^1RED ^7"
+			+ to_string(flags[FL_RED]) + " ^4BLUE ^3 ==");
+//		skivvy.chat('i', "^5== ^6RESULTS ^5" + str(max - 23, '='));
 		for(siz i = 0; i < results.size(); ++i)
 			skivvy.chat('f', results[i]);
 		skivvy.chat('i', "^5" + str(max - 12, '-'));
@@ -1631,8 +1637,6 @@ int main(const int argc, const char* argv[])
 	GUID dasher[2]; // who is dashing
 	bool dashing[2] = {true, true}; // flag dash in progress?
 
-	const str flag[2] = {"^1RED", "^4BLUE"};
-
 	pthread_t teams_thread;
 	milliseconds thread_delay = 6000; // default
 	if(recs.count("rcon.delay"))
@@ -1683,7 +1687,7 @@ int main(const int argc, const char* argv[])
 				try
 				{
 					if(ka_cfg.do_flags && !caps.empty())
-						report_caps(caps, players);
+						report_caps(caps, players, flags);
 
 					game_id id = db.add_game(recs["rcon.host"], recs["rcon.port"], mapname);
 					bug("id; " << id);
@@ -2004,6 +2008,7 @@ int main(const int argc, const char* argv[])
 						std::cout << "Error parsing mapname\\" << '\n';
 						continue;
 					}
+					lower(mapname);
 					bug("mapname: " << mapname);
 
 					// load map votes for new map
@@ -2020,6 +2025,7 @@ int main(const int argc, const char* argv[])
 						else
 							++hate;
 					}
+					skivvy.chat('i', ".");
 					skivvy.chat('i', "^3== Playing Map: ^7" + mapname + "^3 == ^7" + to_string(love)
 						+ " ^1LOVE ^7" + to_string(hate) + " ^2HATE ^3==");
 					old_mapname = mapname;
