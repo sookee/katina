@@ -2021,7 +2021,7 @@ int main(const int argc, const char* argv[])
 							++hate;
 					}
 					skivvy.chat('i', "^3== Playing Map: ^7" + mapname + "^3 == ^7" + to_string(love)
-						+ " ^1LOVE ^7 " + to_string(hate) + " ^2HATE ^3==");
+						+ " ^1LOVE ^7" + to_string(hate) + " ^2HATE ^3==");
 					old_mapname = mapname;
 				}
 			}
