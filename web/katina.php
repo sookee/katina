@@ -147,16 +147,26 @@ function cmp_cd($a, $b)
 ?>
 <!DOCTYPE html>
 <html>
-<header>
-<link rel="stylesheet" type="text/css" href="katina.css">
-</header>
+<head>
+<link rel="stylesheet" type="text/css" href="katina.css"/>
+<script type="text/javascript">
+function sort_by(var type)
+{
+	var form = document.getElementById('monthly-map-form');
+	var sort = document.getElementById('monthly-map-form-sort');
+	sort.value = type;
+	form.submit();
+}
+</script>
+</head>
 <body>
 
-<form action="katina.php" method="post">
+<form id="monthly-map-form-sort" action="katina.php" method="post">
 Year: <?php echo create_selector('year', get_years_from_db(), $form_year) ?>
 Month: <?php echo create_selector('month', $months, $form_month) ?>
 Map: <?php echo create_selector('map', get_maps_from_db(), $form_map) ?>
-<input type="submit">
+<input id="monthly-map-form-sort" name="sort" type="hidden" value="name"/>
+<input type="submit"/>
 </form>
 
 <?php
@@ -290,7 +300,11 @@ if($form_map)
 	}
 ?>
 <table id="score-table">
-<tr id="score-table-header"><td>Player</td><td>Kills/Death</td><td>100 x Caps/Deaths</td></tr>
+<tr id="score-table-header">
+	<td>Player <a href="#" onclick="sort_by('name');">[sort]</a></td>
+	<td>Kills/Death <a href="#" onclick="sort_by('kd');">[sort]</a></td>
+	<td>100 x Caps/Deaths <a href="#" onclick="sort_by('cd');">[sort]</a></td>
+</tr>
 <?php
 $odd = true;
 foreach($table as $stats)
