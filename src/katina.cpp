@@ -1186,13 +1186,15 @@ void report_caps(const guid_siz_map& caps, const guid_str_map& players, siz flag
 	if(sk_cfg.do_infos)
 	{
 //		skivvy.chat('f', "^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED]));
-		skivvy.chat('i', "^5== ^6RESULTS ^5== ^7"
-			+ to_string(flags[FL_BLUE]) + " ^1RED ^7"
-			+ to_string(flags[FL_RED]) + " ^4BLUE ^3 ==");
+		soss oss;
+		oss << "^3== ^6RESULTS ^3== ^7" << flags[FL_BLUE] << " ^1RED ^3== ^7" << flags[FL_RED] << " ^4BLUE ^3 ==";
+
+		skivvy.chat('i', oss.str());
 //		skivvy.chat('i', "^5== ^6RESULTS ^5" + str(max - 23, '='));
 		for(siz i = 0; i < results.size(); ++i)
 			skivvy.chat('f', results[i]);
-		skivvy.chat('i', "^5" + str(max - 12, '-'));
+//		skivvy.chat('i', "^5" + str(max - 12, '-'));
+		skivvy.chat('i', "^3== END ==");
 	}
 }
 
@@ -2027,7 +2029,7 @@ int main(const int argc, const char* argv[])
 					}
 					skivvy.chat('i', ".");
 					skivvy.chat('i', "^3== Playing Map: ^7" + mapname + "^3 == ^7" + to_string(love)
-						+ " ^1LOVE ^7" + to_string(hate) + " ^2HATE ^3==");
+						+ " ^1LOVE ^3== ^7" + to_string(hate) + " ^2HATE ^3==");
 					old_mapname = mapname;
 				}
 			}
