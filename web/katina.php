@@ -190,9 +190,9 @@ function sort_by(type)
 <form id="monthly-map-form" action="katina.php" method="post">
 <table id="form-table">
 <tr id="form-table-header" class="table-header">
-	<td>Year</td>
-	<td>Month</td>
-	<td>Map Name</td>
+	<td class="table-heading">Year</td>
+	<td class="table-heading">Month</td>
+	<td class="table-heading">Map Name</td>
 	<td><input id="monthly-map-form-sort" name="sort" type="hidden" value="name"/></td>
 </tr>
 <tr>

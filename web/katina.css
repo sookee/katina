@@ -47,6 +47,7 @@ td
 
 .table-heading
 {
+	font-weight: bold;
 	color: white;
 	border-bottom: medium;
 	border-bottom-color: white;
