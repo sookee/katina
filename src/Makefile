@@ -7,7 +7,7 @@ INCLUDES = $(wildcard *.h)
 
 KATINA_FLAGS = -O3 -g0 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread
 KATINA_LIBS = $(MYSQL_LIBS) -lrt -pthread
-KATINA_OBJS = katina.o rcon.o RemoteClient.o irc.o
+KATINA_OBJS = katina.o rcon.o RemoteClient.o irc.o Database.o GUID.o
 
 all: katina
 
@@ -16,6 +16,9 @@ katina: $(KATINA_OBJS)
 	
 katina.o: katina.cpp $(INCLUDES)
 	$(CXX) -c $(KATINA_FLAGS) -o $@ $<
+	
+%.o: %.cpp %.h
+	$(CXX) $(CFLAGS) $(MYSQL_INCL) -c -o $@ $<
 
 clean:
 	rm -f *.o *.so katina

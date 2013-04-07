@@ -5,7 +5,7 @@
  * RemoteClient.h
  *
  *  Created on: Apr 7, 2013
- *      Author: gareth
+ *      Author: oasookee@gmail.com
  */
 
 #include "types.h"
