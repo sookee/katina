@@ -274,7 +274,7 @@ void report_onevone(const onevone_map& onevone, const guid_str_map& players)
 }
 
 typedef std::multimap<siz, GUID> siz_guid_mmap;
-typedef std::pair<const siz, GUID> siz_guid_pair;
+//typedef std::pair<const siz, GUID> siz_guid_pair;
 typedef siz_guid_mmap::reverse_iterator siz_guid_mmap_ritr;
 
 void report_caps(const guid_siz_map& caps, const guid_str_map& players, siz flags[2])
