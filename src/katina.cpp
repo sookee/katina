@@ -212,6 +212,7 @@ struct skivvy_conf
 {
 	bool active;
 	bool do_flags;
+	bool do_flags_hud;
 	bool do_chats;
 	bool do_kills;
 	bool do_infos;
@@ -222,6 +223,7 @@ struct skivvy_conf
 	skivvy_conf()
 	: active(false)
 	, do_flags(false)
+	, do_flags_hud(false)
 	, do_chats(false)
 	, do_kills(false)
 	, do_infos(false)
@@ -533,6 +535,15 @@ void* set_teams(void* td_vp)
 				}
 			break;
 			case 9:
+				if(!rconset("katina_skivvy_flags_hud", sk_cfg.do_flags_hud))
+					rconset("katina_skivvy_flags_hud", sk_cfg.do_flags_hud); // one retry
+				if(sk_cfg.do_flags_hud != old_sk_cfg.do_flags_hud)
+				{
+					log("skivvy: flag HUD is now: " << (sk_cfg.do_flags_hud ? "on":"off"));
+					skivvy.chat('*', "^3Flag HUD ^1" + str(sk_cfg.do_flags_hud ? "on":"off") + "^3.");
+				}
+			break;
+			case 10:
 				if(!rconset("katina_skivvy_kills", sk_cfg.do_kills))
 					rconset("katina_skivvy_kills",sk_cfg. do_kills); // one retry
 				if(sk_cfg.do_kills != old_sk_cfg.do_kills)
@@ -541,7 +552,7 @@ void* set_teams(void* td_vp)
 					skivvy.chat('*', "^3Kill reports ^1" + str(sk_cfg.do_kills ? "on":"off") + "^3.");
 				}
 			break;
-			case 10:
+			case 11:
 				if(!rconset("katina_skivvy_infos", sk_cfg.do_infos))
 					rconset("katina_skivvy_infos", sk_cfg.do_infos); // one retry
 				if(sk_cfg.do_kills != old_sk_cfg.do_kills)
@@ -550,7 +561,7 @@ void* set_teams(void* td_vp)
 					skivvy.chat('*', "^3Info reports ^1" + str(sk_cfg.do_infos ? "on":"off") + "^3.");
 				}
 			break;
-			case 11:
+			case 12:
 				if(!rconset("katina_skivvy_stats", sk_cfg.do_stats))
 					rconset("katina_skivvy_stats", sk_cfg.do_stats); // one retry
 				if(sk_cfg.do_stats != old_sk_cfg.do_stats)
@@ -559,7 +570,7 @@ void* set_teams(void* td_vp)
 					skivvy.chat('*', "^3Stats reports ^1" + str(sk_cfg.do_stats ? "on":"off") + "^3.");
 				}
 			break;
-			case 12:
+			case 13:
 				if(!rconset("katina_skivvy_spamkill", sk_cfg.spamkill))
 					rconset("katina_skivvy_spamkill", sk_cfg.spamkill); // one retry
 				if(old_sk_cfg.spamkill != sk_cfg.spamkill)
@@ -1029,7 +1040,7 @@ int main(const int argc, const char* argv[])
 						}
 					}
 
-					dasher[col] = null_guid;;
+					dasher[col] = null_guid;
 					dashing[col] = true; // new dash now possible
 					++flags[col];
 					++caps[clients[num]];
@@ -1040,6 +1051,15 @@ int main(const int argc, const char* argv[])
 						server.cp(msg);
 						if(sk_cfg.do_flags)
 						{
+							str hud;
+							if(sk_cfg.do_flags_hud)
+							{
+								soss oss;
+								oss << "^7[" << (m < 10?"0":"") << m << ":" << (s < 10?"0":"") << s << " ";
+								oss << (dasher[FL_RED] != null_guid?"^1⚑":" ");
+								oss << (dasher[FL_BLUE] != null_guid?"^4⚑":" ");
+								oss << "^7]";
+							}
 							skivvy.chat('f', msg);
 							skivvy.chat('f', "^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED]));
 						}

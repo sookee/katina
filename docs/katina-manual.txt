@@ -31,6 +31,7 @@ s = stats (k/d c/d)
 !rcon zim seta katina_skivvy_infos 1
 !rcon zim seta katina_skivvy_chats 1
 !rcon zim seta katina_skivvy_flags 0
+!rcon zim seta katina_skivvy_flags_hud 0 // [03:24 ⚑⚑]
 !rcon zim seta katina_skivvy_kills 0
 !rcon zim seta katina_skivvy_stats 0
 !rcon zim seta katina_skivvy_spamkill 1
