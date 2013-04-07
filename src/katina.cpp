@@ -1062,6 +1062,8 @@ int main(const int argc, const char* argv[])
 
 					++flags[col];
 					++caps[clients[num]];
+					dasher[col] = null_guid;
+					dashing[col] = true; // new dash now possible
 
 					if(ka_cfg.do_flags)
 					{
@@ -1071,12 +1073,10 @@ int main(const int argc, const char* argv[])
 						{
 							if(sk_cfg.do_flags_hud)
 								hud = get_hud(m, s, dasher);
-							skivvy.raw_chat('f', hud + oa_to_IRC(nums_team + msg));
+							skivvy.raw_chat('f', hud + oa_to_IRC(nums_team + " " + msg));
 							skivvy.raw_chat('f', hud + oa_to_IRC("^7[ ] ^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED])));
 						}
 					}
-					dasher[col] = null_guid;
-					dashing[col] = true; // new dash now possible
 				}
 				else if(act == FL_TAKEN)
 				{
