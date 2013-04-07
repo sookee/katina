@@ -73,6 +73,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include "str.h"
 #include "rcon.h"
 #include "time.h"
+#include "RemoteClient.h"
 
 #include <mysql.h>
 #include <arpa/inet.h> // IP to int
@@ -238,166 +239,103 @@ typedef std::pair<const GUID, int> guid_int_map_pair;
 typedef guid_int_map::iterator guid_int_map_iter;
 typedef guid_int_map::const_iterator guid_int_map_citer;
 
-// -- IRC --------------------------------------------------------------
-
-#define ColorIndex(c)	( ( (c) - '0' ) & 7 )
-#define Q_COLOR_ESCAPE	'^'
-#define Q_IsColorString(p)	( p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && isalnum(*((p)+1)) ) // ^[0-9a-zA-Z]
-#define Q_IsSpecialChar(c) ((c) && ((c) < 32))
-
-const int oatoirctab[8] =
-{
-	1 // "black"
-	, 4 // "red"
-	, 3 // "lime"
-	, 8 // "yellow"
-	, 2 // "blue"
-	, 12 // "cyan"
-	, 6 // "magenta"
-	, 0 // "white"
-};
-
-const str IRC_BOLD = "";
-const str IRC_NORMAL = "";
-const str IRC_COLOR = "";
-
-str oa_to_IRC(const char* msg)
-{
-	std::ostringstream oss;
-
-	oss << IRC_BOLD;
-
-	while(*msg)
-	{
-		if(Q_IsColorString(msg))
-		{
-			oss << IRC_NORMAL;
-			siz code = (*(msg + 1)) % 8;
-			oss << IRC_COLOR << (oatoirctab[code] < 10 ? "0" : "") << oatoirctab[code];
-			msg += 2;
-		}
-		else if(Q_IsSpecialChar(*msg))
-		{
-			oss << "#";
-			msg++;
-		}
-		else
-		{
-
-			oss << *msg;
-			msg++;
-		}
-	}
-
-	oss << IRC_NORMAL;
-
-	return oss.str();
-}
-
-str oa_to_IRC(const str& msg)
-{
-	return oa_to_IRC(msg.c_str());
-}
-
-const str irc_katina = "04K00at08i00na";
-
-class SkivvyClient
-{
-private:
-//	std::mutex mtx;
-	bool active;
-	net::socketstream ss;
-	str host;
-	siz port;
-	//str_set chans;
-	typedef std::map<str, std::set<char> > chan_map;
-	typedef chan_map::iterator chan_map_iter;
-	typedef chan_map::const_iterator chan_map_citer;
-
-	chan_map chans; // #channel -> {'c','f','k'}
-
-
-public:
-	SkivvyClient(): active(false), host("localhost"), port(7334) {}
-
-	void on() { active = true; }
-	void off() { active = false; }
-
-	void config(const str& host, siz port)
-	{
-		for(chan_map_iter chan = chans.begin(); chan != chans.end(); ++chan)
-			log("sending to channel: " << chan->first);
-		this->host = host;
-		this->port = port;
-	}
-
-	void set_chans(const str& chans)
-	{
-		bug("set_chans(): " << chans);
-		this->chans.clear();
-		str chan;
-		siss iss(chans);
-		while(iss >> chan) // #channel(flags)
-		{
-			bug("chan: " << chan);
-			str flags;
-			siss iss(chan);
-			std::getline(iss, chan, '(');
-			if(std::getline(iss, flags, ')'))
-			{
-				// config flags c = chats f = flags k = kills
-				set_flags(chan, flags);
-			}
-		}
-	}
-
-	bool say(char f, const str& text)
-	{
-		if(!ss.open(host, port))
-		{
-			log("error: " << std::strerror(errno) << " host: " << host << " port: " << port);
-			return false;
-		}
-		str res;
-		bool good = true;
-		for(chan_map_iter chan = chans.begin(); chan != chans.end(); ++chan)
-			if(f == '*' || chan->second.count(f))
-				good = good && send("/say " + chan->first + " [" + irc_katina + "] " + text, res);
-		return good;
-	}
-
-	void add_flag(const str& chan, char f) { chans[chan].insert(f); }
-	void del_flag(const str& chan, char f) { chans[chan].erase(f); }
-	void set_flags(const str& chan, const str& flags)
-	{
-		for(siz i = 0; i < flags.size(); ++i)
-			add_flag(chan, flags[i]);
-	}
-
-	void clear_flags()
-	{
-		for(chan_map_iter chan = chans.begin(); chan != chans.end(); ++chan)
-			chan->second.clear();
-	}
-	void clear_flags(const str& chan) { chans[chan].clear(); }
-
-	bool chat(char f, const str& text) { return say(f, oa_to_IRC(text)); }
-
-	bool send(const str& cmd, str& res)
-	{
-//		lock_guard lock(mtx);
-		if(!active)
-			return true;
-
-		if(!ss.open(host, port))
-		{
-			log("error: " << std::strerror(errno));
-			return false;
-		}
-		(ss << cmd).put('\0') << std::flush;
-		return std::getline(ss, res, '\0');
-	}
-};
+// TODO: refactor out as RemoteClient.h SkivvYClient as a sub type
+//class SkivvyClient
+//{
+//private:
+////	std::mutex mtx;
+//	bool active;
+//	net::socketstream ss;
+//	str host;
+//	siz port;
+//	//str_set chans;
+//	typedef std::map<str, std::set<char> > chan_map;
+//	typedef chan_map::iterator chan_map_iter;
+//	typedef chan_map::const_iterator chan_map_citer;
+//
+//	chan_map chans; // #channel -> {'c','f','k'}
+//
+//public:
+//	SkivvyClient(): active(false), host("localhost"), port(7334) {}
+//
+//	void on() { active = true; }
+//	void off() { active = false; }
+//
+//	void config(const str& host, siz port)
+//	{
+//		for(chan_map_iter chan = chans.begin(); chan != chans.end(); ++chan)
+//			log("sending to channel: " << chan->first);
+//		this->host = host;
+//		this->port = port;
+//	}
+//
+//	void set_chans(const str& chans)
+//	{
+//		bug("set_chans(): " << chans);
+//		this->chans.clear();
+//		str chan;
+//		siss iss(chans);
+//		while(iss >> chan) // #channel(flags)
+//		{
+//			bug("chan: " << chan);
+//			str flags;
+//			siss iss(chan);
+//			std::getline(iss, chan, '(');
+//			if(std::getline(iss, flags, ')'))
+//			{
+//				// config flags c = chats f = flags k = kills
+//				set_flags(chan, flags);
+//			}
+//		}
+//	}
+//
+//	bool say(char f, const str& text)
+//	{
+//		if(!ss.open(host, port))
+//		{
+//			log("error: " << std::strerror(errno) << " host: " << host << " port: " << port);
+//			return false;
+//		}
+//		str res;
+//		bool good = true;
+//		for(chan_map_iter chan = chans.begin(); chan != chans.end(); ++chan)
+//			if(f == '*' || chan->second.count(f))
+//				good = good && send("/say " + chan->first + " [" + irc_katina + "] " + text, res);
+//		return good;
+//	}
+//
+//	void add_flag(const str& chan, char f) { chans[chan].insert(f); }
+//	void del_flag(const str& chan, char f) { chans[chan].erase(f); }
+//	void set_flags(const str& chan, const str& flags)
+//	{
+//		for(siz i = 0; i < flags.size(); ++i)
+//			add_flag(chan, flags[i]);
+//	}
+//
+//	void clear_flags()
+//	{
+//		for(chan_map_iter chan = chans.begin(); chan != chans.end(); ++chan)
+//			chan->second.clear();
+//	}
+//	void clear_flags(const str& chan) { chans[chan].clear(); }
+//
+//	bool chat(char f, const str& text) { return say(f, oa_to_IRC(text)); }
+//
+//	bool send(const str& cmd, str& res)
+//	{
+////		lock_guard lock(mtx);
+//		if(!active)
+//			return true;
+//
+//		if(!ss.open(host, port))
+//		{
+//			log("error: " << std::strerror(errno));
+//			return false;
+//		}
+//		(ss << cmd).put('\0') << std::flush;
+//		return std::getline(ss, res, '\0');
+//	}
+//};
 
 typedef my_ulonglong game_id;
 const game_id bad_id(-1);
