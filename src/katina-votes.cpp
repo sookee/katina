@@ -66,8 +66,6 @@ int main()
 
 	bug("Database open");
 
-	// SECTION
-
 	soss oss;
 	oss << "select `item`,`count` from `votes` where `type` = 'map'";
 
@@ -100,11 +98,6 @@ int main()
 		{
 			con(i->first << ": " << i->second);
 
-		//	  `date` TIMESTAMP NOT NULL,
-		//	  `type` varchar(8) NOT NULL,
-		//	  `item` varchar(32) NOT NULL,
-		//	  `count` int(4) NOT NULL,
-
 			oss.str("");
 			oss << "insert into `polls` (`type`,`item`,`count`) values (";
 			oss << "'map','" << i->first << "','" << i->second << "')";
@@ -115,25 +108,22 @@ int main()
 			{
 				log("DATABASE ERROR: Unable to read votes; " << mysql_error(&mysql));
 				log("              : sql = " << sql);
-				return false;
+				return 1;
 			}
 		}
 	}
 
-//	oss.str("");
-//	oss << "delete from `votes` where `type` = 'map'";
-//
-//	str sql = oss.str();
-//
-//	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
-//	{
-//		log("DATABASE ERROR: Unable to delete votes; " << mysql_error(&mysql));
-//		log("              : sql = " << sql);
-//		return false;
-//	}
+	oss.str("");
+	oss << "delete from `votes` where `type` = 'map'";
 
+	sql = oss.str();
 
-	// END SECTION
+	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+	{
+		log("DATABASE ERROR: Unable to delete votes; " << mysql_error(&mysql));
+		log("              : sql = " << sql);
+		return false;
+	}
 
 	mysql_close(&mysql);
 }
