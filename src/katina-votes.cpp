@@ -48,11 +48,11 @@ int main()
 {
 	MYSQL mysql;
 
-	str host;
-	siz port;
-	str user;
-	str pass;
-	str base;
+	str host = "localhost";
+	siz port = 3306;
+	str user = "katina";
+	str pass = "6B77EA2A";
+	str base = "oadb";
 
 	if(mysql_real_connect(&mysql, host.c_str(), user.c_str()
 		, pass.c_str(), base.c_str(), port, NULL, 0) != &mysql)
