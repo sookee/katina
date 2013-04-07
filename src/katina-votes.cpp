@@ -61,6 +61,8 @@ int main()
 		return 1;
 	}
 
+	log("Database open");
+
 	// SECTION
 
 	soss oss;
@@ -79,34 +81,39 @@ int main()
 
 	MYSQL_RES* result = mysql_store_result(&mysql);
 
-	MYSQL_ROW row;
-	while((row = mysql_fetch_row(result)))
+	if(result)
 	{
-		votes[row[0]] += to<siz>(row[1]);
-	}
+		log("Processing votes");
 
-	mysql_free_result(result);
-
-	for(str_siz_map_iter i = votes.begin(); i != votes.end(); ++i)
-	{
-		con(i->first << ": " << i->second);
-
-	//	  `date` TIMESTAMP NOT NULL,
-	//	  `type` varchar(8) NOT NULL,
-	//	  `item` varchar(32) NOT NULL,
-	//	  `count` int(4) NOT NULL,
-
-		oss.str("");
-		oss << "insert into `polls` (`type`,`item`,`count`) values (";
-		oss << "'map','" << i->first << "','" << i->second << "')";
-
-		str sql = oss.str();
-
-		if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+		MYSQL_ROW row;
+		while((row = mysql_fetch_row(result)))
 		{
-			log("DATABASE ERROR: Unable to read votes; " << mysql_error(&mysql));
-			log("              : sql = " << sql);
-			return false;
+			votes[row[0]] += to<siz>(row[1]);
+		}
+
+		mysql_free_result(result);
+
+		for(str_siz_map_iter i = votes.begin(); i != votes.end(); ++i)
+		{
+			con(i->first << ": " << i->second);
+
+		//	  `date` TIMESTAMP NOT NULL,
+		//	  `type` varchar(8) NOT NULL,
+		//	  `item` varchar(32) NOT NULL,
+		//	  `count` int(4) NOT NULL,
+
+			oss.str("");
+			oss << "insert into `polls` (`type`,`item`,`count`) values (";
+			oss << "'map','" << i->first << "','" << i->second << "')";
+
+			str sql = oss.str();
+
+			if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+			{
+				log("DATABASE ERROR: Unable to read votes; " << mysql_error(&mysql));
+				log("              : sql = " << sql);
+				return false;
+			}
 		}
 	}
 
