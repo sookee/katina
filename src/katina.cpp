@@ -692,7 +692,7 @@ void stack_handler(int sig)
 str get_hud(siz m, siz s, GUID dasher[2])
 {
 	soss oss;
-	oss << "00[" << (m < 10?"0":"") << m << ":" << (s < 10?"0":"") << s << " ";
+	oss << "00[15" << (m < 10?"0":"") << m << "00:15" << (s < 10?"0":"") << s << " ";
 	oss << "04" << (dasher[FL_RED] != null_guid?"⚑":".");
 	oss << "02" << (dasher[FL_BLUE] != null_guid?"⚑":".");
 	oss << "00]";
@@ -1071,7 +1071,7 @@ int main(const int argc, const char* argv[])
 						{
 							if(sk_cfg.do_flags_hud)
 								hud = get_hud(m, s, dasher);
-							skivvy.chat('f', msg);
+							skivvy.raw_chat('f', hud + oa_to_IRC(nums_team + msg));
 							skivvy.raw_chat('f', hud + oa_to_IRC("^7[ ] ^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED])));
 						}
 					}
@@ -1094,6 +1094,7 @@ int main(const int argc, const char* argv[])
 				}
 				else if(act == FL_DROPPED)
 				{
+					GUID dasher_guid = dasher[ncol];
 					dasher[ncol] = null_guid;; // end a dash
 					dashing[ncol] = false; // no more dashes until return, capture or suicide
 					if(sk_cfg.do_flags)
@@ -1101,7 +1102,7 @@ int main(const int argc, const char* argv[])
 						if(sk_cfg.do_flags_hud)
 							hud = get_hud(m, s, dasher);
 						skivvy.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + players[clients[num]] + "^3 has killed the " + flag[col] + " ^3flag carrier!"));
-						skivvy.raw_chat('f', hud + oa_to_IRC(nums_nteam + " ^7" + players[dasher[ncol]] + "^3 has dropped the " + flag[ncol] + " ^3flag!"));
+						skivvy.raw_chat('f', hud + oa_to_IRC(nums_nteam + " ^7" + players[dasher_guid] + "^3 has dropped the " + flag[ncol] + " ^3flag!"));
 					}
 				}
 				else if(act == FL_RETURNED)
