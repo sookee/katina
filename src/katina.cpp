@@ -689,6 +689,16 @@ void stack_handler(int sig)
 	exit(1);
 }
 
+str get_hud(siz m, siz s, GUID dasher[2])
+{
+	soss oss;
+	oss << "00[" << (m < 10?"0":"") << m << ":" << (s < 10?"0":"") << s << " ";
+	oss << "04" << (dasher[FL_RED] != null_guid?"⚑":".");
+	oss << "02" << (dasher[FL_BLUE] != null_guid?"⚑":".");
+	oss << "00]";
+	return oss.str();
+}
+
 int main(const int argc, const char* argv[])
 {
 	signal(11, stack_handler);
@@ -997,15 +1007,15 @@ int main(const int argc, const char* argv[])
 					++stats[clients[num]].flags[act];
 
 				str hud;
-				if(sk_cfg.do_flags && sk_cfg.do_flags_hud)
-				{
-					soss oss;
-					oss << "^7[" << (m < 10?"0":"") << m << ":" << (s < 10?"0":"") << s << " ";
-					oss << (dasher[FL_RED] != null_guid?"^1⚑":"^1.");
-					oss << (dasher[FL_BLUE] != null_guid?"^4⚑":"^4.");
-					oss << "^7]";
-					hud = oss.str();
-				}
+//				if(sk_cfg.do_flags && sk_cfg.do_flags_hud)
+//				{
+//					soss oss;
+//					oss << "00[" << (m < 10?"0":"") << m << ":" << (s < 10?"0":"") << s << " ";
+//					oss << "04" << (dasher[FL_RED] != null_guid?"⚑":".");
+//					oss << "02" << (dasher[FL_BLUE] != null_guid?"⚑":".");
+//					oss << "00]";
+//					hud = oss.str();
+//				}
 				if(act == FL_CAPTURED) // In Game Announcer
 				{
 					bug("FL_CAPTURED");
@@ -1050,8 +1060,6 @@ int main(const int argc, const char* argv[])
 						}
 					}
 
-					dasher[col] = null_guid;
-					dashing[col] = true; // new dash now possible
 					++flags[col];
 					++caps[clients[num]];
 
@@ -1061,10 +1069,14 @@ int main(const int argc, const char* argv[])
 						server.cp(msg);
 						if(sk_cfg.do_flags)
 						{
+							if(sk_cfg.do_flags_hud)
+								hud = get_hud(m, s, dasher);
 							skivvy.chat('f', msg);
-							skivvy.chat('f', hud + "^7[ ] ^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED]));
+							skivvy.raw_chat('f', hud + oa_to_IRC("^7[ ] ^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED])));
 						}
 					}
+					dasher[col] = null_guid;
+					dashing[col] = true; // new dash now possible
 				}
 				else if(act == FL_TAKEN)
 				{
@@ -1074,25 +1086,34 @@ int main(const int argc, const char* argv[])
 					dasher[col] = clients[num];
 
 					if(sk_cfg.do_flags)
-						skivvy.chat('f', hud + nums_team + " ^7" + players[clients[num]] + "^3 has taken the " + flag[col] + " ^3flag!");
+					{
+						if(sk_cfg.do_flags_hud)
+							hud = get_hud(m, s, dasher);
+						skivvy.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + players[clients[num]] + "^3 has taken the " + flag[col] + " ^3flag!"));
+					}
 				}
 				else if(act == FL_DROPPED)
 				{
-					if(sk_cfg.do_flags)
-					{
-						skivvy.chat('f', hud + nums_team + " ^7" + players[clients[num]] + "^3 has killed the " + flag[col] + " ^3flag carrier!");
-						skivvy.chat('f', hud + nums_nteam + " ^7" + players[dasher[ncol]] + "^3 has dropped the " + flag[ncol] + " ^3flag!");
-					}
 					dasher[ncol] = null_guid;; // end a dash
 					dashing[ncol] = false; // no more dashes until return, capture or suicide
+					if(sk_cfg.do_flags)
+					{
+						if(sk_cfg.do_flags_hud)
+							hud = get_hud(m, s, dasher);
+						skivvy.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + players[clients[num]] + "^3 has killed the " + flag[col] + " ^3flag carrier!"));
+						skivvy.raw_chat('f', hud + oa_to_IRC(nums_nteam + " ^7" + players[dasher[ncol]] + "^3 has dropped the " + flag[ncol] + " ^3flag!"));
+					}
 				}
 				else if(act == FL_RETURNED)
 				{
-					if(sk_cfg.do_flags)
-						skivvy.chat('f', hud + nums_team + " ^7" + players[clients[num]] + "^3 has returned the " + flag[col] + " ^3flag!");
-
 					dasher[col] = null_guid;; // end a dash
 					dashing[col] = true; // new dash now possible
+					if(sk_cfg.do_flags)
+					{
+						if(sk_cfg.do_flags_hud)
+							hud = get_hud(m, s, dasher);
+						skivvy.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + players[clients[num]] + "^3 has returned the " + flag[col] + " ^3flag!"));
+					}
 				}
 			}
 			else if(cmd == "Award:")

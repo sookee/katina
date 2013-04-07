@@ -64,6 +64,7 @@ public:
 	void clear_flags(const str& chan) { chans[chan].clear(); }
 
 	bool chat(char f, const str& text) { return say(f, oa_to_IRC(text)); }
+	bool raw_chat(char f, const str& text) { return say(f, text); }
 
 	/**
 	 * Implementing classes need to override this function.
