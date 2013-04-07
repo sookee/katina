@@ -1,33 +1,12 @@
 
-DEF_FLAGS = \
-	-D DEBUG \
-	-D _GLIBCXX_USE_NANOSLEEP \
-	-D _GLIBCXX_USE_SCHED_YIELD	
-DEBUG = 1
-	
-#MYSQL_INCL = -I/usr/include/mysql
-#MYSQL_LIBS = -L/usr/lib/mysql -lmysqlclient -lz -lm -lrt -lssl -lcrypto -ldl
 MYSQL_INCL = -I/usr/include/mysql
 MYSQL_LIBS = $(shell mysql_config --libs)
 
-PCRE_INCL = $(shell pkg-config libpcrecpp --cflags)
-PCRE_LIBS = $(shell pkg-config libpcrecpp --libs)
-
-KATINA_FLAGS = -O3 -g0 $(DEF_FLAGS) $(MYSQL_FLAG) $(MYSQL_INCL) $(PCRE_INCL) -pthread
-OASTATS_FLAGS = -std=c++11 $(DEF_FLAGS) $(ALL_INCL) -pthread
-
-KATINA_LIBS = $(MYSQL_LIBS) $(PCRE_LIBS) -lrt -pthread
-OASTATS_LIBS = $(MYSQL_LIBS) $(PCRE_LIBS) -pthread
-
-CXX = g++
-CC = g++
-#CXXFLAGS = $(ALL_INCL)
-#CXXFLAGS = -std=c++11 $(DEF_FLAGS) $(MYSQL_FLAG) $(ALL_INCL) -pthread
-#LDFLAGS = $(ALL_LIBS) -pthread
-
 INCLUDES = $(wildcard *.h)
 
-#all: oastats katina
+KATINA_FLAGS = -O3 -g0 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread
+KATINA_LIBS = $(MYSQL_LIBS) -lrt -pthread
+
 all: katina
 
 katina: katina.o
