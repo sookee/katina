@@ -46,6 +46,7 @@ const str TAG = "alpha";
 
 int main()
 {
+	bug_func();
 	MYSQL mysql;
 
 	str host = "localhost";
@@ -61,7 +62,7 @@ int main()
 		return 1;
 	}
 
-	log("Database open");
+	bug("Database open");
 
 	// SECTION
 
@@ -83,7 +84,7 @@ int main()
 
 	if(result)
 	{
-		log("Processing votes");
+		bug("Processing votes");
 
 		MYSQL_ROW row;
 		while((row = mysql_fetch_row(result)))
