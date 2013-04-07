@@ -746,6 +746,9 @@ int main(const int argc, const char* argv[])
 	std::istringstream iss;
 	bool in_game = false;
 
+	str_siz_map spam;
+	siz spam_limit = 2;
+
 	siz flags[2];
 
 	milliseconds dash[2];// = {0, 0}; // time of dash start
@@ -798,6 +801,15 @@ int main(const int argc, const char* argv[])
 
 				skivvy.chat('*', "^3Game Over");
 				in_game = false;
+
+				// erase non spam marked messages
+				for(str_siz_map_iter i = spam.begin(); i != spam.end();)
+				{
+					if(i->second < spam_limit)
+						spam.erase(i->first);
+					else
+						++i;
+				}
 
 				try
 				{
@@ -1152,14 +1164,13 @@ int main(const int argc, const char* argv[])
 			// 0:23 say: ^5A^6lien ^5S^6urf ^5G^6irl: yes, 3-4 players max
 			bug("line: " << line);
 
-			static str_set spam;
-
 			if(sk_cfg.do_chats)
 			{
 				str text;
 				if(std::getline(iss >> std::ws, text))
-					if(!sk_cfg.spamkill || !spam.count(text))
-						skivvy.chat('c', "^7say: " + *spam.insert(spam.end(), text));
+					if(!sk_cfg.spamkill || ++spam[text] < spam_limit)
+						skivvy.chat('c', "^7say: " + text);
+//						skivvy.chat('c', "^7say: " + *spam.insert(spam.end(), text));
 			}
 
 			siz pos;
