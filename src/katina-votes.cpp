@@ -47,22 +47,22 @@ const str TAG = "alpha";
 int main()
 {
 	bug_func();
-//	MYSQL mysql;
-//
-//	str host = "localhost";
-//	siz port = 3306;
-//	str user = "katina";
-//	str pass = "6B77EA2A";
-//	str base = "oadb";
-//
-//	if(mysql_real_connect(&mysql, host.c_str(), user.c_str()
-//		, pass.c_str(), base.c_str(), port, NULL, 0) != &mysql)
-//	{
-//		log("DATABASE ERROR: Unable to connect; " << mysql_error(&mysql));
-//		return 1;
-//	}
-//
-//	bug("Database open");
+	MYSQL mysql;
+
+	str host = "localhost";
+	siz port = 3306;
+	str user = "katina";
+	str pass = "6B77EA2A";
+	str base = "oadb";
+
+	if(mysql_real_connect(&mysql, host.c_str(), user.c_str()
+		, pass.c_str(), base.c_str(), port, NULL, 0) != &mysql)
+	{
+		log("DATABASE ERROR: Unable to connect; " << mysql_error(&mysql));
+		return 1;
+	}
+
+	bug("Database open");
 //
 //	// SECTION
 //
