@@ -47,91 +47,91 @@ const str TAG = "alpha";
 int main()
 {
 	bug_func();
-	MYSQL mysql;
-
-	str host = "localhost";
-	siz port = 3306;
-	str user = "katina";
-	str pass = "6B77EA2A";
-	str base = "oadb";
-
-	if(mysql_real_connect(&mysql, host.c_str(), user.c_str()
-		, pass.c_str(), base.c_str(), port, NULL, 0) != &mysql)
-	{
-		log("DATABASE ERROR: Unable to connect; " << mysql_error(&mysql));
-		return 1;
-	}
-
-	bug("Database open");
-
-	// SECTION
-
-	soss oss;
-	oss << "select `item`,`count` from `votes` where `type` = 'map'";
-
-	str sql = oss.str();
-
-	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
-	{
-		log("DATABASE ERROR: Unable to read votes; " << mysql_error(&mysql));
-		log("              : sql = " << sql);
-		return false;
-	}
-
-	str_siz_map votes;
-
-	MYSQL_RES* result = mysql_store_result(&mysql);
-
-	if(result)
-	{
-		bug("Processing votes");
-
-		MYSQL_ROW row;
-		while((row = mysql_fetch_row(result)))
-		{
-			votes[row[0]] += to<siz>(row[1]);
-		}
-
-		mysql_free_result(result);
-
-		for(str_siz_map_iter i = votes.begin(); i != votes.end(); ++i)
-		{
-			con(i->first << ": " << i->second);
-
-		//	  `date` TIMESTAMP NOT NULL,
-		//	  `type` varchar(8) NOT NULL,
-		//	  `item` varchar(32) NOT NULL,
-		//	  `count` int(4) NOT NULL,
-
-			oss.str("");
-			oss << "insert into `polls` (`type`,`item`,`count`) values (";
-			oss << "'map','" << i->first << "','" << i->second << "')";
-
-			str sql = oss.str();
-
-			if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
-			{
-				log("DATABASE ERROR: Unable to read votes; " << mysql_error(&mysql));
-				log("              : sql = " << sql);
-				return false;
-			}
-		}
-	}
-
-//	oss.str("");
-//	oss << "delete from `votes` where `type` = 'map'";
+//	MYSQL mysql;
+//
+//	str host = "localhost";
+//	siz port = 3306;
+//	str user = "katina";
+//	str pass = "6B77EA2A";
+//	str base = "oadb";
+//
+//	if(mysql_real_connect(&mysql, host.c_str(), user.c_str()
+//		, pass.c_str(), base.c_str(), port, NULL, 0) != &mysql)
+//	{
+//		log("DATABASE ERROR: Unable to connect; " << mysql_error(&mysql));
+//		return 1;
+//	}
+//
+//	bug("Database open");
+//
+//	// SECTION
+//
+//	soss oss;
+//	oss << "select `item`,`count` from `votes` where `type` = 'map'";
 //
 //	str sql = oss.str();
 //
 //	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
 //	{
-//		log("DATABASE ERROR: Unable to delete votes; " << mysql_error(&mysql));
+//		log("DATABASE ERROR: Unable to read votes; " << mysql_error(&mysql));
 //		log("              : sql = " << sql);
 //		return false;
 //	}
-
-
-	// END SECTION
-
-	mysql_close(&mysql);
+//
+//	str_siz_map votes;
+//
+//	MYSQL_RES* result = mysql_store_result(&mysql);
+//
+//	if(result)
+//	{
+//		bug("Processing votes");
+//
+//		MYSQL_ROW row;
+//		while((row = mysql_fetch_row(result)))
+//		{
+//			votes[row[0]] += to<siz>(row[1]);
+//		}
+//
+//		mysql_free_result(result);
+//
+//		for(str_siz_map_iter i = votes.begin(); i != votes.end(); ++i)
+//		{
+//			con(i->first << ": " << i->second);
+//
+//		//	  `date` TIMESTAMP NOT NULL,
+//		//	  `type` varchar(8) NOT NULL,
+//		//	  `item` varchar(32) NOT NULL,
+//		//	  `count` int(4) NOT NULL,
+//
+//			oss.str("");
+//			oss << "insert into `polls` (`type`,`item`,`count`) values (";
+//			oss << "'map','" << i->first << "','" << i->second << "')";
+//
+//			str sql = oss.str();
+//
+//			if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+//			{
+//				log("DATABASE ERROR: Unable to read votes; " << mysql_error(&mysql));
+//				log("              : sql = " << sql);
+//				return false;
+//			}
+//		}
+//	}
+//
+////	oss.str("");
+////	oss << "delete from `votes` where `type` = 'map'";
+////
+////	str sql = oss.str();
+////
+////	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+////	{
+////		log("DATABASE ERROR: Unable to delete votes; " << mysql_error(&mysql));
+////		log("              : sql = " << sql);
+////		return false;
+////	}
+//
+//
+//	// END SECTION
+//
+//	mysql_close(&mysql);
 }
