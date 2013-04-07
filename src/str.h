@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _SKIVVY_STR_H_
-#define _SKIVVY_STR_H_
+#ifndef _OASTATS_STR_H_
+#define _OASTATS_STR_H_
 /*
  * str.h
  *
@@ -9,7 +9,7 @@
  */
 
 /*-----------------------------------------------------------------.
-| Copyright (C) 2012 SooKee oaskivvy@gmail.com               |
+| Copyright (C) 20312 SooKee oaskivvy@gmail.com               |
 '------------------------------------------------------------------'
 
 This program is free software; you can redistribute it and/or
@@ -37,67 +37,53 @@ namespace oastats { namespace string {
 
 using namespace oastats::types;
 
-inline str& ltrim(str& s, const char* t = " \t\n\r\f\v")
+// -- STRING -------------------------------------------------
+
+/**
+ * Remove leading characters from a std::string.
+ * @param s The std::string to be modified.
+ * @param t The set of characters to delete from the beginning
+ * of the string.
+ * @return The same string passed in as a parameter reference.
+ */
+inline std::string& ltrim(std::string& s, const char* t = " \t\n\r\f\v")
 {
 	s.erase(0, s.find_first_not_of(t));
 	return s;
 }
 
-inline str& rtrim(str& s, const char* t = " \t\n\r\f\v")
+/**
+ * Remove trailing characters from a std::string.
+ * @param s The std::string to be modified.
+ * @param t The set of characters to delete from the end
+ * of the string.
+ * @return The same string passed in as a parameter reference.
+ */
+inline std::string& rtrim(std::string& s, const char* t = " \t\n\r\f\v")
 {
 	s.erase(s.find_last_not_of(t) + 1);
 	return s;
 }
 
 /**
- * Remove surrounding whitespace from a std::string.
+ * Remove surrounding characters from a std::string.
  * @param s The string to be modified.
  * @param t The set of characters to delete from each end
  * of the string.
  * @return The same string passed in as a parameter reference.
  */
-inline str& trim(str& s, const char* t = " \t\n\r\f\v")
+inline std::string& trim(std::string& s, const char* t = " \t\n\r\f\v")
 {
-//	s.erase(0, s.find_first_not_of(t));
-//	s.erase(s.find_last_not_of(t) + 1);
 	return ltrim(rtrim(s, t), t);
 }
 
-inline str& trim(str& s, char c)
+inline str& lower(str& s)
 {
-	s.erase(0, s.find_first_not_of(c));
-	s.erase(s.find_last_not_of(c) + 1);
+	std::transform(s.begin(), s.end(), s.begin(), std::ptr_fun<int, int>(std::tolower));
 	return s;
 }
 
-str& replace(str& s, const str& from, const str& to);
-
-str lowercase(str s);
-str uppercase(str s);
-
-siz extract_delimited_text(const str& in, const str& d1, const str& d2, str& out, siz pos = 0);
-
-str_vec split(const str& s, char d = ' ');
-str_vec split_params(const str& s, char d);
-
-template<typename T, typename P>
-T to(const P& p)
-{
-	T t;
-	sss ss;
-	ss << p;
-	ss >> t;
-	return t;
-}
-
-template<typename T>
-T to(const str& s)
-{
-	T t;
-	siss(s) >> t;
-	return t;
-}
 
 }} // oastats::string
 
-#endif /* _SKIVVY_STR_H_ */
+#endif /* _OASTATS_STR_H_ */

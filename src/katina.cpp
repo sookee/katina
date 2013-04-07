@@ -76,99 +76,20 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include <pthread.h>
 
+#include "types.h"
+#include "log.h"
 #include "socketstream.h"
+#include "str.h"
 
 #include <mysql.h>
 
 using namespace oastats;
+using namespace oastats::log;
+using namespace oastats::types;
+using namespace oastats::string;
 
 const std::string version = "0.4";
 const std::string tag = "alpha";
-
-//-- TYPES ---------------------------------------------
-
-typedef std::size_t siz;
-
-typedef std::string str;
-typedef str::iterator str_iter;
-typedef str::const_iterator str_citer;
-
-typedef std::vector<int> int_vec;
-typedef std::vector<siz> siz_vec;
-
-typedef std::vector<str> str_vec;
-typedef str_vec::iterator str_vec_iter;
-typedef str_vec::const_iterator str_vec_citer;
-
-// sets
-typedef std::set<str> str_set;
-typedef str_set::iterator str_set_iter;
-typedef str_set::const_iterator str_set_citer;
-
-typedef std::multiset<str> str_mset;
-
-// maps
-typedef std::map<str, str> str_map;
-typedef str_map::iterator str_map_iter;
-typedef str_map::const_iterator str_map_citer;
-
-typedef std::pair<const str, str> str_map_pair;
-
-typedef std::map<siz, siz> siz_map;
-typedef siz_map::iterator siz_map_iter;
-typedef siz_map::const_iterator siz_map_citer;
-typedef std::pair<const siz, siz> siz_map_pair;
-
-typedef std::map<str, siz> str_siz_map;
-typedef str_siz_map::iterator str_siz_map_iter;
-typedef str_siz_map::const_iterator str_siz_map_citer;
-typedef std::pair<const str, siz> str_siz_map_pair;
-
-typedef std::map<str, int> str_int_map;
-typedef str_int_map::iterator str_int_map_iter;
-typedef str_int_map::const_iterator str_int_map_citer;
-typedef std::pair<const str, int> str_int_map_pair;
-
-typedef std::map<siz, str> siz_str_map;
-typedef siz_str_map::iterator siz_str_map_iter;
-typedef siz_str_map::const_iterator siz_str_map_citer;
-typedef std::pair<const siz, str> siz_str_map_pair;
-
-typedef std::map<str, time_t> str_time_map;
-typedef str_time_map::iterator str_time_map_iter;
-typedef str_time_map::const_iterator str_time_map_citer;
-typedef std::pair<const str, time_t> str_time_map_pair;
-
-typedef std::map<str, str_set> str_set_map;
-typedef str_set_map::iterator str_set_map_iter;
-typedef str_set_map::const_iterator str_set_map_citer;
-typedef std::pair<const str, str_set> str_set_map_pair;
-
-typedef std::map<const str, str_vec> str_vec_map;
-typedef str_vec_map::iterator str_vec_map_iter;
-typedef str_vec_map::const_iterator str_vec_map_citer;
-typedef std::pair<const str, str_vec> str_vec_map_pair;
-
-typedef std::multimap<str, str> str_mmap;
-typedef str_mmap::iterator str_mmap_iter;
-typedef str_mmap::const_iterator str_mmap_citer;
-
-// streams
-typedef std::istream sis;
-typedef std::ostream sos;
-typedef std::iostream sios;
-
-typedef std::stringstream sss;
-typedef std::istringstream siss;
-typedef std::ostringstream soss;
-
-typedef std::fstream sfs;
-typedef std::ifstream sifs;
-typedef std::ofstream sofs;
-
-typedef std::stringstream sss;
-
-typedef long milliseconds;
 
 milliseconds get_millitime()
 {
@@ -176,76 +97,6 @@ milliseconds get_millitime()
 	clock_gettime(CLOCK_REALTIME, &ts);
 	return (ts.tv_sec * 1000) + (ts.tv_nsec / 1000000);
 }
-
-// -- STRING -------------------------------------------------
-
-/**
- * Remove leading characters from a std::string.
- * @param s The std::string to be modified.
- * @param t The set of characters to delete from the beginning
- * of the string.
- * @return The same string passed in as a parameter reference.
- */
-inline std::string& ltrim(std::string& s, const char* t = " \t\n\r\f\v")
-{
-	s.erase(0, s.find_first_not_of(t));
-	return s;
-}
-
-/**
- * Remove trailing characters from a std::string.
- * @param s The std::string to be modified.
- * @param t The set of characters to delete from the end
- * of the string.
- * @return The same string passed in as a parameter reference.
- */
-inline std::string& rtrim(std::string& s, const char* t = " \t\n\r\f\v")
-{
-	s.erase(s.find_last_not_of(t) + 1);
-	return s;
-}
-
-/**
- * Remove surrounding characters from a std::string.
- * @param s The string to be modified.
- * @param t The set of characters to delete from each end
- * of the string.
- * @return The same string passed in as a parameter reference.
- */
-inline std::string& trim(std::string& s, const char* t = " \t\n\r\f\v")
-{
-	return ltrim(rtrim(s, t), t);
-}
-
-inline str& lower(str& s)
-{
-	std::transform(s.begin(), s.end(), s.begin(), std::ptr_fun<int, int>(std::tolower));
-	return s;
-}
-
-// -- LOGGING ------------------------------------------------
-
-str get_stamp()
-{
-	time_t rawtime = std::time(0);
-	tm* timeinfo = std::localtime(&rawtime);
-	char buffer[32];
-	std::strftime(buffer, 32, "%Y-%m-%d %H:%M:%S", timeinfo);
-
-	return str(buffer);
-}
-
-#ifndef DEBUG
-#define bug(m)
-#else
-#define bug(m) do{std::cout << m << std::endl;}while(false)
-#endif
-
-#define con(m) do{std::cout << m << std::endl;}while(false)
-#define log(m) do{std::cout << get_stamp() << ": " << m << std::endl;}while(false)
-
-#define trace(m)
-//#define trace(m) bug("TRACE: " << m << ": " << __LINE__)
 
 class GUID
 {
@@ -848,7 +699,7 @@ public:
 
 		str sql = "insert into `game`"
 			" (`host`, `port`, `map`) values ('"
-			+ host + "','" + port + "','" + safe_mapname + "')";
+			+ to_string(addr.s_addr) + "','" + port + "','" + safe_mapname + "')";
 
 		if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
 		{
@@ -975,14 +826,22 @@ public:
 
 		log("DATABASE: read_recs()");
 
+		str safe_mapname;
+		if(!escape(mapname, safe_mapname))
+		{
+			log("DATABASE: ERROR: failed to escape: " << mapname);
+			return bad_id;
+		}
+
 		soss oss;
-		oss << "select `guid`,`count` from `votes` where `type` = 'map' and `item` = '" << mapname << "'";
+		oss << "select `guid`,`count` from `votes` where `type` = 'map' and `item` = '" << safe_mapname << "'";
 
 		str sql = oss.str();
 
 		if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
 		{
 			log("DATABASE ERROR: Unable to read_recs; " << mysql_error(&mysql));
+			log("              : sql = " << sql);
 			return false;
 		}
 
@@ -1204,7 +1063,7 @@ siz map_get(const siz_map& m, siz key)
 void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 {
 	std::multimap<double, str> skivvy_scores;
-	//std::multimap<double, str>::iterator i;
+
 	for(guid_stat_citer p = stats.begin(); p != stats.end(); ++p)
 	{
 		const str& player = players.at(p->first);
@@ -1348,7 +1207,7 @@ void* set_teams(void* td_vp)
 			break;
 			case 4:
 				if(!rconset("katina_db_weaps", cvar))
-					if(!rconset("katina_db", cvar))
+					if(!rconset("katina_db_weaps", cvar))
 						break;
 
 				iss.clear();
@@ -1496,8 +1355,6 @@ GUID guid_from_name(const str& name)
 
 bool extract_name_from_text(const str& line, GUID& guid, str& text)
 {
-//	bug("extract_name_from_text: " << line);
-	// longest ": " to ": " substring that exixts in names database
 	GUID candidate;
 	siz pos = 0;
 	siz beg = 0;
@@ -1505,20 +1362,15 @@ bool extract_name_from_text(const str& line, GUID& guid, str& text)
 		return false;
 
 	beg += 2;
-//	bug("beg: " << beg);
 
 	bool found = false;
 	for(pos = beg; (pos = line.find(": ", pos)) != str::npos; pos += 2)
 	{
-//		bug("beg: " << beg);
-//		bug("pos: " << pos);
-		if((candidate = guid_from_name(line.substr(beg, pos - beg))) != null_guid)
-		{
-//			bug("candidate: " << candidate);
-			guid = candidate;
-			text = line.substr(pos + 2);
-			found = true;
-		}
+		if((candidate = guid_from_name(line.substr(beg, pos - beg))) == null_guid)
+			continue;
+		guid = candidate;
+		text = line.substr(pos + 2);
+		found = true;
 	}
 	return found;
 }
@@ -1559,7 +1411,6 @@ void stack_handler(int sig)
 		free(func_name);
 	}
 	free(trace);
-
 	exit(1);
 }
 
@@ -1787,7 +1638,7 @@ int main(const int argc, const char* argv[])
 				siz num1, num2, weap;
 				if(!(iss >> num1 >> num2 >> weap))
 				{
-					std::cout << "Error parsing Kill:" << '\n';
+					log("Error parsing Kill:" << line);
 					continue;
 				}
 
@@ -1898,7 +1749,7 @@ int main(const int argc, const char* argv[])
 							save_records(recs);
 						}
 					}
-//					do_rcon("^1DEBUG:^3 End dash & (re)enable dashing of the " + flag[col] + "^3 flag.");
+
 					dasher[col] = null_guid;;
 					dashing[col] = true; // new dash now possible
 					++flags[col];
@@ -1992,11 +1843,11 @@ int main(const int argc, const char* argv[])
 
 				str msg = "^1K^7at^3i^7na ^3Stats System v^7" + version + "^3-" + tag + ".";
 				server.cp(msg);
+
 				// startup voting
 				str reply;
 				if(!server.command("set g_allowVote 1", reply))
 					server.command("set g_allowVote 1", reply); // do 1 retry
-
 
 				siz pos;
 				if((pos = line.find("mapname\\")) != str::npos)
@@ -2068,14 +1919,13 @@ int main(const int argc, const char* argv[])
 			}
 			else if(cmd == "!love") // TODO:
 			{
-				con("!love");
 				str love;
 				GUID guid;
+
 				if(!extract_name_from_text(line, guid, love))
 					continue;
+
 				iss >> love;
-				con("guid: " << guid);
-				con("love: " << love);
 
 				if(lower(trim(love)) == "map")
 				{
@@ -2090,15 +1940,13 @@ int main(const int argc, const char* argv[])
 			}
 			else if(cmd == "!hate") // TODO:
 			{
-				con("!hate");
 				str hate;
 				GUID guid;
+
 				if(!extract_name_from_text(line, guid, hate))
 					continue;
 
 				iss >> hate;
-				con("guid: " << guid);
-				con("hate: " << hate);
 
 				if(lower(trim(hate)) == "map")
 				{

@@ -60,7 +60,7 @@ s = stats (k/d c/d)
 !rcon soo seta katina_db_weaps 2 10
 
 !rcon soo seta katina_skivvy_active 1
-!rcon soo seta katina_skivvy_chans #katina-test(icfks)
+!rcon soo seta katina_skivvy_chans #katina-soo(icfks)
 !rcon soo seta katina_skivvy_chats 1
 !rcon soo seta katina_skivvy_flags 0
 !rcon soo seta katina_skivvy_kills 0

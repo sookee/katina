@@ -39,14 +39,14 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <map>
 #include <set>
 #include <deque>
-#include <mutex>
 #include <stack>
 #include <vector>
-#include <random>
-#include <chrono>
+//#include <random>
 #include <istream>
 
 namespace oastats { namespace types {
+
+//-- TYPES ---------------------------------------------
 
 typedef std::size_t siz;
 
@@ -58,11 +58,12 @@ typedef std::vector<int> int_vec;
 typedef std::vector<siz> siz_vec;
 
 typedef std::vector<str> str_vec;
-typedef str_vec::iterator str_vec_itr;
-typedef str_vec::const_iterator str_vec_citr;
+typedef str_vec::iterator str_vec_iter;
+typedef str_vec::const_iterator str_vec_citer;
 
 // sets
 typedef std::set<str> str_set;
+typedef str_set::iterator str_set_iter;
 typedef str_set::const_iterator str_set_citer;
 
 typedef std::multiset<str> str_mset;
@@ -83,6 +84,11 @@ typedef std::map<str, siz> str_siz_map;
 typedef str_siz_map::iterator str_siz_map_iter;
 typedef str_siz_map::const_iterator str_siz_map_citer;
 typedef std::pair<const str, siz> str_siz_map_pair;
+
+typedef std::map<str, int> str_int_map;
+typedef str_int_map::iterator str_int_map_iter;
+typedef str_int_map::const_iterator str_int_map_citer;
+typedef std::pair<const str, int> str_int_map_pair;
 
 typedef std::map<siz, str> siz_str_map;
 typedef siz_str_map::iterator siz_str_map_iter;
@@ -108,21 +114,6 @@ typedef std::multimap<str, str> str_mmap;
 typedef str_mmap::iterator str_mmap_iter;
 typedef str_mmap::const_iterator str_mmap_citer;
 
-// queues
-typedef std::deque<str> str_deq;
-
-// threads
-typedef std::lock_guard<std::mutex> lock_guard;
-
-// time
-typedef std::chrono::steady_clock st_clk;
-typedef st_clk::period st_period;
-typedef st_clk::time_point st_time_point;
-
-typedef std::chrono::high_resolution_clock hr_clk;
-typedef hr_clk::period hr_period;
-typedef hr_clk::time_point hr_time_point;
-
 // streams
 typedef std::istream sis;
 typedef std::ostream sos;
@@ -138,23 +129,7 @@ typedef std::ofstream sofs;
 
 typedef std::stringstream sss;
 
-inline
-sis& sgl(sis&& is, str& s, char d = '\n')
-{
-	return std::getline(is, s, d);
-}
-
-//inline
-//sis& sgl(sis& is, str& s, char d = '\n')
-//{
-//	return std::getline(is, s, d);
-//}
-//
-//inline
-//sis& sgl(sis&& is, str& s, char d = '\n')
-//{
-//	return sgl(std::forward<sis>(is), s, d);
-//}
+typedef long milliseconds;
 
 }} // oastats::types
 
