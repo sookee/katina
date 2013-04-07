@@ -9,7 +9,12 @@ KATINA_FLAGS = -O3 -g0 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread
 KATINA_LIBS = $(MYSQL_LIBS) -lrt -pthread
 KATINA_OBJS = katina.o rcon.o RemoteClient.o irc.o Database.o GUID.o
 
-all: katina
+KATINA_IRC_FLAGS = -O3 -g0 -pthread
+KATINA_IRC_LIBS = -lrt -pthread
+KATINA_IRC_OBJS = katina-irc.o rcon.o irc.o message.o
+
+
+all: katina katina-irc
 
 katina: $(KATINA_OBJS)
 	$(CXX) -o $@ $(KATINA_OBJS) $(KATINA_LIBS)
@@ -17,8 +22,14 @@ katina: $(KATINA_OBJS)
 katina.o: katina.cpp $(INCLUDES)
 	$(CXX) -c $(KATINA_FLAGS) -o $@ $<
 	
+katina-irc: $(KATINA_IRC_OBJS)
+	$(CXX) -o $@ $(KATINA_IRC_OBJS) $(KATINA_IRC_LIBS)
+	
+katina-irc.o: katina-irc.cpp $(INCLUDES)
+	$(CXX) -c $(KATINA_IRC_FLAGS) -o $@ $<
+
 %.o: %.cpp %.h
 	$(CXX) $(CFLAGS) $(MYSQL_INCL) -c -o $@ $<
 
 clean:
-	rm -f *.o *.so katina
+	rm -f *.o *.so katina katina-irc

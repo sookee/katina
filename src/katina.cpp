@@ -806,7 +806,10 @@ int main(const int argc, const char* argv[])
 				for(str_siz_map_iter i = spam.begin(); i != spam.end();)
 				{
 					if(i->second < spam_limit)
+					{
 						spam.erase(i->first);
+						i = spam.begin();
+					}
 					else
 						++i;
 				}
@@ -1167,10 +1170,15 @@ int main(const int argc, const char* argv[])
 			if(sk_cfg.do_chats)
 			{
 				str text;
-				if(std::getline(iss >> std::ws, text))
+				GUID guid;
+
+				if(extract_name_from_text(line, guid, text))
 					if(!sk_cfg.spamkill || ++spam[text] < spam_limit)
-						skivvy.chat('c', "^7say: " + text);
-//						skivvy.chat('c', "^7say: " + *spam.insert(spam.end(), text));
+						skivvy.chat('c', "^7say: " + players[guid] + " ^2" + text);
+
+//				if(std::getline(iss >> std::ws, text))
+//					if(!sk_cfg.spamkill || ++spam[text] < spam_limit)
+//						skivvy.chat('c', "^7say: " + text);
 			}
 
 			siz pos;
