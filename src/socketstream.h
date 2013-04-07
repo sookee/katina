@@ -54,15 +54,17 @@ is granted under the same conditions.
 #include <cstring> // strerror()
 #include <cerrno>
 
+#include "types.h"
+
 #include <ext/stdio_filebuf.h>
 
 namespace oastats { namespace net {
 
 using namespace __gnu_cxx;
-//using namespace sookee::types;
+using namespace oastats::types;
 
-typedef std::string str;
-typedef std::size_t siz;
+//typedef std::string str;
+//typedef std::size_t siz;
 
 template<typename Char>
 class basic_netstream
