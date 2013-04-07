@@ -7,7 +7,7 @@ make
 mkdir -p $HOME/bin
 cp src/katina $HOME/bin
 cp stamp.sh $HOME/bin
-cp katina-irc $HOME/bin
-cp katina-votes $HOME/bin
+cp src/katina-irc $HOME/bin
+cp src/katina-votes $HOME/bin
 
 

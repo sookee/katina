@@ -130,7 +130,7 @@ DROP TABLE IF EXISTS `polls`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `polls` (
-  `date` TIMESTAMP NOT NULL,
+  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `type` varchar(8) NOT NULL,
   `item` varchar(32) NOT NULL,
   `count` int(4) NOT NULL,
