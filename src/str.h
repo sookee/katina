@@ -83,6 +83,25 @@ inline str& lower(str& s)
 	return s;
 }
 
+template<typename T>
+str to_string(const T& t, siz width = 0, siz precision = 2)
+{
+	soss oss;
+	oss.setf(std::ios::fixed, std::ios::floatfield);
+	oss.width(width);
+	oss.precision(precision);
+	oss << t;
+	return oss.str();
+}
+
+template<typename T>
+T to(const str& s)
+{
+	T t;
+	siss iss(s);
+	iss >> t;
+	return t;
+}
 
 }} // oastats::string
 

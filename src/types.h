@@ -43,6 +43,9 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <vector>
 //#include <random>
 #include <istream>
+#include <ostream>
+#include <sstream>
+#include <fstream>
 
 namespace oastats { namespace types {
 

@@ -65,38 +65,27 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <map>
 #include <set>
 
-// rcon
-#include <cerrno>
-#include <cstring>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-
 #include <pthread.h>
 
 #include "types.h"
 #include "log.h"
 #include "socketstream.h"
 #include "str.h"
+#include "rcon.h"
+#include "time.h"
 
 #include <mysql.h>
+#include <arpa/inet.h> // IP to int
 
 using namespace oastats;
 using namespace oastats::log;
 using namespace oastats::types;
 using namespace oastats::string;
+using namespace oastats::net;
+using namespace oastats::time;
 
 const std::string version = "0.4";
 const std::string tag = "alpha";
-
-milliseconds get_millitime()
-{
-	timespec ts;
-	clock_gettime(CLOCK_REALTIME, &ts);
-	return (ts.tv_sec * 1000) + (ts.tv_nsec / 1000000);
-}
 
 class GUID
 {
@@ -201,151 +190,6 @@ GUID bot_guid(siz num)
 	return GUID(id.c_str());
 }
 
-inline
-void thread_sleep_millis(siz msecs)
-{
-	usleep(msecs * 1000);
-}
-
-template<typename T>
-str to_string(const T& t, siz width = 0, siz precision = 2)
-{
-	soss oss;
-	oss.setf(std::ios::fixed, std::ios::floatfield);
-	oss.width(width);
-	oss.precision(precision);
-	oss << t;
-	return oss.str();
-}
-
-template<typename T>
-T to(const str& s)
-{
-	T t;
-	siss iss(s);
-	iss >> t;
-	return t;
-}
-
-// -- RCON ----------------------------------------------
-
-#define TIMEOUT 1000
-
-/**
- * IPv4 IPv6 agnostic OOB (out Of Band) comms
- * @param cmd
- * @param packets Returned packets
- * @param host Host to connect to
- * @param port Port to connect on
- * @param wait Timeout duration in milliseconds
- * @return false if failed to connect/send or receive else true
- */
-bool aocom(const str& cmd, str_vec& packets, const str& host, int port
-	, siz wait = TIMEOUT)
-{
-	addrinfo hints;
-	memset(&hints, 0, sizeof hints);
-	hints.ai_family = AF_UNSPEC; // AF_INET or AF_INET6
-	hints.ai_socktype = SOCK_DGRAM;
-
-	addrinfo* res;
-	if(int status = getaddrinfo(host.c_str(), to_string(port).c_str(), &hints, &res) != 0)
-	{
-		log(gai_strerror(status));
-		return false;
-	}
-
-	milliseconds timeout = get_millitime() + wait;
-
-	// try to connect to each
-	int cs;
-	addrinfo* p;
-	for(p = res; p; p = p->ai_next)
-	{
-		if((cs = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1)
-			continue;
-		if(!connect(cs, p->ai_addr, p->ai_addrlen))
-			break;
-		::close(cs);
-	}
-
-	freeaddrinfo(res);
-
-	if(!p)
-	{
-		log("aocom: failed to connect: " << host << ":" << port);
-		::close(cs);
-		return false;
-	}
-
-	// cs good
-
-	const str msg = "\xFF\xFF\xFF\xFF" + cmd;
-
-	int n = 0;
-	if((n = send(cs, msg.c_str(), msg.size(), 0)) < 0 || n < (int)msg.size())
-	{
-		log("cs send: " << strerror(errno));
-		::close(cs);
-		return false;
-	}
-
-	packets.clear();
-
-	char buf[2048];
-
-	n = sizeof(buf);
-	while(n == sizeof(buf))
-	{
-		while((n = recv(cs, buf, sizeof(buf), MSG_DONTWAIT)) ==  -1 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR))
-		{
-			if(get_millitime() > timeout)
-			{
-				log("socket timed out connecting to: " << host << ":" << port);
-				::close(cs);
-				return false;
-			}
-			thread_sleep_millis(10);
-		}
-		if(n < 0)
-			log("cs recv: " << strerror(errno));
-		if(n > 0)
-			packets.push_back(str(buf, n));
-	}
-
-	close(cs);
-	return true;
-}
-
-bool rcon(const str& cmd, str& reply, const str& host, int port, siz wait = TIMEOUT)
-{
-	str_vec packets;
-	if(!aocom(cmd, packets, host, port, wait))
-		return false;
-
-	const str header = "\xFF\xFF\xFF\xFFprint\x0A";
-
-	if(packets.empty())
-	{
-		log("Empty response.");
-		return false;
-	}
-
-	reply.clear();
-	for(str_vec_iter packet = packets.begin(); packet != packets.end(); ++packet)
-	{
-		if(packet->find(header) != 0)
-		{
-			log("Unrecognised response.");
-			return false;
-		}
-
-		reply.append(packet->substr(header.size()));
-	}
-
-	return true;
-}
-
 struct stats
 {
 	siz_map kills;
@@ -358,17 +202,6 @@ struct stats
 
 	stats(): kills(), deaths(), flags(), awards(), first_seen(0), logged_time(0) {}
 };
-
-bool usage()
-{
-	std::cout << "Usage: " << '\n';
-	return -1;
-}
-
-void test()
-{
-	GUID guid("FD3FED56A7F7FB2A");
-}
 
 typedef std::map<GUID, str> guid_str_map;
 typedef std::pair<const GUID, str> guid_str_pair;
@@ -404,44 +237,6 @@ typedef std::map<GUID, int> guid_int_map;
 typedef std::pair<const GUID, int> guid_int_map_pair;
 typedef guid_int_map::iterator guid_int_map_iter;
 typedef guid_int_map::const_iterator guid_int_map_citer;
-
-class RCon
-{
-private:
-	str host;
-	siz port;
-	str pass;
-
-public:
-	RCon() {}
-	RCon(const str& host, siz port, const str& pass): host(host), port(port), pass(pass) {}
-
-	void config(const str& host, siz port, const str& pass)
-	{
-		this->host = host;
-		this->port = port;
-		this->pass = pass;
-	}
-
-	bool command(const str& cmd, str& reply)
-	{
-		return rcon("rcon " + pass + " " + cmd, reply, host, port, 2000);
-	}
-
-	str chat(const str& msg) const
-	{
-		str ret;
-		rcon("rcon " + pass + " chat ^1K^7at^3i^7na^8: ^7" + msg, ret, host, port);
-		return ret;
-	}
-
-	void cp(const str& msg) const
-	{
-		str ret;
-		rcon("rcon " + pass + " cp " + msg, ret, host, port);
-	}
-
-};
 
 // -- IRC --------------------------------------------------------------
 

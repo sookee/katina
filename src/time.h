@@ -1,8 +1,8 @@
 #pragma once
-#ifndef _OASTATS_LOG_H_
-#define _OASTATS_LOG_H_
+#ifndef _OASTATS_TIME_H_
+#define _OASTATS_TIME_H_
 /*
- * log.h
+ * rcon.h
  *
  *  Created on: 07 Apr 2013
  *      Author: oaskivvy@gmail.com
@@ -33,43 +33,27 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include "types.h"
 
-namespace oastats { namespace log {
+#include <ctime>
+#include <unistd.h>
+
+namespace oastats { namespace time {
 
 using namespace oastats::types;
 
-// -- LOGGING ------------------------------------------------
-
 inline
-str get_stamp()
+void thread_sleep_millis(siz msecs)
 {
-	time_t rawtime = std::time(0);
-	tm* timeinfo = std::localtime(&rawtime);
-	char buffer[32];
-	std::strftime(buffer, 32, "%Y-%m-%d %H:%M:%S", timeinfo);
-
-	return str(buffer);
+	usleep(msecs * 1000);
 }
 
-#ifndef DEBUG
-#define bug(m)
-#define bug_func()
-#else
-#define bug(m) do{std::cout << m << std::endl;}while(false)
-struct _
+inline
+milliseconds get_millitime()
 {
-	const char* n;
-	_(const char* n): n(n) { bug("---> " << n); }
-	~_() { bug("<--- " << n); }
-};
-#define bug_func() oastats::log::_ __(__PRETTY_FUNCTION__)
-#endif
+	timespec ts;
+	clock_gettime(CLOCK_REALTIME, &ts);
+	return (ts.tv_sec * 1000) + (ts.tv_nsec / 1000000);
+}
 
-#define con(m) do{std::cout << m << std::endl;}while(false)
-#define log(m) do{std::cout << oastats::log::get_stamp() << ": " << m << std::endl;}while(false)
+}} // oastats::time
 
-#define trace(m)
-//#define trace(m) bug("TRACE: " << m << ": " << __LINE__)
-
-}} // oastats::log
-
-#endif /* _OASTATS_LOG_H_ */
+#endif /* _OASTATS_TIME_H_ */
