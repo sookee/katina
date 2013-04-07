@@ -996,6 +996,16 @@ int main(const int argc, const char* argv[])
 				if(!clients[num].is_bot())
 					++stats[clients[num]].flags[act];
 
+				str hud;
+				if(sk_cfg.do_flags && sk_cfg.do_flags_hud)
+				{
+					soss oss;
+					oss << "^7[" << (m < 10?"0":"") << m << ":" << (s < 10?"0":"") << s << " ";
+					oss << (dasher[FL_RED] != null_guid?"^1⚑":"^1.");
+					oss << (dasher[FL_BLUE] != null_guid?"^4⚑":"^4.");
+					oss << "^7]";
+					hud = oss.str();
+				}
 				if(act == FL_CAPTURED) // In Game Announcer
 				{
 					bug("FL_CAPTURED");
@@ -1051,17 +1061,8 @@ int main(const int argc, const char* argv[])
 						server.cp(msg);
 						if(sk_cfg.do_flags)
 						{
-							str hud;
-							if(sk_cfg.do_flags_hud)
-							{
-								soss oss;
-								oss << "^7[" << (m < 10?"0":"") << m << ":" << (s < 10?"0":"") << s << " ";
-								oss << (dasher[FL_RED] != null_guid?"^1⚑":" ");
-								oss << (dasher[FL_BLUE] != null_guid?"^4⚑":" ");
-								oss << "^7]";
-							}
 							skivvy.chat('f', msg);
-							skivvy.chat('f', "^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED]));
+							skivvy.chat('f', hud + "^7[ ] ^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED]));
 						}
 					}
 				}
@@ -1073,14 +1074,14 @@ int main(const int argc, const char* argv[])
 					dasher[col] = clients[num];
 
 					if(sk_cfg.do_flags)
-						skivvy.chat('f', nums_team + " ^7" + players[clients[num]] + "^3 has taken the " + flag[col] + " ^3flag!");
+						skivvy.chat('f', hud + nums_team + " ^7" + players[clients[num]] + "^3 has taken the " + flag[col] + " ^3flag!");
 				}
 				else if(act == FL_DROPPED)
 				{
 					if(sk_cfg.do_flags)
 					{
-						skivvy.chat('f', nums_team + " ^7" + players[clients[num]] + "^3 has killed the " + flag[col] + " ^3flag carrier!");
-						skivvy.chat('f', nums_nteam + " ^7" + players[dasher[ncol]] + "^3 has dropped the " + flag[ncol] + " ^3flag!");
+						skivvy.chat('f', hud + nums_team + " ^7" + players[clients[num]] + "^3 has killed the " + flag[col] + " ^3flag carrier!");
+						skivvy.chat('f', hud + nums_nteam + " ^7" + players[dasher[ncol]] + "^3 has dropped the " + flag[ncol] + " ^3flag!");
 					}
 					dasher[ncol] = null_guid;; // end a dash
 					dashing[ncol] = false; // no more dashes until return, capture or suicide
@@ -1088,7 +1089,7 @@ int main(const int argc, const char* argv[])
 				else if(act == FL_RETURNED)
 				{
 					if(sk_cfg.do_flags)
-						skivvy.chat('f', nums_team + " ^7" + players[clients[num]] + "^3 has returned the " + flag[col] + " ^3flag!");
+						skivvy.chat('f', hud + nums_team + " ^7" + players[clients[num]] + "^3 has returned the " + flag[col] + " ^3flag!");
 
 					dasher[col] = null_guid;; // end a dash
 					dashing[col] = true; // new dash now possible
