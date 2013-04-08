@@ -88,9 +88,7 @@ int main()
 
 		MYSQL_ROW row;
 		while((row = mysql_fetch_row(result)))
-		{
-			votes[row[0]] += to<siz>(row[1]);
-		}
+			votes[row[0]] += to<int>(row[1]);
 
 		mysql_free_result(result);
 
