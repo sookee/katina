@@ -8,6 +8,8 @@
  *      Author: oasookee@gmail.com
  */
 
+#include <memory>
+
 #include "types.h"
 #include "socketstream.h"
 #include "log.h"
@@ -18,6 +20,8 @@ namespace oastats { namespace net {
 using namespace oastats::irc;
 using namespace oastats::log;
 using namespace oastats::types;
+
+typedef std::auto_ptr<class RemoteIRCClient> RemoteIRCClientAPtr;
 
 class RemoteIRCClient
 {
@@ -81,7 +85,7 @@ public:
 	virtual bool send(const str& msg, str& res) = 0;
 
 	static str_set get_types();
-	static RemoteIRCClient* create(const str& type);
+	static RemoteIRCClientAPtr create(const str& type);
 };
 
 }} // oastats::net

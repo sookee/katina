@@ -179,7 +179,7 @@ struct report_conf
 };
 
 RCon server;
-RemoteIRCClient* skivvy = RemoteIRCClient::create(RemoteIRCClient::SKIVVY);
+RemoteIRCClientAPtr skivvy;
 //SkivvyClient skivvy;
 Database db;
 
@@ -670,8 +670,15 @@ int main(const int argc, const char* argv[])
 		return -2;
 	}
 
-	server.config(recs["rcon.host"], to<siz>(recs["rcon.port"]), recs["rcon.pass"]);
+	if(!(skivvy = RemoteIRCClient::create(recs["remote.irc.client"])).get())
+	{
+		log("FATAL ERROR: failed to allocate object at: " << __LINE__);
+		return 1;
+	}
+
 	skivvy->config(recs);
+
+	server.config(recs["rcon.host"], to<siz>(recs["rcon.port"]), recs["rcon.pass"]);
 	db.config(recs["db.host"], to<siz>(recs["db.port"]), recs["db.user"], recs["db.pass"], recs["db.base"]);
 
 	server.chat("^3Stats System v^7" + version + "^3-" + tag + " - ^1ONLINE");

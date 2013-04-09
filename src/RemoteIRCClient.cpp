@@ -12,6 +12,11 @@ namespace oastats { namespace net {
 
 using namespace oastats::string;
 
+static const str PROP_HOST = "remote.irc.client.host";
+static const str PROP_PORT = "remote.irc.client.port";
+static const str PROP_USER = "remote.irc.client.user";
+static const str PROP_PASS = "remote.irc.client.pass";
+
 // TODO: This should be configurable
 const str irc_katina = "04K00at08i00na";
 
@@ -27,11 +32,6 @@ public:
 class SkivvyClient
 : public RemoteIRCClient
 {
-	static const str PROP_HOST;
-	static const str PROP_PORT;
-	static const str PROP_USER;
-	static const str PROP_PASS;
-
 	str host;
 	siz port;
 	net::socketstream ss;
@@ -64,11 +64,6 @@ public:
 	}
 };
 
-const str SkivvyClient::PROP_HOST = "skivvy.host";
-const str SkivvyClient::PROP_PORT = "skivvy.port";
-const str SkivvyClient::PROP_USER = "skivvy.user";
-const str SkivvyClient::PROP_PASS = "skivvy.pass";
-
 void RemoteIRCClient::set_chans(const str& chans)
 {
 	bug("set_chans(): " << chans);
@@ -81,11 +76,8 @@ void RemoteIRCClient::set_chans(const str& chans)
 		str flags;
 		siss iss(chan);
 		std::getline(iss, chan, '(');
-		if(std::getline(iss, flags, ')'))
-		{
-			// config flags c = chats f = flags k = kills
+		if(std::getline(iss, flags, ')')) // config flags c = chats f = flags k = kills etc...
 			set_flags(chan, flags);
-		}
 	}
 }
 
@@ -117,16 +109,16 @@ str_set RemoteIRCClient::get_types()
 	return types;
 }
 
-RemoteIRCClient* RemoteIRCClient::create(const str& type)
+RemoteIRCClientAPtr RemoteIRCClient::create(const str& type)
 {
 	if(type == NONE)
-		return new NullClient();
+		return RemoteIRCClientAPtr(new NullClient());
 	else if(type == SKIVVY)
-		return new SkivvyClient();
+		return RemoteIRCClientAPtr(new SkivvyClient());
 
 	log("Unknown RemoteClient: " << type << " disabling feature.");
 
-	return new NullClient();
+	return RemoteIRCClientAPtr(new NullClient());
 }
 
 }} // oastats::net
