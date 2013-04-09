@@ -15,7 +15,7 @@
 #include "log.h"
 
 #include <mysql.h>
-#include <arpa/inet.h>
+//#include <arpa/inet.h>
 
 namespace oastats { namespace data {
 
@@ -102,13 +102,6 @@ public:
 		if(!active)
 			return null_id; // inactive
 
-//		in_addr addr;
-//		if(!inet_aton(host.c_str(), &addr))
-//		{
-//			log("DATABASE: ERROR: bad IP address: " << host);
-//			return bad_id;
-//		}
-
 		log("DATABASE: add_game(" << host << ", " << port << ", " << mapname << ")");
 
 		str safe_mapname;
@@ -119,12 +112,12 @@ public:
 		}
 
 		str sql = "insert into `game`"
-			" (`host`, `port`, `map`) values (INET_ATON("
-			+ host + "),'" + port + "','" + safe_mapname + "')";
+			" (`host`, `port`, `map`) values (INET_ATON('"
+			+ host + "'),'" + port + "','" + safe_mapname + "')";
 
 		if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
 		{
-			log("DATABASE ERROR: Unable to add_mame; " << mysql_error(&mysql));
+			log("DATABASE ERROR: Unable to add_game; " << mysql_error(&mysql));
 			log("              : sql = " << sql);
 			return bad_id;
 		}

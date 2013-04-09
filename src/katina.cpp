@@ -77,8 +77,6 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include "Database.h"
 #include "GUID.h"
 
-#include <arpa/inet.h> // IP to int
-
 using namespace oastats;
 using namespace oastats::data;
 using namespace oastats::log;
