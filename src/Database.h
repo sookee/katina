@@ -102,14 +102,14 @@ public:
 		if(!active)
 			return null_id; // inactive
 
-		in_addr addr;
-		if(!inet_aton(host.c_str(), &addr))
-		{
-			log("DATABASE: ERROR: bad IP address: " << host);
-			return bad_id;
-		}
+//		in_addr addr;
+//		if(!inet_aton(host.c_str(), &addr))
+//		{
+//			log("DATABASE: ERROR: bad IP address: " << host);
+//			return bad_id;
+//		}
 
-		log("DATABASE: add_game(" << to_string(addr.s_addr) << ", " << port << ", " << mapname << ")");
+		log("DATABASE: add_game(" << host << ", " << port << ", " << mapname << ")");
 
 		str safe_mapname;
 		if(!escape(mapname, safe_mapname))
@@ -119,8 +119,8 @@ public:
 		}
 
 		str sql = "insert into `game`"
-			" (`host`, `port`, `map`) values ('"
-			+ to_string(addr.s_addr) + "','" + port + "','" + safe_mapname + "')";
+			" (`host`, `port`, `map`) values (INET_ATON("
+			+ host + "),'" + port + "','" + safe_mapname + "')";
 
 		if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
 		{
