@@ -69,7 +69,7 @@ restart()
 
 update()
 {
-	stop; ./update.sh 3; start;
+	stop; ./update.sh; start;
 }
 
 status()
