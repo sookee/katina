@@ -648,14 +648,17 @@ void stack_handler(int sig)
  */
 str get_hud(siz m, siz s, GUID dasher[2], siz killtype = 0)
 {
+	bug("dasher[0]: " << dasher[0]);
+	bug("dasher[1]: " << dasher[1]);
+	bug("killtype: " << killtype);
 	str redflag = "⚑";
 	str bluflag = "⚑";
 
 	redflag = dasher[FL_RED] != null_guid ? "⚑" : ".";
 	bluflag = dasher[FL_BLUE] != null_guid ? "⚑" : ".";
 
-	redflag = killtype == 1 ? "*" : redflag;
-	bluflag = killtype == 2 ? "*" : bluflag;
+	redflag = killtype == 1 ? "⚔" : redflag;
+	bluflag = killtype == 2 ? "⚔" : bluflag;
 
 	soss oss;
 	oss << "00[15" << (m < 10?"0":"") << m << "00:15" << (s < 10?"0":"") << s << " ";
@@ -980,15 +983,6 @@ int main(const int argc, const char* argv[])
 					++stats[clients[num]].flags[act];
 
 				str hud;
-//				if(sk_cfg.do_flags && sk_cfg.do_flags_hud)
-//				{
-//					soss oss;
-//					oss << "00[" << (m < 10?"0":"") << m << ":" << (s < 10?"0":"") << s << " ";
-//					oss << "04" << (dasher[FL_RED] != null_guid?"⚑":".");
-//					oss << "02" << (dasher[FL_BLUE] != null_guid?"⚑":".");
-//					oss << "00]";
-//					hud = oss.str();
-//				}
 				if(act == FL_CAPTURED) // In Game Announcer
 				{
 					bug("FL_CAPTURED");
