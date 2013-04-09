@@ -73,7 +73,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include "str.h"
 #include "rcon.h"
 #include "time.h"
-#include "RemoteClient.h"
+#include "RemoteIRCClient.h"
 #include "Database.h"
 #include "GUID.h"
 
@@ -87,7 +87,7 @@ using namespace oastats::string;
 using namespace oastats::net;
 using namespace oastats::time;
 
-const std::string version = "0.5";
+const std::string version = "0.6";
 const std::string tag = "alpha";
 
 /*
@@ -122,61 +122,6 @@ typedef std::pair<const GUID, stats> guid_stat_pair;
 typedef std::map<GUID, stats>::iterator guid_stat_iter;
 typedef std::map<GUID, stats>::const_iterator guid_stat_citer;
 
-RCon server;
-SkivvyClient skivvy;
-Database db;
-
-/**
- * Set a variable from a cvar using rcon.
- * @param cvar The name of the cvar whose value is wanted
- * @param val The variable to set to the cvar's value.
- */
-bool rconset(const str& cvar, str& val)
-{
-	str response;
-	if(!server.command(cvar, response))
-	{
-		log("WARN: rconset failure: " << cvar);
-		return false;
-	}
-
-	// Possible responses:
-	// -> unknown command: <var>
-	// -> "<var>" is:"<val>^7", the default
-	// -> "katina_skivvy_chans" is:"#katina-test(c) #katina(c)^7" default:"#katina-test(c)^7"
-
-	str sval;
-
-	if(response.find("unknown command:"))
-	{
-		str skip;
-		siss iss(response);
-		if(!std::getline(std::getline(iss, skip, ':').ignore(), sval, '^'))
-		{
-			log("ERROR: parsing rconset response: " << response);
-			return false;
-		}
-	}
-
-	val = sval;
-	return true;
-}
-
-/**
- * Set a variable from a cvar using rcon.
- * @param cvar The name of the cvar whose value is wanted
- * @param val The variable to set to the cvar's value.
- */
-template<typename T>
-bool rconset(const str& cvar, T& val)
-{
-	str sval;
-	if(!rconset(cvar, sval))
-		return false;
-	siss iss(sval);
-	return iss >> val;
-}
-
 str_vec weapons;
 
 // teams thread
@@ -191,7 +136,7 @@ struct thread_data
 
 bool done = false;
 
-struct katina_conf
+struct server_conf
 {
 	bool active;
 	bool do_flags;
@@ -199,7 +144,7 @@ struct katina_conf
 	bool do_db; // do database writes
 	std::set<siz> db_weaps; // which weapons to record
 
-	katina_conf()
+	server_conf()
 	: active(false)
 	, do_flags(false)
 	, do_dashes(false)
@@ -208,7 +153,7 @@ struct katina_conf
 	}
 };
 
-struct skivvy_conf
+struct report_conf
 {
 	bool active;
 	bool do_flags;
@@ -220,7 +165,7 @@ struct skivvy_conf
 	bool spamkill;
 	str chans;
 
-	skivvy_conf()
+	report_conf()
 	: active(false)
 	, do_flags(false)
 	, do_flags_hud(false)
@@ -233,10 +178,14 @@ struct skivvy_conf
 	}
 };
 
+RCon server;
+RemoteIRCClient* skivvy;
+//SkivvyClient skivvy;
+Database db;
 
 //bool katina_active = false;
-katina_conf ka_cfg;
-skivvy_conf sk_cfg;
+server_conf svr_cfg;
+report_conf rep_cfg;
 
 str_map recs; // high scores/ config etc
 
@@ -308,16 +257,16 @@ void report_caps(const guid_siz_map& caps, const guid_str_map& players, siz flag
 		server.chat(results[i]);
 	server.chat("^5" + str(max - 12, '-'));
 
-	if(sk_cfg.do_infos)
+	if(rep_cfg.do_infos)
 	{
-//		skivvy.chat('f', "^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED]));
-		skivvy.chat('i', "^5== ^6RESULTS ^5== ^7"
+//		skivvy->.chat('f', "^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED]));
+		skivvy->chat('i', "^5== ^6RESULTS ^5== ^7"
 			+ to_string(flags[FL_BLUE]) + " ^1RED ^7"
 			+ to_string(flags[FL_RED]) + " ^4BLUE ^3 ==");
-//		skivvy.chat('i', "^5== ^6RESULTS ^5" + str(max - 23, '='));
+//		skivvy->chat('i', "^5== ^6RESULTS ^5" + str(max - 23, '='));
 		for(siz i = 0; i < results.size(); ++i)
-			skivvy.chat('f', results[i]);
-		skivvy.chat('i', "^5" + str(max - 12, '-'));
+			skivvy->chat('f', results[i]);
+		skivvy->chat('i', "^5" + str(max - 12, '-'));
 	}
 }
 
@@ -340,7 +289,7 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 		con("\t  defs: " << map_get(p->second.awards, AW_DEFENCE));
 		con("\t gaunt: " << map_get(p->second.awards, AW_GAUNTLET));
 		// TODO: modify this to add AW options as well as insta
-		if(sk_cfg.do_stats)
+		if(rep_cfg.do_stats)
 		{
 			siz c = map_get(p->second.flags, FL_CAPTURED);
 			siz k = map_get(p->second.kills, MOD_RAILGUN);
@@ -373,9 +322,9 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 				skivvy_scores.insert(std::make_pair(rkd, "^3kills^7/^3d ^5(^7" + kd + "^5) ^3caps^7/^3d ^5(^7" + cd + "^5)^7: " + player));
 		}
 	}
-	if(sk_cfg.do_stats)
+	if(rep_cfg.do_stats)
 		for(std::multimap<double, str>::reverse_iterator r = skivvy_scores.rbegin(); r != skivvy_scores.rend(); ++r)
-			skivvy.chat('s', r->second);
+			skivvy->chat('s', r->second);
 }
 
 void save_records(const str_map& recs)
@@ -417,8 +366,8 @@ void* set_teams(void* td_vp)
 
 		static siz c = 0;
 
-		katina_conf old_ka_cfg = ka_cfg;
-		skivvy_conf old_sk_cfg = sk_cfg;
+		server_conf old_ka_cfg = svr_cfg;
+		report_conf old_sk_cfg = rep_cfg;
 		str cvar;
 		siss iss;
 		siz weap;
@@ -426,43 +375,43 @@ void* set_teams(void* td_vp)
 		switch(c++)
 		{
 			case 0:
-				if(!rconset("katina_active", ka_cfg.active))
-					rconset("katina_active", ka_cfg.active); // one retry
-				if(ka_cfg.active != old_ka_cfg.active)
+				if(!server.get_cvar("katina_active", svr_cfg.active))
+					server.get_cvar("katina_active", svr_cfg.active); // one retry
+				if(svr_cfg.active != old_ka_cfg.active)
 				{
-					log("katina: " + str(ka_cfg.active?"":"de-") + "activated");
-					server.chat("^3going ^1" + str(ka_cfg.active?"on":"off") + "-line^3.");
-					skivvy.chat('*', "^3going ^1" + str(ka_cfg.active?"on":"off") + "-line^3.");
+					log("katina: " + str(svr_cfg.active?"":"de-") + "activated");
+					server.chat("^3going ^1" + str(svr_cfg.active?"on":"off") + "-line^3.");
+					skivvy->chat('*', "^3going ^1" + str(svr_cfg.active?"on":"off") + "-line^3.");
 				}
 			break;
 			case 1:
-				if(!rconset("katina_flags", ka_cfg.do_flags))
-					rconset("katina_flags", ka_cfg.do_flags); // one retry
-				if(ka_cfg.do_flags != old_ka_cfg.do_flags)
+				if(!server.get_cvar("katina_flags", svr_cfg.do_flags))
+					server.get_cvar("katina_flags", svr_cfg.do_flags); // one retry
+				if(svr_cfg.do_flags != old_ka_cfg.do_flags)
 				{
-					log("katina: flag counting is now: " << (ka_cfg.do_flags ? "on":"off"));
-					server.chat( "^3Flag countng ^1" + str(ka_cfg.do_flags ? "on":"off") + "^3.");
-					skivvy.chat('f', "^3Flag countng ^1" + str(ka_cfg.do_flags ? "on":"off") + "^3.");
+					log("katina: flag counting is now: " << (svr_cfg.do_flags ? "on":"off"));
+					server.chat( "^3Flag countng ^1" + str(svr_cfg.do_flags ? "on":"off") + "^3.");
+					skivvy->chat('f', "^3Flag countng ^1" + str(svr_cfg.do_flags ? "on":"off") + "^3.");
 				}
 			break;
 			case 2:
-				if(!rconset("katina_dashes", ka_cfg.do_dashes))
-					rconset("katina_dashes", ka_cfg.do_dashes); // one retry
-				if(ka_cfg.do_dashes != old_ka_cfg.do_dashes)
+				if(!server.get_cvar("katina_dashes", svr_cfg.do_dashes))
+					server.get_cvar("katina_dashes", svr_cfg.do_dashes); // one retry
+				if(svr_cfg.do_dashes != old_ka_cfg.do_dashes)
 				{
-					log("katina: flag timing is now: " << (ka_cfg.do_dashes ? "on":"off"));
-					server.chat("^3Flag timing ^1" + str(ka_cfg.do_dashes ? "on":"off") + "^3.");
-					skivvy.chat('f', "^3Flag timing ^1" + str(ka_cfg.do_dashes ? "on":"off") + "^3.");
+					log("katina: flag timing is now: " << (svr_cfg.do_dashes ? "on":"off"));
+					server.chat("^3Flag timing ^1" + str(svr_cfg.do_dashes ? "on":"off") + "^3.");
+					skivvy->chat('f', "^3Flag timing ^1" + str(svr_cfg.do_dashes ? "on":"off") + "^3.");
 				}
 			break;
 			case 3:
-				if(!rconset("katina_db_active", ka_cfg.do_db))
-					rconset("katina_db_active", ka_cfg.do_db); // one retry
-				if(ka_cfg.do_db != old_ka_cfg.do_db)
+				if(!server.get_cvar("katina_db_active", svr_cfg.do_db))
+					server.get_cvar("katina_db_active", svr_cfg.do_db); // one retry
+				if(svr_cfg.do_db != old_ka_cfg.do_db)
 				{
-					log("katina: database writing is now: " << (ka_cfg.do_db ? "on":"off"));
-					skivvy.chat('*', "^3Flag timing ^1" + str(ka_cfg.do_db ? "on":"off") + "^3.");
-					if(!ka_cfg.do_db)
+					log("katina: database writing is now: " << (svr_cfg.do_db ? "on":"off"));
+					skivvy->chat('*', "^3Flag timing ^1" + str(svr_cfg.do_db ? "on":"off") + "^3.");
+					if(!svr_cfg.do_db)
 						db.off();
 					else
 					{
@@ -472,111 +421,111 @@ void* set_teams(void* td_vp)
 				}
 			break;
 			case 4:
-				if(!rconset("katina_db_weaps", cvar))
-					if(!rconset("katina_db_weaps", cvar))
+				if(!server.get_cvar("katina_db_weaps", cvar))
+					if(!server.get_cvar("katina_db_weaps", cvar))
 						break;
 
 				iss.clear();
 				iss.str(cvar);
 				while(iss >> weap)
-					ka_cfg.db_weaps.insert(weap);
+					svr_cfg.db_weaps.insert(weap);
 
-				if(ka_cfg.db_weaps != old_ka_cfg.db_weaps)
+				if(svr_cfg.db_weaps != old_ka_cfg.db_weaps)
 				{
 					log("katina: database weaps set to: " << cvar);
-					skivvy.chat('*', "^3Database weapons set to: ^1" + cvar + "^3.");
+					skivvy->chat('*', "^3Database weapons set to: ^1" + cvar + "^3.");
 				}
 			break;
 			case 5:
-				if(!rconset("katina_skivvy_active", sk_cfg.active))
-					rconset("katina_skivvy_active", sk_cfg.active); // one retry
-				if(sk_cfg.active != old_sk_cfg.active)
+				if(!server.get_cvar("katina_skivvy_active", rep_cfg.active))
+					server.get_cvar("katina_skivvy_active", rep_cfg.active); // one retry
+				if(rep_cfg.active != old_sk_cfg.active)
 				{
-					if(sk_cfg.active)
+					if(rep_cfg.active)
 					{
 						log("skivvy: reporting activated");
-						skivvy.chat('*', "^3reporting turned on.");
-						skivvy.on();
+						skivvy->chat('*', "^3reporting turned on.");
+						skivvy->on();
 					}
 					else
 					{
 						log("skivvy: reporting deactivated");
-						skivvy.chat('*', "^3reporting turned off.");
-						skivvy.off();
+						skivvy->chat('*', "^3reporting turned off.");
+						skivvy->off();
 					}
 				}
 			break;
 			case 6:
-				if(!rconset("katina_skivvy_chans", sk_cfg.chans))
-					rconset("katina_skivvy_chans", sk_cfg.chans); // one retry
-				if(old_sk_cfg.chans != sk_cfg.chans)
+				if(!server.get_cvar("katina_skivvy_chans", rep_cfg.chans))
+					server.get_cvar("katina_skivvy_chans", rep_cfg.chans); // one retry
+				if(old_sk_cfg.chans != rep_cfg.chans)
 				{
-					log("skivvy: new chans: " << sk_cfg.chans);
-					skivvy.set_chans(sk_cfg.chans);
-					skivvy.chat('*', "^3Now reporting to ^7" + sk_cfg.chans);
+					log("skivvy: new chans: " << rep_cfg.chans);
+					skivvy->set_chans(rep_cfg.chans);
+					skivvy->chat('*', "^3Now reporting to ^7" + rep_cfg.chans);
 				}
 			break;
 			case 7:
-				if(!rconset("katina_skivvy_chats", sk_cfg.do_chats))
-					rconset("katina_skivvy_chats", sk_cfg.do_chats); // one retry
-				if(sk_cfg.do_chats != old_sk_cfg.do_chats)
+				if(!server.get_cvar("katina_skivvy_chats", rep_cfg.do_chats))
+					server.get_cvar("katina_skivvy_chats", rep_cfg.do_chats); // one retry
+				if(rep_cfg.do_chats != old_sk_cfg.do_chats)
 				{
-					log("skivvy: chat reporting is now: " << (sk_cfg.do_chats ? "on":"off"));
-					skivvy.chat('*', "^3Chat reports ^1" + str(sk_cfg.do_chats ? "on":"off") + "^3.");
+					log("skivvy: chat reporting is now: " << (rep_cfg.do_chats ? "on":"off"));
+					skivvy->chat('*', "^3Chat reports ^1" + str(rep_cfg.do_chats ? "on":"off") + "^3.");
 				}
 			break;
 			case 8:
-				if(!rconset("katina_skivvy_flags", sk_cfg.do_flags))
-					rconset("katina_skivvy_flags", sk_cfg.do_flags); // one retry
-				if(sk_cfg.do_flags != old_sk_cfg.do_flags)
+				if(!server.get_cvar("katina_skivvy_flags", rep_cfg.do_flags))
+					server.get_cvar("katina_skivvy_flags", rep_cfg.do_flags); // one retry
+				if(rep_cfg.do_flags != old_sk_cfg.do_flags)
 				{
-					log("skivvy: flag reporting is now: " << (sk_cfg.do_flags ? "on":"off"));
-					skivvy.chat('*', "^3Flag reports ^1" + str(sk_cfg.do_flags ? "on":"off") + "^3.");
+					log("skivvy: flag reporting is now: " << (rep_cfg.do_flags ? "on":"off"));
+					skivvy->chat('*', "^3Flag reports ^1" + str(rep_cfg.do_flags ? "on":"off") + "^3.");
 				}
 			break;
 			case 9:
-				if(!rconset("katina_skivvy_flags_hud", sk_cfg.do_flags_hud))
-					rconset("katina_skivvy_flags_hud", sk_cfg.do_flags_hud); // one retry
-				if(sk_cfg.do_flags_hud != old_sk_cfg.do_flags_hud)
+				if(!server.get_cvar("katina_skivvy_flags_hud", rep_cfg.do_flags_hud))
+					server.get_cvar("katina_skivvy_flags_hud", rep_cfg.do_flags_hud); // one retry
+				if(rep_cfg.do_flags_hud != old_sk_cfg.do_flags_hud)
 				{
-					log("skivvy: flag HUD is now: " << (sk_cfg.do_flags_hud ? "on":"off"));
-					skivvy.chat('*', "^3Flag HUD ^1" + str(sk_cfg.do_flags_hud ? "on":"off") + "^3.");
+					log("skivvy: flag HUD is now: " << (rep_cfg.do_flags_hud ? "on":"off"));
+					skivvy->chat('*', "^3Flag HUD ^1" + str(rep_cfg.do_flags_hud ? "on":"off") + "^3.");
 				}
 			break;
 			case 10:
-				if(!rconset("katina_skivvy_kills", sk_cfg.do_kills))
-					rconset("katina_skivvy_kills",sk_cfg. do_kills); // one retry
-				if(sk_cfg.do_kills != old_sk_cfg.do_kills)
+				if(!server.get_cvar("katina_skivvy_kills", rep_cfg.do_kills))
+					server.get_cvar("katina_skivvy_kills",rep_cfg. do_kills); // one retry
+				if(rep_cfg.do_kills != old_sk_cfg.do_kills)
 				{
-					log("skivvy: kill reporting is now: " << (sk_cfg.do_kills ? "on":"off"));
-					skivvy.chat('*', "^3Kill reports ^1" + str(sk_cfg.do_kills ? "on":"off") + "^3.");
+					log("skivvy: kill reporting is now: " << (rep_cfg.do_kills ? "on":"off"));
+					skivvy->chat('*', "^3Kill reports ^1" + str(rep_cfg.do_kills ? "on":"off") + "^3.");
 				}
 			break;
 			case 11:
-				if(!rconset("katina_skivvy_infos", sk_cfg.do_infos))
-					rconset("katina_skivvy_infos", sk_cfg.do_infos); // one retry
-				if(sk_cfg.do_kills != old_sk_cfg.do_kills)
+				if(!server.get_cvar("katina_skivvy_infos", rep_cfg.do_infos))
+					server.get_cvar("katina_skivvy_infos", rep_cfg.do_infos); // one retry
+				if(rep_cfg.do_kills != old_sk_cfg.do_kills)
 				{
-					log("skivvy: info reporting is now: " << (sk_cfg.do_infos ? "on":"off"));
-					skivvy.chat('*', "^3Info reports ^1" + str(sk_cfg.do_infos ? "on":"off") + "^3.");
+					log("skivvy: info reporting is now: " << (rep_cfg.do_infos ? "on":"off"));
+					skivvy->chat('*', "^3Info reports ^1" + str(rep_cfg.do_infos ? "on":"off") + "^3.");
 				}
 			break;
 			case 12:
-				if(!rconset("katina_skivvy_stats", sk_cfg.do_stats))
-					rconset("katina_skivvy_stats", sk_cfg.do_stats); // one retry
-				if(sk_cfg.do_stats != old_sk_cfg.do_stats)
+				if(!server.get_cvar("katina_skivvy_stats", rep_cfg.do_stats))
+					server.get_cvar("katina_skivvy_stats", rep_cfg.do_stats); // one retry
+				if(rep_cfg.do_stats != old_sk_cfg.do_stats)
 				{
-					log("skivvy: stats reporting is now: " << (sk_cfg.do_stats ? "on":"off"));
-					skivvy.chat('*', "^3Stats reports ^1" + str(sk_cfg.do_stats ? "on":"off") + "^3.");
+					log("skivvy: stats reporting is now: " << (rep_cfg.do_stats ? "on":"off"));
+					skivvy->chat('*', "^3Stats reports ^1" + str(rep_cfg.do_stats ? "on":"off") + "^3.");
 				}
 			break;
 			case 13:
-				if(!rconset("katina_skivvy_spamkill", sk_cfg.spamkill))
-					rconset("katina_skivvy_spamkill", sk_cfg.spamkill); // one retry
-				if(old_sk_cfg.spamkill != sk_cfg.spamkill)
+				if(!server.get_cvar("katina_skivvy_spamkill", rep_cfg.spamkill))
+					server.get_cvar("katina_skivvy_spamkill", rep_cfg.spamkill); // one retry
+				if(old_sk_cfg.spamkill != rep_cfg.spamkill)
 				{
-					log("skivvy: spamkill is now: " << (sk_cfg.spamkill ? "on":"off"));
-					skivvy.chat('*', "^3Spamkill ^1" + str(sk_cfg.spamkill ? "on":"off") + "^3.");
+					log("skivvy: spamkill is now: " << (rep_cfg.spamkill ? "on":"off"));
+					skivvy->chat('*', "^3Spamkill ^1" + str(rep_cfg.spamkill ? "on":"off") + "^3.");
 				}
 			break;
 			default:
@@ -584,7 +533,7 @@ void* set_teams(void* td_vp)
 			break;
 		}
 
-		if(!sk_cfg.active || !sk_cfg.active)
+		if(!rep_cfg.active || !rep_cfg.active)
 			continue;
 
 		str reply;
@@ -722,11 +671,11 @@ int main(const int argc, const char* argv[])
 	}
 
 	server.config(recs["rcon.host"], to<siz>(recs["rcon.port"]), recs["rcon.pass"]);
-	skivvy.config(recs["skivvy.host"], to<siz>(recs["skivvy.port"]));
+	skivvy->config(recs["skivvy.host"], to<siz>(recs["skivvy.port"]));
 	db.config(recs["db.host"], to<siz>(recs["db.port"]), recs["db.user"], recs["db.pass"], recs["db.base"]);
 
 	server.chat("^3Stats System v^7" + version + "^3-" + tag + " - ^1ONLINE");
-	skivvy.chat('*', "^3Stats System v^7" + version + "^3-" + tag + " - ^1ONLINE");
+	skivvy->chat('*', "^3Stats System v^7" + version + "^3-" + tag + " - ^1ONLINE");
 
 	// weapons
 	weapons.push_back("unknown weapon");
@@ -789,7 +738,7 @@ int main(const int argc, const char* argv[])
 	str line;
 	while(!done)
 	{
-		if(ka_cfg.do_dashes)
+		if(svr_cfg.do_dashes)
 			sleep_time = 10;
 		else
 			sleep_time = 100;
@@ -799,7 +748,7 @@ int main(const int argc, const char* argv[])
 
 		pos = is.tellg();
 
-		if(!sk_cfg.active)
+		if(!rep_cfg.active)
 			continue;
 
 //		bug("line: " << line);
@@ -820,7 +769,7 @@ int main(const int argc, const char* argv[])
 				if(!server.command("set g_allowVote 0", reply))
 					server.command("set g_allowVote 0", reply); // one retry
 
-				skivvy.chat('*', "^3Game Over");
+				skivvy->chat('*', "^3Game Over");
 				in_game = false;
 
 				// erase non spam marked messages
@@ -837,7 +786,7 @@ int main(const int argc, const char* argv[])
 
 				try
 				{
-					if(ka_cfg.do_flags && !caps.empty())
+					if(svr_cfg.do_flags && !caps.empty())
 						report_caps(caps, players, flags);
 
 					game_id id = db.add_game(recs["rcon.host"], recs["rcon.port"], mapname);
@@ -850,7 +799,7 @@ int main(const int argc, const char* argv[])
 							const str& player = players.at(p->first);
 
 							siz count;
-							for(std::set<siz>::iterator weap = ka_cfg.db_weaps.begin(); weap != ka_cfg.db_weaps.end(); ++weap)
+							for(std::set<siz>::iterator weap = svr_cfg.db_weaps.begin(); weap != svr_cfg.db_weaps.end(); ++weap)
 							{
 								if((count = map_get(p->second.kills, *weap)))
 									db.add_weaps(id, "kills", p->first, *weap, count);
@@ -967,8 +916,8 @@ int main(const int argc, const char* argv[])
 						}
 						++stats[clients[num2]].deaths[weap];
 
-						if(sk_cfg.do_kills)
-							skivvy.chat('k', "^7" + players[clients[num1]] + " ^4killed ^7" + players[clients[num2]]
+						if(rep_cfg.do_kills)
+							skivvy->chat('k', "^7" + players[clients[num1]] + " ^4killed ^7" + players[clients[num2]]
 								+ " ^4with a ^7" + weapons[weap]);
 					}
 				}
@@ -1019,7 +968,7 @@ int main(const int argc, const char* argv[])
 				if(act == FL_CAPTURED) // In Game Announcer
 				{
 					bug("FL_CAPTURED");
-					if(ka_cfg.do_dashes && dashing[col] && dasher[col] != null_guid)
+					if(svr_cfg.do_dashes && dashing[col] && dasher[col] != null_guid)
 					{
 						double sec = (get_millitime() - dash[col]) / 1000.0;
 
@@ -1028,8 +977,8 @@ int main(const int argc, const char* argv[])
 						oss << std::fixed << sec;
 						server.chat(players[clients[num]] + "^3 took ^7" + oss.str()
 							+ "^3 seconds to capture the " + flag[col] + "^3 flag.");
-						if(sk_cfg.do_flags)
-							skivvy.chat('f', players[clients[num]] + "^3 took ^7" + oss.str()
+						if(rep_cfg.do_flags)
+							skivvy->chat('f', players[clients[num]] + "^3 took ^7" + oss.str()
 								+ "^3 seconds to capture the " + flag[col] + "^3 flag.");
 
 						double rec = to<double>(recs["dash." + mapname + ".secs"]);
@@ -1039,7 +988,7 @@ int main(const int argc, const char* argv[])
 						if(rec < 0.5)
 						{
 							server.chat(players[clients[num]] + "^3 has set the record for this map.");
-							skivvy.chat('f', players[clients[num]] + "^3 has set the record for this map.");
+							skivvy->chat('f', players[clients[num]] + "^3 has set the record for this map.");
 							recs["dash." + mapname + ".guid"] = to_string(clients[num]);
 							recs["dash." + mapname + ".name"] = players[clients[num]];
 							recs["dash." + mapname + ".secs"] = oss.str();
@@ -1050,7 +999,7 @@ int main(const int argc, const char* argv[])
 							server.chat(players[clients[num]] + "^3 beat ^7"
 								+ recs["dash." + mapname + ".name"] + "'^3s ^7"
 								+ recs["dash." + mapname + ".secs"] + " ^3seconds.");
-							skivvy.chat('f', players[clients[num]] + "^3 beat ^7"
+							skivvy->chat('f', players[clients[num]] + "^3 beat ^7"
 								+ recs["dash." + mapname + ".name"] + "'^3s ^7"
 								+ recs["dash." + mapname + ".secs"] + " ^3seconds.");
 							recs["dash." + mapname + ".guid"] = to_string(clients[num]);
@@ -1065,16 +1014,16 @@ int main(const int argc, const char* argv[])
 					dasher[col] = null_guid;
 					dashing[col] = true; // new dash now possible
 
-					if(ka_cfg.do_flags)
+					if(svr_cfg.do_flags)
 					{
 						str msg = players[clients[num]] + "^3 has ^7" + to_string(caps[clients[num]]) + "^3 flag" + (caps[clients[num]]==1?"":"s") + "!";
 						server.cp(msg);
-						if(sk_cfg.do_flags)
+						if(rep_cfg.do_flags)
 						{
-							if(sk_cfg.do_flags_hud)
+							if(rep_cfg.do_flags_hud)
 								hud = get_hud(m, s, dasher);
-							skivvy.raw_chat('f', hud + oa_to_IRC(nums_team + " " + msg));
-							skivvy.raw_chat('f', hud + oa_to_IRC("^7[ ] ^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED])));
+							skivvy->raw_chat('f', hud + oa_to_IRC(nums_team + " " + msg));
+							skivvy->raw_chat('f', hud + oa_to_IRC("^7[ ] ^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED])));
 						}
 					}
 				}
@@ -1085,40 +1034,40 @@ int main(const int argc, const char* argv[])
 
 					dasher[col] = clients[num];
 
-					if(sk_cfg.do_flags)
+					if(rep_cfg.do_flags)
 					{
-						if(sk_cfg.do_flags_hud)
+						if(rep_cfg.do_flags_hud)
 							hud = get_hud(m, s, dasher);
-						skivvy.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + players[clients[num]] + "^3 has taken the " + flag[col] + " ^3flag!"));
+						skivvy->raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + players[clients[num]] + "^3 has taken the " + flag[col] + " ^3flag!"));
 					}
 				}
 				else if(act == FL_DROPPED)
 				{
-					if(sk_cfg.do_flags)
+					if(rep_cfg.do_flags)
 					{
-						if(sk_cfg.do_flags_hud)
+						if(rep_cfg.do_flags_hud)
 							hud = get_hud(m, s, dasher);
-						skivvy.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + players[clients[num]] + "^3 has killed the " + flag[ncol] + " ^3flag carrier!"));
+						skivvy->raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + players[clients[num]] + "^3 has killed the " + flag[ncol] + " ^3flag carrier!"));
 					}
 					GUID dasher_guid = dasher[ncol];
 					dasher[ncol] = null_guid;; // end a dash
 					dashing[ncol] = false; // no more dashes until return, capture or suicide
-					if(sk_cfg.do_flags)
+					if(rep_cfg.do_flags)
 					{
-						if(sk_cfg.do_flags_hud)
+						if(rep_cfg.do_flags_hud)
 							hud = get_hud(m, s, dasher);
-						skivvy.raw_chat('f', hud + oa_to_IRC(nums_nteam + " ^7" + players[dasher_guid] + "^3 has dropped the " + flag[ncol] + " ^3flag!"));
+						skivvy->raw_chat('f', hud + oa_to_IRC(nums_nteam + " ^7" + players[dasher_guid] + "^3 has dropped the " + flag[ncol] + " ^3flag!"));
 					}
 				}
 				else if(act == FL_RETURNED)
 				{
 					dasher[col] = null_guid;; // end a dash
 					dashing[col] = true; // new dash now possible
-					if(sk_cfg.do_flags)
+					if(rep_cfg.do_flags)
 					{
-						if(sk_cfg.do_flags_hud)
+						if(rep_cfg.do_flags_hud)
 							hud = get_hud(m, s, dasher);
-						skivvy.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + players[clients[num]] + "^3 has returned the " + flag[col] + " ^3flag!"));
+						skivvy->raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + players[clients[num]] + "^3 has returned the " + flag[col] + " ^3flag!"));
 					}
 				}
 			}
@@ -1192,7 +1141,7 @@ int main(const int argc, const char* argv[])
 					// load map votes for new map
 					db.read_map_votes(mapname, map_votes);
 				}
-				if(sk_cfg.do_infos && mapname != old_mapname)
+				if(rep_cfg.do_infos && mapname != old_mapname)
 				{
 					siz love = 0;
 					siz hate = 0;
@@ -1203,8 +1152,8 @@ int main(const int argc, const char* argv[])
 						else
 							++hate;
 					}
-					skivvy.chat('i', ".");
-					skivvy.chat('i', "^3== Playing Map: ^7" + mapname + "^3 == ^7" + to_string(love)
+					skivvy->chat('i', ".");
+					skivvy->chat('i', "^3== Playing Map: ^7" + mapname + "^3 == ^7" + to_string(love)
 						+ " ^1LOVE ^7" + to_string(hate) + " ^2HATE ^3==");
 					old_mapname = mapname;
 				}
@@ -1215,18 +1164,18 @@ int main(const int argc, const char* argv[])
 			// 0:23 say: ^5A^6lien ^5S^6urf ^5G^6irl: yes, 3-4 players max
 			bug("line: " << line);
 
-			if(sk_cfg.do_chats)
+			if(rep_cfg.do_chats)
 			{
 				str text;
 				GUID guid;
 
 				if(extract_name_from_text(line, guid, text))
-					if(!sk_cfg.spamkill || ++spam[text] < spam_limit)
-						skivvy.chat('c', "^7say: " + players[guid] + " ^2" + text);
+					if(!rep_cfg.spamkill || ++spam[text] < spam_limit)
+						skivvy->chat('c', "^7say: " + players[guid] + " ^2" + text);
 
 //				if(std::getline(iss >> std::ws, text))
 //					if(!sk_cfg.spamkill || ++spam[text] < spam_limit)
-//						skivvy.chat('c', "^7say: " + text);
+//						skivvy->chat('c', "^7say: " + text);
 			}
 
 			siz pos;

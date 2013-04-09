@@ -19,7 +19,7 @@ using namespace oastats::irc;
 using namespace oastats::log;
 using namespace oastats::types;
 
-class RemoteClient
+class RemoteIRCClient
 {
 protected:
 	bool active;
@@ -33,8 +33,8 @@ protected:
 	chan_map chans; // #channel -> {'c','f','k'}
 
 public:
-	RemoteClient(): active(false), host("localhost"), port(7334) {}
-	virtual ~RemoteClient() {}
+	RemoteIRCClient(): active(false), host("localhost"), port(7334) {}
+	virtual ~RemoteIRCClient() {}
 
 	void on() { active = true; }
 	void off() { active = false; }
@@ -73,30 +73,9 @@ public:
 	 * @return false on communications failure.
 	 */
 	virtual bool send(const str& msg, str& res) = 0;
-};
 
-class SkivvyClient
-: public RemoteClient
-{
-	net::socketstream ss;
-
-public:
-
-	// RemoteClient Interface
-
-	virtual bool send(const str& cmd, str& res)
-	{
-		if(!active)
-			return true;
-
-		if(!ss.open(host, port))
-		{
-			log("error: " << std::strerror(errno));
-			return false;
-		}
-		(ss << cmd).put('\0') << std::flush;
-		return std::getline(ss, res, '\0');
-	}
+	static str_set get_types();
+	static RemoteIRCClient* create(const str& type);
 };
 
 }} // oastats::net

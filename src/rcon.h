@@ -32,9 +32,11 @@ http://www.gnu.org/licenses/gpl-2.0.html
 '-----------------------------------------------------------------*/
 
 #include "types.h"
+#include "log.h"
 
 namespace oastats { namespace net {
 
+using namespace oastats::log;
 using namespace oastats::types;
 
 #define TIMEOUT 1000
@@ -71,7 +73,7 @@ public:
 		this->pass = pass;
 	}
 
-	bool command(const str& cmd, str& reply)
+	bool command(const str& cmd, str& reply) const
 	{
 		return rcon("rcon " + pass + " " + cmd, reply, host, port, 2000);
 	}
@@ -87,6 +89,63 @@ public:
 	{
 		str ret;
 		rcon("rcon " + pass + " cp " + msg, ret, host, port);
+	}
+
+	/**
+	 * Set a variable from a cvar using rcon.
+	 * @param cvar The name of the cvar whose value is wanted
+	 * @param val The variable to set to the cvar's value.
+	 */
+	bool get_cvar(const str& cvar, str& val) const
+	{
+		str response;
+		if(!command(cvar, response))
+		{
+			log("WARN: rconset failure: " << cvar);
+			return false;
+		}
+
+		// Possible responses:
+		// -> unknown command: <var>
+		// -> "<var>" is:"<val>^7", the default
+		// -> "katina_skivvy_chans" is:"#katina-test(c) #katina(c)^7" default:"#katina-test(c)^7"
+
+		str sval;
+
+		if(response.find("unknown command:"))
+		{
+			str skip;
+			siss iss(response);
+			if(!std::getline(std::getline(iss, skip, ':').ignore(), sval, '^'))
+			{
+				log("ERROR: parsing rconset response: " << response);
+				return false;
+			}
+		}
+
+		val = sval;
+		return true;
+	}
+
+	/**
+	 * Set a variable from a cvar using rcon.
+	 * @param cvar The name of the cvar whose value is wanted
+	 * @param val The variable to set to the cvar's value.
+	 * @return thrue if the call was successful otherwise false
+	 * and the value of val remains unchanged.
+	 */
+	template<typename T>
+	bool get_cvar(const str& cvar, T& val) const
+	{
+		str sval;
+		if(!get_cvar(cvar, sval))
+			return false;
+		siss iss(sval);
+		T tval;
+		if(!(iss >> tval))
+			return false;
+		val = tval;
+		return true;
 	}
 };
 

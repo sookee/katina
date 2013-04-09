@@ -7,7 +7,7 @@ INCLUDES = $(wildcard *.h)
 
 KATINA_FLAGS = -O3 -g0 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread
 KATINA_LIBS = $(MYSQL_LIBS) -lrt -pthread
-KATINA_OBJS = katina.o rcon.o RemoteClient.o irc.o Database.o GUID.o
+KATINA_OBJS = katina.o rcon.o RemoteIRCClient.o irc.o Database.o GUID.o
 
 KATINA_IRC_FLAGS = -O3 -g0 -pthread
 KATINA_IRC_LIBS = -lrt -pthread
