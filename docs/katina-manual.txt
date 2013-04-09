@@ -4,6 +4,32 @@ katina-manual.txt
      Author: SooKee
      
 
+
+## Config file
+
+# MySql database
+db.host: <hostname|IP>
+db.port: <port number>
+db.user: <username>
+db.pass: <password>
+db.base: <database name>
+
+logfile: <path to openarena server log file>
+
+# game server
+rcon.delay: 6000 // delay between polls to register cvars and team changes
+rcon.host: <hostname|IP>
+rcon.pass: <rconpassword>
+rcon.port: <game server port>
+
+# IRC reporting
+remote.irc.client: ('none'|'skivvy') // soon 'katina'|'eggdrop'
+remote.irc.client.host: <hostname|IP>
+remote.irc.client.port: <port number>
+remote.irc.client.user: <username>
+remote.irc.client.pass: <password>
+
+
 cvars:
 
 katina_active (1 | 0)

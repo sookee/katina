@@ -638,12 +638,29 @@ void stack_handler(int sig)
 	exit(1);
 }
 
-str get_hud(siz m, siz s, GUID dasher[2])
+/**
+ *
+ * @param m
+ * @param s
+ * @param dasher
+ * @param killtype 0 = none, 1 = red killed, 2 = blue killed
+ * @return
+ */
+str get_hud(siz m, siz s, GUID dasher[2], siz killtype = 0)
 {
+	str redflag = "⚑";
+	str bluflag = "⚑";
+
+	redflag = dasher[FL_RED] != null_guid ? "⚑" : ".";
+	bluflag = dasher[FL_BLUE] != null_guid ? "⚑" : ".";
+
+	redflag = killtype == 1 ? "*" : redflag;
+	bluflag = killtype == 2 ? "*" : bluflag;
+
 	soss oss;
 	oss << "00[15" << (m < 10?"0":"") << m << "00:15" << (s < 10?"0":"") << s << " ";
-	oss << "04" << (dasher[FL_RED] != null_guid?"⚑":".");
-	oss << "02" << (dasher[FL_BLUE] != null_guid?"⚑":".");
+	oss << "04" << redflag;
+	oss << "02" << bluflag;
 	oss << "00]";
 	return oss.str();
 }
@@ -1053,7 +1070,7 @@ int main(const int argc, const char* argv[])
 					if(rep_cfg.do_flags)
 					{
 						if(rep_cfg.do_flags_hud)
-							hud = get_hud(m, s, dasher);
+							hud = get_hud(m, s, dasher, col + 1);
 						skivvy->raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + players[clients[num]] + "^3 has killed the " + flag[ncol] + " ^3flag carrier!"));
 					}
 					GUID dasher_guid = dasher[ncol];
