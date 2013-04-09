@@ -6,8 +6,11 @@
  */
 
 #include "RemoteIRCClient.h"
+#include "str.h"
 
 namespace oastats { namespace net {
+
+using namespace oastats::string;
 
 // TODO: This should be configurable
 const str irc_katina = "04K00at08i00na";
@@ -17,17 +20,37 @@ class NullClient
 {
 public:
 
+	virtual bool config(const str_map& properties) { return true; }
 	virtual bool send(const str& cmd, str& res) { return true; }
 };
+
+static const str PROP_HOST = "host";
+static const str PROP_PORT = "port";
+static const str PROP_USER = "user";
+static const str PROP_PASS = "pass";
 
 class SkivvyClient
 : public RemoteIRCClient
 {
+
+	str host;
+	siz port;
 	net::socketstream ss;
 
 public:
 
 	// RemoteClient Interface
+
+	virtual bool config(const str_map& properties)
+	{
+		if(!properties.count(PROP_HOST))
+			return log_error("SKIVVY CLIENT ERROR: missing property: " + PROP_HOST);
+		if(!properties.count(PROP_PORT))
+			return log_error("SKIVVY CLIENT ERROR: missing property: " + PROP_PORT);
+
+		host = properties.at(PROP_HOST);
+		port = to<siz>(properties.at(PROP_PORT));
+	}
 
 	virtual bool send(const str& cmd, str& res)
 	{
@@ -35,10 +58,8 @@ public:
 			return true;
 
 		if(!ss.open(host, port))
-		{
-			log("error: " << std::strerror(errno));
-			return false;
-		}
+			return log_errno("SKIVVY CLIENT ERROR");
+
 		(ss << cmd).put('\0') << std::flush;
 		return std::getline(ss, res, '\0');
 	}
@@ -79,24 +100,24 @@ bool RemoteIRCClient::say(char f, const str& text)
 	return good;
 }
 
-const str NULL_CLIENT = "null";
-const str SKIVVY_CLIENT = "skivvy";
-const str KATINA_CLIENT = "katina";
-const str EGGDROP_CLIENT = "eggdrop";
+const str RemoteIRCClient::NONE = "none";
+const str RemoteIRCClient::SKIVVY = "skivvy";
+const str RemoteIRCClient::KATINA = "katina";
+const str RemoteIRCClient::EGGDROP = "eggdrop";
 
 str_set RemoteIRCClient::get_types()
 {
 	str_set types;
-	types.insert(NULL_CLIENT);
-	types.insert(SKIVVY_CLIENT);
+	types.insert(NONE);
+	types.insert(SKIVVY);
 	return types;
 }
 
-RemoteIRCClient* create(const str& type)
+RemoteIRCClient* RemoteIRCClient::create(const str& type)
 {
-	if(type == NULL_CLIENT)
+	if(type == NONE)
 		return new NullClient();
-	else if(type == SKIVVY_CLIENT)
+	else if(type == SKIVVY)
 		return new SkivvyClient();
 
 	log("Unknown RemoteClient: " << type << " disabling feature.");

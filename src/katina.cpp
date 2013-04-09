@@ -179,7 +179,7 @@ struct report_conf
 };
 
 RCon server;
-RemoteIRCClient* skivvy;
+RemoteIRCClient* skivvy = RemoteIRCClient::create(RemoteIRCClient::SKIVVY);
 //SkivvyClient skivvy;
 Database db;
 
@@ -671,7 +671,7 @@ int main(const int argc, const char* argv[])
 	}
 
 	server.config(recs["rcon.host"], to<siz>(recs["rcon.port"]), recs["rcon.pass"]);
-	skivvy->config(recs["skivvy.host"], to<siz>(recs["skivvy.port"]));
+	skivvy->config(recs);
 	db.config(recs["db.host"], to<siz>(recs["db.port"]), recs["db.user"], recs["db.pass"], recs["db.base"]);
 
 	server.chat("^3Stats System v^7" + version + "^3-" + tag + " - ^1ONLINE");

@@ -21,10 +21,14 @@ using namespace oastats::types;
 
 class RemoteIRCClient
 {
+public:
+	static const str NONE;
+	static const str SKIVVY;
+	static const str KATINA;
+	static const str EGGDROP;
+
 protected:
 	bool active;
-	str host;
-	siz port;
 
 	typedef std::map<str, std::set<char> > chan_map;
 	typedef chan_map::iterator chan_map_iter;
@@ -33,17 +37,11 @@ protected:
 	chan_map chans; // #channel -> {'c','f','k'}
 
 public:
-	RemoteIRCClient(): active(false), host("localhost"), port(7334) {}
+	RemoteIRCClient(): active(false) {}
 	virtual ~RemoteIRCClient() {}
 
 	void on() { active = true; }
 	void off() { active = false; }
-
-	void config(const str& host, siz port)
-	{
-		this->host = host;
-		this->port = port;
-	}
 
 	void set_chans(const str& chans);
 	bool say(char f, const str& text);
@@ -65,6 +63,14 @@ public:
 
 	bool chat(char f, const str& text) { return say(f, oa_to_IRC(text)); }
 	bool raw_chat(char f, const str& text) { return say(f, text); }
+
+	/**
+	 * Implementing classes can configure the client from
+	 * the supplied properties loaded from the config file.
+	 * @param properties
+	 * @return false if required properties not found.
+	 */
+	virtual bool config(const str_map& properties) = 0;
 
 	/**
 	 * Implementing classes need to override this function.

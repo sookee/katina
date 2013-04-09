@@ -33,6 +33,9 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include "types.h"
 
+#include <cerrno>
+#include <cstring>
+
 namespace oastats { namespace log {
 
 using namespace oastats::types;
@@ -69,6 +72,18 @@ struct _
 
 #define trace(m)
 //#define trace(m) bug("TRACE: " << m << ": " << __LINE__)
+inline
+bool log_error(const str& msg, bool ret = false)
+{
+	log(msg);
+	return ret;
+}
+
+inline
+bool log_errno(const str& msg, bool ret = false)
+{
+	return log_error(msg + ": " + str(strerror(errno)), false);
+}
 
 }} // oastats::log
 
