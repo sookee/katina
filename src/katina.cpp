@@ -646,26 +646,41 @@ void stack_handler(int sig)
  * @param killtype 0 = none, 1 = red killed, 2 = blue killed
  * @return
  */
-str get_hud(siz m, siz s, GUID dasher[2], siz killtype = 0)
+//str get_hud(siz m, siz s, GUID dasher[2], siz killtype = 0)
+//{
+//	con("dasher[0]: " << dasher[0]);
+//	con("dasher[1]: " << dasher[1]);
+//	con("killtype: " << killtype);
+//	str redflag = "⚑";
+//	str bluflag = "⚑";
+//
+//	redflag = dasher[FL_RED] != null_guid ? "⚑" : ".";
+//	bluflag = dasher[FL_BLUE] != null_guid ? "⚑" : ".";
+//
+//	redflag = killtype == 1 ? "⚔" : redflag;
+//	bluflag = killtype == 2 ? "⚔" : bluflag;
+//
+//	soss oss;
+//	oss << "00[15" << (m < 10?"0":"") << m << "00:15" << (s < 10?"0":"") << s << " ";
+//	oss << "04" << redflag;
+//	oss << "02" << bluflag;
+//	oss << "00]";
+//	return oss.str();
+//}
+
+str get_hud(siz m, siz s, GUID dasher[2])
 {
-	con("dasher[0]: " << dasher[0]);
-	con("dasher[1]: " << dasher[1]);
-	con("killtype: " << killtype);
-	str redflag = "⚑";
-	str bluflag = "⚑";
-
-	redflag = dasher[FL_RED] != null_guid ? "⚑" : ".";
-	bluflag = dasher[FL_BLUE] != null_guid ? "⚑" : ".";
-
-	redflag = killtype == 1 ? "⚔" : redflag;
-	bluflag = killtype == 2 ? "⚔" : bluflag;
-
 	soss oss;
 	oss << "00[15" << (m < 10?"0":"") << m << "00:15" << (s < 10?"0":"") << s << " ";
-	oss << "04" << redflag;
-	oss << "02" << bluflag;
+	oss << "04" << (dasher[FL_RED] != null_guid?"⚑":".");
+	oss << "02" << (dasher[FL_BLUE] != null_guid?"⚑":".");
 	oss << "00]";
 	return oss.str();
+}
+
+bool is_guid(const str& s)
+{
+	return s.size() == 8 & std::count_if(s.begin(), s.end(), std::ptr_fun<int, int>(isxdigit)) == s.size();
 }
 
 int main(const int argc, const char* argv[])
@@ -894,10 +909,19 @@ int main(const int argc, const char* argv[])
 				{
 					str guid = line.substr(pos + 3, 32);
 
-					if(guid.size() != 32)
+					trim(guid);
+
+					if(guid.empty())
 						clients[num] = bot_guid(num);//null_guid;
 					else
-						clients[num] = to<GUID>(guid.substr(24));
+					{
+						if(guid.size() != 32 || !is_guid(guid.substr(24)))
+						{
+							log("INVALID GUID: " << guid);
+							log("        line: " << line);
+							continue;
+						}
+					}
 
 					players[clients[num]] = name;
 
@@ -1064,7 +1088,7 @@ int main(const int argc, const char* argv[])
 					if(rep_cfg.do_flags)
 					{
 						if(rep_cfg.do_flags_hud)
-							hud = get_hud(m, s, dasher, col ? 1 : 2);
+							hud = get_hud(m, s, dasher);//, col ? 1 : 2);
 						remote->raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + players[clients[num]] + "^3 has killed the " + flag[ncol] + " ^3flag carrier!"));
 					}
 					GUID dasher_guid = dasher[ncol];
