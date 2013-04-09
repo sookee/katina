@@ -648,9 +648,9 @@ void stack_handler(int sig)
  */
 str get_hud(siz m, siz s, GUID dasher[2], siz killtype = 0)
 {
-	bug("dasher[0]: " << dasher[0]);
-	bug("dasher[1]: " << dasher[1]);
-	bug("killtype: " << killtype);
+	con("dasher[0]: " << dasher[0]);
+	con("dasher[1]: " << dasher[1]);
+	con("killtype: " << killtype);
 	str redflag = "⚑";
 	str bluflag = "⚑";
 
@@ -1064,7 +1064,7 @@ int main(const int argc, const char* argv[])
 					if(rep_cfg.do_flags)
 					{
 						if(rep_cfg.do_flags_hud)
-							hud = get_hud(m, s, dasher, ncol + 1);
+							hud = get_hud(m, s, dasher, col ? 1 : 2);
 						remote->raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + players[clients[num]] + "^3 has killed the " + flag[ncol] + " ^3flag carrier!"));
 					}
 					GUID dasher_guid = dasher[ncol];
