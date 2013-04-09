@@ -24,14 +24,13 @@ public:
 	virtual bool send(const str& cmd, str& res) { return true; }
 };
 
-static const str PROP_HOST = "host";
-static const str PROP_PORT = "port";
-static const str PROP_USER = "user";
-static const str PROP_PASS = "pass";
-
 class SkivvyClient
 : public RemoteIRCClient
 {
+	static const str PROP_HOST;
+	static const str PROP_PORT;
+	static const str PROP_USER;
+	static const str PROP_PASS;
 
 	str host;
 	siz port;
@@ -64,6 +63,11 @@ public:
 		return std::getline(ss, res, '\0');
 	}
 };
+
+const str SkivvyClient::PROP_HOST = "skivvy.host";
+const str SkivvyClient::PROP_PORT = "skivvy.port";
+const str SkivvyClient::PROP_USER = "skivvy.user";
+const str SkivvyClient::PROP_PASS = "skivvy.pass";
 
 void RemoteIRCClient::set_chans(const str& chans)
 {
