@@ -179,7 +179,7 @@ struct report_conf
 };
 
 RCon server;
-RemoteIRCClientAPtr skivvy;
+RemoteIRCClientAPtr remote;
 //SkivvyClient skivvy;
 Database db;
 
@@ -260,13 +260,13 @@ void report_caps(const guid_siz_map& caps, const guid_str_map& players, siz flag
 	if(rep_cfg.do_infos)
 	{
 //		skivvy->.chat('f', "^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED]));
-		skivvy->chat('i', "^5== ^6RESULTS ^5== ^7"
+		remote->chat('i', "^5== ^6RESULTS ^5== ^7"
 			+ to_string(flags[FL_BLUE]) + " ^1RED ^7"
 			+ to_string(flags[FL_RED]) + " ^4BLUE ^3 ==");
 //		skivvy->chat('i', "^5== ^6RESULTS ^5" + str(max - 23, '='));
 		for(siz i = 0; i < results.size(); ++i)
-			skivvy->chat('f', results[i]);
-		skivvy->chat('i', "^5" + str(max - 12, '-'));
+			remote->chat('f', results[i]);
+		remote->chat('i', "^5" + str(max - 12, '-'));
 	}
 }
 
@@ -324,7 +324,7 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 	}
 	if(rep_cfg.do_stats)
 		for(std::multimap<double, str>::reverse_iterator r = skivvy_scores.rbegin(); r != skivvy_scores.rend(); ++r)
-			skivvy->chat('s', r->second);
+			remote->chat('s', r->second);
 }
 
 void save_records(const str_map& recs)
@@ -381,7 +381,7 @@ void* set_teams(void* td_vp)
 				{
 					log("katina: " + str(svr_cfg.active?"":"de-") + "activated");
 					server.chat("^3going ^1" + str(svr_cfg.active?"on":"off") + "-line^3.");
-					skivvy->chat('*', "^3going ^1" + str(svr_cfg.active?"on":"off") + "-line^3.");
+					remote->chat('*', "^3going ^1" + str(svr_cfg.active?"on":"off") + "-line^3.");
 				}
 			break;
 			case 1:
@@ -391,7 +391,7 @@ void* set_teams(void* td_vp)
 				{
 					log("katina: flag counting is now: " << (svr_cfg.do_flags ? "on":"off"));
 					server.chat( "^3Flag countng ^1" + str(svr_cfg.do_flags ? "on":"off") + "^3.");
-					skivvy->chat('f', "^3Flag countng ^1" + str(svr_cfg.do_flags ? "on":"off") + "^3.");
+					remote->chat('f', "^3Flag countng ^1" + str(svr_cfg.do_flags ? "on":"off") + "^3.");
 				}
 			break;
 			case 2:
@@ -401,7 +401,7 @@ void* set_teams(void* td_vp)
 				{
 					log("katina: flag timing is now: " << (svr_cfg.do_dashes ? "on":"off"));
 					server.chat("^3Flag timing ^1" + str(svr_cfg.do_dashes ? "on":"off") + "^3.");
-					skivvy->chat('f', "^3Flag timing ^1" + str(svr_cfg.do_dashes ? "on":"off") + "^3.");
+					remote->chat('f', "^3Flag timing ^1" + str(svr_cfg.do_dashes ? "on":"off") + "^3.");
 				}
 			break;
 			case 3:
@@ -410,7 +410,7 @@ void* set_teams(void* td_vp)
 				if(svr_cfg.do_db != old_ka_cfg.do_db)
 				{
 					log("katina: database writing is now: " << (svr_cfg.do_db ? "on":"off"));
-					skivvy->chat('*', "^3Flag timing ^1" + str(svr_cfg.do_db ? "on":"off") + "^3.");
+					remote->chat('*', "^3Flag timing ^1" + str(svr_cfg.do_db ? "on":"off") + "^3.");
 					if(!svr_cfg.do_db)
 						db.off();
 					else
@@ -433,7 +433,7 @@ void* set_teams(void* td_vp)
 				if(svr_cfg.db_weaps != old_ka_cfg.db_weaps)
 				{
 					log("katina: database weaps set to: " << cvar);
-					skivvy->chat('*', "^3Database weapons set to: ^1" + cvar + "^3.");
+					remote->chat('*', "^3Database weapons set to: ^1" + cvar + "^3.");
 				}
 			break;
 			case 5:
@@ -444,14 +444,14 @@ void* set_teams(void* td_vp)
 					if(rep_cfg.active)
 					{
 						log("skivvy: reporting activated");
-						skivvy->chat('*', "^3reporting turned on.");
-						skivvy->on();
+						remote->chat('*', "^3reporting turned on.");
+						remote->on();
 					}
 					else
 					{
 						log("skivvy: reporting deactivated");
-						skivvy->chat('*', "^3reporting turned off.");
-						skivvy->off();
+						remote->chat('*', "^3reporting turned off.");
+						remote->off();
 					}
 				}
 			break;
@@ -461,8 +461,8 @@ void* set_teams(void* td_vp)
 				if(old_sk_cfg.chans != rep_cfg.chans)
 				{
 					log("skivvy: new chans: " << rep_cfg.chans);
-					skivvy->set_chans(rep_cfg.chans);
-					skivvy->chat('*', "^3Now reporting to ^7" + rep_cfg.chans);
+					remote->set_chans(rep_cfg.chans);
+					remote->chat('*', "^3Now reporting to ^7" + rep_cfg.chans);
 				}
 			break;
 			case 7:
@@ -471,7 +471,7 @@ void* set_teams(void* td_vp)
 				if(rep_cfg.do_chats != old_sk_cfg.do_chats)
 				{
 					log("skivvy: chat reporting is now: " << (rep_cfg.do_chats ? "on":"off"));
-					skivvy->chat('*', "^3Chat reports ^1" + str(rep_cfg.do_chats ? "on":"off") + "^3.");
+					remote->chat('*', "^3Chat reports ^1" + str(rep_cfg.do_chats ? "on":"off") + "^3.");
 				}
 			break;
 			case 8:
@@ -480,7 +480,7 @@ void* set_teams(void* td_vp)
 				if(rep_cfg.do_flags != old_sk_cfg.do_flags)
 				{
 					log("skivvy: flag reporting is now: " << (rep_cfg.do_flags ? "on":"off"));
-					skivvy->chat('*', "^3Flag reports ^1" + str(rep_cfg.do_flags ? "on":"off") + "^3.");
+					remote->chat('*', "^3Flag reports ^1" + str(rep_cfg.do_flags ? "on":"off") + "^3.");
 				}
 			break;
 			case 9:
@@ -489,7 +489,7 @@ void* set_teams(void* td_vp)
 				if(rep_cfg.do_flags_hud != old_sk_cfg.do_flags_hud)
 				{
 					log("skivvy: flag HUD is now: " << (rep_cfg.do_flags_hud ? "on":"off"));
-					skivvy->chat('*', "^3Flag HUD ^1" + str(rep_cfg.do_flags_hud ? "on":"off") + "^3.");
+					remote->chat('*', "^3Flag HUD ^1" + str(rep_cfg.do_flags_hud ? "on":"off") + "^3.");
 				}
 			break;
 			case 10:
@@ -498,7 +498,7 @@ void* set_teams(void* td_vp)
 				if(rep_cfg.do_kills != old_sk_cfg.do_kills)
 				{
 					log("skivvy: kill reporting is now: " << (rep_cfg.do_kills ? "on":"off"));
-					skivvy->chat('*', "^3Kill reports ^1" + str(rep_cfg.do_kills ? "on":"off") + "^3.");
+					remote->chat('*', "^3Kill reports ^1" + str(rep_cfg.do_kills ? "on":"off") + "^3.");
 				}
 			break;
 			case 11:
@@ -507,7 +507,7 @@ void* set_teams(void* td_vp)
 				if(rep_cfg.do_kills != old_sk_cfg.do_kills)
 				{
 					log("skivvy: info reporting is now: " << (rep_cfg.do_infos ? "on":"off"));
-					skivvy->chat('*', "^3Info reports ^1" + str(rep_cfg.do_infos ? "on":"off") + "^3.");
+					remote->chat('*', "^3Info reports ^1" + str(rep_cfg.do_infos ? "on":"off") + "^3.");
 				}
 			break;
 			case 12:
@@ -516,7 +516,7 @@ void* set_teams(void* td_vp)
 				if(rep_cfg.do_stats != old_sk_cfg.do_stats)
 				{
 					log("skivvy: stats reporting is now: " << (rep_cfg.do_stats ? "on":"off"));
-					skivvy->chat('*', "^3Stats reports ^1" + str(rep_cfg.do_stats ? "on":"off") + "^3.");
+					remote->chat('*', "^3Stats reports ^1" + str(rep_cfg.do_stats ? "on":"off") + "^3.");
 				}
 			break;
 			case 13:
@@ -525,7 +525,7 @@ void* set_teams(void* td_vp)
 				if(old_sk_cfg.spamkill != rep_cfg.spamkill)
 				{
 					log("skivvy: spamkill is now: " << (rep_cfg.spamkill ? "on":"off"));
-					skivvy->chat('*', "^3Spamkill ^1" + str(rep_cfg.spamkill ? "on":"off") + "^3.");
+					remote->chat('*', "^3Spamkill ^1" + str(rep_cfg.spamkill ? "on":"off") + "^3.");
 				}
 			break;
 			default:
@@ -687,19 +687,19 @@ int main(const int argc, const char* argv[])
 		return -2;
 	}
 
-	if(!(skivvy = RemoteIRCClient::create(recs["remote.irc.client"])).get())
+	if(!(remote = RemoteIRCClient::create(recs["remote.irc.client"])).get())
 	{
 		log("FATAL ERROR: failed to allocate object at: " << __LINE__);
 		return 1;
 	}
 
-	skivvy->config(recs);
+	remote->config(recs);
 
 	server.config(recs["rcon.host"], to<siz>(recs["rcon.port"]), recs["rcon.pass"]);
 	db.config(recs["db.host"], to<siz>(recs["db.port"]), recs["db.user"], recs["db.pass"], recs["db.base"]);
 
 	server.chat("^3Stats System v^7" + version + "^3-" + tag + " - ^1ONLINE");
-	skivvy->chat('*', "^3Stats System v^7" + version + "^3-" + tag + " - ^1ONLINE");
+	remote->chat('*', "^3Stats System v^7" + version + "^3-" + tag + " - ^1ONLINE");
 
 	// weapons
 	weapons.push_back("unknown weapon");
@@ -793,7 +793,7 @@ int main(const int argc, const char* argv[])
 				if(!server.command("set g_allowVote 0", reply))
 					server.command("set g_allowVote 0", reply); // one retry
 
-				skivvy->chat('*', "^3Game Over");
+				remote->chat('*', "^3Game Over");
 				in_game = false;
 
 				// erase non spam marked messages
@@ -941,7 +941,7 @@ int main(const int argc, const char* argv[])
 						++stats[clients[num2]].deaths[weap];
 
 						if(rep_cfg.do_kills)
-							skivvy->chat('k', "^7" + players[clients[num1]] + " ^4killed ^7" + players[clients[num2]]
+							remote->chat('k', "^7" + players[clients[num1]] + " ^4killed ^7" + players[clients[num2]]
 								+ " ^4with a ^7" + weapons[weap]);
 					}
 				}
@@ -1002,7 +1002,7 @@ int main(const int argc, const char* argv[])
 						server.chat(players[clients[num]] + "^3 took ^7" + oss.str()
 							+ "^3 seconds to capture the " + flag[col] + "^3 flag.");
 						if(rep_cfg.do_flags)
-							skivvy->chat('f', players[clients[num]] + "^3 took ^7" + oss.str()
+							remote->chat('f', players[clients[num]] + "^3 took ^7" + oss.str()
 								+ "^3 seconds to capture the " + flag[col] + "^3 flag.");
 
 						double rec = to<double>(recs["dash." + mapname + ".secs"]);
@@ -1012,7 +1012,7 @@ int main(const int argc, const char* argv[])
 						if(rec < 0.5)
 						{
 							server.chat(players[clients[num]] + "^3 has set the record for this map.");
-							skivvy->chat('f', players[clients[num]] + "^3 has set the record for this map.");
+							remote->chat('f', players[clients[num]] + "^3 has set the record for this map.");
 							recs["dash." + mapname + ".guid"] = to_string(clients[num]);
 							recs["dash." + mapname + ".name"] = players[clients[num]];
 							recs["dash." + mapname + ".secs"] = oss.str();
@@ -1023,7 +1023,7 @@ int main(const int argc, const char* argv[])
 							server.chat(players[clients[num]] + "^3 beat ^7"
 								+ recs["dash." + mapname + ".name"] + "'^3s ^7"
 								+ recs["dash." + mapname + ".secs"] + " ^3seconds.");
-							skivvy->chat('f', players[clients[num]] + "^3 beat ^7"
+							remote->chat('f', players[clients[num]] + "^3 beat ^7"
 								+ recs["dash." + mapname + ".name"] + "'^3s ^7"
 								+ recs["dash." + mapname + ".secs"] + " ^3seconds.");
 							recs["dash." + mapname + ".guid"] = to_string(clients[num]);
@@ -1046,8 +1046,8 @@ int main(const int argc, const char* argv[])
 						{
 							if(rep_cfg.do_flags_hud)
 								hud = get_hud(m, s, dasher);
-							skivvy->raw_chat('f', hud + oa_to_IRC(nums_team + " " + msg));
-							skivvy->raw_chat('f', hud + oa_to_IRC("^7[ ] ^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED])));
+							remote->raw_chat('f', hud + oa_to_IRC(nums_team + " " + msg));
+							remote->raw_chat('f', hud + oa_to_IRC("^7[ ] ^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED])));
 						}
 					}
 				}
@@ -1062,7 +1062,7 @@ int main(const int argc, const char* argv[])
 					{
 						if(rep_cfg.do_flags_hud)
 							hud = get_hud(m, s, dasher);
-						skivvy->raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + players[clients[num]] + "^3 has taken the " + flag[col] + " ^3flag!"));
+						remote->raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + players[clients[num]] + "^3 has taken the " + flag[col] + " ^3flag!"));
 					}
 				}
 				else if(act == FL_DROPPED)
@@ -1070,8 +1070,8 @@ int main(const int argc, const char* argv[])
 					if(rep_cfg.do_flags)
 					{
 						if(rep_cfg.do_flags_hud)
-							hud = get_hud(m, s, dasher, col + 1);
-						skivvy->raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + players[clients[num]] + "^3 has killed the " + flag[ncol] + " ^3flag carrier!"));
+							hud = get_hud(m, s, dasher, ncol + 1);
+						remote->raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + players[clients[num]] + "^3 has killed the " + flag[ncol] + " ^3flag carrier!"));
 					}
 					GUID dasher_guid = dasher[ncol];
 					dasher[ncol] = null_guid;; // end a dash
@@ -1080,7 +1080,7 @@ int main(const int argc, const char* argv[])
 					{
 						if(rep_cfg.do_flags_hud)
 							hud = get_hud(m, s, dasher);
-						skivvy->raw_chat('f', hud + oa_to_IRC(nums_nteam + " ^7" + players[dasher_guid] + "^3 has dropped the " + flag[ncol] + " ^3flag!"));
+						remote->raw_chat('f', hud + oa_to_IRC(nums_nteam + " ^7" + players[dasher_guid] + "^3 has dropped the " + flag[ncol] + " ^3flag!"));
 					}
 				}
 				else if(act == FL_RETURNED)
@@ -1091,7 +1091,7 @@ int main(const int argc, const char* argv[])
 					{
 						if(rep_cfg.do_flags_hud)
 							hud = get_hud(m, s, dasher);
-						skivvy->raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + players[clients[num]] + "^3 has returned the " + flag[col] + " ^3flag!"));
+						remote->raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + players[clients[num]] + "^3 has returned the " + flag[col] + " ^3flag!"));
 					}
 				}
 			}
@@ -1176,8 +1176,8 @@ int main(const int argc, const char* argv[])
 						else
 							++hate;
 					}
-					skivvy->chat('i', ".");
-					skivvy->chat('i', "^3== Playing Map: ^7" + mapname + "^3 == ^7" + to_string(love)
+					remote->chat('i', ".");
+					remote->chat('i', "^3== Playing Map: ^7" + mapname + "^3 == ^7" + to_string(love)
 						+ " ^1LOVE ^7" + to_string(hate) + " ^2HATE ^3==");
 					old_mapname = mapname;
 				}
@@ -1195,7 +1195,7 @@ int main(const int argc, const char* argv[])
 
 				if(extract_name_from_text(line, guid, text))
 					if(!rep_cfg.spamkill || ++spam[text] < spam_limit)
-						skivvy->chat('c', "^7say: " + players[guid] + " ^2" + text);
+						remote->chat('c', "^7say: " + players[guid] + " ^2" + text);
 
 //				if(std::getline(iss >> std::ws, text))
 //					if(!sk_cfg.spamkill || ++spam[text] < spam_limit)
