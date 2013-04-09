@@ -67,6 +67,11 @@ restart()
 	stop; sleep 3; start;
 }
 
+update()
+{
+	stop; ./update.sh 3; start;
+}
+
 status()
 {
 	if [[ -f $PID ]]; then
@@ -92,9 +97,11 @@ case $CMD in
 		stop ;;
 	"restart")
 		restart ;;
+	"update")
+		update ;;
 	"status")
 		status ;;
-		"show")
+	"show")
 		show ;;
 	*)
 		help ;;
