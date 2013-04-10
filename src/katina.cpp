@@ -535,6 +535,7 @@ int main(const int argc, const char* argv[])
 			continue;
 
 //		bug("line: " << line);
+		bug_var(line);
 
 		iss.clear();
 		iss.str(line);
@@ -649,6 +650,7 @@ int main(const int argc, const char* argv[])
 				if(pos != str::npos)
 				{
 					str guid = line.substr(pos + 3, 32);
+					bug_var(guid);
 
 					trim(guid);
 

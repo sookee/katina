@@ -55,9 +55,11 @@ str get_stamp()
 
 #ifndef DEBUG
 #define bug(m)
+#define bug_var(v)
 #define bug_func()
 #else
 #define bug(m) do{std::cout << m << std::endl;}while(false)
+#define bug_var(v) bug(#m ": " << m)
 struct _
 {
 	const char* n;
@@ -70,8 +72,9 @@ struct _
 #define con(m) do{std::cout << m << std::endl;}while(false)
 #define log(m) do{std::cout << oastats::log::get_stamp() << ": " << m << std::endl;}while(false)
 
-#define trace(m)
-//#define trace(m) bug("TRACE: " << m << ": " << __LINE__)
+//#define trace(m)
+#define trace(m) bug("TRACE: " << m << ": " << __LINE__)
+
 inline
 bool log_error(const str& msg, bool ret = false)
 {
