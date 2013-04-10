@@ -39,6 +39,23 @@ namespace oastats { namespace net {
 using namespace oastats::log;
 using namespace oastats::types;
 
+struct server_conf
+{
+	bool active;
+	bool do_flags;
+	bool do_dashes;
+	bool do_db; // do database writes
+	std::set<siz> db_weaps; // which weapons to record
+
+	server_conf()
+	: active(false)
+	, do_flags(false)
+	, do_dashes(false)
+	, do_db(false)
+	{
+	}
+};
+
 #define TIMEOUT 1000
 
 /**

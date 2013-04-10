@@ -21,6 +21,31 @@ using namespace oastats::irc;
 using namespace oastats::log;
 using namespace oastats::types;
 
+struct remote_conf
+{
+	bool active;
+	bool do_flags;
+	bool do_flags_hud;
+	bool do_chats;
+	bool do_kills;
+	bool do_infos;
+	bool do_stats;
+	bool spamkill;
+	str chans;
+
+	remote_conf()
+	: active(false)
+	, do_flags(false)
+	, do_flags_hud(false)
+	, do_chats(false)
+	, do_kills(false)
+	, do_infos(false)
+	, do_stats(false)
+	, spamkill(false)
+	{
+	}
+};
+
 typedef std::auto_ptr<class RemoteIRCClient> RemoteIRCClientAPtr;
 
 class RemoteIRCClient

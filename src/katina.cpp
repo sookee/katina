@@ -76,6 +76,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include "RemoteIRCClient.h"
 #include "Database.h"
 #include "GUID.h"
+#include "rconthread.h"
 
 using namespace oastats;
 using namespace oastats::data;
@@ -120,61 +121,43 @@ typedef std::pair<const GUID, stats> guid_stat_pair;
 typedef std::map<GUID, stats>::iterator guid_stat_iter;
 typedef std::map<GUID, stats>::const_iterator guid_stat_citer;
 
-str_vec weapons;
+const str weapons[] =
+{
+	"unknown weapon"
+	, "shotgun"
+	, "gauntlet"
+	, "machinegun"
+	, "grenade"
+	, "grenade schrapnel"
+	, "rocket"
+	, "rocket blast"
+	, "plasma"
+	, "plasma splash"
+	, "railgun"
+	, "lightening"
+	, "BFG"
+	, "BFG fallout"
+	, "dround"
+	, "slimed"
+	, "burnt up in lava"
+	, "crushed"
+	, "telefraged"
+	, "falling to far"
+	, "suicide"
+	, "target lazer"
+	, "inflicted pain"
+	, "nailgun"
+	, "chaingun"
+	, "proximity mine"
+	, "kamikazi"
+	, "juiced"
+	, "grappled"
+};
 
 // teams thread
 
 pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
-struct thread_data
-{
-	milliseconds delay;
-	siz_guid_map* clients_p;
-	guid_siz_map* teams_p;
-};
-
 bool done = false;
-
-struct server_conf
-{
-	bool active;
-	bool do_flags;
-	bool do_dashes;
-	bool do_db; // do database writes
-	std::set<siz> db_weaps; // which weapons to record
-
-	server_conf()
-	: active(false)
-	, do_flags(false)
-	, do_dashes(false)
-	, do_db(false)
-	{
-	}
-};
-
-struct report_conf
-{
-	bool active;
-	bool do_flags;
-	bool do_flags_hud;
-	bool do_chats;
-	bool do_kills;
-	bool do_infos;
-	bool do_stats;
-	bool spamkill;
-	str chans;
-
-	report_conf()
-	: active(false)
-	, do_flags(false)
-	, do_flags_hud(false)
-	, do_chats(false)
-	, do_kills(false)
-	, do_infos(false)
-	, do_stats(false)
-	, spamkill(false)
-	{
-	}
-};
 
 RCon server;
 RemoteIRCClientAPtr remote;
@@ -183,7 +166,7 @@ Database db;
 
 //bool katina_active = false;
 server_conf svr_cfg;
-report_conf rep_cfg;
+remote_conf rep_cfg;
 
 str_map recs; // high scores/ config etc
 
@@ -221,10 +204,6 @@ void report_onevone(const onevone_map& onevone, const guid_str_map& players)
 			con("player: " << p1 << " killed " << p2 << " " << p->second << " times.");
 		}
 }
-
-typedef std::multimap<siz, GUID> siz_guid_mmap;
-//typedef std::pair<const siz, GUID> siz_guid_pair;
-typedef siz_guid_mmap::reverse_iterator siz_guid_mmap_ritr;
 
 void report_caps(const guid_siz_map& caps, const guid_str_map& players, siz flags[2])
 {
@@ -345,226 +324,6 @@ void load_records(str_map& recs)
 	str val;
 	while(std::getline(std::getline(ifs, key, ':') >> std::ws, val))
 		recs[key] = val;
-}
-
-void* set_teams(void* td_vp)
-{
-	thread_data& td = *reinterpret_cast<thread_data*>(td_vp);
-	siz_guid_map& clients = *td.clients_p;
-	guid_siz_map& teams = *td.teams_p;
-
-	if(td.delay < 3000)
-		td.delay = 3000;
-
-	while(!done)
-	{
-		thread_sleep_millis(td.delay);
-
-		// cvar controls
-
-		static siz c = 0;
-
-		server_conf old_ka_cfg = svr_cfg;
-		report_conf old_sk_cfg = rep_cfg;
-		str cvar;
-		siss iss;
-		siz weap;
-
-		switch(c++)
-		{
-			case 0:
-				if(!server.get_cvar("katina_active", svr_cfg.active))
-					server.get_cvar("katina_active", svr_cfg.active); // one retry
-				if(svr_cfg.active != old_ka_cfg.active)
-				{
-					log("katina: " + str(svr_cfg.active?"":"de-") + "activated");
-					server.chat("^3going ^1" + str(svr_cfg.active?"on":"off") + "-line^3.");
-					remote->chat('*', "^3going ^1" + str(svr_cfg.active?"on":"off") + "-line^3.");
-				}
-			break;
-			case 1:
-				if(!server.get_cvar("katina_flags", svr_cfg.do_flags))
-					server.get_cvar("katina_flags", svr_cfg.do_flags); // one retry
-				if(svr_cfg.do_flags != old_ka_cfg.do_flags)
-				{
-					log("katina: flag counting is now: " << (svr_cfg.do_flags ? "on":"off"));
-					server.chat( "^3Flag countng ^1" + str(svr_cfg.do_flags ? "on":"off") + "^3.");
-					remote->chat('f', "^3Flag countng ^1" + str(svr_cfg.do_flags ? "on":"off") + "^3.");
-				}
-			break;
-			case 2:
-				if(!server.get_cvar("katina_dashes", svr_cfg.do_dashes))
-					server.get_cvar("katina_dashes", svr_cfg.do_dashes); // one retry
-				if(svr_cfg.do_dashes != old_ka_cfg.do_dashes)
-				{
-					log("katina: flag timing is now: " << (svr_cfg.do_dashes ? "on":"off"));
-					server.chat("^3Flag timing ^1" + str(svr_cfg.do_dashes ? "on":"off") + "^3.");
-					remote->chat('f', "^3Flag timing ^1" + str(svr_cfg.do_dashes ? "on":"off") + "^3.");
-				}
-			break;
-			case 3:
-				if(!server.get_cvar("katina_db_active", svr_cfg.do_db))
-					server.get_cvar("katina_db_active", svr_cfg.do_db); // one retry
-				if(svr_cfg.do_db != old_ka_cfg.do_db)
-				{
-					log("katina: database writing is now: " << (svr_cfg.do_db ? "on":"off"));
-					remote->chat('*', "^3Flag timing ^1" + str(svr_cfg.do_db ? "on":"off") + "^3.");
-					if(!svr_cfg.do_db)
-						db.off();
-					else
-					{
-						db.on();
-						db.read_map_votes(mapname, map_votes);
-					}
-				}
-			break;
-			case 4:
-				if(!server.get_cvar("katina_db_weaps", cvar))
-					if(!server.get_cvar("katina_db_weaps", cvar))
-						break;
-
-				iss.clear();
-				iss.str(cvar);
-				while(iss >> weap)
-					svr_cfg.db_weaps.insert(weap);
-
-				if(svr_cfg.db_weaps != old_ka_cfg.db_weaps)
-				{
-					log("katina: database weaps set to: " << cvar);
-					remote->chat('*', "^3Database weapons set to: ^1" + cvar + "^3.");
-				}
-			break;
-			case 5:
-				if(!server.get_cvar("katina_skivvy_active", rep_cfg.active))
-					server.get_cvar("katina_skivvy_active", rep_cfg.active); // one retry
-				if(rep_cfg.active != old_sk_cfg.active)
-				{
-					if(rep_cfg.active)
-					{
-						log("skivvy: reporting activated");
-						remote->chat('*', "^3reporting turned on.");
-						remote->on();
-					}
-					else
-					{
-						log("skivvy: reporting deactivated");
-						remote->chat('*', "^3reporting turned off.");
-						remote->off();
-					}
-				}
-			break;
-			case 6:
-				if(!server.get_cvar("katina_skivvy_chans", rep_cfg.chans))
-					server.get_cvar("katina_skivvy_chans", rep_cfg.chans); // one retry
-				if(old_sk_cfg.chans != rep_cfg.chans)
-				{
-					log("skivvy: new chans: " << rep_cfg.chans);
-					remote->set_chans(rep_cfg.chans);
-					remote->chat('*', "^3Now reporting to ^7" + rep_cfg.chans);
-				}
-			break;
-			case 7:
-				if(!server.get_cvar("katina_skivvy_chats", rep_cfg.do_chats))
-					server.get_cvar("katina_skivvy_chats", rep_cfg.do_chats); // one retry
-				if(rep_cfg.do_chats != old_sk_cfg.do_chats)
-				{
-					log("skivvy: chat reporting is now: " << (rep_cfg.do_chats ? "on":"off"));
-					remote->chat('*', "^3Chat reports ^1" + str(rep_cfg.do_chats ? "on":"off") + "^3.");
-				}
-			break;
-			case 8:
-				if(!server.get_cvar("katina_skivvy_flags", rep_cfg.do_flags))
-					server.get_cvar("katina_skivvy_flags", rep_cfg.do_flags); // one retry
-				if(rep_cfg.do_flags != old_sk_cfg.do_flags)
-				{
-					log("skivvy: flag reporting is now: " << (rep_cfg.do_flags ? "on":"off"));
-					remote->chat('*', "^3Flag reports ^1" + str(rep_cfg.do_flags ? "on":"off") + "^3.");
-				}
-			break;
-			case 9:
-				if(!server.get_cvar("katina_skivvy_flags_hud", rep_cfg.do_flags_hud))
-					server.get_cvar("katina_skivvy_flags_hud", rep_cfg.do_flags_hud); // one retry
-				if(rep_cfg.do_flags_hud != old_sk_cfg.do_flags_hud)
-				{
-					log("skivvy: flag HUD is now: " << (rep_cfg.do_flags_hud ? "on":"off"));
-					remote->chat('*', "^3Flag HUD ^1" + str(rep_cfg.do_flags_hud ? "on":"off") + "^3.");
-				}
-			break;
-			case 10:
-				if(!server.get_cvar("katina_skivvy_kills", rep_cfg.do_kills))
-					server.get_cvar("katina_skivvy_kills",rep_cfg. do_kills); // one retry
-				if(rep_cfg.do_kills != old_sk_cfg.do_kills)
-				{
-					log("skivvy: kill reporting is now: " << (rep_cfg.do_kills ? "on":"off"));
-					remote->chat('*', "^3Kill reports ^1" + str(rep_cfg.do_kills ? "on":"off") + "^3.");
-				}
-			break;
-			case 11:
-				if(!server.get_cvar("katina_skivvy_infos", rep_cfg.do_infos))
-					server.get_cvar("katina_skivvy_infos", rep_cfg.do_infos); // one retry
-				if(rep_cfg.do_kills != old_sk_cfg.do_kills)
-				{
-					log("skivvy: info reporting is now: " << (rep_cfg.do_infos ? "on":"off"));
-					remote->chat('*', "^3Info reports ^1" + str(rep_cfg.do_infos ? "on":"off") + "^3.");
-				}
-			break;
-			case 12:
-				if(!server.get_cvar("katina_skivvy_stats", rep_cfg.do_stats))
-					server.get_cvar("katina_skivvy_stats", rep_cfg.do_stats); // one retry
-				if(rep_cfg.do_stats != old_sk_cfg.do_stats)
-				{
-					log("skivvy: stats reporting is now: " << (rep_cfg.do_stats ? "on":"off"));
-					remote->chat('*', "^3Stats reports ^1" + str(rep_cfg.do_stats ? "on":"off") + "^3.");
-				}
-			break;
-			case 13:
-				if(!server.get_cvar("katina_skivvy_spamkill", rep_cfg.spamkill))
-					server.get_cvar("katina_skivvy_spamkill", rep_cfg.spamkill); // one retry
-				if(old_sk_cfg.spamkill != rep_cfg.spamkill)
-				{
-					log("skivvy: spamkill is now: " << (rep_cfg.spamkill ? "on":"off"));
-					remote->chat('*', "^3Spamkill ^1" + str(rep_cfg.spamkill ? "on":"off") + "^3.");
-				}
-			break;
-			default:
-				c = 0;
-			break;
-		}
-
-		if(!rep_cfg.active || !rep_cfg.active)
-			continue;
-
-		str reply;
-		if(server.command("!listplayers", reply))
-		{
-			trim(reply);
-			// !listplayers: 4 players connected:
-			//  1 R 0   Unknown Player (*)   Major
-			//  2 B 0   Unknown Player (*)   Tony
-			//  4 B 0   Unknown Player (*)   Sorceress
-			//  5 R 0   Unknown Player (*)   Sergei
-			if(!reply.empty())
-			{
-				siz n;
-				char team;
-				siss iss(reply);
-				str line;
-				std::getline(iss, line); // skip command
-				while(std::getline(iss, line))
-				{
-					//bug("\t\tline: " << line);
-					siss iss(line);
-					if(iss >> n >> team)
-					{
-						pthread_mutex_lock(&mtx);
-						teams[clients[n]] = team;
-						pthread_mutex_unlock(&mtx);
-					}
-				}
-			}
-		}
-	}
-	pthread_exit(0);
 }
 
 GUID guid_from_name(const str& name)
@@ -717,37 +476,6 @@ int main(const int argc, const char* argv[])
 	server.chat("^3Stats System v^7" + version + "^3-" + tag + " - ^1ONLINE");
 	remote->chat('*', "^3Stats System v^7" + version + "^3-" + tag + " - ^1ONLINE");
 
-	// weapons
-	weapons.push_back("unknown weapon");
-	weapons.push_back("shotgun");
-	weapons.push_back("gauntlet");
-	weapons.push_back("machinegun");
-	weapons.push_back("grenade");
-	weapons.push_back("grenade schrapnel");
-	weapons.push_back("rocket");
-	weapons.push_back("rocket blast");
-	weapons.push_back("plasma");
-	weapons.push_back("plasma splash");
-	weapons.push_back("railgun");
-	weapons.push_back("lightening");
-	weapons.push_back("BFG");
-	weapons.push_back("BFG fallout");
-	weapons.push_back("dround");
-	weapons.push_back("slimed");
-	weapons.push_back("burnt up in lava");
-	weapons.push_back("crushed");
-	weapons.push_back("telefraged");
-	weapons.push_back("falling to far");
-	weapons.push_back("suicide");
-	weapons.push_back("target lazer");
-	weapons.push_back("inflicted pain");
-	weapons.push_back("nailgun");
-	weapons.push_back("chaingun");
-	weapons.push_back("proximity mine");
-	weapons.push_back("kamikazi");
-	weapons.push_back("juiced");
-	weapons.push_back("grappled");
-
 	std::time_t time = 0;
 	char c;
 	siz m, s;
@@ -769,8 +497,23 @@ int main(const int argc, const char* argv[])
 	milliseconds thread_delay = 6000; // default
 	if(recs.count("rcon.delay"))
 		thread_delay = to<milliseconds>(recs["rcon.delay"]);
-	thread_data td = {thread_delay, &clients, &teams};
-	pthread_create(&teams_thread, NULL, &set_teams, (void*) &td);
+
+	thread_data td =
+	{
+		&mtx
+		, thread_delay
+		, &clients
+		, &teams
+		, &done
+		, &svr_cfg
+		, &rep_cfg
+		, &server
+		, remote.get()
+		, &db
+		, &mapname
+		, &map_votes
+	};
+	pthread_create(&teams_thread, NULL, &rconthread, (void*) &td);
 
 	milliseconds sleep_time = 100; // milliseconds
 	bool done = false;

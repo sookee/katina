@@ -136,6 +136,9 @@ typedef std::pair<const GUID, int> guid_int_map_pair;
 typedef guid_int_map::iterator guid_int_map_iter;
 typedef guid_int_map::const_iterator guid_int_map_citer;
 
+typedef std::multimap<siz, GUID> siz_guid_mmap;
+typedef siz_guid_mmap::reverse_iterator siz_guid_mmap_ritr;
+
 extern const GUID null_guid;
 
 } // oastats
