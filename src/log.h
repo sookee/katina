@@ -59,7 +59,7 @@ str get_stamp()
 #define bug_func()
 #else
 #define bug(m) do{std::cout << m << std::endl;}while(false)
-#define bug_var(v) bug(#m ": " << m)
+#define bug_var(v) bug(#v ": " << v)
 struct _
 {
 	const char* n;
