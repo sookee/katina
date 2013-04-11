@@ -240,6 +240,29 @@ public:
 		return true;
 	}
 
+	bool add_ovo(game_id id, const GUID& guid1, const GUID& guid2, siz count)
+	{
+		if(!active)
+			return true; // not error
+
+		log("DATABASE: add_ovo(" << id << ", " << guid1 << ", " << guid2 << ", " << count << ")");
+
+		soss oss;
+		oss << "insert into `ovo` (`game_id`,`guid1`,`guid2`,`count`) values ('"
+			<< id << "','" << guid1 << "','" << guid2 << "','" << count << "')";
+
+		str sql = oss.str();
+
+		if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+		{
+			log("DATABASE ERROR: Unable to add_ovo; " << mysql_error(&mysql));
+			log("              : sql = " << sql);
+			return false;
+		}
+
+		return true;
+	}
+
 	bool read_map_votes(const str& mapname, guid_int_map& map_votes)
 	{
 		if(!active)

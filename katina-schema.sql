@@ -92,6 +92,21 @@ CREATE TABLE `kills` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `kills`
+--
+
+DROP TABLE IF EXISTS `ovo`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ovo` (
+  `game_id` int(4) unsigned NOT NULL,
+  `guid1` varchar(8) NOT NULL,
+  `guid2` varchar(8) NOT NULL,
+  `count` int(2) unsigned NOT NULL DEFAULT '0'
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `player`
 --
 

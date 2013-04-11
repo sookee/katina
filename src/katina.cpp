@@ -264,16 +264,16 @@ void report_players(const guid_str_map& players)
 		con("player: " << i->first << ", " << i->second);
 }
 
-void report_onevone(const onevone_map& onevone, const guid_str_map& players)
-{
-	for(onevone_citer o = onevone.begin(); o != onevone.end(); ++o)
-		for(guid_siz_citer p = o->second.begin(); p != o->second.end(); ++p)
-		{
-			str p1 = players.at(o->first);
-			str p2 = players.at(p->first);
-			con("player: " << p1 << " killed " << p2 << " " << p->second << " times.");
-		}
-}
+//void report_onevone(const onevone_map& onevone, const guid_str_map& players)
+//{
+//	for(onevone_citer o = onevone.begin(); o != onevone.end(); ++o)
+//		for(guid_siz_citer p = o->second.begin(); p != o->second.end(); ++p)
+//		{
+//			str p1 = players.at(o->first);
+//			str p2 = players.at(p->first);
+//			con("player: " << p1 << " killed " << p2 << " " << p->second << " times.");
+//		}
+//}
 
 typedef std::multimap<siz, GUID> siz_guid_mmap;
 //typedef std::pair<const siz, GUID> siz_guid_pair;
@@ -861,6 +861,10 @@ int main(const int argc, const char* argv[])
 							if((count = map_get(p->second.flags, FL_CAPTURED)))
 								db.add_caps(id, p->first, count);
 						}
+
+						for(onevone_citer o = onevone.begin(); o != onevone.end(); ++o)
+							for(guid_siz_citer p = o->second.begin(); p != o->second.end(); ++p)
+								db.add_ovo(id, o->first, p->first, p->second);
 					}
 
 					// report
@@ -868,8 +872,8 @@ int main(const int argc, const char* argv[])
 					report_clients(clients);
 					con("");
 					report_players(players);
-					con("");
-					report_onevone(onevone, players);
+//					con("");
+//					report_onevone(onevone, players);
 					con("");
 					report_stats(stats, players);
 					con("------------------------------------------");
