@@ -403,37 +403,37 @@ void stack_handler(int sig)
  * @param killtype 0 = none, 1 = red killed, 2 = blue killed
  * @return
  */
-//str get_hud(siz m, siz s, GUID dasher[2], siz killtype = 0)
-//{
-//	con("dasher[0]: " << dasher[0]);
-//	con("dasher[1]: " << dasher[1]);
-//	con("killtype: " << killtype);
-//	str redflag = "⚑";
-//	str bluflag = "⚑";
-//
-//	redflag = dasher[FL_RED] != null_guid ? "⚑" : ".";
-//	bluflag = dasher[FL_BLUE] != null_guid ? "⚑" : ".";
-//
-//	redflag = killtype == 1 ? "⚔" : redflag;
-//	bluflag = killtype == 2 ? "⚔" : bluflag;
-//
-//	soss oss;
-//	oss << "00[15" << (m < 10?"0":"") << m << "00:15" << (s < 10?"0":"") << s << " ";
-//	oss << "04" << redflag;
-//	oss << "02" << bluflag;
-//	oss << "00]";
-//	return oss.str();
-//}
-
-str get_hud(siz m, siz s, GUID dasher[2])
+str get_hud(siz m, siz s, GUID dasher[2], siz killtype = 0)
 {
+	con("dasher[0]: " << dasher[0]);
+	con("dasher[1]: " << dasher[1]);
+	con("killtype: " << killtype);
+	str redflag = "⚑";
+	str bluflag = "⚑";
+
+	redflag = dasher[FL_RED] != null_guid ? "⚑" : ".";
+	bluflag = dasher[FL_BLUE] != null_guid ? "⚑" : ".";
+
+	redflag = killtype == 1 ? "⚔" : redflag;
+	bluflag = killtype == 2 ? "⚔" : bluflag;
+
 	soss oss;
 	oss << "00[15" << (m < 10?"0":"") << m << "00:15" << (s < 10?"0":"") << s << " ";
-	oss << "04" << (dasher[FL_RED] != null_guid?"⚑":".");
-	oss << "02" << (dasher[FL_BLUE] != null_guid?"⚑":".");
+	oss << "04" << redflag;
+	oss << "02" << bluflag;
 	oss << "00]";
 	return oss.str();
 }
+
+//str get_hud(siz m, siz s, GUID dasher[2])
+//{
+//	soss oss;
+//	oss << "00[15" << (m < 10?"0":"") << m << "00:15" << (s < 10?"0":"") << s << " ";
+//	oss << "04" << (dasher[FL_RED] != null_guid?"⚑":".");
+//	oss << "02" << (dasher[FL_BLUE] != null_guid?"⚑":".");
+//	oss << "00]";
+//	return oss.str();
+//}
 
 bool is_guid(const str& s)
 {
@@ -447,9 +447,12 @@ int main(const int argc, const char* argv[])
 	load_records(recs);
 
 	log("Records loaded: " << recs.size());
+	bool testing = false;
 
 	sifs ifs;
-	if(argc > 1)
+	if(argc > 1 && (testing = (str(argv[1]) == "TEST")))
+		ifs.open(argv[1]); // read whole log
+	else if(argc > 1)
 		ifs.open(argv[1], std::ios::ate);
 	else if(!recs["logfile"].empty())
 		ifs.open(expand_env(recs["logfile"]).c_str(), std::ios::ate);
@@ -469,6 +472,7 @@ int main(const int argc, const char* argv[])
 	}
 
 	remote->config(recs);
+	remote->set_testing(testing);
 
 	server.config(recs["rcon.host"], to<siz>(recs["rcon.port"]), recs["rcon.pass"]);
 	db.config(recs["db.host"], to<siz>(recs["db.port"]), recs["db.user"], recs["db.pass"], recs["db.base"]);

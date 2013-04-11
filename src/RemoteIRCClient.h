@@ -58,6 +58,7 @@ public:
 
 protected:
 	bool active;
+	bool testing;
 
 	typedef std::map<str, std::set<char> > chan_map;
 	typedef chan_map::iterator chan_map_iter;
@@ -66,8 +67,10 @@ protected:
 	chan_map chans; // #channel -> {'c','f','k'}
 
 public:
-	RemoteIRCClient(): active(false) {}
+	RemoteIRCClient(): active(false), testing(false) {}
 	virtual ~RemoteIRCClient() {}
+
+	void set_testing(bool testing) { this->testing = testing; }
 
 	void on() { active = true; }
 	void off() { active = false; }
@@ -107,7 +110,7 @@ public:
 	 * @param res The response from the remote client.
 	 * @return false on communications failure.
 	 */
-	virtual bool send(const str& msg, str& res) = 0;
+	virtual bool send(const str& channel, const str& msg, str& res) = 0;
 
 	static str_set get_types();
 	static RemoteIRCClientAPtr create(const str& type);

@@ -26,7 +26,7 @@ class NullClient
 public:
 
 	virtual bool config(const str_map& properties) { return true; }
-	virtual bool send(const str& cmd, str& res) { return true; }
+	virtual bool send(const str& channel, const str& cmd, str& res) { return true; }
 };
 
 class SkivvyClient
@@ -51,7 +51,7 @@ public:
 		port = to<siz>(properties.at(PROP_PORT));
 	}
 
-	virtual bool send(const str& cmd, str& res)
+	virtual bool send(const str& channel, const str& cmd, str& res)
 	{
 		if(!active)
 			return true;
@@ -59,7 +59,11 @@ public:
 		if(!ss.open(host, port))
 			return log_errno("SKIVVY CLIENT ERROR");
 
-		(ss << cmd).put('\0') << std::flush;
+		str rcmd = "/say";
+		if(testing)
+			rcmd = "/log";
+
+		(ss << rcmd << " " << channel << " " << cmd).put('\0') << std::flush;
 		return std::getline(ss, res, '\0');
 	}
 };
@@ -91,7 +95,7 @@ bool RemoteIRCClient::say(char f, const str& text)
 
 	for(chan_map_iter chan = chans.begin(); chan != chans.end(); ++chan)
 		if(f == '*' || chan->second.count(f))
-			good = good && send("/say " + chan->first + " [" + irc_katina + "] " + text, res);
+			good = good && send(chan->first, "[" + irc_katina + "] " + text, res);
 
 	return good;
 }
