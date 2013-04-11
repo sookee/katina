@@ -662,6 +662,7 @@ int main(const int argc, const char* argv[])
 						clients[num] = bot_guid(num);//null_guid;
 					else
 					{
+						clients[num] = to<GUID>(guid.substr(24));
 						if(guid.size() != 32 || !is_guid(guid.substr(24)))
 						{
 							log("INVALID GUID: " << guid);
