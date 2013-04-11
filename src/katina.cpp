@@ -87,7 +87,7 @@ using namespace oastats::string;
 using namespace oastats::net;
 using namespace oastats::time;
 
-const std::string version = "0.5";
+const std::string version = "0.5.1";
 const std::string tag = "alpha";
 
 /*
