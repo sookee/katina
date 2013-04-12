@@ -5,7 +5,7 @@ MYSQL_LIBS = $(shell mysql_config --libs)
 
 INCLUDES = $(wildcard *.h)
 
-KATINA_FLAGS = -O3 -g0 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread
+KATINA_FLAGS = -D DEBUG -O0 -g3 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread
 KATINA_LIBS = $(MYSQL_LIBS) -lrt -pthread
 KATINA_OBJS = katina.o rcon.o RemoteClient.o irc.o Database.o GUID.o
 
