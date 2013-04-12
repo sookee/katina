@@ -53,6 +53,8 @@ str get_stamp()
 #ifndef DEBUG
 #define bug(m)
 #define bug_func()
+#define con(m) do{std::cout << m << std::endl;}while(false)
+#define log(m) do{std::cout << oastats::log::get_stamp() << ": " << m << std::endl;}while(false)
 #else
 #define bug(m) do{std::cout << m << std::endl;}while(false)
 struct _
@@ -62,10 +64,10 @@ struct _
 	~_() { bug("<--- " << n); }
 };
 #define bug_func() oastats::log::_ __(__PRETTY_FUNCTION__)
+#define con(m) do{std::cout << m << " [" << __FILE__ << "]" << " (" << __LINE__ << ")" << std::endl;}while(false)
+#define log(m) do{std::cout << oastats::log::get_stamp() << ": " << m << " [" << __FILE__ << "]" << " (" << __LINE__ << ")" << std::endl;}while(false)
 #endif
 
-#define con(m) do{std::cout << m << std::endl;}while(false)
-#define log(m) do{std::cout << oastats::log::get_stamp() << ": " << m << std::endl;}while(false)
 
 //#define trace(m)
 #define trace(m) bug("TRACE: " << m << ": " << __LINE__)
