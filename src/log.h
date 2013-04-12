@@ -67,8 +67,8 @@ struct _
 #define con(m) do{std::cout << m << std::endl;}while(false)
 #define log(m) do{std::cout << oastats::log::get_stamp() << ": " << m << std::endl;}while(false)
 
-#define trace(m)
-//#define trace(m) bug("TRACE: " << m << ": " << __LINE__)
+//#define trace(m)
+#define trace(m) bug("TRACE: " << m << ": " << __LINE__)
 
 }} // oastats::log
 

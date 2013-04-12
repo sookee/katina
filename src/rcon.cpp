@@ -48,7 +48,7 @@ bool aocom(const str& cmd, str_vec& packets, const str& host, int port
 	addrinfo* res;
 	if(int status = getaddrinfo(host.c_str(), to_string(port).c_str(), &hints, &res) != 0)
 	{
-		log(gai_strerror(status));
+		log("aocom: getaddrinfo(): " << gai_strerror(status));
 		return false;
 	}
 
@@ -124,7 +124,7 @@ bool rcon(const str& cmd, str& reply, const str& host, int port, siz wait)
 
 	if(packets.empty())
 	{
-		log("Empty response.");
+		log("ron: Empty response.");
 		return false;
 	}
 
@@ -133,7 +133,7 @@ bool rcon(const str& cmd, str& reply, const str& host, int port, siz wait)
 	{
 		if(packet->find(header) != 0)
 		{
-			log("Unrecognised response.");
+			log("ron: Unrecognised response.");
 			return false;
 		}
 
