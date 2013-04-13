@@ -193,7 +193,7 @@ foreach($table as $stats)
 	$tr_class = $odd ? "score-table-tr-odd" : "score-table-tr-even";
 	$td_class = $odd ? "score-table-td-odd" : "score-table-td-even";
 	echo "<tr class=\"" . $tr_class . "\">\n";
-	echo "<td class=\"" . $td_class . "-name\"><a class='a-player' href='player.php?" . $stats['guid'] . "'>" . $stats['name'] . "</a></td>";
+	echo "<td class=\"" . $td_class . "-name\"><a class='a-player' href='player.php?guid=" . $stats['guid'] . "'>" . $stats['name'] . "</a></td>";
 	echo "<td class=\"" . $td_class . "-kd\">" . $stats['kd'] . "</td>";
 	echo "<td class=\"" . $td_class . "-cd\">" . $stats['cd'] . "</td>";
 	echo "</tr>\n";

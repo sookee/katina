@@ -24,13 +24,73 @@
 </tr>
 </table>
 </form>
+
+<table>
+<thead>
+<tr>
+<td>Player</td>
+<td> </td>
+<td>Player</td>
+<td>Killed</td>
+<td> </td>
+<td>Killed By</td>
+</tr>
+</thead>
 <?php
 if($form_map)
 {
-	// page here
+	$ovo = array();
+	$ovo['+'] = array();
+	$ovo['-'] = array();
+	$names = array();
+	
+	$names[$guid] = '&lt;unknown&gt;';
+	
+	if(($games = get_game_ids_from_db($con, $form_year, $form_month, $form_map)))
+	{
+		foreach($games as $game_id)
+		{
+			if(($ovo1 = get_ovo_from_db($con, $game_id, $guid)))
+			{
+				foreach($ovo1['+'] as $guid2 => $count)
+				{
+					if(!isset($ovo['+'][$guid2]))
+						$ovo['+'][$guid2] = 0;
+					$ovo['+'][$guid2] += $count;
+					$names[$guid2] = '&lt;unknown&gt;';
+				}
+				foreach($ovo1['-'] as $guid2 => $count)
+				{
+					if(!isset($ovo['-'][$guid2]))
+						$ovo['-'][$guid2] = 0;
+					$ovo['-'][$guid2] += $count;
+					$names[$guid2] = '&lt;unknown&gt;';
+				}
+			}
+		}
+	}
+
+	add_names_to_guids_from_db($con, $names);
+	
+	foreach($names as $guid2 => $name)
+	{
+		$kill = isset($ovo['+'][$guid2]) ? $ovo['+'][$guid2] : 0;
+		$killby = isset($ovo['-'][$guid2]) ? $ovo['-'][$guid2] : 0;
+?>
+<tr>
+<td><?php echo oa_to_HTML($names[$guid]); ?> </td>
+<td> vs </td>
+<td><?php echo oa_to_HTML($name); ?> </td>
+<td><?php echo $kill; ?> </td>
+<td><?php echo ($kill == $killby) ? '=' : ($kill < $killby) ? '&lt;' : '&gt;' ?>
+<td><?php echo $killby; ?> </td>
+</tr>
+<?php
+		
+	}
 }
 ?>
+</table>
 </body>
-<?php ?>
-mysqli_close($con);
-?>
+</html>
+<?php mysqli_close($con); ?>

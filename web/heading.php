@@ -11,12 +11,14 @@ $form_year = isset($_POST['year']) ? mysqli_real_escape_string($con, $_POST['yea
 $form_month = isset($_POST['month']) ? mysqli_real_escape_string($con, $_POST['month']) : date('M'); 
 $form_map = isset($_POST['map']) ? mysqli_real_escape_string($con, $_POST['map']) : false;
 $form_sort = isset($_POST['sort']) ? $_POST['sort'] : 'name';
+$guid = isset($_GET['guid']) ? mysqli_real_escape_string($con, $_GET['guid']) : false;
 
 if(php_sapi_name() == 'cli')
 {
 	$form_year = '2013';
 	$form_month = 'Apr';
-	$form_map = 'oasago2';
+	$form_map = 'oan';
+	$guid = 'E20DDC17';
 }
 
 $oatohtmltab = array
@@ -213,5 +215,53 @@ function add_names_to_guids_from_db($con, &$names)
 		mysqli_free_result($result);
 	}
 	return true;
+}
+
+/**
+ * 
+ * @param unknown $con
+ * @param unknown $game_id
+ * @param unknown $guid1
+ * @param unknown $guid1
+ * @return multitype:unknown
+ */
+function get_ovo_from_db($con, $game_id, $guid)
+{
+	$ovo = array();
+	$ovo['+'] = array();
+	$ovo['-'] = array();
+	$result = mysqli_query($con, 'select `guid1`,`guid2`,`count` from `ovo` where `game_id` = \''
+			. $game_id . '\'');
+	if(!$result)
+	{
+		echo mysqli_error($con);
+		return false;
+	}
+	
+// 	`game_id` int(4) unsigned NOT NULL,
+// 	`guid1` varchar(8) NOT NULL,
+// 	`guid2` varchar(8) NOT NULL,
+// 	`count` int(2) unsigned NOT NULL DEFAULT '0'
+	
+	while($row = mysqli_fetch_array($result))
+	{
+		if($row[0] == $guid)
+		{
+			if(!isset($ovo['+'][$row[1]]))
+				$ovo['+'][$row[1]] = 0;
+			$ovo['+'][$row[1]] += $row[2];
+		}
+
+		if($row[1] == $guid)
+		{
+			if(!isset($ovo['-'][$row[0]]))
+				$ovo['-'][$row[0]] = 0;
+			$ovo['-'][$row[0]] += $row[2];
+		}
+	}
+
+	mysqli_free_result($result);
+
+	return $ovo;
 }
 ?>
