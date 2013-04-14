@@ -48,11 +48,13 @@ typedef std::map<GUID, stats>::const_iterator guid_stat_citer;
 
 class Katina
 {
+	friend void* rconthread(void* vp);
+
 	bool done;
+	milliseconds thread_delay;
 
 	RCon server;
 	RemoteIRCClientAPtr remote;
-	//SkivvyClient skivvy;
 	Database db;
 
 	//bool katina_active = false;
@@ -108,7 +110,7 @@ class Katina
 	bool is_guid(const str& s);
 
 public:
-	Katina(): done(false) {}
+	Katina(): done(false), thread_delay(6000) {}
 
 	int run(const int argc, const char* argv[]);
 };

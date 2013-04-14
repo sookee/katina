@@ -413,26 +413,26 @@ int Katina::run(const int argc, const char* argv[])
 	bool dashing[2] = {true, true}; // flag dash in progress?
 
 	pthread_t teams_thread;
-	milliseconds thread_delay = 6000; // default
+
 	if(recs.count("rcon.delay"))
 		thread_delay = to<milliseconds>(recs["rcon.delay"]);
 
-	thread_data td =
-	{
-		&mtx
-		, thread_delay
-		, &clients
-		, &teams
-		, &done
-		, &svr_cfg
-		, &rep_cfg
-		, &server
-		, remote.get()
-		, &db
-		, &mapname
-		, &map_votes
-	};
-	pthread_create(&teams_thread, NULL, &rconthread, (void*) &td);
+//	thread_data td =
+//	{
+//		&mtx
+//		, thread_delay
+//		, &clients
+//		, &teams
+//		, &done
+//		, &svr_cfg
+//		, &rep_cfg
+//		, &server
+//		, remote.get()
+//		, &db
+//		, &mapname
+//		, &map_votes
+//	};
+	pthread_create(&teams_thread, NULL, &rconthread, (void*) this);
 
 	milliseconds sleep_time = 100; // milliseconds
 	bool done = false;
