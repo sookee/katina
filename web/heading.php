@@ -7,11 +7,21 @@ $con = mysqli_connect("176.56.235.126", "oadb", "", "oadb");
 if(mysqli_connect_errno($con))
 	echo mysqli_connect_error();
 
-$form_year = isset($_POST['year']) ? mysqli_real_escape_string($con, $_POST['year']) : date('Y'); 
-$form_month = isset($_POST['month']) ? mysqli_real_escape_string($con, $_POST['month']) : date('M'); 
-$form_map = isset($_POST['map']) ? mysqli_real_escape_string($con, $_POST['map']) : false;
-$form_sort = isset($_POST['sort']) ? $_POST['sort'] : 'name';
-$guid = isset($_GET['guid']) ? mysqli_real_escape_string($con, $_GET['guid']) : false;
+function ensure_var(&$var, $name, $dflt)
+{
+	global $con;
+	$var = isset($_SESSION[$name]) ? $_SESSION[$name] : $dflt;
+	$var = isset($_POST[$name]) ? mysqli_real_escape_string($con, $_POST[$name]) : $var;
+	$var = isset($_GET[$name]) ? mysqli_real_escape_string($con, $_GET[$name]) : $var;
+	$_SESSION[$name] = $var;
+	echo "$name: $var\n<br/>";
+}
+
+ensure_var($form_year, 'year', date('Y'));
+ensure_var($form_month, 'month', date('M'));
+ensure_var($form_map, 'map', false);
+ensure_var($form_sort, 'sort', 'name');
+ensure_var($guid, 'guid', false);
 
 if(php_sapi_name() == 'cli')
 {
