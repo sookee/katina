@@ -174,7 +174,7 @@ bool Database::add_player(const GUID& guid, const str& name)
 	return true;
 }
 
-bool Database::add_vote(const str& type, const str& item, const GUID& guid, int count)
+row_count Database::add_vote(const str& type, const str& item, const GUID& guid, int count)
 {
 	if(!active)
 		return true; // not error
@@ -183,7 +183,8 @@ bool Database::add_vote(const str& type, const str& item, const GUID& guid, int 
 
 	soss oss;
 	oss << "insert into `votes` (`type`,`item`,`guid`,`count`) values ('"
-		<< type << "','" << item << "','" << guid << "','" << count << "')";
+		<< type << "','" << item << "','" << guid << "','" << count << "')"
+		<< " on duplicate key update `count` = '" << count << "'";
 
 	str sql = oss.str();
 
@@ -191,10 +192,10 @@ bool Database::add_vote(const str& type, const str& item, const GUID& guid, int 
 	{
 		log("DATABASE ERROR: Unable to add_vote; " << mysql_error(&mysql));
 		log("              : sql = " << sql);
-		return false;
+		return 0; // error
 	}
 
-	return true;
+	return mysql_affected_rows(&mysql);
 }
 
 bool Database::add_ovo(game_id id, const GUID& guid1, const GUID& guid2, siz count)
@@ -255,6 +256,36 @@ bool Database::read_map_votes(const str& mapname, guid_int_map& map_votes)
 		map_votes[GUID(row[0])] = to<int>(row[1]);
 	}
 	mysql_free_result(result);
+	return true;
+}
+
+bool Database::set_preferred_name(const GUID& guid, const str& name)
+{
+	if(!active)
+		return true; // not error
+
+	log("DATABASE: set_preferred_name(" << guid << ", " << name << ")");
+
+	str safe_name;
+	if(!escape(name, safe_name))
+	{
+		log("DATABASE: ERROR: failed to escape: " << name);
+		return bad_id;
+	}
+
+	soss oss;
+	oss << "insert into `user` (`guid`,`name`) values ('"
+		<< guid << "','" << name << "') on duplicate key update `name` = '" << name << "'";
+
+	str sql = oss.str();
+
+	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+	{
+		log("DATABASE ERROR: Unable to set_preferred_name; " << mysql_error(&mysql));
+		log("              : sql = " << sql);
+		return false;
+	}
+
 	return true;
 }
 

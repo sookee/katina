@@ -18,7 +18,9 @@ KATINA_VOTES_FLAGS = -O0 -g3 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread
 KATINA_VOTES_LIBS = $(MYSQL_LIBS) -lrt -pthread
 KATINA_VOTES_OBJS = katina-votes.o
 
-all: katina katina-irc katina-votes
+PROGRAMS = katina katina-irc katina-votes
+
+all: $(PROGRAMS)
 
 katina: $(KATINA_OBJS)
 	$(CXX) -o $@ $(KATINA_OBJS) $(KATINA_LIBS)
@@ -42,4 +44,4 @@ katina-votes.o: katina-votes.cpp $(INCLUDES)
 	$(CXX) $(CXXFLAGS) $(MYSQL_INCL) -c -o $@ $<
 
 clean:
-	rm -f *.o *.so katina katina-irc
+	rm -f *.o *.so $(PROGRAMS)

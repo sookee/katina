@@ -87,7 +87,7 @@ using namespace oastats::string;
 using namespace oastats::net;
 using namespace oastats::time;
 
-const std::string version = "0.5.1";
+const std::string version = "0.5.2";
 const std::string tag = "alpha";
 
 /*
@@ -1293,6 +1293,16 @@ int main(const int argc, const char* argv[])
 						server.chat("^7" + players[guid] + "^7: ^3Your vote has been counted.");
 					}
 				}
+			}
+			else if(cmd == "!register")
+			{
+				str name;
+				GUID guid;
+
+				if(!extract_name_from_text(line, guid, name))
+					continue;
+				if(db.set_preferred_name(guid, name))
+					server.chat("^7" + players[guid] + "^7: ^3Your preferred name has been registered.");
 			}
 		}
 	}

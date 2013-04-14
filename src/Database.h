@@ -24,6 +24,7 @@ using namespace oastats::string;
 using namespace oastats::log;
 
 typedef my_ulonglong game_id;
+typedef my_ulonglong row_count;
 
 extern const game_id bad_id;
 extern const game_id null_id;
@@ -85,11 +86,21 @@ public:
 
 	bool add_player(const GUID& guid, const str& name);
 
-	bool add_vote(const str& type, const str& item, const GUID& guid, int count);
+	/**
+	 *
+	 * @param type
+	 * @param item
+	 * @param guid
+	 * @param count
+	 * @return 0 = error, 1 = inserted, 2 = updated
+	 */
+	row_count add_vote(const str& type, const str& item, const GUID& guid, int count);
 
 	bool add_ovo(game_id id, const GUID& guid1, const GUID& guid2, siz count);
 
 	bool read_map_votes(const str& mapname, guid_int_map& map_votes);
+
+	bool set_preferred_name(const GUID& guid, const str& name);
 };
 
 }} // oastats::data
