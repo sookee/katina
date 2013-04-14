@@ -37,6 +37,8 @@ struct thread_data
 	guid_int_map* map_votes_p;
 };
 
+extern pthread_mutex_t mtx;
+
 void* rconthread(void* td_vp);
 
 } // oastats

@@ -29,6 +29,8 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 '-----------------------------------------------------------------*/
 
+#include "Katina.h"
+
 #include "codes.h"
 
 #include <fstream>
@@ -54,9 +56,6 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <cstdlib>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <signal.h>
-#include <execinfo.h>
-#include <cxxabi.h>
 
 #include <sys/resource.h>
 #include <cassert>
@@ -103,24 +102,6 @@ GUID bot_guid(siz num)
 	return GUID(id.c_str());
 }
 
-struct stats
-{
-	siz_map kills;
-	siz_map deaths;
-	siz_map flags;
-	siz_map awards;
-
-	time_t first_seen;
-	time_t logged_time;
-
-	stats(): kills(), deaths(), flags(), awards(), first_seen(0), logged_time(0) {}
-};
-
-typedef std::map<GUID, stats> guid_stat_map;
-typedef std::pair<const GUID, stats> guid_stat_pair;
-typedef std::map<GUID, stats>::iterator guid_stat_iter;
-typedef std::map<GUID, stats>::const_iterator guid_stat_citer;
-
 const str weapons[] =
 {
 	"unknown weapon"
@@ -154,47 +135,21 @@ const str weapons[] =
 	, "grappled"
 };
 
-// teams thread
+const str Katina::flag[2] = {"^1RED", "^4BLUE"};
 
-pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
-bool done = false;
-
-RCon server;
-RemoteIRCClientAPtr remote;
-//SkivvyClient skivvy;
-Database db;
-
-//bool katina_active = false;
-server_conf svr_cfg;
-remote_conf rep_cfg;
-
-str_map recs; // high scores/ config etc
-
-siz_guid_map clients; // slot -> GUID
-guid_str_map players; // GUID -> name
-onevone_map onevone; // GUID -> GUID -> <count> //
-guid_siz_map caps; // GUID -> <count> // TODO: caps container duplicated in stats::caps
-guid_stat_map stats; // GUID -> <stat>
-guid_siz_map teams; // GUID -> 'R' | 'B'
-str mapname, old_mapname; // current/previous map name
-
-guid_int_map map_votes; // GUID -> 3
-
-const str flag[2] = {"^1RED", "^4BLUE"};
-
-void report_clients(const siz_guid_map& clients)
+void Katina::report_clients(const siz_guid_map& clients)
 {
 	for(siz_guid_citer i = clients.begin(); i != clients.end(); ++i)
 		con("slot: " << i->first << ", " << i->second);
 }
 
-void report_players(const guid_str_map& players)
+void Katina::report_players(const guid_str_map& players)
 {
 	for(guid_str_citer i = players.begin(); i != players.end(); ++i)
 		con("player: " << i->first << ", " << i->second);
 }
 
-void report_onevone(const onevone_map& onevone, const guid_str_map& players)
+void Katina::report_onevone(const onevone_map& onevone, const guid_str_map& players)
 {
 	for(onevone_citer o = onevone.begin(); o != onevone.end(); ++o)
 		for(guid_siz_citer p = o->second.begin(); p != o->second.end(); ++p)
@@ -205,7 +160,7 @@ void report_onevone(const onevone_map& onevone, const guid_str_map& players)
 		}
 }
 
-void report_caps(const guid_siz_map& caps, const guid_str_map& players, siz flags[2])
+void Katina::report_caps(const guid_siz_map& caps, const guid_str_map& players, siz flags[2])
 {
 	siz_guid_mmap sorted;
 	for(guid_siz_citer c = caps.begin(); c != caps.end(); ++c)
@@ -247,12 +202,12 @@ void report_caps(const guid_siz_map& caps, const guid_str_map& players, siz flag
 	}
 }
 
-siz map_get(const siz_map& m, siz key)
+siz Katina::map_get(const siz_map& m, siz key)
 {
 	return m.find(key) == m.end() ? 0 : m.at(key);
 }
 
-void report_stats(const guid_stat_map& stats, const guid_str_map& players)
+void Katina::report_stats(const guid_stat_map& stats, const guid_str_map& players)
 {
 	std::multimap<double, str> skivvy_scores;
 
@@ -304,7 +259,7 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 			remote->chat('s', r->second);
 }
 
-void save_records(const str_map& recs)
+void Katina::save_records(const str_map& recs)
 {
 	log("save_records:");
 	std::ofstream ofs((str(getenv("HOME")) + "/.katina/records.txt").c_str());
@@ -314,7 +269,7 @@ void save_records(const str_map& recs)
 		{ ofs << sep << r->first << ": " << r->second; sep = "\n"; }
 }
 
-void load_records(str_map& recs)
+void Katina::load_records(str_map& recs)
 {
 	log("load_records:");
 	std::ifstream ifs((str(getenv("HOME")) + "/.katina/records.txt").c_str());
@@ -326,7 +281,7 @@ void load_records(str_map& recs)
 		recs[key] = val;
 }
 
-GUID guid_from_name(const str& name)
+GUID Katina::guid_from_name(const str& name)
 {
 	for(guid_str_iter i = players.begin(); i != players.end(); ++i)
 		if(i->second == name)
@@ -334,7 +289,7 @@ GUID guid_from_name(const str& name)
 	return null_guid;
 }
 
-bool extract_name_from_text(const str& line, GUID& guid, str& text)
+bool Katina::extract_name_from_text(const str& line, GUID& guid, str& text)
 {
 	GUID candidate;
 	siz pos = 0;
@@ -356,7 +311,7 @@ bool extract_name_from_text(const str& line, GUID& guid, str& text)
 	return found;
 }
 
-str expand_env(const str& var)
+str Katina::expand_env(const str& var)
 {
 	str exp;
 	wordexp_t p;
@@ -367,34 +322,6 @@ str expand_env(const str& var)
 	return exp;
 }
 
-void stack_handler(int sig)
-{
-	con("Error: signal " << sig);
-
-	void *array[2048];
-	size_t size;
-
-	// get void*'s for all entries on the stack
-	size = backtrace(array, 2048);
-
-	// print out all the frames to stderr
-	char** trace = backtrace_symbols(array, size);
-
-	int status;
-	str obj, func;
-	for(siz i = 0; i < size; ++i)
-	{
-		siss iss(trace[i]);
-		std::getline(std::getline(iss, obj, '('), func, '+');
-
-		char* func_name = abi::__cxa_demangle(func.c_str(), 0, 0, &status);
-		std::cerr << "function: " << func_name << '\n';
-		free(func_name);
-	}
-	free(trace);
-	exit(1);
-}
-
 /**
  *
  * @param m
@@ -403,7 +330,7 @@ void stack_handler(int sig)
  * @param killtype 0 = none, 1 = red killed, 2 = blue killed
  * @return
  */
-str get_hud(siz m, siz s, GUID dasher[2], siz killtype = 0)
+str Katina::get_hud(siz m, siz s, GUID dasher[2], siz killtype)
 {
 	con("dasher[0]: " << dasher[0]);
 	con("dasher[1]: " << dasher[1]);
@@ -425,25 +352,13 @@ str get_hud(siz m, siz s, GUID dasher[2], siz killtype = 0)
 	return oss.str();
 }
 
-//str get_hud(siz m, siz s, GUID dasher[2])
-//{
-//	soss oss;
-//	oss << "00[15" << (m < 10?"0":"") << m << "00:15" << (s < 10?"0":"") << s << " ";
-//	oss << "04" << (dasher[FL_RED] != null_guid?"⚑":".");
-//	oss << "02" << (dasher[FL_BLUE] != null_guid?"⚑":".");
-//	oss << "00]";
-//	return oss.str();
-//}
-
-bool is_guid(const str& s)
+bool Katina::is_guid(const str& s)
 {
 	return s.size() == 8 & std::count_if(s.begin(), s.end(), std::ptr_fun<int, int>(isxdigit)) == s.size();
 }
 
-int main(const int argc, const char* argv[])
+int Katina::run(const int argc, const char* argv[])
 {
-	signal(11, stack_handler);
-
 	load_records(recs);
 
 	log("Records loaded: " << recs.size());

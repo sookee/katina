@@ -25,6 +25,8 @@ using namespace oastats::time;
 using namespace oastats::types;
 using namespace oastats::string;
 
+pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
+
 void* rconthread(void* td_vp)
 {
 	thread_data& td = *reinterpret_cast<thread_data*>(td_vp);
