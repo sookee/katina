@@ -275,7 +275,7 @@ bool Database::set_preferred_name(const GUID& guid, const str& name)
 
 	soss oss;
 	oss << "insert into `user` (`guid`,`name`) values ('"
-		<< guid << "','" << name << "') on duplicate key update `name` = '" << name << "'";
+		<< guid << "','" << safe_name << "') on duplicate key update `name` = '" << safe_name << "'";
 
 	str sql = oss.str();
 
