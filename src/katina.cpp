@@ -1264,13 +1264,13 @@ int main(const int argc, const char* argv[])
 
 				if(lower(trim(text)) == "map")
 				{
-					if(map_votes.count(guid))
+					if(map_votes.count(guid) && map_votes[guid] == 1)
 						server.chat("^3You can only vote once per week.");
+					else if(map_votes.count(guid))
+						server.chat("^3Your vote has changed.");
 					else
-					{
-						map_votes[guid] = 1;
-						server.chat("^7" + players[guid] + "^7: ^3Your vote has been counted.");
-					}
+						server.chat("^7" + players[guid] + "^7: ^3Your vote is counted.");
+					map_votes[guid] = 1;
 				}
 			}
 			else if(cmd == "!hate") // TODO:
@@ -1285,13 +1285,13 @@ int main(const int argc, const char* argv[])
 
 				if(lower(trim(text)) == "map")
 				{
-					if(map_votes.count(guid))
+					if(map_votes.count(guid) && map_votes[guid] == -1)
 						server.chat("^3You can only vote once per week.");
+					else if(map_votes.count(guid))
+						server.chat("^3Your vote has changed.");
 					else
-					{
-						map_votes[guid] = -1;
-						server.chat("^7" + players[guid] + "^7: ^3Your vote has been counted.");
-					}
+						server.chat("^7" + players[guid] + "^7: ^3Your vote is counted.");
+					map_votes[guid] = -1;
 				}
 			}
 			else if(cmd == "!register")
