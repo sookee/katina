@@ -1254,15 +1254,15 @@ int main(const int argc, const char* argv[])
 			}
 			else if(cmd == "!love") // TODO:
 			{
-				str love;
+				str text;
 				GUID guid;
 
-				if(!extract_name_from_text(line, guid, love))
+				if(!extract_name_from_text(line, guid, text))
 					continue;
 
-				iss >> love;
+				iss >> text;
 
-				if(lower(trim(love)) == "map")
+				if(lower(trim(text)) == "map")
 				{
 					if(map_votes.count(guid))
 						server.chat("^3You can only vote once per week.");
@@ -1275,15 +1275,15 @@ int main(const int argc, const char* argv[])
 			}
 			else if(cmd == "!hate") // TODO:
 			{
-				str hate;
+				str text;
 				GUID guid;
 
-				if(!extract_name_from_text(line, guid, hate))
+				if(!extract_name_from_text(line, guid, text))
 					continue;
 
-				iss >> hate;
+				iss >> text;
 
-				if(lower(trim(hate)) == "map")
+				if(lower(trim(text)) == "map")
 				{
 					if(map_votes.count(guid))
 						server.chat("^3You can only vote once per week.");
@@ -1296,12 +1296,13 @@ int main(const int argc, const char* argv[])
 			}
 			else if(cmd == "!register")
 			{
-				str name;
+				str text;
 				GUID guid;
 
-				if(!extract_name_from_text(line, guid, name))
+				if(!extract_name_from_text(line, guid, text))
 					continue;
-				if(db.set_preferred_name(guid, name))
+
+				if(db.set_preferred_name(guid, players[guid]))
 					server.chat("^7" + players[guid] + "^7: ^3Your preferred name has been registered.");
 			}
 		}
