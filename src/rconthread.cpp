@@ -32,18 +32,6 @@ void* rconthread(void* vp)
 {
 	Katina& kat = *reinterpret_cast<Katina*>(vp);
 
-//	pthread_mutex_t& mtx = *td.mtx_p;
-//	siz_guid_map& clients = *td.clients_p;
-//	guid_siz_map& teams = *td.teams_p;
-//	bool& done = *td.done_p;
-//	server_conf& svr_cfg = *td.svr_cfg_p;
-//	remote_conf& rep_cfg = *td.rep_cfg_p;
-//	RCon& server = *td.server_p;
-//	RemoteIRCClient* remote = td.remote_p;
-//	Database& db = *td.db_p;
-//	str& mapname = *td.mapname_p;
-//	guid_int_map& map_votes = *td.map_votes_p;
-
 	if(kat.thread_delay < 3000)
 		kat.thread_delay = 3000;
 
@@ -57,6 +45,7 @@ void* rconthread(void* vp)
 
 		server_conf old_ka_cfg = kat.svr_cfg;
 		remote_conf old_sk_cfg = kat.rep_cfg;
+
 		str cvar;
 		siss iss;
 		siz weap;

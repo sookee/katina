@@ -115,6 +115,25 @@ public:
 	int run(const int argc, const char* argv[]);
 };
 
+class Processor
+{
+public:
+	virtual ~Process() {}
+
+	virtual bool process_exit() = 0;
+	virtual bool process_shutdown_game() = 0;
+	virtual bool process_warmup() = 0;
+	virtual bool process_client_user_info_changed() = 0;
+	virtual bool process_kill() = 0;
+	virtual bool process_ctf() = 0;
+	virtual bool process_award() = 0;
+	virtual bool process_init_game() = 0;
+	virtual bool process_say() = 0;
+	virtual bool process_sayteam() = 0;
+	virtual bool process_chat() = 0;
+	virtual bool process_player_score() = 0;
+};
+
 } // oastats
 
 #endif /* _OASTATS_KATINA_H_ */
