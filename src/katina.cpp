@@ -868,7 +868,10 @@ int main(const int argc, const char* argv[])
 				for(guid_stat_iter i = stats.begin(); i != stats.end(); ++i)
 				{
 					if(i->second.joined_time);
+					{
 						i->second.logged_time += now - i->second.joined_time;
+						i->second.joined_time = 0;
+					}
 				}
 
 				skivvy.chat('*', "^3Game Over");
@@ -1196,7 +1199,6 @@ int main(const int argc, const char* argv[])
 				for(guid_int_map_iter i = map_votes.begin(); i != map_votes.end(); ++i)
 					db.add_vote("map", mapname, i->first, i->second);
 				map_votes.clear();
-
 				// -----------------
 
 				// in game timing
@@ -1205,6 +1207,11 @@ int main(const int argc, const char* argv[])
 					i->second.joined_time = 0;
 					i->second.logged_time = 0;
 				}
+				for(guid_siz_map::iterator i = teams.begin(); i != teams.end(); ++i)
+				{
+					i->second = 'U';
+				}
+				// -----------------
 
 				time = std::time(0);
 				in_game = true;
