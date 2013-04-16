@@ -111,10 +111,10 @@ struct stats
 	siz_map flags;
 	siz_map awards;
 
-	time_t first_seen;
+	time_t joined_time;
 	time_t logged_time;
 
-	stats(): kills(), deaths(), flags(), awards(), first_seen(0), logged_time(0) {}
+	stats(): kills(), deaths(), flags(), awards(), joined_time(0), logged_time(0) {}
 };
 
 typedef std::map<GUID, stats> guid_stat_map;
@@ -339,6 +339,7 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 		con("\tdeaths: " << map_get(p->second.deaths, MOD_RAILGUN));
 		con("\t  defs: " << map_get(p->second.awards, AW_DEFENCE));
 		con("\t gaunt: " << map_get(p->second.awards, AW_GAUNTLET));
+		con("\t  time: " << p->second.logged_time << 's');
 		// TODO: modify this to add AW options as well as insta
 		if(sk_cfg.do_stats)
 		{
@@ -370,7 +371,24 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 				cd = to_string(rcd, 6);
 			}
 			if(k || c || d)
-				skivvy_scores.insert(std::make_pair(rkd, "^3kills^7/^3d ^5(^7" + kd + "^5) ^3caps^7/^3d ^5(^7" + cd + "^5)^7: " + player));
+			{
+				str mins, secs;
+				siz m = p->second.logged_time / 60;
+				siz s = p->second.logged_time % 60;
+				soss oss;
+				oss << m;
+				mins = oss.str();
+				oss.str("");
+				oss << s;
+				secs = oss.str();
+				if(mins.size() < 3)
+					mins = str(3 - mins.size(), ' ') + mins;
+				if(secs.size() < 2)
+					secs = str(2 - secs.size(), '0') + secs;
+				oss.str("");
+				oss << "^3time: ^7" << mins << "^3:^7" << secs << " " << "^3kills^7/^3d ^5(^7" << kd << "^5) ^3caps^7/^3d ^5(^7" << cd << "^5)^7: " + player;
+				skivvy_scores.insert(std::make_pair(rkd, oss.str()));
+			}
 		}
 	}
 	if(sk_cfg.do_stats)
@@ -610,6 +628,15 @@ void* set_teams(void* td_vp)
 					if(iss >> n >> team)
 					{
 						pthread_mutex_lock(&mtx);
+						// TODO: start counting time here
+						if(team != teams[clients[n]]
+						&& (team == 'R' || team == 'B')
+						&& (teams[clients[n]] != 'R' && teams[clients[n]] != 'B'))
+						{
+							std::time_t now = std::time(0);
+							stats[clients[n]].logged_time += now - stats[clients[n]].joined_time;
+							stats[clients[n]].joined_time = now;
+						}
 						teams[clients[n]] = team;
 						pthread_mutex_unlock(&mtx);
 					}
@@ -816,9 +843,9 @@ int main(const int argc, const char* argv[])
 				trace(cmd << "(" << (in_game?"playing":"waiting") << ")");
 				// shutdown voting until next map
 				log("exit: writing stats to database and collecting votes");
-				str reply;
-				if(!server.command("set g_allowVote 0", reply))
-					server.command("set g_allowVote 0", reply); // one retry
+//				str reply;
+//				if(!server.command("set g_allowVote 0", reply))
+//					server.command("set g_allowVote 0", reply); // one retry
 
 				skivvy.chat('*', "^3Game Over");
 				in_game = false;
@@ -917,10 +944,10 @@ int main(const int argc, const char* argv[])
 				//bug("skip: " << skip);
 				//bug("name: " << name);
 
-				siz pos = line.find("id\\");
+				siz pos = line.find("\\id\\");
 				if(pos != str::npos)
 				{
-					str guid = line.substr(pos + 3, 32);
+					str guid = line.substr(pos + 4, 32);
 
 					if(guid.size() != 32)
 						clients[num] = bot_guid(num);//null_guid;
@@ -929,9 +956,10 @@ int main(const int argc, const char* argv[])
 
 					players[clients[num]] = name;
 
-					if(stats[clients[num]].first_seen)
-						stats[clients[num]].logged_time += std::time(0) - stats[clients[num]].first_seen;
-					stats[clients[num]].first_seen = time + secs;
+					// TODO: what if client changes?
+//					if(stats[clients[num]].joined_time)
+//						stats[clients[num]].logged_time += std::time(0) - stats[clients[num]].joined_time;
+//					stats[clients[num]].joined_time = time + secs;
 				}
 			}
 			else if(cmd == "Kill:")
@@ -1011,15 +1039,7 @@ int main(const int argc, const char* argv[])
 					++stats[clients[num]].flags[act];
 
 				str hud;
-//				if(sk_cfg.do_flags && sk_cfg.do_flags_hud)
-//				{
-//					soss oss;
-//					oss << "00[" << (m < 10?"0":"") << m << ":" << (s < 10?"0":"") << s << " ";
-//					oss << "04" << (dasher[FL_RED] != null_guid?"⚑":".");
-//					oss << "02" << (dasher[FL_BLUE] != null_guid?"⚑":".");
-//					oss << "00]";
-//					hud = oss.str();
-//				}
+
 				if(act == FL_CAPTURED) // In Game Announcer
 				{
 					bug("FL_CAPTURED");
@@ -1155,6 +1175,9 @@ int main(const int argc, const char* argv[])
 
 				// -----------------
 
+				for(guid_stat_iter i = stats.begin(); i != stats.end(); ++i)
+					i->second.logged_time = 0;
+
 				time = std::time(0);
 				in_game = true;
 
@@ -1176,9 +1199,9 @@ int main(const int argc, const char* argv[])
 				server.cp(msg);
 
 				// startup voting
-				str reply;
-				if(!server.command("set g_allowVote 1", reply))
-					server.command("set g_allowVote 1", reply); // do 1 retry
+//				str reply;
+//				if(!server.command("set g_allowVote 1", reply))
+//					server.command("set g_allowVote 1", reply); // do 1 retry
 
 				siz pos;
 				if((pos = line.find("mapname\\")) != str::npos)

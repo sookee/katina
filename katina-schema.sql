@@ -117,6 +117,7 @@ CREATE TABLE `player` (
   `guid` varchar(8) NOT NULL,
   `name` varchar(32) NOT NULL,
   `count` int(4) unsigned NOT NULL,
+  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`guid`,`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -152,7 +153,7 @@ CREATE TABLE `votes` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `votes`
+-- Table structure for table `polls`
 --
 
 DROP TABLE IF EXISTS `polls`;
@@ -162,7 +163,8 @@ CREATE TABLE `polls` (
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `type` varchar(8) NOT NULL,
   `item` varchar(32) NOT NULL,
-  `count` int(4) NOT NULL,
+  `love` int(4) UNSIGNED NOT NULL,
+  `hate` int(4) UNSIGNED NOT NULL,
   PRIMARY KEY (`date`,`type`,`item`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;

@@ -102,4 +102,1033 @@ foreach game_id as id
 	select guid, count from kills where game_id == id
 
   
-   
+== BUG DATA ==
+
+<Pixelized> SooKee: 
+<Pixelized> I capped 5 flags last round as /dev/urandom
+<Pixelized> 19:41 <@Skivvy> [Katina] == RESULTS == 2 RED 8 BLUE  ==
+<Pixelized> 19:41 <@Skivvy> [Katina] #1 chs/bloodz capped 5 flags.
+<Pixelized> 19:41 <@Skivvy> [Katina] #2 *m*^eAx capped 3 flags.
+<Pixelized> 19:41 <@Skivvy> [Katina] #3 3bl00dz capped 1 flags.
+<Pixelized> 19:41 <@Skivvy> [Katina] #3 /opt capped 1 flags.
+<Pixelized> 19:41 <@Skivvy> [Katina] ----------------------------------
+<Pixelized> 19:41 <@Skivvy> [Katina] kills/d (  1.45) caps/d ( 17.24): chs/bloodz
+<Pixelized> 19:41 <@Skivvy> [Katina] kills/d (  1.00) caps/d ( 21.43): *m*^eAx
+<Pixelized> 19:41 <@Skivvy> [Katina] kills/d (  0.83) caps/d (  0.00): Ugly Ursula
+<Pixelized> 19:41 <@Skivvy> [Katina] kills/d (  0.82) caps/d (  4.55): 3bl00dz
+
+game_id = 1045
+
+http://u10117.netangels.ru/game-1045
+
+Name 	Frags 	Caps 	Respawns 	F / R % 	C / R % 	F / R * C / R %
+Pixelized 	42 	5 	29 	145 	17 	25
+*m*^eAx 	14 	3 	14 	100 	21 	21
+3bl00dz 	18 	1 	22 	82 	5 	4
+/opt 	20 	1 	28 	71 	4 	3
+Not_*M*^Zim106 	5 		6 	83
+
+  0:00 ------------------------------------------------------------
+  0:00 InitGame: \sv_hostname\^4Z^5imsNEW ^1I^3nstantgib\sv_maxclients\20\sv_maxRate\25000\sv_minRate\2500\fraglimit\15\timelimit\20\_Admin\Zimmer106|Pixelized|GOOGLE|SooKee|gb|Fennel|Wing\_Email\drremmiz@gmail.com\_Location\Europe, Netherlands\_Website\http://zimsintantgib.freeforums.org/\sv_fps\20\snaps\20\sv_floodprotect\1\sv_allowdownload\1\sv_dlURL\http://176.56.235.126\g_needpass\0\sv_privateClients\2\g_delagHitscan\1\bot_minplayers\1\videoflags\0\g_gametype\4\g_instantgib\2\g_maxGameClients\20\g_doWarmup\0\g_allowVote\0\g_voteGametypes\/4/\dmflags\512\sv_minPing\0\sv_maxPing\0\capturelimit\8\g_voteMaxTimelimit\1000\g_voteMinTimelimit\0\g_voteMaxFraglimit\0\g_voteMinFraglimit\0\elimination_roundtime\120\g_lms_mode\0\version\ioq3+oa 1.36_SVN1910M linux-x86_64 Dec 25 2011\protocol\71\mapname\sos_ps37ctf\gamename\baseoa\elimflags\0\voteflags\375\g_obeliskRespawnDelay\10\g_enableDust\0\g_enableBreath\0\g_rockets\0\g_altExcellent\0\g_timestamp\2013-04-16 01:43:54
+  0:00 Info: ServerInfo length: 961 of 1024
+  0:00 ClientUserinfoChanged: 2 n\^0/^2opt\t\1\model\sergei/default\hmodel\sergei/default\g_redteam\\g_blueteam\\c1\4\c2\4\hc\100\w\0\l\0\tt\0\tl\1\id\CCE8482FC385E8F849C238B9C7E85421
+  0:00 ClientConnect: 2
+  0:00 ClientUserinfoChanged: 3 n\*^8m^7*^^7e^5A^7x\t\3\model\angelyss/tanisha\hmodel\angelyss/tanisha\g_redteam\\g_blueteam\\c1\4\c2\4\hc\100\w\0\l\0\tt\0\tl\0\id\85589C1DD9B20E446A5964E6561A76A3
+  0:00 ClientConnect: 3
+  0:00 ClientUserinfoChanged: 5 n\^5U^7gly ^5U^7rsula\t\3\model\stb/blue\hmodel\stb/blue\g_redteam\\g_blueteam\\c1\4\c2\4\hc\100\w\0\l\0\tt\0\tl\0\id\5E6C8F3D3536017A03685D97AC0CB71B
+  0:00 ClientConnect: 5
+  0:00 ClientUserinfoChanged: 7 n\Pixelized\t\2\model\sarge/classic\hmodel\sarge/classic\g_redteam\\g_blueteam\\c1\1\c2\1\hc\100\w\0\l\0\tt\0\tl\1\id\4B4CEE6FEB0760D5ED1971336B77EA2A
+  0:00 ClientConnect: 7
+  0:02 ClientDisconnect: 2
+  0:05 ClientUserinfoChanged: 7 n\Pixelized\t\2\model\sarge/classic\hmodel\sarge/classic\g_redteam\\g_blueteam\\c1\1\c2\1\hc\100\w\0\l\0\tt\0\tl\1\id\4B4CEE6FEB0760D5ED1971336B77EA2A
+  0:05 Playerstore: Nothing to restore. Guid: 4B4CEE6FEB0760D5ED1971336B77EA2A
+  0:05 ClientBegin: 7
+  0:06 ClientUserinfoChanged: 5 n\^5U^7gly ^5U^7rsula\t\3\model\stb/blue\hmodel\stb/blue\g_redteam\\g_blueteam\\c1\1\c2\1\hc\100\w\0\l\0\tt\0\tl\0\id\5E6C8F3D3536017A03685D97AC0CB71B
+  0:06 ClientBegin: 5
+  0:06 ClientUserinfoChanged: 2 n\^0/^2opt\t\3\model\sergei/default\hmodel\sergei/default\g_redteam\\g_blueteam\\c1\predictItems\1\cl_anonymous\0\sex\male\color2\5\color1\4\team_headmodel\stb/blue\team_model\stb/blue\headmodel\stb/blue\model\stb/blue\snaps\20\rate\25000\name\^5U^7gly ^5U^7rsula\teamtask\0\password\pringles\cl_guid\5E6C8F3D3536017A03685D97AC0CB71B\cg_delag\1\cg_cmdTimeNudge\0\cg_scorePlums\1\teamoverlay\1\c2\\hc\100\w\0\l\0\tt\0\tl\0\id\CCE8482FC385E8F849C238B9C7E85421
+  0:06 ClientConnect: 2
+  0:09 say: ^5U^7gly ^5U^7rsula: aha
+  0:10 ClientUserinfoChanged: 0 n\S_Marine\t\1\model\smarine/orange\hmodel\smarine/orange\c1\4\c2\4\hc\70\w\0\l\0\skill\ 2.00\tt\0\tl\0\id\
+  0:10 ClientConnect: 0
+  0:10 Info: There has been at least 1 bot now
+  0:10 Playerstore: Failed to restore player. Invalid guid: 
+  0:10 ClientBegin: 0
+  0:10 ClientBegin: 3
+  0:10 ClientUserinfoChanged: 0 n\S_Marine\t\1\model\smarine/orange\hmodel\smarine/orange\c1\4\c2\4\hc\70\w\0\l\0\skill\ 2.00\tt\3\tl\0\id\
+  0:10 ClientUserinfoChanged: 2 n\^0/^2opt\t\3\model\sergei/default\hmodel\sergei/default\g_redteam\\g_blueteam\\c1\\c2\\hc\100\w\0\l\0\tt\0\tl\0\id\CCE8482FC385E8F849C238B9C7E85421
+  0:10 ClientUserinfoChanged: 2 n\^0/^2opt\t\3\model\sergei/default\hmodel\sergei/default\g_redteam\\g_blueteam\\c1\\c2\\hc\100\w\0\l\0\tt\0\tl\0\id\CCE8482FC385E8F849C238B9C7E85421
+  0:10 ClientBegin: 2
+  0:11 say: ^5U^7gly ^5U^7rsula: !love map
+  0:14 ClientUserinfoChanged: 2 n\^0/^2opt\t\2\model\sergei/default\hmodel\sergei/default\g_redteam\\g_blueteam\\c1\1\c2\1\hc\100\w\0\l\0\tt\0\tl\0\id\CCE8482FC385E8F849C238B9C7E85421
+  0:14 Playerstore: Nothing to restore. Guid: CCE8482FC385E8F849C238B9C7E85421
+  0:14 ClientBegin: 2
+  0:17 sayteam: S_Marine: who is the leader of this rag-tag bunch?
+  0:23 say: *^8m^7*^^7e^5A^7x: !love map
+  0:23 chat: ^1K^7at^3i^7na^8: ^7^7*^8m^7*^^7e^5A^7x^7: ^3Your vote is counted.
+  0:25 say: Pixelized: hum missing textures
+  0:27 say: ^5U^7gly ^5U^7rsula: !love map
+  0:33 sayteam: S_Marine: I am the leader.
+  0:35 say: ^5U^7gly ^5U^7rsula: sky textures?
+  0:41 Kill: 2 2 20: ^0/^2opt killed ^0/^2opt by MOD_SUICIDE
+  0:41 Playerstore: Stored player with guid: CCE8482FC385E8F849C238B9C7E85421 in 0
+  0:41 ClientUserinfoChanged: 2 n\^0/^2opt\t\1\model\sergei/default\hmodel\sergei/default\g_redteam\\g_blueteam\\c1\4\c2\4\hc\100\w\0\l\0\tt\0\tl\1\id\CCE8482FC385E8F849C238B9C7E85421
+  0:41 ClientUserinfoChanged: 2 n\^0/^2opt\t\1\model\sergei/default\hmodel\sergei/default\g_redteam\\g_blueteam\\c1\4\c2\4\hc\100\w\0\l\0\tt\0\tl\1\id\CCE8482FC385E8F849C238B9C7E85421
+  0:41 Restored player with guid: CCE8482FC385E8F849C238B9C7E85421
+  0:41 ClientBegin: 2
+  0:41 say: Pixelized: and sos logo in wall
+  0:44 tell: S_Marine to ^0/^2opt: Yo, /opt get the flag!
+  0:45 say: ^5U^7gly ^5U^7rsula: hmm
+  0:49 ClientUserinfoChanged: 5 n\^5U^7gly ^5U^7rsula\t\3\model\stb/blue\hmodel\stb/blue\g_redteam\\g_blueteam\\c1\\c2\4\hc\100\w\0\l\0\tt\0\tl\0\id\5E6C8F3D3536017A03685D97AC0CB71B
+  0:49 ClientBegin: 5
+  0:50 Kill: 1022 0 20: <world> killed S_Marine by MOD_SUICIDE
+  0:50 Playerstore: Failed to store player. Invalid guid: 
+  0:50 ClientDisconnect: 0
+  0:51 Kill: 2 7 10: ^0/^2opt killed Pixelized by MOD_RAILGUN
+  0:51 PlayerScore: 2 1: ^0/^2opt now has 1 points
+  0:51 Challenge: 2 215 1: Client 2 got award 215
+  0:51 Challenge: 2 1 1: Client 2 got award 1
+  0:51 Challenge: 7 2 1: Client 7 got award 2
+  0:51 PlayerScore: 2 2: ^0/^2opt now has 2 points
+  0:51 Award: 2 3: ^0/^2opt gained the DEFENCE award!
+  0:55 Kill: 2 7 10: ^0/^2opt killed Pixelized by MOD_RAILGUN
+  0:55 PlayerScore: 2 3: ^0/^2opt now has 3 points
+  0:55 Challenge: 2 215 1: Client 2 got award 215
+  0:55 Challenge: 2 1 1: Client 2 got award 1
+  0:55 Challenge: 7 2 1: Client 7 got award 2
+  0:55 Award: 2 2: ^0/^2opt gained the IMPRESSIVE award!
+  1:02 Item: 2 team_CTF_blueflag
+  1:02 CTF: 2 2 0: ^0/^2opt got the BLUE flag!
+  1:02 PlayerScore: 2 3: ^0/^2opt now has 3 points
+  1:03 Kill: 2 7 10: ^0/^2opt killed Pixelized by MOD_RAILGUN
+  1:03 PlayerScore: 2 4: ^0/^2opt now has 4 points
+  1:03 Challenge: 2 215 1: Client 2 got award 215
+  1:03 Challenge: 2 1 1: Client 2 got award 1
+  1:03 Challenge: 7 2 1: Client 7 got award 2
+  1:15 Item: 2 team_CTF_redflag
+  1:15 CTF: 2 2 1: ^0/^2opt captured the BLUE flag!
+  1:15 Award: 2 4: ^0/^2opt gained the CAPTURE award!
+  1:15 PlayerScore: 2 9: ^0/^2opt now has 9 points
+  1:16 Kill: 2 7 10: ^0/^2opt killed Pixelized by MOD_RAILGUN
+  1:16 PlayerScore: 2 10: ^0/^2opt now has 10 points
+  1:16 Challenge: 2 215 1: Client 2 got award 215
+  1:16 Challenge: 2 1 1: Client 2 got award 1
+  1:16 Challenge: 7 2 1: Client 7 got award 2
+  1:16 PlayerScore: 2 11: ^0/^2opt now has 11 points
+  1:16 Award: 2 3: ^0/^2opt gained the DEFENCE award!
+  1:20 say: ^5U^7gly ^5U^7rsula: well my sky came when i played legocurse
+  1:21 say: Pixelized: can't see shit my eyes burn
+  1:26 sayteam: ^5U^7gly ^5U^7rsula: or the other one
+  1:27 Item: 2 team_CTF_blueflag
+  1:27 CTF: 2 2 0: ^0/^2opt got the BLUE flag!
+  1:27 PlayerScore: 2 11: ^0/^2opt now has 11 points
+  1:30 Kill: 7 2 10: Pixelized killed ^0/^2opt by MOD_RAILGUN
+  1:30 PlayerScore: 7 1: Pixelized now has 1 points
+  1:30 Challenge: 7 215 1: Client 7 got award 215
+  1:30 Challenge: 7 1 1: Client 7 got award 1
+  1:30 Challenge: 2 2 1: Client 2 got award 2
+  1:30 PlayerScore: 7 3: Pixelized now has 3 points
+  1:30 CTF: 7 1 3: Pixelized fragged RED's flag carrier!
+  1:33 Item: 7 team_CTF_blueflag
+  1:33 PlayerScore: 7 4: Pixelized now has 4 points
+  1:33 CTF: 7 2 2: Pixelized returned the BLUE flag!
+  1:36 Kill: 7 2 10: Pixelized killed ^0/^2opt by MOD_RAILGUN
+  1:36 PlayerScore: 7 5: Pixelized now has 5 points
+  1:36 Challenge: 7 215 1: Client 7 got award 215
+  1:36 Challenge: 7 1 1: Client 7 got award 1
+  1:36 Challenge: 2 2 1: Client 2 got award 2
+  1:36 Award: 7 2: Pixelized gained the IMPRESSIVE award!
+  1:39 Kill: 2 7 10: ^0/^2opt killed Pixelized by MOD_RAILGUN
+  1:39 PlayerScore: 2 12: ^0/^2opt now has 12 points
+  1:39 Challenge: 2 215 1: Client 2 got award 215
+  1:39 Challenge: 2 1 1: Client 2 got award 1
+  1:39 Challenge: 7 2 1: Client 7 got award 2
+  1:39 PlayerScore: 2 13: ^0/^2opt now has 13 points
+  1:39 Award: 2 3: ^0/^2opt gained the DEFENCE award!
+  1:42 say: Pixelized: my eyes burn
+  1:44 say: ^5U^7gly ^5U^7rsula: :-)
+  1:47 Kill: 7 2 10: Pixelized killed ^0/^2opt by MOD_RAILGUN
+  1:47 PlayerScore: 7 6: Pixelized now has 6 points
+  1:47 Challenge: 7 215 1: Client 7 got award 215
+  1:47 Challenge: 7 1 1: Client 7 got award 1
+  1:47 Challenge: 2 2 1: Client 2 got award 2
+  1:47 PlayerScore: 7 7: Pixelized now has 7 points
+  1:47 Award: 7 3: Pixelized gained the DEFENCE award!
+  1:50 say: ^0/^2opt: lol
+  1:55 Item: 7 team_CTF_redflag
+  1:55 CTF: 7 1 0: Pixelized got the RED flag!
+  1:55 PlayerScore: 7 7: Pixelized now has 7 points
+  1:56 Kill: 7 2 10: Pixelized killed ^0/^2opt by MOD_RAILGUN
+  1:56 PlayerScore: 7 8: Pixelized now has 8 points
+  1:56 Challenge: 7 215 1: Client 7 got award 215
+  1:56 Challenge: 7 1 1: Client 7 got award 1
+  1:56 Challenge: 2 2 1: Client 2 got award 2
+  1:56 PlayerScore: 7 9: Pixelized now has 9 points
+  1:56 Award: 7 3: Pixelized gained the DEFENCE award!
+  1:56 Award: 7 2: Pixelized gained the IMPRESSIVE award!
+  2:02 Kill: 7 2 10: Pixelized killed ^0/^2opt by MOD_RAILGUN
+  2:02 PlayerScore: 7 10: Pixelized now has 10 points
+  2:02 Challenge: 7 215 1: Client 7 got award 215
+  2:02 Challenge: 7 1 1: Client 7 got award 1
+  2:02 Challenge: 2 2 1: Client 2 got award 2
+  2:05 Item: 7 team_CTF_blueflag
+  2:05 CTF: 7 1 1: Pixelized captured the RED flag!
+  2:05 Award: 7 4: Pixelized gained the CAPTURE award!
+  2:05 PlayerScore: 7 15: Pixelized now has 15 points
+  2:10 say: Pixelized: opt make it stop!
+  2:13 Kill: 2 7 10: ^0/^2opt killed Pixelized by MOD_RAILGUN
+  2:13 PlayerScore: 2 14: ^0/^2opt now has 14 points
+  2:13 Challenge: 2 215 1: Client 2 got award 215
+  2:13 Challenge: 2 1 1: Client 2 got award 1
+  2:13 Challenge: 7 2 1: Client 7 got award 2
+  2:17 say: Pixelized: all them bright colors
+  2:25 Kill: 7 2 10: Pixelized killed ^0/^2opt by MOD_RAILGUN
+  2:25 PlayerScore: 7 16: Pixelized now has 16 points
+  2:25 Challenge: 7 215 1: Client 7 got award 215
+  2:25 Challenge: 7 1 1: Client 7 got award 1
+  2:25 Challenge: 2 2 1: Client 2 got award 2
+  2:25 PlayerScore: 7 17: Pixelized now has 17 points
+  2:25 Award: 7 3: Pixelized gained the DEFENCE award!
+  2:34 say: Pixelized: lets see what this map looks like
+  2:43 ClientUserinfoChanged: 7 n\Pixelized\t\2\model\sarge/classic\hmodel\sarge/classic\g_redteam\\g_blueteam\\c1\1\c2\1\hc\100\w\0\l\0\tt\0\tl\1\id\4B4CEE6FEB0760D5ED1971336B77EA2A
+  2:48 say: Pixelized: oh
+  2:54 say: Pixelized: much better with r_picmip 0
+  2:58 Item: 7 team_CTF_redflag
+  2:58 CTF: 7 1 0: Pixelized got the RED flag!
+  2:58 PlayerScore: 7 17: Pixelized now has 17 points
+  3:20 Kill: 2 7 10: ^0/^2opt killed Pixelized by MOD_RAILGUN
+  3:20 PlayerScore: 2 15: ^0/^2opt now has 15 points
+  3:20 Challenge: 2 215 1: Client 2 got award 215
+  3:20 Challenge: 2 1 1: Client 2 got award 1
+  3:20 Challenge: 7 2 1: Client 7 got award 2
+  3:20 PlayerScore: 2 17: ^0/^2opt now has 17 points
+  3:20 CTF: 2 2 3: ^0/^2opt fragged BLUE's flag carrier!
+  3:23 Kill: 7 2 10: Pixelized killed ^0/^2opt by MOD_RAILGUN
+  3:23 PlayerScore: 7 18: Pixelized now has 18 points
+  3:23 Challenge: 7 215 1: Client 7 got award 215
+  3:23 Challenge: 7 1 1: Client 7 got award 1
+  3:23 Challenge: 2 2 1: Client 2 got award 2
+  3:23 PlayerScore: 7 19: Pixelized now has 19 points
+  3:23 Award: 7 3: Pixelized gained the DEFENCE award!
+  3:24 Item: 7 team_CTF_redflag
+  3:24 CTF: 7 1 0: Pixelized got the RED flag!
+  3:24 PlayerScore: 7 19: Pixelized now has 19 points
+  3:25 Item: 7 team_CTF_blueflag
+  3:25 CTF: 7 1 1: Pixelized captured the RED flag!
+  3:25 Award: 7 4: Pixelized gained the CAPTURE award!
+  3:25 PlayerScore: 7 24: Pixelized now has 24 points
+  3:28 say: Pixelized: wasn't me I swear
+  3:32 Kill: 2 7 10: ^0/^2opt killed Pixelized by MOD_RAILGUN
+  3:32 PlayerScore: 2 18: ^0/^2opt now has 18 points
+  3:32 Challenge: 2 215 1: Client 2 got award 215
+  3:32 Challenge: 2 1 1: Client 2 got award 1
+  3:32 Challenge: 7 2 1: Client 7 got award 2
+  3:35 Kill: 7 2 10: Pixelized killed ^0/^2opt by MOD_RAILGUN
+  3:35 PlayerScore: 7 25: Pixelized now has 25 points
+  3:35 Challenge: 7 215 1: Client 7 got award 215
+  3:35 Challenge: 7 1 1: Client 7 got award 1
+  3:35 Challenge: 2 2 1: Client 2 got award 2
+  3:35 PlayerScore: 7 26: Pixelized now has 26 points
+  3:35 Award: 7 3: Pixelized gained the DEFENCE award!
+  3:41 Kill: 2 7 10: ^0/^2opt killed Pixelized by MOD_RAILGUN
+  3:41 PlayerScore: 2 19: ^0/^2opt now has 19 points
+  3:41 Challenge: 2 215 1: Client 2 got award 215
+  3:41 Challenge: 2 1 1: Client 2 got award 1
+  3:41 Challenge: 7 2 1: Client 7 got award 2
+  3:49 Kill: 2 7 10: ^0/^2opt killed Pixelized by MOD_RAILGUN
+  3:49 PlayerScore: 2 20: ^0/^2opt now has 20 points
+  3:49 Challenge: 2 215 1: Client 2 got award 215
+  3:49 Challenge: 2 1 1: Client 2 got award 1
+  3:49 Challenge: 7 2 1: Client 7 got award 2
+  3:53 say: Pixelized: golden lego blocks
+  3:57 say: ^5U^7gly ^5U^7rsula: very gay, aim would say
+  4:00 Kill: 2 7 10: ^0/^2opt killed Pixelized by MOD_RAILGUN
+  4:00 PlayerScore: 2 21: ^0/^2opt now has 21 points
+  4:00 Challenge: 2 215 1: Client 2 got award 215
+  4:00 Challenge: 2 1 1: Client 2 got award 1
+  4:00 Challenge: 7 2 1: Client 7 got award 2
+  4:12 say: Pixelized: it's call homophobia
+  4:21 say: Pixelized: usualy cause by fear of oneself being homosexual
+  4:26 Kill: 2 7 10: ^0/^2opt killed Pixelized by MOD_RAILGUN
+  4:26 PlayerScore: 2 22: ^0/^2opt now has 22 points
+  4:26 Challenge: 2 215 1: Client 2 got award 215
+  4:26 Challenge: 2 1 1: Client 2 got award 1
+  4:26 Challenge: 7 2 1: Client 7 got award 2
+  4:34 Kill: 7 2 10: Pixelized killed ^0/^2opt by MOD_RAILGUN
+  4:34 PlayerScore: 7 27: Pixelized now has 27 points
+  4:34 Challenge: 7 215 1: Client 7 got award 215
+  4:34 Challenge: 7 1 1: Client 7 got award 1
+  4:34 Challenge: 2 2 1: Client 2 got award 2
+  4:34 PlayerScore: 7 28: Pixelized now has 28 points
+  4:34 Award: 7 3: Pixelized gained the DEFENCE award!
+  4:35 chat: ^1S^2ki^3v^5vy^7: ^3Want help with OA? ^2Come to IRC - ^1QuakeNet ^3#openarenahelp.
+  4:35 chat: ^1S^2ki^3v^5vy^7: ^3If you like this map: ^2!love map ^3if you don't ^1!hate map^3.
+  4:56 say: Pixelized: eww golden shower
+  5:19 say: Pixelized: so
+  5:24 say: Pixelized: /opt because of? KDE? lol
+  5:35 Item: 7 team_CTF_redflag
+  5:35 CTF: 7 1 0: Pixelized got the RED flag!
+  5:35 PlayerScore: 7 28: Pixelized now has 28 points
+  5:35 say: ^0/^2opt: nah just linux
+  5:47 say: Pixelized: In my days /opt didn't exist until your installed KDE in most distros
+  5:55 say: Pixelized: thus why I related /opt to KDE hehe
+  6:03 say: Pixelized: now everything and their mothers are in /opt
+  6:05 say: ^0/^2opt: cool
+  6:23 Kill: 2 7 10: ^0/^2opt killed Pixelized by MOD_RAILGUN
+  6:23 PlayerScore: 2 23: ^0/^2opt now has 23 points
+  6:23 Challenge: 2 215 1: Client 2 got award 215
+  6:23 Challenge: 2 1 1: Client 2 got award 1
+  6:23 Challenge: 7 2 1: Client 7 got award 2
+  6:23 PlayerScore: 2 25: ^0/^2opt now has 25 points
+  6:23 CTF: 2 2 3: ^0/^2opt fragged BLUE's flag carrier!
+  6:27 Item: 2 team_CTF_blueflag
+  6:27 CTF: 2 2 0: ^0/^2opt got the BLUE flag!
+  6:27 PlayerScore: 2 25: ^0/^2opt now has 25 points
+  6:32 Item: 2 team_CTF_redflag
+  6:32 PlayerScore: 2 26: ^0/^2opt now has 26 points
+  6:32 CTF: 2 1 2: ^0/^2opt returned the RED flag!
+  6:33 ClientUserinfoChanged: 7 n\/dev/urandom\t\2\model\sarge/classic\hmodel\sarge/classic\g_redteam\\g_blueteam\\c1\1\c2\1\hc\100\w\0\l\0\tt\0\tl\1\id\4B4CEE6FEB0760D5ED1971336B77EA2A
+  6:40 Kill: 7 2 10: /dev/urandom killed ^0/^2opt by MOD_RAILGUN
+  6:40 PlayerScore: 7 29: /dev/urandom now has 29 points
+  6:40 Challenge: 7 215 1: Client 7 got award 215
+  6:40 Challenge: 7 1 1: Client 7 got award 1
+  6:40 Challenge: 2 2 1: Client 2 got award 2
+  6:40 PlayerScore: 7 31: /dev/urandom now has 31 points
+  6:40 CTF: 7 1 3: /dev/urandom fragged RED's flag carrier!
+  6:43 Kill: 7 2 10: /dev/urandom killed ^0/^2opt by MOD_RAILGUN
+  6:43 PlayerScore: 7 32: /dev/urandom now has 32 points
+  6:43 Challenge: 7 215 1: Client 7 got award 215
+  6:43 Challenge: 7 1 1: Client 7 got award 1
+  6:43 Challenge: 2 2 1: Client 2 got award 2
+  6:43 Award: 7 1: /dev/urandom gained the EXCELLENT award!
+  6:43 Award: 7 2: /dev/urandom gained the IMPRESSIVE award!
+  6:43 ClientUserinfoChanged: 4 n\chs/bloodz\t\3\model\visor/sport\hmodel\visor/sport\g_redteam\\g_blueteam\\c1\\1\cl_anonymous\0\sex\male\handicap\100\color2\1\color1\1\team_headmodel\sarge/classic\team_model\sarge/classic\headmodel\sarge/classic\model\sarge/classic\snaps\20\rate\25000\name\/dev/urandom\teamtask\0\cl_guid\4B4CEE6FEB0760D5ED1971336B77EA2A\cg_scorePlums\1\cg_cmdTimeNudge\0\cg_delag\1\teamoverlay\0\c2\\hc\100\w\0\l\0\tt\0\tl\0\id\1552208362739CA7FD074435FAC512CF
+  6:43 ClientConnect: 4
+  6:44 Item: 7 team_CTF_blueflag
+  6:44 PlayerScore: 7 33: /dev/urandom now has 33 points
+  6:44 CTF: 7 2 2: /dev/urandom returned the BLUE flag!
+  6:47 ClientUserinfoChanged: 4 n\chs/bloodz\t\3\model\visor/sport\hmodel\visor/sport\g_redteam\\g_blueteam\\c1\\c2\\hc\100\w\0\l\0\tt\0\tl\0\id\1552208362739CA7FD074435FAC512CF
+  6:47 ClientDisconnect: 4
+  7:00 Item: 7 team_CTF_redflag
+  7:00 CTF: 7 1 0: /dev/urandom got the RED flag!
+  7:00 PlayerScore: 7 33: /dev/urandom now has 33 points
+  7:04 say: *^8m^7*^^7e^5A^7x: ^5:)
+  7:05 Item: 2 team_CTF_blueflag
+  7:05 CTF: 2 2 0: ^0/^2opt got the BLUE flag!
+  7:05 PlayerScore: 2 26: ^0/^2opt now has 26 points
+  7:09 ClientUserinfoChanged: 4 n\^43^7bl^400^7dz\t\3\model\visor/sport\hmodel\visor/sport\g_redteam\\g_blueteam\\c1\\c2\\hc\100\w\0\l\0\tt\0\tl\0\id\1552208362739CA7FD074435FAC512CF
+  7:09 ClientConnect: 4
+  7:12 Kill: 7 2 10: /dev/urandom killed ^0/^2opt by MOD_RAILGUN
+  7:12 PlayerScore: 7 34: /dev/urandom now has 34 points
+  7:12 Challenge: 7 215 1: Client 7 got award 215
+  7:12 Challenge: 7 1 1: Client 7 got award 1
+  7:12 Challenge: 2 2 1: Client 2 got award 2
+  7:12 PlayerScore: 7 36: /dev/urandom now has 36 points
+  7:12 CTF: 7 1 3: /dev/urandom fragged RED's flag carrier!
+  7:16 ClientUserinfoChanged: 4 n\^43^7bl^400^7dz\t\3\model\visor/sport\hmodel\visor/sport\g_redteam\\g_blueteam\\c1\\c2\©\hc\100\w\0\l\0\tt\0\tl\0\id\1552208362739CA7FD074435FAC512CF
+  7:16 ClientUserinfoChanged: 4 n\^43^7bl^400^7dz\t\3\model\visor/sport\hmodel\visor/sport\g_redteam\\g_blueteam\\c1\\c2\©\hc\100\w\0\l\0\tt\0\tl\0\id\1552208362739CA7FD074435FAC512CF
+  7:16 ClientBegin: 4
+  7:17 Kill: 7 2 10: /dev/urandom killed ^0/^2opt by MOD_RAILGUN
+  7:17 PlayerScore: 7 37: /dev/urandom now has 37 points
+  7:17 Challenge: 7 215 1: Client 7 got award 215
+  7:17 Challenge: 7 1 1: Client 7 got award 1
+  7:17 Challenge: 2 2 1: Client 2 got award 2
+  7:17 Award: 7 2: /dev/urandom gained the IMPRESSIVE award!
+  7:21 say: /dev/urandom: you can have it
+  7:25 Kill: 7 2 10: /dev/urandom killed ^0/^2opt by MOD_RAILGUN
+  7:25 PlayerScore: 7 38: /dev/urandom now has 38 points
+  7:25 Challenge: 7 215 1: Client 7 got award 215
+  7:25 Challenge: 7 1 1: Client 7 got award 1
+  7:25 Challenge: 2 2 1: Client 2 got award 2
+  7:27 ClientUserinfoChanged: 4 n\^43^7bl^400^7dz\t\1\model\visor/sport\hmodel\visor/sport\g_redteam\\g_blueteam\\c1\4\c2\4\hc\100\w\0\l\0\tt\0\tl\0\id\1552208362739CA7FD074435FAC512CF
+  7:27 Playerstore: Nothing to restore. Guid: 1552208362739CA7FD074435FAC512CF
+  7:27 ClientBegin: 4
+  7:28 ClientUserinfoChanged: 4 n\^43^7bl^400^7dz\t\1\model\visor/sport\hmodel\visor/sport\g_redteam\\g_blueteam\\c1\4\c2\4\hc\100\w\0\l\0\tt\0\tl\0\id\1552208362739CA7FD074435FAC512CF
+  7:31 Item: 2 team_CTF_blueflag
+  7:31 CTF: 2 2 0: ^0/^2opt got the BLUE flag!
+  7:31 PlayerScore: 2 26: ^0/^2opt now has 26 points
+  7:32 say: ^5U^7gly ^5U^7rsula: call map legodeck_rev2
+  7:37 ClientUserinfoChanged: 3 n\*^8m^7*^^7e^5A^7x\t\2\model\angelyss/tanisha\hmodel\angelyss/tanisha\g_redteam\\g_blueteam\\c1\1\c2\1\hc\100\w\0\l\0\tt\0\tl\0\id\85589C1DD9B20E446A5964E6561A76A3
+  7:37 Playerstore: Nothing to restore. Guid: 85589C1DD9B20E446A5964E6561A76A3
+  7:37 ClientBegin: 3
+  7:38 Kill: 4 7 10: ^43^7bl^400^7dz killed /dev/urandom by MOD_RAILGUN
+  7:38 PlayerScore: 4 1: ^43^7bl^400^7dz now has 1 points
+  7:38 Challenge: 4 215 1: Client 4 got award 215
+  7:38 Challenge: 4 1 1: Client 4 got award 1
+  7:38 Challenge: 7 2 1: Client 7 got award 2
+  7:38 PlayerScore: 4 3: ^43^7bl^400^7dz now has 3 points
+  7:38 CTF: 4 2 3: ^43^7bl^400^7dz fragged BLUE's flag carrier!
+  7:38 Kill: 3 2 10: *^8m^7*^^7e^5A^7x killed ^0/^2opt by MOD_RAILGUN
+  7:38 PlayerScore: 3 1: *^8m^7*^^7e^5A^7x now has 1 points
+  7:38 Challenge: 3 215 1: Client 3 got award 215
+  7:38 Challenge: 3 1 1: Client 3 got award 1
+  7:38 Challenge: 2 2 1: Client 2 got award 2
+  7:38 PlayerScore: 3 3: *^8m^7*^^7e^5A^7x now has 3 points
+  7:38 CTF: 3 1 3: *^8m^7*^^7e^5A^7x fragged RED's flag carrier!
+  7:39 say: ^5U^7gly ^5U^7rsula: it might pull in the needed textures
+  7:40 Item: 4 team_CTF_redflag
+  7:40 PlayerScore: 4 4: ^43^7bl^400^7dz now has 4 points
+  7:40 CTF: 4 1 2: ^43^7bl^400^7dz returned the RED flag!
+  7:40 say: /dev/urandom: sounds interesting
+  7:40 Item: 3 team_CTF_blueflag
+  7:40 PlayerScore: 3 4: *^8m^7*^^7e^5A^7x now has 4 points
+  7:40 CTF: 3 2 2: *^8m^7*^^7e^5A^7x returned the BLUE flag!
+  7:40 Item: 4 team_CTF_blueflag
+  7:40 CTF: 4 2 0: ^43^7bl^400^7dz got the BLUE flag!
+  7:40 PlayerScore: 4 4: ^43^7bl^400^7dz now has 4 points
+  7:41 Kill: 3 4 10: *^8m^7*^^7e^5A^7x killed ^43^7bl^400^7dz by MOD_RAILGUN
+  7:41 PlayerScore: 3 5: *^8m^7*^^7e^5A^7x now has 5 points
+  7:41 Challenge: 3 215 1: Client 3 got award 215
+  7:41 Challenge: 3 1 1: Client 3 got award 1
+  7:41 Challenge: 4 2 1: Client 4 got award 2
+  7:41 Award: 3 1: *^8m^7*^^7e^5A^7x gained the EXCELLENT award!
+  7:41 PlayerScore: 3 7: *^8m^7*^^7e^5A^7x now has 7 points
+  7:41 CTF: 3 1 3: *^8m^7*^^7e^5A^7x fragged RED's flag carrier!
+  7:41 Award: 3 2: *^8m^7*^^7e^5A^7x gained the IMPRESSIVE award!
+  7:43 Item: 3 team_CTF_blueflag
+  7:43 PlayerScore: 3 8: *^8m^7*^^7e^5A^7x now has 8 points
+  7:43 CTF: 3 2 2: *^8m^7*^^7e^5A^7x returned the BLUE flag!
+  7:44 say: ^5U^7gly ^5U^7rsula: its a dm
+  7:47 Kill: 7 4 10: /dev/urandom killed ^43^7bl^400^7dz by MOD_RAILGUN
+  7:47 PlayerScore: 7 39: /dev/urandom now has 39 points
+  7:47 Challenge: 7 215 1: Client 7 got award 215
+  7:47 Challenge: 7 1 1: Client 7 got award 1
+  7:47 Challenge: 4 2 1: Client 4 got award 2
+  7:47 PlayerScore: 7 40: /dev/urandom now has 40 points
+  7:47 Award: 7 3: /dev/urandom gained the DEFENCE award!
+  7:50 say: /dev/urandom: gogo
+  7:52 say: ^5U^7gly ^5U^7rsula: m sky came
+  7:58 say: ^5U^7gly ^5U^7rsula: when i called that map
+  7:59 Kill: 3 2 10: *^8m^7*^^7e^5A^7x killed ^0/^2opt by MOD_RAILGUN
+  7:59 PlayerScore: 3 9: *^8m^7*^^7e^5A^7x now has 9 points
+  7:59 Challenge: 3 215 1: Client 3 got award 215
+  7:59 Challenge: 3 1 1: Client 3 got award 1
+  7:59 Challenge: 2 2 1: Client 2 got award 2
+  8:04 Kill: 7 2 10: /dev/urandom killed ^0/^2opt by MOD_RAILGUN
+  8:04 PlayerScore: 7 41: /dev/urandom now has 41 points
+  8:04 Challenge: 7 215 1: Client 7 got award 215
+  8:04 Challenge: 7 1 1: Client 7 got award 1
+  8:04 Challenge: 2 2 1: Client 2 got award 2
+  8:04 Award: 7 2: /dev/urandom gained the IMPRESSIVE award!
+  8:10 say: /dev/urandom: ?
+  8:10 Kill: 4 7 10: ^43^7bl^400^7dz killed /dev/urandom by MOD_RAILGUN
+  8:10 PlayerScore: 4 5: ^43^7bl^400^7dz now has 5 points
+  8:10 Challenge: 4 215 1: Client 4 got award 215
+  8:10 Challenge: 4 1 1: Client 4 got award 1
+  8:10 Challenge: 7 2 1: Client 7 got award 2
+  8:10 PlayerScore: 4 6: ^43^7bl^400^7dz now has 6 points
+  8:10 Award: 4 3: ^43^7bl^400^7dz gained the DEFENCE award!
+  8:14 Kill: 3 2 10: *^8m^7*^^7e^5A^7x killed ^0/^2opt by MOD_RAILGUN
+  8:14 PlayerScore: 3 10: *^8m^7*^^7e^5A^7x now has 10 points
+  8:14 Challenge: 3 215 1: Client 3 got award 215
+  8:14 Challenge: 3 1 1: Client 3 got award 1
+  8:14 Challenge: 2 2 1: Client 2 got award 2
+  8:19 Item: 4 team_CTF_blueflag
+  8:19 CTF: 4 2 0: ^43^7bl^400^7dz got the BLUE flag!
+  8:19 PlayerScore: 4 6: ^43^7bl^400^7dz now has 6 points
+  8:22 Item: 7 team_CTF_redflag
+  8:22 CTF: 7 1 0: /dev/urandom got the RED flag!
+  8:22 PlayerScore: 7 41: /dev/urandom now has 41 points
+  8:24 say: ^5U^7gly ^5U^7rsula: my sky texture showed here
+  8:30 say: ^5U^7gly ^5U^7rsula: after i had played that map
+  8:39 Kill: 7 2 10: /dev/urandom killed ^0/^2opt by MOD_RAILGUN
+  8:39 PlayerScore: 7 42: /dev/urandom now has 42 points
+  8:39 Challenge: 7 215 1: Client 7 got award 215
+  8:39 Challenge: 7 1 1: Client 7 got award 1
+  8:39 Challenge: 2 2 1: Client 2 got award 2
+  8:39 PlayerScore: 7 43: /dev/urandom now has 43 points
+  8:39 Award: 7 3: /dev/urandom gained the DEFENCE award!
+  8:43 Kill: 3 4 10: *^8m^7*^^7e^5A^7x killed ^43^7bl^400^7dz by MOD_RAILGUN
+  8:43 PlayerScore: 3 11: *^8m^7*^^7e^5A^7x now has 11 points
+  8:43 Challenge: 3 215 1: Client 3 got award 215
+  8:43 Challenge: 3 1 1: Client 3 got award 1
+  8:43 Challenge: 4 2 1: Client 4 got award 2
+  8:43 PlayerScore: 3 13: *^8m^7*^^7e^5A^7x now has 13 points
+  8:43 CTF: 3 1 3: *^8m^7*^^7e^5A^7x fragged RED's flag carrier!
+  8:47 Kill: 4 3 10: ^43^7bl^400^7dz killed *^8m^7*^^7e^5A^7x by MOD_RAILGUN
+  8:47 PlayerScore: 4 7: ^43^7bl^400^7dz now has 7 points
+  8:47 Challenge: 4 215 1: Client 4 got award 215
+  8:47 Challenge: 4 1 1: Client 4 got award 1
+  8:47 Challenge: 3 2 1: Client 3 got award 2
+  8:47 PlayerScore: 4 8: ^43^7bl^400^7dz now has 8 points
+  8:47 Award: 4 3: ^43^7bl^400^7dz gained the DEFENCE award!
+  8:47 Item: 4 team_CTF_blueflag
+  8:47 CTF: 4 2 0: ^43^7bl^400^7dz got the BLUE flag!
+  8:47 PlayerScore: 4 8: ^43^7bl^400^7dz now has 8 points
+  8:49 Kill: 7 2 10: /dev/urandom killed ^0/^2opt by MOD_RAILGUN
+  8:49 PlayerScore: 7 44: /dev/urandom now has 44 points
+  8:49 Challenge: 7 215 1: Client 7 got award 215
+  8:49 Challenge: 7 1 1: Client 7 got award 1
+  8:49 Challenge: 2 2 1: Client 2 got award 2
+  8:49 PlayerScore: 7 45: /dev/urandom now has 45 points
+  8:49 Award: 7 3: /dev/urandom gained the DEFENCE award!
+  8:49 Award: 7 2: /dev/urandom gained the IMPRESSIVE award!
+  8:51 chat: ^1S^2ki^3v^5vy^7: ^7Select ^3your name for the ^7STATS ^3with ^2!register
+  8:54 Kill: 2 3 10: ^0/^2opt killed *^8m^7*^^7e^5A^7x by MOD_RAILGUN
+  8:54 PlayerScore: 2 27: ^0/^2opt now has 27 points
+  8:54 Challenge: 2 215 1: Client 2 got award 215
+  8:54 Challenge: 2 1 1: Client 2 got award 1
+  8:54 Challenge: 3 2 1: Client 3 got award 2
+  8:56 Kill: 7 2 10: /dev/urandom killed ^0/^2opt by MOD_RAILGUN
+  8:56 PlayerScore: 7 46: /dev/urandom now has 46 points
+  8:56 Challenge: 7 215 1: Client 7 got award 215
+  8:56 Challenge: 7 1 1: Client 7 got award 1
+  8:56 Challenge: 2 2 1: Client 2 got award 2
+  8:56 PlayerScore: 7 47: /dev/urandom now has 47 points
+  8:56 Award: 7 3: /dev/urandom gained the DEFENCE award!
+  8:58 Kill: 2 3 10: ^0/^2opt killed *^8m^7*^^7e^5A^7x by MOD_RAILGUN
+  8:58 PlayerScore: 2 28: ^0/^2opt now has 28 points
+  8:58 Challenge: 2 215 1: Client 2 got award 215
+  8:58 Challenge: 2 1 1: Client 2 got award 1
+  8:58 Challenge: 3 2 1: Client 3 got award 2
+  9:00 Kill: 2 7 10: ^0/^2opt killed /dev/urandom by MOD_RAILGUN
+  9:00 PlayerScore: 2 29: ^0/^2opt now has 29 points
+  9:00 Challenge: 2 215 1: Client 2 got award 215
+  9:00 Challenge: 2 1 1: Client 2 got award 1
+  9:00 Challenge: 7 2 1: Client 7 got award 2
+  9:00 Award: 2 1: ^0/^2opt gained the EXCELLENT award!
+  9:00 PlayerScore: 2 31: ^0/^2opt now has 31 points
+  9:00 CTF: 2 2 3: ^0/^2opt fragged BLUE's flag carrier!
+  9:00 Award: 2 2: ^0/^2opt gained the IMPRESSIVE award!
+  9:00 say: ^43^7bl^400^7dz: !register
+  9:01 chat: ^1K^7at^3i^7na^8: ^7^7^43^7bl^400^7dz^7: ^3Your preferred name has been registered.
+  9:04 Kill: 7 2 10: /dev/urandom killed ^0/^2opt by MOD_RAILGUN
+  9:04 PlayerScore: 7 48: /dev/urandom now has 48 points
+  9:04 Challenge: 7 215 1: Client 7 got award 215
+  9:04 Challenge: 7 1 1: Client 7 got award 1
+  9:04 Challenge: 2 2 1: Client 2 got award 2
+  9:04 PlayerScore: 7 49: /dev/urandom now has 49 points
+  9:04 Award: 7 3: /dev/urandom gained the DEFENCE award!
+  9:07 Item: 7 team_CTF_redflag
+  9:07 CTF: 7 1 0: /dev/urandom got the RED flag!
+  9:07 PlayerScore: 7 49: /dev/urandom now has 49 points
+  9:11 Kill: 2 3 10: ^0/^2opt killed *^8m^7*^^7e^5A^7x by MOD_RAILGUN
+  9:11 PlayerScore: 2 32: ^0/^2opt now has 32 points
+  9:11 Challenge: 2 215 1: Client 2 got award 215
+  9:11 Challenge: 2 1 1: Client 2 got award 1
+  9:11 Challenge: 3 2 1: Client 3 got award 2
+  9:12 say: /dev/urandom: mine!
+  9:14 Kill: 7 2 10: /dev/urandom killed ^0/^2opt by MOD_RAILGUN
+  9:14 PlayerScore: 7 50: /dev/urandom now has 50 points
+  9:14 Challenge: 7 215 1: Client 7 got award 215
+  9:14 Challenge: 7 1 1: Client 7 got award 1
+  9:14 Challenge: 2 2 1: Client 2 got award 2
+  9:14 PlayerScore: 7 51: /dev/urandom now has 51 points
+  9:14 Award: 7 3: /dev/urandom gained the DEFENCE award!
+  9:14 Award: 7 2: /dev/urandom gained the IMPRESSIVE award!
+  9:17 say: /dev/urandom: no touchy
+  9:22 Kill: 3 4 10: *^8m^7*^^7e^5A^7x killed ^43^7bl^400^7dz by MOD_RAILGUN
+  9:22 PlayerScore: 3 14: *^8m^7*^^7e^5A^7x now has 14 points
+  9:22 Challenge: 3 215 1: Client 3 got award 215
+  9:22 Challenge: 3 1 1: Client 3 got award 1
+  9:22 Challenge: 4 2 1: Client 4 got award 2
+  9:22 PlayerScore: 3 16: *^8m^7*^^7e^5A^7x now has 16 points
+  9:22 CTF: 3 1 3: *^8m^7*^^7e^5A^7x fragged RED's flag carrier!
+  9:25 Item: 3 team_CTF_blueflag
+  9:25 PlayerScore: 3 17: *^8m^7*^^7e^5A^7x now has 17 points
+  9:25 CTF: 3 2 2: *^8m^7*^^7e^5A^7x returned the BLUE flag!
+  9:27 Item: 7 team_CTF_blueflag
+  9:27 CTF: 7 1 1: /dev/urandom captured the RED flag!
+  9:27 Award: 7 4: /dev/urandom gained the CAPTURE award!
+  9:27 PlayerScore: 7 56: /dev/urandom now has 56 points
+  9:27 PlayerScore: 3 17: *^8m^7*^^7e^5A^7x now has 17 points
+  9:27 PlayerScore: 3 18: *^8m^7*^^7e^5A^7x now has 18 points
+  9:27 Award: 3 5: *^8m^7*^^7e^5A^7x gained the ASSIST award!
+  9:27 PlayerScore: 3 20: *^8m^7*^^7e^5A^7x now has 20 points
+  9:27 Award: 3 5: *^8m^7*^^7e^5A^7x gained the ASSIST award!
+  9:28 Kill: 7 2 10: /dev/urandom killed ^0/^2opt by MOD_RAILGUN
+  9:28 PlayerScore: 7 57: /dev/urandom now has 57 points
+  9:28 Challenge: 7 215 1: Client 7 got award 215
+  9:28 Challenge: 7 1 1: Client 7 got award 1
+  9:28 Challenge: 2 2 1: Client 2 got award 2
+  9:28 PlayerScore: 7 58: /dev/urandom now has 58 points
+  9:28 Award: 7 3: /dev/urandom gained the DEFENCE award!
+  9:31 Kill: 7 4 10: /dev/urandom killed ^43^7bl^400^7dz by MOD_RAILGUN
+  9:31 PlayerScore: 7 59: /dev/urandom now has 59 points
+  9:31 Challenge: 7 215 1: Client 7 got award 215
+  9:31 Challenge: 7 1 1: Client 7 got award 1
+  9:31 Challenge: 4 2 1: Client 4 got award 2
+  9:31 Award: 7 1: /dev/urandom gained the EXCELLENT award!
+  9:31 PlayerScore: 7 60: /dev/urandom now has 60 points
+  9:31 Award: 7 3: /dev/urandom gained the DEFENCE award!
+  9:31 Award: 7 2: /dev/urandom gained the IMPRESSIVE award!
+  9:32 Kill: 3 2 10: *^8m^7*^^7e^5A^7x killed ^0/^2opt by MOD_RAILGUN
+  9:32 PlayerScore: 3 21: *^8m^7*^^7e^5A^7x now has 21 points
+  9:32 Challenge: 3 215 1: Client 3 got award 215
+  9:32 Challenge: 3 1 1: Client 3 got award 1
+  9:32 Challenge: 2 2 1: Client 2 got award 2
+  9:32 Award: 3 2: *^8m^7*^^7e^5A^7x gained the IMPRESSIVE award!
+  9:34 Kill: 3 2 10: *^8m^7*^^7e^5A^7x killed ^0/^2opt by MOD_RAILGUN
+  9:34 PlayerScore: 3 22: *^8m^7*^^7e^5A^7x now has 22 points
+  9:34 Challenge: 3 215 1: Client 3 got award 215
+  9:34 Challenge: 3 1 1: Client 3 got award 1
+  9:34 Challenge: 2 2 1: Client 2 got award 2
+  9:34 Award: 3 1: *^8m^7*^^7e^5A^7x gained the EXCELLENT award!
+  9:35 Item: 3 team_CTF_redflag
+  9:35 CTF: 3 1 0: *^8m^7*^^7e^5A^7x got the RED flag!
+  9:35 PlayerScore: 3 22: *^8m^7*^^7e^5A^7x now has 22 points
+  9:37 Kill: 7 4 10: /dev/urandom killed ^43^7bl^400^7dz by MOD_RAILGUN
+  9:37 PlayerScore: 7 61: /dev/urandom now has 61 points
+  9:37 Challenge: 7 215 1: Client 7 got award 215
+  9:37 Challenge: 7 1 1: Client 7 got award 1
+  9:37 Challenge: 4 2 1: Client 4 got award 2
+  9:38 Kill: 2 7 10: ^0/^2opt killed /dev/urandom by MOD_RAILGUN
+  9:38 PlayerScore: 2 33: ^0/^2opt now has 33 points
+  9:38 Challenge: 2 215 1: Client 2 got award 215
+  9:38 Challenge: 2 1 1: Client 2 got award 1
+  9:38 Challenge: 7 2 1: Client 7 got award 2
+  9:47 Kill: 7 4 10: /dev/urandom killed ^43^7bl^400^7dz by MOD_RAILGUN
+  9:47 PlayerScore: 7 62: /dev/urandom now has 62 points
+  9:47 Challenge: 7 215 1: Client 7 got award 215
+  9:47 Challenge: 7 1 1: Client 7 got award 1
+  9:47 Challenge: 4 2 1: Client 4 got award 2
+  9:47 PlayerScore: 7 63: /dev/urandom now has 63 points
+  9:47 Award: 7 3: /dev/urandom gained the DEFENCE award!
+  9:51 Item: 3 team_CTF_blueflag
+  9:51 CTF: 3 1 1: *^8m^7*^^7e^5A^7x captured the RED flag!
+  9:51 Award: 3 4: *^8m^7*^^7e^5A^7x gained the CAPTURE award!
+  9:51 PlayerScore: 3 27: *^8m^7*^^7e^5A^7x now has 27 points
+  9:51 PlayerScore: 7 63: /dev/urandom now has 63 points
+  9:52 Kill: 2 3 10: ^0/^2opt killed *^8m^7*^^7e^5A^7x by MOD_RAILGUN
+  9:52 PlayerScore: 2 34: ^0/^2opt now has 34 points
+  9:52 Challenge: 2 215 1: Client 2 got award 215
+  9:52 Challenge: 2 1 1: Client 2 got award 1
+  9:52 Challenge: 3 2 1: Client 3 got award 2
+  9:52 Kill: 7 2 10: /dev/urandom killed ^0/^2opt by MOD_RAILGUN
+  9:52 PlayerScore: 7 64: /dev/urandom now has 64 points
+  9:52 Challenge: 7 215 1: Client 7 got award 215
+  9:52 Challenge: 7 1 1: Client 7 got award 1
+  9:52 Challenge: 2 2 1: Client 2 got award 2
+  9:52 PlayerScore: 7 65: /dev/urandom now has 65 points
+  9:52 Award: 7 3: /dev/urandom gained the DEFENCE award!
+  9:53 say: ^43^7bl^400^7dz: its hard to see in this map
+  9:55 chat: ^1S^2ki^3v^5vy^7: ^7SOME ^1camping ^7ok^2 but ^7NO ^1mean pushes ^2and ^7NO ^1SPAM^2.
+ 10:03 Item: 7 team_CTF_redflag
+ 10:03 CTF: 7 1 0: /dev/urandom got the RED flag!
+ 10:03 PlayerScore: 7 65: /dev/urandom now has 65 points
+ 10:05 Kill: 2 7 10: ^0/^2opt killed /dev/urandom by MOD_RAILGUN
+ 10:05 PlayerScore: 2 35: ^0/^2opt now has 35 points
+ 10:05 Challenge: 2 215 1: Client 2 got award 215
+ 10:05 Challenge: 2 1 1: Client 2 got award 1
+ 10:05 Challenge: 7 2 1: Client 7 got award 2
+ 10:05 PlayerScore: 2 37: ^0/^2opt now has 37 points
+ 10:05 CTF: 2 2 3: ^0/^2opt fragged BLUE's flag carrier!
+ 10:07 Item: 2 team_CTF_redflag
+ 10:07 PlayerScore: 2 38: ^0/^2opt now has 38 points
+ 10:07 CTF: 2 1 2: ^0/^2opt returned the RED flag!
+ 10:07 say: /dev/urandom: n1
+ 10:08 Item: 4 team_CTF_blueflag
+ 10:08 CTF: 4 2 0: ^43^7bl^400^7dz got the BLUE flag!
+ 10:08 PlayerScore: 4 8: ^43^7bl^400^7dz now has 8 points
+ 10:11 Kill: 4 7 10: ^43^7bl^400^7dz killed /dev/urandom by MOD_RAILGUN
+ 10:11 PlayerScore: 4 9: ^43^7bl^400^7dz now has 9 points
+ 10:11 Challenge: 4 215 1: Client 4 got award 215
+ 10:11 Challenge: 4 1 1: Client 4 got award 1
+ 10:11 Challenge: 7 2 1: Client 7 got award 2
+ 10:11 Item: 3 team_CTF_redflag
+ 10:11 CTF: 3 1 0: *^8m^7*^^7e^5A^7x got the RED flag!
+ 10:11 PlayerScore: 3 27: *^8m^7*^^7e^5A^7x now has 27 points
+ 10:17 Kill: 4 3 10: ^43^7bl^400^7dz killed *^8m^7*^^7e^5A^7x by MOD_RAILGUN
+ 10:17 PlayerScore: 4 10: ^43^7bl^400^7dz now has 10 points
+ 10:17 Challenge: 4 215 1: Client 4 got award 215
+ 10:17 Challenge: 4 1 1: Client 4 got award 1
+ 10:17 Challenge: 3 2 1: Client 3 got award 2
+ 10:17 PlayerScore: 4 12: ^43^7bl^400^7dz now has 12 points
+ 10:17 CTF: 4 2 3: ^43^7bl^400^7dz fragged BLUE's flag carrier!
+ 10:17 Award: 4 2: ^43^7bl^400^7dz gained the IMPRESSIVE award!
+ 10:18 Kill: 7 2 10: /dev/urandom killed ^0/^2opt by MOD_RAILGUN
+ 10:18 PlayerScore: 7 66: /dev/urandom now has 66 points
+ 10:18 Challenge: 7 215 1: Client 7 got award 215
+ 10:18 Challenge: 7 1 1: Client 7 got award 1
+ 10:18 Challenge: 2 2 1: Client 2 got award 2
+ 10:20 Item: 4 team_CTF_redflag
+ 10:20 PlayerScore: 4 13: ^43^7bl^400^7dz now has 13 points
+ 10:20 CTF: 4 1 2: ^43^7bl^400^7dz returned the RED flag!
+ 10:20 Kill: 7 4 10: /dev/urandom killed ^43^7bl^400^7dz by MOD_RAILGUN
+ 10:20 PlayerScore: 7 67: /dev/urandom now has 67 points
+ 10:20 Challenge: 7 215 1: Client 7 got award 215
+ 10:20 Challenge: 7 1 1: Client 7 got award 1
+ 10:20 Challenge: 4 2 1: Client 4 got award 2
+ 10:20 Award: 7 1: /dev/urandom gained the EXCELLENT award!
+ 10:20 PlayerScore: 7 69: /dev/urandom now has 69 points
+ 10:20 CTF: 7 1 3: /dev/urandom fragged RED's flag carrier!
+ 10:20 Award: 7 2: /dev/urandom gained the IMPRESSIVE award!
+ 10:21 say: ^0/^2opt: ggs g2g
+ 10:23 Item: 7 team_CTF_blueflag
+ 10:23 PlayerScore: 7 70: /dev/urandom now has 70 points
+ 10:23 CTF: 7 2 2: /dev/urandom returned the BLUE flag!
+ 10:23 Item: 7 team_CTF_redflag
+ 10:23 CTF: 7 1 0: /dev/urandom got the RED flag!
+ 10:23 PlayerScore: 7 70: /dev/urandom now has 70 points
+ 10:25 Kill: 7 4 10: /dev/urandom killed ^43^7bl^400^7dz by MOD_RAILGUN
+ 10:25 PlayerScore: 7 71: /dev/urandom now has 71 points
+ 10:25 Challenge: 7 215 1: Client 7 got award 215
+ 10:25 Challenge: 7 1 1: Client 7 got award 1
+ 10:25 Challenge: 4 2 1: Client 4 got award 2
+ 10:25 PlayerScore: 7 72: /dev/urandom now has 72 points
+ 10:25 Award: 7 3: /dev/urandom gained the DEFENCE award!
+ 10:27 say: ^43^7bl^400^7dz: cya
+ 10:27 Playerstore: Stored player with guid: CCE8482FC385E8F849C238B9C7E85421 in 0
+ 10:27 ClientDisconnect: 2
+ 10:28 Kill: 7 4 10: /dev/urandom killed ^43^7bl^400^7dz by MOD_RAILGUN
+ 10:28 PlayerScore: 7 73: /dev/urandom now has 73 points
+ 10:28 Challenge: 7 215 1: Client 7 got award 215
+ 10:28 Challenge: 7 1 1: Client 7 got award 1
+ 10:28 Challenge: 4 2 1: Client 4 got award 2
+ 10:28 Award: 7 2: /dev/urandom gained the IMPRESSIVE award!
+ 10:34 Item: 7 team_CTF_blueflag
+ 10:34 CTF: 7 1 1: /dev/urandom captured the RED flag!
+ 10:34 Award: 7 4: /dev/urandom gained the CAPTURE award!
+ 10:34 PlayerScore: 7 78: /dev/urandom now has 78 points
+ 10:34 PlayerScore: 3 27: *^8m^7*^^7e^5A^7x now has 27 points
+ 10:36 Kill: 4 7 10: ^43^7bl^400^7dz killed /dev/urandom by MOD_RAILGUN
+ 10:36 PlayerScore: 4 14: ^43^7bl^400^7dz now has 14 points
+ 10:36 Challenge: 4 215 1: Client 4 got award 215
+ 10:36 Challenge: 4 1 1: Client 4 got award 1
+ 10:36 Challenge: 7 2 1: Client 7 got award 2
+ 10:42 Kill: 4 7 10: ^43^7bl^400^7dz killed /dev/urandom by MOD_RAILGUN
+ 10:42 PlayerScore: 4 15: ^43^7bl^400^7dz now has 15 points
+ 10:42 Challenge: 4 215 1: Client 4 got award 215
+ 10:42 Challenge: 4 1 1: Client 4 got award 1
+ 10:42 Challenge: 7 2 1: Client 7 got award 2
+ 10:42 Award: 4 2: ^43^7bl^400^7dz gained the IMPRESSIVE award!
+ 10:44 Item: 3 team_CTF_redflag
+ 10:44 CTF: 3 1 0: *^8m^7*^^7e^5A^7x got the RED flag!
+ 10:44 PlayerScore: 3 27: *^8m^7*^^7e^5A^7x now has 27 points
+ 10:45 Item: 4 team_CTF_blueflag
+ 10:45 CTF: 4 2 0: ^43^7bl^400^7dz got the BLUE flag!
+ 10:45 PlayerScore: 4 15: ^43^7bl^400^7dz now has 15 points
+ 10:47 Kill: 4 7 10: ^43^7bl^400^7dz killed /dev/urandom by MOD_RAILGUN
+ 10:47 PlayerScore: 4 16: ^43^7bl^400^7dz now has 16 points
+ 10:47 Challenge: 4 215 1: Client 4 got award 215
+ 10:47 Challenge: 4 1 1: Client 4 got award 1
+ 10:47 Challenge: 7 2 1: Client 7 got award 2
+ 10:52 Kill: 7 4 10: /dev/urandom killed ^43^7bl^400^7dz by MOD_RAILGUN
+ 10:52 PlayerScore: 7 79: /dev/urandom now has 79 points
+ 10:52 Challenge: 7 215 1: Client 7 got award 215
+ 10:52 Challenge: 7 1 1: Client 7 got award 1
+ 10:52 Challenge: 4 2 1: Client 4 got award 2
+ 10:52 PlayerScore: 7 81: /dev/urandom now has 81 points
+ 10:52 CTF: 7 1 3: /dev/urandom fragged RED's flag carrier!
+ 10:56 Item: 4 team_CTF_blueflag
+ 10:56 CTF: 4 2 0: ^43^7bl^400^7dz got the BLUE flag!
+ 10:56 PlayerScore: 4 16: ^43^7bl^400^7dz now has 16 points
+ 11:01 Kill: 4 7 10: ^43^7bl^400^7dz killed /dev/urandom by MOD_RAILGUN
+ 11:01 PlayerScore: 4 17: ^43^7bl^400^7dz now has 17 points
+ 11:01 Challenge: 4 215 1: Client 4 got award 215
+ 11:01 Challenge: 4 1 1: Client 4 got award 1
+ 11:01 Challenge: 7 2 1: Client 7 got award 2
+ 11:01 PlayerScore: 4 18: ^43^7bl^400^7dz now has 18 points
+ 11:01 Award: 4 3: ^43^7bl^400^7dz gained the DEFENCE award!
+ 11:04 Kill: 7 4 10: /dev/urandom killed ^43^7bl^400^7dz by MOD_RAILGUN
+ 11:04 PlayerScore: 7 82: /dev/urandom now has 82 points
+ 11:04 Challenge: 7 215 1: Client 7 got award 215
+ 11:04 Challenge: 7 1 1: Client 7 got award 1
+ 11:04 Challenge: 4 2 1: Client 4 got award 2
+ 11:04 PlayerScore: 7 84: /dev/urandom now has 84 points
+ 11:04 CTF: 7 1 3: /dev/urandom fragged RED's flag carrier!
+ 11:07 Item: 7 team_CTF_blueflag
+ 11:07 PlayerScore: 7 85: /dev/urandom now has 85 points
+ 11:07 CTF: 7 2 2: /dev/urandom returned the BLUE flag!
+ 11:09 Item: 3 team_CTF_blueflag
+ 11:09 CTF: 3 1 1: *^8m^7*^^7e^5A^7x captured the RED flag!
+ 11:09 Award: 3 4: *^8m^7*^^7e^5A^7x gained the CAPTURE award!
+ 11:09 PlayerScore: 3 32: *^8m^7*^^7e^5A^7x now has 32 points
+ 11:09 PlayerScore: 7 85: /dev/urandom now has 85 points
+ 11:09 PlayerScore: 7 86: /dev/urandom now has 86 points
+ 11:09 Award: 7 5: /dev/urandom gained the ASSIST award!
+ 11:09 PlayerScore: 7 88: /dev/urandom now has 88 points
+ 11:09 Award: 7 5: /dev/urandom gained the ASSIST award!
+ 11:10 Kill: 4 3 10: ^43^7bl^400^7dz killed *^8m^7*^^7e^5A^7x by MOD_RAILGUN
+ 11:10 PlayerScore: 4 19: ^43^7bl^400^7dz now has 19 points
+ 11:10 Challenge: 4 215 1: Client 4 got award 215
+ 11:10 Challenge: 4 1 1: Client 4 got award 1
+ 11:10 Challenge: 3 2 1: Client 3 got award 2
+ 11:11 Item: 7 team_CTF_redflag
+ 11:11 CTF: 7 1 0: /dev/urandom got the RED flag!
+ 11:11 PlayerScore: 7 88: /dev/urandom now has 88 points
+ 11:15 Item: 4 team_CTF_blueflag
+ 11:15 CTF: 4 2 0: ^43^7bl^400^7dz got the BLUE flag!
+ 11:15 PlayerScore: 4 19: ^43^7bl^400^7dz now has 19 points
+ 11:16 Kill: 4 7 10: ^43^7bl^400^7dz killed /dev/urandom by MOD_RAILGUN
+ 11:16 PlayerScore: 4 20: ^43^7bl^400^7dz now has 20 points
+ 11:16 Challenge: 4 215 1: Client 4 got award 215
+ 11:16 Challenge: 4 1 1: Client 4 got award 1
+ 11:16 Challenge: 7 2 1: Client 7 got award 2
+ 11:16 PlayerScore: 4 22: ^43^7bl^400^7dz now has 22 points
+ 11:16 CTF: 4 2 3: ^43^7bl^400^7dz fragged BLUE's flag carrier!
+ 11:16 Award: 4 2: ^43^7bl^400^7dz gained the IMPRESSIVE award!
+ 11:17 Kill: 3 4 10: *^8m^7*^^7e^5A^7x killed ^43^7bl^400^7dz by MOD_RAILGUN
+ 11:17 PlayerScore: 3 33: *^8m^7*^^7e^5A^7x now has 33 points
+ 11:17 Challenge: 3 215 1: Client 3 got award 215
+ 11:17 Challenge: 3 1 1: Client 3 got award 1
+ 11:17 Challenge: 4 2 1: Client 4 got award 2
+ 11:17 PlayerScore: 3 35: *^8m^7*^^7e^5A^7x now has 35 points
+ 11:17 CTF: 3 1 3: *^8m^7*^^7e^5A^7x fragged RED's flag carrier!
+ 11:19 Item: 3 team_CTF_blueflag
+ 11:19 PlayerScore: 3 36: *^8m^7*^^7e^5A^7x now has 36 points
+ 11:19 CTF: 3 2 2: *^8m^7*^^7e^5A^7x returned the BLUE flag!
+ 11:20 ClientUserinfoChanged: 5 n\^5U^7gly ^5U^7rsula\t\1\model\stb/blue\hmodel\stb/blue\g_redteam\\g_blueteam\\c1\4\c2\4\hc\100\w\0\l\0\tt\0\tl\1\id\5E6C8F3D3536017A03685D97AC0CB71B
+ 11:20 ClientUserinfoChanged: 5 n\^5U^7gly ^5U^7rsula\t\1\model\stb/blue\hmodel\stb/blue\g_redteam\\g_blueteam\\c1\4\c2\4\hc\100\w\0\l\0\tt\0\tl\1\id\5E6C8F3D3536017A03685D97AC0CB71B
+ 11:20 Playerstore: Nothing to restore. Guid: 5E6C8F3D3536017A03685D97AC0CB71B
+ 11:20 ClientBegin: 5
+ 11:22 Item: 3 team_CTF_redflag
+ 11:22 CTF: 3 1 0: *^8m^7*^^7e^5A^7x got the RED flag!
+ 11:22 PlayerScore: 3 36: *^8m^7*^^7e^5A^7x now has 36 points
+ 11:22 Kill: 3 4 10: *^8m^7*^^7e^5A^7x killed ^43^7bl^400^7dz by MOD_RAILGUN
+ 11:22 PlayerScore: 3 37: *^8m^7*^^7e^5A^7x now has 37 points
+ 11:22 Challenge: 3 215 1: Client 3 got award 215
+ 11:22 Challenge: 3 1 1: Client 3 got award 1
+ 11:22 Challenge: 4 2 1: Client 4 got award 2
+ 11:27 Item: 3 team_CTF_blueflag
+ 11:27 CTF: 3 1 1: *^8m^7*^^7e^5A^7x captured the RED flag!
+ 11:27 Award: 3 4: *^8m^7*^^7e^5A^7x gained the CAPTURE award!
+ 11:27 PlayerScore: 3 42: *^8m^7*^^7e^5A^7x now has 42 points
+ 11:27 PlayerScore: 7 88: /dev/urandom now has 88 points
+ 11:31 Kill: 3 5 10: *^8m^7*^^7e^5A^7x killed ^5U^7gly ^5U^7rsula by MOD_RAILGUN
+ 11:31 PlayerScore: 3 43: *^8m^7*^^7e^5A^7x now has 43 points
+ 11:31 Challenge: 3 215 1: Client 3 got award 215
+ 11:31 Challenge: 3 1 1: Client 3 got award 1
+ 11:31 Challenge: 5 2 1: Client 5 got award 2
+ 11:31 PlayerScore: 3 44: *^8m^7*^^7e^5A^7x now has 44 points
+ 11:31 Award: 3 3: *^8m^7*^^7e^5A^7x gained the DEFENCE award!
+ 11:31 Award: 3 2: *^8m^7*^^7e^5A^7x gained the IMPRESSIVE award!
+ 11:35 Kill: 4 3 10: ^43^7bl^400^7dz killed *^8m^7*^^7e^5A^7x by MOD_RAILGUN
+ 11:35 PlayerScore: 4 23: ^43^7bl^400^7dz now has 23 points
+ 11:35 Challenge: 4 215 1: Client 4 got award 215
+ 11:35 Challenge: 4 1 1: Client 4 got award 1
+ 11:35 Challenge: 3 2 1: Client 3 got award 2
+ 11:36 Item: 7 team_CTF_redflag
+ 11:36 CTF: 7 1 0: /dev/urandom got the RED flag!
+ 11:36 PlayerScore: 7 88: /dev/urandom now has 88 points
+ 11:36 Item: 4 team_CTF_blueflag
+ 11:36 CTF: 4 2 0: ^43^7bl^400^7dz got the BLUE flag!
+ 11:36 PlayerScore: 4 23: ^43^7bl^400^7dz now has 23 points
+ 11:41 Kill: 4 7 10: ^43^7bl^400^7dz killed /dev/urandom by MOD_RAILGUN
+ 11:41 PlayerScore: 4 24: ^43^7bl^400^7dz now has 24 points
+ 11:41 Challenge: 4 215 1: Client 4 got award 215
+ 11:41 Challenge: 4 1 1: Client 4 got award 1
+ 11:41 Challenge: 7 2 1: Client 7 got award 2
+ 11:41 PlayerScore: 4 26: ^43^7bl^400^7dz now has 26 points
+ 11:41 CTF: 4 2 3: ^43^7bl^400^7dz fragged BLUE's flag carrier!
+ 11:41 Award: 4 2: ^43^7bl^400^7dz gained the IMPRESSIVE award!
+ 11:46 Item: 3 team_CTF_redflag
+ 11:46 CTF: 3 1 0: *^8m^7*^^7e^5A^7x got the RED flag!
+ 11:46 PlayerScore: 3 44: *^8m^7*^^7e^5A^7x now has 44 points
+ 11:48 Kill: 3 5 10: *^8m^7*^^7e^5A^7x killed ^5U^7gly ^5U^7rsula by MOD_RAILGUN
+ 11:48 PlayerScore: 3 45: *^8m^7*^^7e^5A^7x now has 45 points
+ 11:48 Challenge: 3 215 1: Client 3 got award 215
+ 11:48 Challenge: 3 1 1: Client 3 got award 1
+ 11:48 Challenge: 5 2 1: Client 5 got award 2
+ 11:51 Kill: 7 4 10: /dev/urandom killed ^43^7bl^400^7dz by MOD_RAILGUN
+ 11:51 PlayerScore: 7 89: /dev/urandom now has 89 points
+ 11:51 Challenge: 7 215 1: Client 7 got award 215
+ 11:51 Challenge: 7 1 1: Client 7 got award 1
+ 11:51 Challenge: 4 2 1: Client 4 got award 2
+ 11:51 PlayerScore: 7 91: /dev/urandom now has 91 points
+ 11:51 CTF: 7 1 3: /dev/urandom fragged RED's flag carrier!
+ 11:52 Kill: 5 7 10: ^5U^7gly ^5U^7rsula killed /dev/urandom by MOD_RAILGUN
+ 11:52 PlayerScore: 5 1: ^5U^7gly ^5U^7rsula now has 1 points
+ 11:52 Challenge: 5 215 1: Client 5 got award 215
+ 11:52 Challenge: 5 1 1: Client 5 got award 1
+ 11:52 Challenge: 7 2 1: Client 7 got award 2
+ 11:52 PlayerScore: 5 2: ^5U^7gly ^5U^7rsula now has 2 points
+ 11:52 Award: 5 3: ^5U^7gly ^5U^7rsula gained the DEFENCE award!
+ 11:53 say: ^43^7bl^400^7dz: ^5c^6:
+ 11:57 Item: 5 team_CTF_blueflag
+ 11:57 CTF: 5 2 0: ^5U^7gly ^5U^7rsula got the BLUE flag!
+ 11:57 PlayerScore: 5 2: ^5U^7gly ^5U^7rsula now has 2 points
+ 11:58 Kill: 7 4 10: /dev/urandom killed ^43^7bl^400^7dz by MOD_RAILGUN
+ 11:58 PlayerScore: 7 92: /dev/urandom now has 92 points
+ 11:58 Challenge: 7 215 1: Client 7 got award 215
+ 11:58 Challenge: 7 1 1: Client 7 got award 1
+ 11:58 Challenge: 4 2 1: Client 4 got award 2
+ 11:59 Kill: 5 7 10: ^5U^7gly ^5U^7rsula killed /dev/urandom by MOD_RAILGUN
+ 11:59 PlayerScore: 5 3: ^5U^7gly ^5U^7rsula now has 3 points
+ 11:59 Challenge: 5 215 1: Client 5 got award 215
+ 11:59 Challenge: 5 1 1: Client 5 got award 1
+ 11:59 Challenge: 7 2 1: Client 7 got award 2
+ 11:59 PlayerScore: 5 4: ^5U^7gly ^5U^7rsula now has 4 points
+ 11:59 Award: 5 3: ^5U^7gly ^5U^7rsula gained the DEFENCE award!
+ 11:59 Award: 5 2: ^5U^7gly ^5U^7rsula gained the IMPRESSIVE award!
+ 12:00 sayteam: ^43^7bl^400^7dz: ENEMY IS IN AREA!
+ 12:01 Kill: 4 3 10: ^43^7bl^400^7dz killed *^8m^7*^^7e^5A^7x by MOD_RAILGUN
+ 12:01 PlayerScore: 4 27: ^43^7bl^400^7dz now has 27 points
+ 12:01 Challenge: 4 215 1: Client 4 got award 215
+ 12:01 Challenge: 4 1 1: Client 4 got award 1
+ 12:01 Challenge: 3 2 1: Client 3 got award 2
+ 12:01 PlayerScore: 4 29: ^43^7bl^400^7dz now has 29 points
+ 12:01 CTF: 4 2 3: ^43^7bl^400^7dz fragged BLUE's flag carrier!
+ 12:04 Item: 3 team_CTF_redflag
+ 12:04 CTF: 3 1 0: *^8m^7*^^7e^5A^7x got the RED flag!
+ 12:04 PlayerScore: 3 45: *^8m^7*^^7e^5A^7x now has 45 points
+ 12:05 sayteam: ^5U^7gly ^5U^7rsula: Affirmative - Understood!
+ 12:11 Kill: 7 4 10: /dev/urandom killed ^43^7bl^400^7dz by MOD_RAILGUN
+ 12:11 PlayerScore: 7 93: /dev/urandom now has 93 points
+ 12:11 Challenge: 7 215 1: Client 7 got award 215
+ 12:11 Challenge: 7 1 1: Client 7 got award 1
+ 12:11 Challenge: 4 2 1: Client 4 got award 2
+ 12:11 PlayerScore: 7 94: /dev/urandom now has 94 points
+ 12:11 Award: 7 3: /dev/urandom gained the DEFENCE award!
+ 12:13 sayteam: ^43^7bl^400^7dz: ENEMY IS IN AREA!
+ 12:14 Kill: 4 3 10: ^43^7bl^400^7dz killed *^8m^7*^^7e^5A^7x by MOD_RAILGUN
+ 12:14 PlayerScore: 4 30: ^43^7bl^400^7dz now has 30 points
+ 12:14 Challenge: 4 215 1: Client 4 got award 215
+ 12:14 Challenge: 4 1 1: Client 4 got award 1
+ 12:14 Challenge: 3 2 1: Client 3 got award 2
+ 12:14 PlayerScore: 4 32: ^43^7bl^400^7dz now has 32 points
+ 12:14 CTF: 4 2 3: ^43^7bl^400^7dz fragged BLUE's flag carrier!
+ 12:17 sayteam: ^5U^7gly ^5U^7rsula: Affirmative - Understood!
+ 12:17 Kill: 7 5 10: /dev/urandom killed ^5U^7gly ^5U^7rsula by MOD_RAILGUN
+ 12:17 PlayerScore: 7 95: /dev/urandom now has 95 points
+ 12:17 Challenge: 7 215 1: Client 7 got award 215
+ 12:17 Challenge: 7 1 1: Client 7 got award 1
+ 12:17 Challenge: 5 2 1: Client 5 got award 2
+ 12:17 PlayerScore: 7 97: /dev/urandom now has 97 points
+ 12:17 CTF: 7 1 3: /dev/urandom fragged RED's flag carrier!
+ 12:19 Kill: 4 3 10: ^43^7bl^400^7dz killed *^8m^7*^^7e^5A^7x by MOD_RAILGUN
+ 12:19 PlayerScore: 4 33: ^43^7bl^400^7dz now has 33 points
+ 12:19 Challenge: 4 215 1: Client 4 got award 215
+ 12:19 Challenge: 4 1 1: Client 4 got award 1
+ 12:19 Challenge: 3 2 1: Client 3 got award 2
+ 12:19 Award: 4 2: ^43^7bl^400^7dz gained the IMPRESSIVE award!
+ 12:19 Item: 7 team_CTF_blueflag
+ 12:19 PlayerScore: 7 98: /dev/urandom now has 98 points
+ 12:19 CTF: 7 2 2: /dev/urandom returned the BLUE flag!
+ 12:21 Item: 4 team_CTF_redflag
+ 12:21 PlayerScore: 4 34: ^43^7bl^400^7dz now has 34 points
+ 12:21 CTF: 4 1 2: ^43^7bl^400^7dz returned the RED flag!
+ 12:22 Item: 4 team_CTF_blueflag
+ 12:22 CTF: 4 2 0: ^43^7bl^400^7dz got the BLUE flag!
+ 12:22 PlayerScore: 4 34: ^43^7bl^400^7dz now has 34 points
+ 12:22 Kill: 7 4 10: /dev/urandom killed ^43^7bl^400^7dz by MOD_RAILGUN
+ 12:22 PlayerScore: 7 99: /dev/urandom now has 99 points
+ 12:22 Challenge: 7 215 1: Client 7 got award 215
+ 12:22 Challenge: 7 1 1: Client 7 got award 1
+ 12:22 Challenge: 4 2 1: Client 4 got award 2
+ 12:22 PlayerScore: 7 101: /dev/urandom now has 101 points
+ 12:22 CTF: 7 1 3: /dev/urandom fragged RED's flag carrier!
+ 12:22 Award: 7 2: /dev/urandom gained the IMPRESSIVE award!
+ 12:24 Kill: 5 7 10: ^5U^7gly ^5U^7rsula killed /dev/urandom by MOD_RAILGUN
+ 12:24 PlayerScore: 5 5: ^5U^7gly ^5U^7rsula now has 5 points
+ 12:24 Challenge: 5 215 1: Client 5 got award 215
+ 12:24 Challenge: 5 1 1: Client 5 got award 1
+ 12:24 Challenge: 7 2 1: Client 7 got award 2
+ 12:26 Item: 3 team_CTF_blueflag
+ 12:26 PlayerScore: 3 46: *^8m^7*^^7e^5A^7x now has 46 points
+ 12:26 CTF: 3 2 2: *^8m^7*^^7e^5A^7x returned the BLUE flag!
+ 12:27 Kill: 7 5 10: /dev/urandom killed ^5U^7gly ^5U^7rsula by MOD_RAILGUN
+ 12:27 PlayerScore: 7 102: /dev/urandom now has 102 points
+ 12:27 Challenge: 7 215 1: Client 7 got award 215
+ 12:27 Challenge: 7 1 1: Client 7 got award 1
+ 12:27 Challenge: 5 2 1: Client 5 got award 2
+ 12:32 Kill: 4 3 10: ^43^7bl^400^7dz killed *^8m^7*^^7e^5A^7x by MOD_RAILGUN
+ 12:32 PlayerScore: 4 35: ^43^7bl^400^7dz now has 35 points
+ 12:32 Challenge: 4 215 1: Client 4 got award 215
+ 12:32 Challenge: 4 1 1: Client 4 got award 1
+ 12:32 Challenge: 3 2 1: Client 3 got award 2
+ 12:34 Item: 4 team_CTF_blueflag
+ 12:34 CTF: 4 2 0: ^43^7bl^400^7dz got the BLUE flag!
+ 12:34 PlayerScore: 4 35: ^43^7bl^400^7dz now has 35 points
+ 12:35 Kill: 3 4 10: *^8m^7*^^7e^5A^7x killed ^43^7bl^400^7dz by MOD_RAILGUN
+ 12:35 PlayerScore: 3 47: *^8m^7*^^7e^5A^7x now has 47 points
+ 12:35 Challenge: 3 215 1: Client 3 got award 215
+ 12:35 Challenge: 3 1 1: Client 3 got award 1
+ 12:35 Challenge: 4 2 1: Client 4 got award 2
+ 12:35 PlayerScore: 3 49: *^8m^7*^^7e^5A^7x now has 49 points
+ 12:35 CTF: 3 1 3: *^8m^7*^^7e^5A^7x fragged RED's flag carrier!
+ 12:36 Item: 3 team_CTF_blueflag
+ 12:36 PlayerScore: 3 50: *^8m^7*^^7e^5A^7x now has 50 points
+ 12:36 CTF: 3 2 2: *^8m^7*^^7e^5A^7x returned the BLUE flag!
+ 12:38 Kill: 5 3 10: ^5U^7gly ^5U^7rsula killed *^8m^7*^^7e^5A^7x by MOD_RAILGUN
+ 12:38 PlayerScore: 5 6: ^5U^7gly ^5U^7rsula now has 6 points
+ 12:38 Challenge: 5 215 1: Client 5 got award 215
+ 12:38 Challenge: 5 1 1: Client 5 got award 1
+ 12:38 Challenge: 3 2 1: Client 3 got award 2
+ 12:38 Kill: 7 4 10: /dev/urandom killed ^43^7bl^400^7dz by MOD_RAILGUN
+ 12:38 PlayerScore: 7 103: /dev/urandom now has 103 points
+ 12:38 Challenge: 7 215 1: Client 7 got award 215
+ 12:38 Challenge: 7 1 1: Client 7 got award 1
+ 12:38 Challenge: 4 2 1: Client 4 got award 2
+ 12:38 Award: 7 2: /dev/urandom gained the IMPRESSIVE award!
+ 12:40 Item: 5 team_CTF_blueflag
+ 12:40 CTF: 5 2 0: ^5U^7gly ^5U^7rsula got the BLUE flag!
+ 12:40 PlayerScore: 5 6: ^5U^7gly ^5U^7rsula now has 6 points
+ 12:40 Item: 7 team_CTF_redflag
+ 12:40 CTF: 7 1 0: /dev/urandom got the RED flag!
+ 12:40 PlayerScore: 7 103: /dev/urandom now has 103 points
+ 12:46 Kill: 4 7 10: ^43^7bl^400^7dz killed /dev/urandom by MOD_RAILGUN
+ 12:46 PlayerScore: 4 36: ^43^7bl^400^7dz now has 36 points
+ 12:46 Challenge: 4 215 1: Client 4 got award 215
+ 12:46 Challenge: 4 1 1: Client 4 got award 1
+ 12:46 Challenge: 7 2 1: Client 7 got award 2
+ 12:46 PlayerScore: 4 38: ^43^7bl^400^7dz now has 38 points
+ 12:46 CTF: 4 2 3: ^43^7bl^400^7dz fragged BLUE's flag carrier!
+ 12:48 Item: 4 team_CTF_redflag
+ 12:48 PlayerScore: 4 39: ^43^7bl^400^7dz now has 39 points
+ 12:48 CTF: 4 1 2: ^43^7bl^400^7dz returned the RED flag!
+ 12:49 Kill: 5 3 10: ^5U^7gly ^5U^7rsula killed *^8m^7*^^7e^5A^7x by MOD_RAILGUN
+ 12:49 PlayerScore: 5 7: ^5U^7gly ^5U^7rsula now has 7 points
+ 12:49 Challenge: 5 215 1: Client 5 got award 215
+ 12:49 Challenge: 5 1 1: Client 5 got award 1
+ 12:49 Challenge: 3 2 1: Client 3 got award 2
+ 12:54 Kill: 7 5 10: /dev/urandom killed ^5U^7gly ^5U^7rsula by MOD_RAILGUN
+ 12:54 PlayerScore: 7 104: /dev/urandom now has 104 points
+ 12:54 Challenge: 7 215 1: Client 7 got award 215
+ 12:54 Challenge: 7 1 1: Client 7 got award 1
+ 12:54 Challenge: 5 2 1: Client 5 got award 2
+ 12:54 PlayerScore: 7 106: /dev/urandom now has 106 points
+ 12:54 CTF: 7 1 3: /dev/urandom fragged RED's flag carrier!
+ 12:56 Item: 4 team_CTF_blueflag
+ 12:56 CTF: 4 2 0: ^43^7bl^400^7dz got the BLUE flag!
+ 12:56 PlayerScore: 4 39: ^43^7bl^400^7dz now has 39 points
+ 12:57 Item: 4 team_CTF_redflag
+ 12:57 CTF: 4 2 1: ^43^7bl^400^7dz captured the BLUE flag!
+ 12:57 Award: 4 4: ^43^7bl^400^7dz gained the CAPTURE award!
+ 12:57 PlayerScore: 4 44: ^43^7bl^400^7dz now has 44 points
+ 12:57 PlayerScore: 5 7: ^5U^7gly ^5U^7rsula now has 7 points
+ 12:57 Kill: 3 4 10: *^8m^7*^^7e^5A^7x killed ^43^7bl^400^7dz by MOD_RAILGUN
+ 12:57 PlayerScore: 3 51: *^8m^7*^^7e^5A^7x now has 51 points
+ 12:57 Challenge: 3 215 1: Client 3 got award 215
+ 12:57 Challenge: 3 1 1: Client 3 got award 1
+ 12:57 Challenge: 4 2 1: Client 4 got award 2
+ 13:00 Kill: 7 5 10: /dev/urandom killed ^5U^7gly ^5U^7rsula by MOD_RAILGUN
+ 13:00 PlayerScore: 7 107: /dev/urandom now has 107 points
+ 13:00 Challenge: 7 215 1: Client 7 got award 215
+ 13:00 Challenge: 7 1 1: Client 7 got award 1
+ 13:00 Challenge: 5 2 1: Client 5 got award 2
+ 13:02 Item: 7 team_CTF_redflag
+ 13:02 CTF: 7 1 0: /dev/urandom got the RED flag!
+ 13:02 PlayerScore: 7 107: /dev/urandom now has 107 points
+ 13:07 Kill: 7 4 10: /dev/urandom killed ^43^7bl^400^7dz by MOD_RAILGUN
+ 13:07 PlayerScore: 7 108: /dev/urandom now has 108 points
+ 13:07 Challenge: 7 215 1: Client 7 got award 215
+ 13:07 Challenge: 7 1 1: Client 7 got award 1
+ 13:07 Challenge: 4 2 1: Client 4 got award 2
+ 13:07 PlayerScore: 7 109: /dev/urandom now has 109 points
+ 13:07 Award: 7 3: /dev/urandom gained the DEFENCE award!
+ 13:07 Award: 7 2: /dev/urandom gained the IMPRESSIVE award!
+ 13:12 Item: 7 team_CTF_blueflag
+ 13:12 CTF: 7 1 1: /dev/urandom captured the RED flag!
+ 13:12 Award: 7 4: /dev/urandom gained the CAPTURE award!
+ 13:12 PlayerScore: 7 114: /dev/urandom now has 114 points
+ 13:12 Exit: Capturelimit hit.
+ 13:12 red:2  blue:8
+ 13:12 score: 114  ping: 100  client: 7 /dev/urandom
+ 13:12 score: 51  ping: 62  client: 3 *^8m^7*^^7e^5A^7x
+ 13:12 score: 44  ping: 198  client: 4 ^43^7bl^400^7dz
+ 13:12 score: 7  ping: 98  client: 5 ^5U^7gly ^5U^7rsula
+ 13:12 PlayerScore: 3 51: *^8m^7*^^7e^5A^7x now has 51 points
+ 13:12 chat: ^1K^7at^3i^7na^8: ^7^5== ^6RESULTS ^5=======================
+ 13:12 chat: ^1K^7at^3i^7na^8: ^7^3#1 ^7chs/bloodz ^3capped ^75^3 flags.
+ 13:12 chat: ^1K^7at^3i^7na^8: ^7^3#2 ^7*^8m^7*^^7e^5A^7x ^3capped ^73^3 flags.
+ 13:12 chat: ^1K^7at^3i^7na^8: ^7^3#3 ^7^43^7bl^400^7dz ^3capped ^71^3 flags.
+ 13:12 chat: ^1K^7at^3i^7na^8: ^7^3#3 ^7^0/^2opt ^3capped ^71^3 flags.
+ 13:12 chat: ^1K^7at^3i^7na^8: ^7^5----------------------------------
+ 13:14 say: /dev/urandom: gg
+ 13:16 say: *^8m^7*^^7e^5A^7x: ^5:)
+ 13:22 say: ^43^7bl^400^7dz: lol i capped 5?
+ 13:28 ShutdownGame:
+ 13:28 ------------------------------------------------------------
+  0:00 ------------------------------------------------------------
+  0:00 InitGame: \sv_hostname\^4Z^5imsNEW ^1I^3nstantgib\sv_maxclients\20\sv_maxRate\25000\sv_minRate\2500\fraglimit\15\timelimit\20\_Admin\Zimmer106|Pixelized|GOOGLE|SooKee|gb|Fennel|Wing\_Email\drremmiz@gmail.com\_Location\Europe, Netherlands\_Website\http://zimsintantgib.freeforums.org/\sv_fps\20\snaps\20\sv_floodprotect\1\sv_allowdownload\1\sv_dlURL\http://176.56.235.126\g_needpass\0\sv_privateClients\2\g_delagHitscan\1\bot_minplayers\1\videoflags\0\g_gametype\4\g_instantgib\2\g_maxGameClients\20\g_doWarmup\0\g_allowVote\0\g_voteGametypes\/4/\dmflags\512\sv_minPing\0\sv_maxPing\0\capturelimit\8\g_voteMaxTimelimit\1000\g_voteMinTimelimit\0\g_voteMaxFraglimit\0\g_voteMinFraglimit\0\elimination_roundtime\120\g_lms_mode\0\version\ioq3+oa 1.36_SVN1910M linux-x86_64 Dec 25 2011\protocol\71\mapname\ctf_inyard\gamename\baseoa\elimflags\0\voteflags\375\g_obeliskRespawnDelay\10\g_enableDust\0\g_enableBreath\0\g_rockets\0\g_altExcellent\0\g_timestamp\2013-04-16 01:57:22
+  

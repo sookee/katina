@@ -41,7 +41,7 @@ using namespace oastats::types;
 using namespace oastats::string;
 
 const str NAME = "katina-votes";
-const str VERSION = "0.1";
+const str VERSION = "0.2";
 const str TAG = "alpha";
 
 int main()
@@ -78,7 +78,7 @@ int main()
 		return false;
 	}
 
-	str_siz_map votes;
+	std::map<str, std::pair<siz, siz> > votes;
 
 	MYSQL_RES* result = mysql_store_result(&mysql);
 
@@ -88,17 +88,23 @@ int main()
 
 		MYSQL_ROW row;
 		while((row = mysql_fetch_row(result)))
-			votes[row[0]] += to<int>(row[1]);
+		{
+			int vote = to<int>(row[1]);
+			if(vote > 0)
+				votes[row[0]].first += vote;
+			else if(vote < 0)
+				votes[row[0]].first -= vote;
+		}
 
 		mysql_free_result(result);
 
-		for(str_siz_map_iter i = votes.begin(); i != votes.end(); ++i)
+		for(std::map<str, std::pair<siz, siz> >::iterator i = votes.begin(); i != votes.end(); ++i)
 		{
-			con(i->first << ": " << i->second);
+			con(i->first << ": " << i->second.first << ", " << i->second.second);
 
 			oss.str("");
-			oss << "insert into `polls` (`type`,`item`,`count`) values (";
-			oss << "'map','" << i->first << "','" << i->second << "')";
+			oss << "insert into `polls` (`type`,`item`,`love`,`hate`) values (";
+			oss << "'map','" << i->first << "','" << i->second.first << "','" << i->second.second << "')";
 
 			str sql = oss.str();
 
