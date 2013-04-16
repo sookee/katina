@@ -645,12 +645,12 @@ void* set_teams(void* td_vp)
 							&& (teams[clients[n]] == 'R' || teams[clients[n]] == 'B'))
 							{
 								// parted from game
-								bug("TIMER:         stop: " << clients[n]);
-								bug("     : current time: " << stats[clients[n]].logged_time);
-
 								if(stats[clients[n]].joined_time) // 0 for new record
 									stats[clients[n]].logged_time += now - stats[clients[n]].joined_time;
 								stats[clients[n]].joined_time = 0; // stop counting time
+
+								bug("TIMER:         stop: " << clients[n]);
+								bug("     : current time: " << stats[clients[n]].logged_time);
 							}
 						}
 						teams[clients[n]] = team;
@@ -862,6 +862,14 @@ int main(const int argc, const char* argv[])
 //				str reply;
 //				if(!server.command("set g_allowVote 0", reply))
 //					server.command("set g_allowVote 0", reply); // one retry
+
+				// in game timing
+				std::time_t now = std::time(0);
+				for(guid_stat_iter i = stats.begin(); i != stats.end(); ++i)
+				{
+					if(i->second.joined_time);
+						i->second.logged_time += now - i->second.joined_time;
+				}
 
 				skivvy.chat('*', "^3Game Over");
 				in_game = false;
@@ -1191,6 +1199,7 @@ int main(const int argc, const char* argv[])
 
 				// -----------------
 
+				// in game timing
 				for(guid_stat_iter i = stats.begin(); i != stats.end(); ++i)
 				{
 					i->second.joined_time = 0;
