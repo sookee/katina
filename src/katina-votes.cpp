@@ -78,7 +78,7 @@ int main()
 		return false;
 	}
 
-	std::map<str, std::pair<siz, siz> > votes;
+	std::map<str, std::pair<siz, siz> > votes; // mapname -> { loves, hates }
 
 	MYSQL_RES* result = mysql_store_result(&mysql);
 
@@ -93,7 +93,7 @@ int main()
 			if(vote > 0)
 				votes[row[0]].first += vote;
 			else if(vote < 0)
-				votes[row[0]].first -= vote;
+				votes[row[0]].second -= vote;
 		}
 
 		mysql_free_result(result);
