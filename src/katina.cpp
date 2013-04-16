@@ -630,7 +630,7 @@ void* set_teams(void* td_vp)
 					{
 						pthread_mutex_lock(&mtx);
 						// TODO: start counting time here
-						if(team != teams[clients[n]])
+						if(!clients[n].is_bot() && team != teams[clients[n]])
 						{
 							if((team == 'R' || team == 'B')
 							&& (teams[clients[n]] != 'R' && teams[clients[n]] != 'B'))
