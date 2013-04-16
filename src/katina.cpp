@@ -636,7 +636,8 @@ void* set_teams(void* td_vp)
 							bug("TIMER:        start: " << clients[n]);
 							bug("     : current time: " << stats[clients[n]].logged_time);
 							std::time_t now = std::time(0);
-							stats[clients[n]].logged_time += now - stats[clients[n]].joined_time;
+							if(stats[clients[n]].joined_time) // 0 for new record
+								stats[clients[n]].logged_time += now - stats[clients[n]].joined_time;
 							stats[clients[n]].joined_time = now;
 						}
 						teams[clients[n]] = team;

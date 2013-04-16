@@ -42,6 +42,11 @@ katina-votes.o: katina-votes.cpp $(INCLUDES)
 
 %.o: %.cpp %.h
 	$(CXX) $(CXXFLAGS) $(MYSQL_INCL) -c -o $@ $<
+	
+install:
+	mkdir -p $(HOME)/bin
+	for program in $(PROGRAMS); do cp $(program) $(HOME)/bin; done
 
 clean:
 	rm -f *.o *.so $(PROGRAMS)
+
