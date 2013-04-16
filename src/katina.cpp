@@ -621,6 +621,7 @@ void* set_teams(void* td_vp)
 				siss iss(reply);
 				str line;
 				std::getline(iss, line); // skip command
+				std::time_t now = std::time(0);
 				while(std::getline(iss, line))
 				{
 					//bug("\t\tline: " << line);
@@ -629,16 +630,28 @@ void* set_teams(void* td_vp)
 					{
 						pthread_mutex_lock(&mtx);
 						// TODO: start counting time here
-						if(team != teams[clients[n]]
-						&& (team == 'R' || team == 'B')
-						&& (teams[clients[n]] != 'R' && teams[clients[n]] != 'B'))
+						if(team != teams[clients[n]])
 						{
-							bug("TIMER:        start: " << clients[n]);
-							bug("     : current time: " << stats[clients[n]].logged_time);
-							std::time_t now = std::time(0);
-							if(stats[clients[n]].joined_time) // 0 for new record
-								stats[clients[n]].logged_time += now - stats[clients[n]].joined_time;
-							stats[clients[n]].joined_time = now;
+							if((team == 'R' || team == 'B')
+							&& (teams[clients[n]] != 'R' && teams[clients[n]] != 'B'))
+							{
+								// joined game
+								bug("TIMER:        start: " << clients[n]);
+								bug("     : current time: " << stats[clients[n]].logged_time);
+
+								stats[clients[n]].joined_time = now;
+							}
+							else if((team != 'R' && team != 'B')
+							&& (teams[clients[n]] == 'R' || teams[clients[n]] == 'B'))
+							{
+								// parted from game
+								bug("TIMER:         stop: " << clients[n]);
+								bug("     : current time: " << stats[clients[n]].logged_time);
+
+								if(stats[clients[n]].joined_time) // 0 for new record
+									stats[clients[n]].logged_time += now - stats[clients[n]].joined_time;
+								stats[clients[n]].joined_time = 0; // stop counting time
+							}
 						}
 						teams[clients[n]] = team;
 						pthread_mutex_unlock(&mtx);
