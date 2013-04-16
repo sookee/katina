@@ -633,6 +633,8 @@ void* set_teams(void* td_vp)
 						&& (team == 'R' || team == 'B')
 						&& (teams[clients[n]] != 'R' && teams[clients[n]] != 'B'))
 						{
+							bug("TIMER:        start: " << clients[n]);
+							bug("     : current time: " << stats[clients[n]].logged_time);
 							std::time_t now = std::time(0);
 							stats[clients[n]].logged_time += now - stats[clients[n]].joined_time;
 							stats[clients[n]].joined_time = now;
@@ -1176,7 +1178,10 @@ int main(const int argc, const char* argv[])
 				// -----------------
 
 				for(guid_stat_iter i = stats.begin(); i != stats.end(); ++i)
+				{
+					i->second.joined_time = 0;
 					i->second.logged_time = 0;
+				}
 
 				time = std::time(0);
 				in_game = true;
