@@ -112,7 +112,7 @@ struct stats
 	siz_map awards;
 
 	time_t joined_time;
-	time_t logged_time;
+	siz logged_time;
 
 	stats(): kills(), deaths(), flags(), awards(), joined_time(0), logged_time(0) {}
 };
@@ -867,8 +867,13 @@ int main(const int argc, const char* argv[])
 				std::time_t now = std::time(0);
 				for(guid_stat_iter i = stats.begin(); i != stats.end(); ++i)
 				{
+					bug("TIMER:         EOG: " << i->first);
 					if(i->second.joined_time);
 					{
+						bug("TIMER:         ADD: " << i->first);
+						bug("TIMER:         now: " << now);
+						bug("TIMER: logged_tile: " << i->second.logged_time);
+						bug("TIMER: joined_time: " << i->second.joined_time);
 						i->second.logged_time += now - i->second.joined_time;
 						i->second.joined_time = 0;
 					}
