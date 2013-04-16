@@ -45,7 +45,7 @@ katina-votes.o: katina-votes.cpp $(INCLUDES)
 	
 install:
 	mkdir -p $(HOME)/bin
-	for program in $(PROGRAMS); do cp $(program) $(HOME)/bin; done
+	for program in $(PROGRAMS); do cp $$program $(HOME)/bin; done
 
 clean:
 	rm -f *.o *.so $(PROGRAMS)
