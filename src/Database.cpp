@@ -144,6 +144,29 @@ bool Database::add_caps(game_id id, const GUID& guid, siz count)
 	return true;
 }
 
+bool Database::add_time(game_id id, const GUID& guid, siz count)
+{
+	if(!active)
+		return true; // not error
+
+	log("DATABASE: add_time(" << id << ", " << guid << ", " << count << ")");
+
+	soss oss;
+	oss << "insert into `time` (`game_id`, `guid`, `count`) values (";
+	oss << "'" << id << "','" << guid << "','" << count << "')";
+
+	str sql = oss.str();
+
+	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+	{
+		log("DATABASE ERROR: Unable to add_time; " << mysql_error(&mysql));
+		log("              : sql = " << sql);
+		return false;
+	}
+
+	return true;
+}
+
 bool Database::add_player(const GUID& guid, const str& name)
 {
 	if(!active)

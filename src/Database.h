@@ -83,6 +83,7 @@ public:
 	bool add_weaps(game_id id, const str& table, const GUID& guid, siz weap, siz count);
 
 	bool add_caps(game_id id, const GUID& guid, siz count);
+	bool add_time(game_id id, const GUID& guid, siz count);
 
 	bool add_player(const GUID& guid, const str& name);
 

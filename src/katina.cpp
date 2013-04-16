@@ -914,6 +914,9 @@ int main(const int argc, const char* argv[])
 
 							if((count = map_get(p->second.flags, FL_CAPTURED)))
 								db.add_caps(id, p->first, count);
+
+							if((count = p->second.logged_time))
+								db.add_time(id, p->first, count);
 						}
 
 						for(onevone_citer o = onevone.begin(); o != onevone.end(); ++o)
