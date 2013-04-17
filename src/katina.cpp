@@ -87,7 +87,7 @@ using namespace oastats::string;
 using namespace oastats::net;
 using namespace oastats::time;
 
-const std::string version = "0.5.3";
+const std::string version = "0.5.4";
 const std::string tag = "alpha";
 
 /*
@@ -602,63 +602,63 @@ void* set_teams(void* td_vp)
 			break;
 		}
 
-		if(!sk_cfg.active || !sk_cfg.active)
-			continue;
-
-		str reply;
-		if(server.command("!listplayers", reply))
-		{
-			trim(reply);
-			// !listplayers: 4 players connected:
-			//  1 R 0   Unknown Player (*)   Major
-			//  2 B 0   Unknown Player (*)   Tony
-			//  4 B 0   Unknown Player (*)   Sorceress
-			//  5 R 0   Unknown Player (*)   Sergei
-			if(!reply.empty())
-			{
-				siz n;
-				char team;
-				siss iss(reply);
-				str line;
-				std::getline(iss, line); // skip command
-				std::time_t now = std::time(0);
-				while(std::getline(iss, line))
-				{
-					//bug("\t\tline: " << line);
-					siss iss(line);
-					if(iss >> n >> team)
-					{
-						pthread_mutex_lock(&mtx);
-						// TODO: start counting time here
-						if(!clients[n].is_bot() && team != teams[clients[n]])
-						{
-							if((team == 'R' || team == 'B')
-							&& (teams[clients[n]] != 'R' && teams[clients[n]] != 'B'))
-							{
-								// joined game
-								bug("TIMER:        start: " << clients[n]);
-								bug("     : current time: " << stats[clients[n]].logged_time);
-
-								stats[clients[n]].joined_time = now;
-							}
-							else if((team != 'R' && team != 'B')
-							&& (teams[clients[n]] == 'R' || teams[clients[n]] == 'B'))
-							{
-								// parted from game
-								if(stats[clients[n]].joined_time) // 0 for new record
-									stats[clients[n]].logged_time += now - stats[clients[n]].joined_time;
-								stats[clients[n]].joined_time = 0; // stop counting time
-
-								bug("TIMER:         stop: " << clients[n]);
-								bug("     : current time: " << stats[clients[n]].logged_time);
-							}
-						}
-						teams[clients[n]] = team;
-						pthread_mutex_unlock(&mtx);
-					}
-				}
-			}
-		}
+//		if(!sk_cfg.active || !sk_cfg.active)
+//			continue;
+//
+//		str reply;
+//		if(server.command("!listplayers", reply))
+//		{
+//			trim(reply);
+//			// !listplayers: 4 players connected:
+//			//  1 R 0   Unknown Player (*)   Major
+//			//  2 B 0   Unknown Player (*)   Tony
+//			//  4 B 0   Unknown Player (*)   Sorceress
+//			//  5 R 0   Unknown Player (*)   Sergei
+//			if(!reply.empty())
+//			{
+//				siz n;
+//				char team;
+//				siss iss(reply);
+//				str line;
+//				std::getline(iss, line); // skip command
+//				std::time_t now = std::time(0);
+//				while(std::getline(iss, line))
+//				{
+//					//bug("\t\tline: " << line);
+//					siss iss(line);
+//					if(iss >> n >> team)
+//					{
+//						pthread_mutex_lock(&mtx);
+//						// TODO: WHAt ABOUT GAME QUITTERS? How to detect that?
+//						if(!clients[n].is_bot() && team != teams[clients[n]])
+//						{
+//							if((team == 'R' || team == 'B')
+//							&& (teams[clients[n]] != 'R' && teams[clients[n]] != 'B'))
+//							{
+//								// joined game
+//								bug("TIMER:        start: " << clients[n]);
+//								bug("     : current time: " << stats[clients[n]].logged_time);
+//
+//								stats[clients[n]].joined_time = now;
+//							}
+//							else if((team != 'R' && team != 'B')
+//							&& (teams[clients[n]] == 'R' || teams[clients[n]] == 'B'))
+//							{
+//								// parted from game
+//								if(stats[clients[n]].joined_time) // 0 for new record
+//									stats[clients[n]].logged_time += now - stats[clients[n]].joined_time;
+//								stats[clients[n]].joined_time = 0; // stop counting time
+//
+//								bug("TIMER:         stop: " << clients[n]);
+//								bug("     : current time: " << stats[clients[n]].logged_time);
+//							}
+//						}
+//						teams[clients[n]] = team;
+//						pthread_mutex_unlock(&mtx);
+//					}
+//				}
+//			}
+//		}
 	}
 	pthread_exit(0);
 }
@@ -741,6 +741,10 @@ str get_hud(siz m, siz s, GUID dasher[2])
 	oss << "00]";
 	return oss.str();
 }
+
+const siz TEAM_R = 1;
+const siz TEAM_B = 2;
+const siz TEAM_S = 3;
 
 int main(const int argc, const char* argv[])
 {
@@ -852,6 +856,7 @@ int main(const int argc, const char* argv[])
 		iss >> m >> c >> s >> cmd;
 		secs = (m * 60) + s;
 //		bug("cmd: " << cmd);
+		std::time_t now = std::time(0);
 		if(in_game)
 		{
 			if(cmd == "Exit:")
@@ -864,7 +869,6 @@ int main(const int argc, const char* argv[])
 //					server.command("set g_allowVote 0", reply); // one retry
 
 				// in game timing
-				std::time_t now = std::time(0);
 				for(guid_stat_iter i = stats.begin(); i != stats.end(); ++i)
 				{
 					bug("TIMER:         EOG: " << i->first);
@@ -872,7 +876,7 @@ int main(const int argc, const char* argv[])
 					{
 						bug("TIMER:         ADD: " << i->first);
 						bug("TIMER:         now: " << now);
-						bug("TIMER: logged_tile: " << i->second.logged_time);
+						bug("TIMER: logged_time: " << i->second.logged_time);
 						bug("TIMER: joined_time: " << i->second.joined_time);
 						i->second.logged_time += now - i->second.joined_time;
 						i->second.joined_time = 0;
@@ -966,11 +970,14 @@ int main(const int argc, const char* argv[])
 			else if(cmd == "ClientUserinfoChanged:")
 			{
 				trace(cmd << "(" << (in_game?"playing":"waiting") << ")");
+
+				// 1:58 ClientUserinfoChanged: 2 n\<name>\t\<team>\model\sar
+
 				//bug("ClientUserinfoChanged:");
 				//do_rcon("^3ClientUserinfoChanged:");
 				// 0:23 ClientUserinfoChanged: 2 n\^1S^2oo^3K^5ee\t\2\model\ayumi/red\hmodel\ayumi/red\g_redteam\\g_blueteam\\c1\1\c2\1\hc\100\w\0\l\0\tt\0\tl\1\id\1A7C66BACBA16F0C9068D8B82C1D55DE
-				siz num;
-				if(!std::getline(std::getline(iss >> num, skip, '\\'), name, '\\'))
+				siz num, team;
+				if(!std::getline(std::getline(std::getline(iss >> num, skip, '\\'), name, '\\'), skip, '\\') >> team)
 				{
 					std::cout << "Error parsing ClientUserinfoChanged: "  << line << '\n';
 					continue;
@@ -992,10 +999,49 @@ int main(const int argc, const char* argv[])
 
 					players[clients[num]] = name;
 
-					// TODO: what if client changes?
-//					if(stats[clients[num]].joined_time)
-//						stats[clients[num]].logged_time += std::time(0) - stats[clients[num]].joined_time;
-//					stats[clients[num]].joined_time = time + secs;
+					if(!clients[num].is_bot() && team != teams[clients[num]])
+					{
+						if((team == TEAM_R || team == TEAM_B)
+						&& (teams[clients[num]] != TEAM_R && teams[clients[num]] != TEAM_B))
+						{
+							// joined game
+							bug("TIMER:        start: " << clients[num]);
+							bug("     : current time: " << stats[clients[num]].logged_time);
+
+							stats[clients[num]].joined_time = now;
+						}
+						else if((team != TEAM_R && team != TEAM_B)
+						&& (teams[clients[num]] == TEAM_R || teams[clients[num]] == TEAM_B))
+						{
+							// parted from game
+							if(stats[clients[num]].joined_time) // 0 for new record
+								stats[clients[num]].logged_time += now - stats[clients[num]].joined_time;
+							stats[clients[num]].joined_time = 0; // stop counting time
+
+							bug("TIMER:         stop: " << clients[num]);
+							bug("     : current time: " << stats[clients[num]].logged_time);
+						}
+						teams[clients[num]] = team; // 1 = red, 2 = blue, 3 = spec
+					}
+				}
+			}
+			else if(cmd == "ClientConnect:")
+			{
+				siz num;
+				if((iss >> num))
+				{
+					stats[clients[num]].joined_time = 0;
+					stats[clients[num]].logged_time = 0;
+				}
+			}
+			else if(cmd == "ClientDisconnect:")
+			{
+				siz num;
+				if((iss >> num))
+				{
+					if(stats[clients[num]].joined_time)
+						stats[clients[num]].logged_time += now - stats[clients[num]].joined_time;
+					stats[clients[num]].joined_time = 0;
 				}
 			}
 			else if(cmd == "Kill:")
@@ -1059,16 +1105,16 @@ int main(const int argc, const char* argv[])
 				str nums_team = "^7[^2U^7]"; // unknown team
 				str nums_nteam = "^7[^2U^7]"; // unknown team
 
-				pthread_mutex_lock(&mtx);
-				if(teams[clients[num]] == 'R')
+				//pthread_mutex_lock(&mtx);
+				if(teams[clients[num]] == TEAM_R)
 					nums_team = "^7[^1R^7]";
-				else if(teams[clients[num]] == 'B')
+				else if(teams[clients[num]] == TEAM_B)
 					nums_team = "^7[^4B^7]";
-				if(teams[clients[num]] == 'B')
+				if(teams[clients[num]] == TEAM_B)
 					nums_nteam = "^7[^1R^7]";
-				else if(teams[clients[num]] == 'R')
+				else if(teams[clients[num]] == TEAM_R)
 					nums_nteam = "^7[^4B^7]";
-				pthread_mutex_unlock(&mtx);
+				//pthread_mutex_unlock(&mtx);
 
 				//bug("inc stats");
 				if(!clients[num].is_bot())
@@ -1218,7 +1264,7 @@ int main(const int argc, const char* argv[])
 				}
 				for(guid_siz_map::iterator i = teams.begin(); i != teams.end(); ++i)
 				{
-					i->second = 'U';
+					i->second = 0;
 				}
 				// -----------------
 
