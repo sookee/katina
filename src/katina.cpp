@@ -1020,34 +1020,51 @@ int main(const int argc, const char* argv[])
 					bug("team               : " << team);
 					bug("teams[clients[num]]: " << teams[clients[num]]);
 					bug("");
-					if(/*!clients[num].is_bot() &&*/ team != teams[clients[num]])
-					{
-						if((team == TEAM_R || team == TEAM_B)
-						&& (teams[clients[num]] != TEAM_R && teams[clients[num]] != TEAM_B))
-						{
-							// joined game
-							stats[clients[num]].joined_time = now;
 
-							bug("TIMER:       start: " << clients[num] << " " << players[clients[num]]);
-							bug("TIMER: logged_time: " << stats[clients[num]].logged_time);
-							bug("TIMER: joined_time: " << stats[clients[num]].joined_time);
-							bug("TIMER:");
-						}
-						else if((team != TEAM_R && team != TEAM_B)
-						&& (teams[clients[num]] == TEAM_R || teams[clients[num]] == TEAM_B))
-						{
-							// parted from game
-							if(stats[clients[num]].joined_time) // 0 for new record
-								stats[clients[num]].logged_time += now - stats[clients[num]].joined_time;
-							stats[clients[num]].joined_time = 0; // stop counting time
+					teams[clients[num]] = team; // 1 = red, 2 = blue, 3 = spec
 
-							bug("TIMER:        stop: " << clients[num] << " " << players[clients[num]]);
-							bug("     : logged_time: " << stats[clients[num]].logged_time);
-							bug("TIMER: joined_time: " << stats[clients[num]].joined_time);
-							bug("TIMER:");
-						}
-						teams[clients[num]] = team; // 1 = red, 2 = blue, 3 = spec
-					}
+					bug("TIMER: joined_time: " << stats[clients[num]].joined_time);
+
+					if(stats[clients[num]].joined_time)
+						stats[clients[num]].logged_time += now - stats[clients[num]].joined_time;
+
+					if(teams[clients[num]] == TEAM_R || teams[clients[num]] == TEAM_B)
+						stats[clients[num]].joined_time = now;
+					else
+						stats[clients[num]].joined_time = 0;
+
+					bug("TIMER: logged_time: " << stats[clients[num]].logged_time);
+					bug("TIMER: joined_time: " << stats[clients[num]].joined_time);
+					bug("TIMER:");
+
+//					if(/*!clients[num].is_bot() &&*/ team != teams[clients[num]])
+//					{
+//						if((team == TEAM_R || team == TEAM_B)
+//						&& (teams[clients[num]] != TEAM_R && teams[clients[num]] != TEAM_B))
+//						{
+//							// joined game
+//							stats[clients[num]].joined_time = now;
+//
+//							bug("TIMER:       start: " << clients[num] << " " << players[clients[num]]);
+//							bug("TIMER: logged_time: " << stats[clients[num]].logged_time);
+//							bug("TIMER: joined_time: " << stats[clients[num]].joined_time);
+//							bug("TIMER:");
+//						}
+//						else if((team != TEAM_R && team != TEAM_B)
+//						&& (teams[clients[num]] == TEAM_R || teams[clients[num]] == TEAM_B))
+//						{
+//							// parted from game
+//							if(stats[clients[num]].joined_time) // 0 for new record
+//								stats[clients[num]].logged_time += now - stats[clients[num]].joined_time;
+//							stats[clients[num]].joined_time = 0; // stop counting time
+//
+//							bug("TIMER:        stop: " << clients[num] << " " << players[clients[num]]);
+//							bug("     : logged_time: " << stats[clients[num]].logged_time);
+//							bug("TIMER: joined_time: " << stats[clients[num]].joined_time);
+//							bug("TIMER:");
+//						}
+//						teams[clients[num]] = team; // 1 = red, 2 = blue, 3 = spec
+//					}
 				}
 //				teams[clients[num]] = team; // 1 = red, 2 = blue, 3 = spec
 			}
