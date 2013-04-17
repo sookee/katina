@@ -386,8 +386,8 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 				oss.str("");
 				oss << s;
 				secs = oss.str();
-				if(mins.size() < 3)
-					mins = str(3 - mins.size(), ' ') + mins;
+				if(mins.size() < 2)
+					mins = str(2 - mins.size(), ' ') + mins;
 				if(secs.size() < 2)
 					secs = str(2 - secs.size(), '0') + secs;
 				oss.str("");
@@ -1003,30 +1003,18 @@ int main(const int argc, const char* argv[])
 					if(id.size() != 32)
 						clients[num] = bot_guid(num);//null_guid;
 					else
-					{
-						GUID guid = to<GUID>(id.substr(24));
-						clients[num] = guid;
-//						bug("guid: " << guid);
-//						bug("clients[num]: " << clients[num]);
-//						if(clients[num] != guid)
-//						{
-//							bug("new guid for this num");
-//							clients[num] = guid;
-//							teams[clients[num]] = TEAM_U;
-//						}
-					}
+						clients[num] = to<GUID>(id.substr(24));
 
-//					bug("teams[clients[num]]: " << teams[clients[num]]);
 					players[clients[num]] = name;
 
-					if(!clients[num].is_bot() && team != teams[clients[num]])
+					if(/*!clients[num].is_bot() &&*/ team != teams[clients[num]])
 					{
 						if((team == TEAM_R || team == TEAM_B)
 						&& (teams[clients[num]] != TEAM_R && teams[clients[num]] != TEAM_B))
 						{
 							// joined game
-							bug("TIMER:        start: " << clients[num]);
-							bug("     : current time: " << stats[clients[num]].logged_time);
+							bug("TIMER:       start: " << clients[num]);
+							bug("     : logged_time: " << stats[clients[num]].logged_time);
 
 							stats[clients[num]].joined_time = now;
 						}
@@ -1038,24 +1026,27 @@ int main(const int argc, const char* argv[])
 								stats[clients[num]].logged_time += now - stats[clients[num]].joined_time;
 							stats[clients[num]].joined_time = 0; // stop counting time
 
-							bug("TIMER:         stop: " << clients[num]);
-							bug("     : current time: " << stats[clients[num]].logged_time);
+							bug("TIMER:        stop: " << clients[num]);
+							bug("     : logged_time: " << stats[clients[num]].logged_time);
 						}
+						teams[clients[num]] = team; // 1 = red, 2 = blue, 3 = spec
 					}
 				}
-				teams[clients[num]] = team; // 1 = red, 2 = blue, 3 = spec
+//				teams[clients[num]] = team; // 1 = red, 2 = blue, 3 = spec
 			}
 			else if(cmd == "ClientConnect:")
 			{
+				trace(cmd << "(" << (in_game?"playing":"waiting") << ")");
 				siz num;
 				if((iss >> num))
 				{
 					stats[clients[num]].joined_time = 0;
-					stats[clients[num]].logged_time = 0;
 				}
 			}
 			else if(cmd == "ClientDisconnect:")
 			{
+				trace(cmd << "(" << (in_game?"playing":"waiting") << ")");
+				bug("now: " << now);
 				siz num;
 				if((iss >> num))
 				{
@@ -1276,18 +1267,6 @@ int main(const int argc, const char* argv[])
 				map_votes.clear();
 				// -----------------
 
-				// in game timing
-				for(guid_stat_iter i = stats.begin(); i != stats.end(); ++i)
-				{
-					i->second.joined_time = 0;
-					i->second.logged_time = 0;
-				}
-				for(guid_siz_map::iterator i = teams.begin(); i != teams.end(); ++i)
-				{
-					i->second = 0;
-				}
-				// -----------------
-
 				time = std::time(0);
 				in_game = true;
 
@@ -1299,6 +1278,7 @@ int main(const int argc, const char* argv[])
 				onevone.clear();
 				caps.clear();
 				stats.clear();
+				teams.clear();
 
 				dasher[FL_RED] = null_guid;;
 				dasher[FL_BLUE] = null_guid;;
@@ -1360,10 +1340,6 @@ int main(const int argc, const char* argv[])
 				if(extract_name_from_text(line, guid, text))
 					if(!sk_cfg.spamkill || ++spam[text] < spam_limit)
 						skivvy.chat('c', "^7say: " + players[guid] + " ^2" + text);
-
-//				if(std::getline(iss >> std::ws, text))
-//					if(!sk_cfg.spamkill || ++spam[text] < spam_limit)
-//						skivvy.chat('c', "^7say: " + text);
 			}
 
 			siz pos;
