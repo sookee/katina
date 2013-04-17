@@ -997,7 +997,7 @@ int main(const int argc, const char* argv[])
 						clients[num] = bot_guid(num);//null_guid;
 					else
 					{
-						GUID guid = to<GUID>(id.substr(24);
+						GUID guid = to<GUID>(id.substr(24));
 						if(clients[num] != guid)
 						{
 							clients[num] = guid;
