@@ -90,6 +90,11 @@ using namespace oastats::time;
 const std::string version = "0.5.4";
 const std::string tag = "alpha";
 
+inline std::istream& sgl(std::istream& is, str& line, char delim = '\n')
+{
+	return std::getline(is, line, delim);
+}
+
 /*
  * Create a GUID for bots based on their slot number
  */
@@ -978,7 +983,7 @@ int main(const int argc, const char* argv[])
 				//do_rcon("^3ClientUserinfoChanged:");
 				// 0:23 ClientUserinfoChanged: 2 n\^1S^2oo^3K^5ee\t\2\model\ayumi/red\hmodel\ayumi/red\g_redteam\\g_blueteam\\c1\1\c2\1\hc\100\w\0\l\0\tt\0\tl\1\id\1A7C66BACBA16F0C9068D8B82C1D55DE
 				siz num, team;
-				if(!std::getline(std::getline(std::getline(iss >> num, skip, '\\'), name, '\\'), skip, '\\') >> team)
+				if(!(sgl(sgl(sgl(iss >> num, skip, '\\'), name, '\\'), skip, '\\') >> team))
 				{
 					std::cout << "Error parsing ClientUserinfoChanged: "  << line << '\n';
 					continue;
