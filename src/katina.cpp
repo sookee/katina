@@ -742,6 +742,7 @@ str get_hud(siz m, siz s, GUID dasher[2])
 	return oss.str();
 }
 
+const siz TEAM_U = 0;
 const siz TEAM_R = 1;
 const siz TEAM_B = 2;
 const siz TEAM_S = 3;
@@ -990,12 +991,19 @@ int main(const int argc, const char* argv[])
 				siz pos = line.find("\\id\\");
 				if(pos != str::npos)
 				{
-					str guid = line.substr(pos + 4, 32);
+					str id = line.substr(pos + 4, 32);
 
-					if(guid.size() != 32)
+					if(id.size() != 32)
 						clients[num] = bot_guid(num);//null_guid;
 					else
-						clients[num] = to<GUID>(guid.substr(24));
+					{
+						GUID guid = to<GUID>(id.substr(24);
+						if(clients[num] != guid)
+						{
+							clients[num] = guid;
+							teams[clients[num]] = TEAM_U;
+						}
+					}
 
 					players[clients[num]] = name;
 
