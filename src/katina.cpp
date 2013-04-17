@@ -737,12 +737,20 @@ void stack_handler(int sig)
 	exit(1);
 }
 
-str get_hud(siz m, siz s, GUID dasher[2])
+const str HUD_FLAG_P = "⚑";
+const str HUD_FLAG_DIE = "*";
+const str HUD_FLAG_CAP = "Y";
+const str HUD_FLAG_NONE = ".";
+const str HUD_FLAG_RETURN = "^";
+
+str hud_flag[2] = {HUD_FLAG_NONE, HUD_FLAG_NONE};
+
+str get_hud(siz m, siz s, str hud_flag[2])
 {
 	soss oss;
 	oss << "00[15" << (m < 10?"0":"") << m << "00:15" << (s < 10?"0":"") << s << " ";
-	oss << "04" << (dasher[FL_RED] != null_guid?"⚑":".");
-	oss << "02" << (dasher[FL_BLUE] != null_guid?"⚑":".");
+	oss << "04" << hud_flag[FL_RED];
+	oss << "02" << hud_flag[FL_BLUE];
 	oss << "00]";
 	return oss.str();
 }
@@ -1189,9 +1197,13 @@ int main(const int argc, const char* argv[])
 						if(sk_cfg.do_flags)
 						{
 							if(sk_cfg.do_flags_hud)
-								hud = get_hud(m, s, dasher);
+							{
+								hud_flag[col] = HUD_FLAG_CAP;
+								hud = get_hud(m, s, hud_flag);
+							}
 							skivvy.raw_chat('f', hud + oa_to_IRC(nums_team + " " + msg));
 							skivvy.raw_chat('f', hud + oa_to_IRC("^7[ ] ^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED])));
+							hud_flag[col] = HUD_FLAG_NONE;
 						}
 					}
 				}
@@ -1205,7 +1217,10 @@ int main(const int argc, const char* argv[])
 					if(sk_cfg.do_flags)
 					{
 						if(sk_cfg.do_flags_hud)
-							hud = get_hud(m, s, dasher);
+						{
+							hud_flag[col] = HUD_FLAG_P;
+							hud = get_hud(m, s, hud_flag);
+						}
 						skivvy.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + players[clients[num]] + "^3 has taken the " + flag[col] + " ^3flag!"));
 					}
 				}
@@ -1214,7 +1229,10 @@ int main(const int argc, const char* argv[])
 					if(sk_cfg.do_flags)
 					{
 						if(sk_cfg.do_flags_hud)
-							hud = get_hud(m, s, dasher);
+						{
+							hud_flag[col] = HUD_FLAG_DIE;
+							hud = get_hud(m, s, hud_flag);
+						}
 						skivvy.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + players[clients[num]] + "^3 has killed the " + flag[ncol] + " ^3flag carrier!"));
 					}
 					GUID dasher_guid = dasher[ncol];
@@ -1223,8 +1241,11 @@ int main(const int argc, const char* argv[])
 					if(sk_cfg.do_flags)
 					{
 						if(sk_cfg.do_flags_hud)
-							hud = get_hud(m, s, dasher);
-						skivvy.raw_chat('f', hud + oa_to_IRC(nums_nteam + " ^7" + players[dasher_guid] + "^3 has dropped the " + flag[ncol] + " ^3flag!"));
+						{
+							hud_flag[col] = HUD_FLAG_NONE;
+//							hud = get_hud(m, s, dasher);
+						}
+//						skivvy.raw_chat('f', hud + oa_to_IRC(nums_nteam + " ^7" + players[dasher_guid] + "^3 has dropped the " + flag[ncol] + " ^3flag!"));
 					}
 				}
 				else if(act == FL_RETURNED)
@@ -1234,8 +1255,12 @@ int main(const int argc, const char* argv[])
 					if(sk_cfg.do_flags)
 					{
 						if(sk_cfg.do_flags_hud)
-							hud = get_hud(m, s, dasher);
+						{
+							hud_flag[col] = HUD_FLAG_RETURN;
+							hud = get_hud(m, s, hud_flag);
+						}
 						skivvy.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + players[clients[num]] + "^3 has returned the " + flag[col] + " ^3flag!"));
+						hud_flag[col] = HUD_FLAG_NONE;
 					}
 				}
 			}
