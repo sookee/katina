@@ -989,11 +989,11 @@ int main(const int argc, const char* argv[])
 					continue;
 				}
 
-				bug("line: " << line);
-				bug("num: " << num);
-				bug("skip: " << skip);
-				bug("name: " << name);
-				bug("team: " << team);
+//				bug("line: " << line);
+//				bug("num: " << num);
+//				bug("skip: " << skip);
+//				bug("name: " << name);
+//				bug("team: " << team);
 
 				siz pos = line.find("\\id\\");
 				if(pos != str::npos)
@@ -1005,17 +1005,17 @@ int main(const int argc, const char* argv[])
 					else
 					{
 						GUID guid = to<GUID>(id.substr(24));
-						bug("guid: " << guid);
-						bug("clients[num]: " << clients[num]);
-						if(clients[num] != guid)
-						{
-							bug("new guid for this num");
-							clients[num] = guid;
-							teams[clients[num]] = TEAM_U;
-						}
+//						bug("guid: " << guid);
+//						bug("clients[num]: " << clients[num]);
+//						if(clients[num] != guid)
+//						{
+//							bug("new guid for this num");
+//							clients[num] = guid;
+//							teams[clients[num]] = TEAM_U;
+//						}
 					}
 
-					bug("teams[clients[num]]: " << teams[clients[num]]);
+//					bug("teams[clients[num]]: " << teams[clients[num]]);
 					players[clients[num]] = name;
 
 					if(!clients[num].is_bot() && team != teams[clients[num]])
