@@ -1005,6 +1005,7 @@ int main(const int argc, const char* argv[])
 					else
 					{
 						GUID guid = to<GUID>(id.substr(24));
+						clients[num] = guid;
 //						bug("guid: " << guid);
 //						bug("clients[num]: " << clients[num]);
 //						if(clients[num] != guid)
@@ -1040,9 +1041,9 @@ int main(const int argc, const char* argv[])
 							bug("TIMER:         stop: " << clients[num]);
 							bug("     : current time: " << stats[clients[num]].logged_time);
 						}
-						teams[clients[num]] = team; // 1 = red, 2 = blue, 3 = spec
 					}
 				}
+				teams[clients[num]] = team; // 1 = red, 2 = blue, 3 = spec
 			}
 			else if(cmd == "ClientConnect:")
 			{
