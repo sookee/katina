@@ -1236,10 +1236,9 @@ int main(const int argc, const char* argv[])
 						{
 							hud_flag[ncol] = HUD_FLAG_DIE;
 							hud = get_hud(m, s, hud_flag);
-							hud_flag[col] = HUD_FLAG_NONE;
+							hud_flag[ncol] = HUD_FLAG_NONE;
 						}
 						skivvy.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + players[clients[num]] + "^3 has killed the " + flag[ncol] + " ^3flag carrier!"));
-						hud_flag[ncol] = HUD_FLAG_NONE;
 					}
 					GUID dasher_guid = dasher[ncol];
 					dasher[ncol] = null_guid;; // end a dash
