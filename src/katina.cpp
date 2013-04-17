@@ -441,6 +441,7 @@ void* set_teams(void* td_vp)
 		// cvar controls
 		if(restart_vote && std::time(0) > restart_vote)
 		{
+			log("CALLVOTE CONTROL: ON");
 			str reply;
 			if(!server.command("set g_allowVote 1", reply))
 				if(!server.command("set g_allowVote 1", reply))
@@ -890,11 +891,11 @@ int main(const int argc, const char* argv[])
 				// shutdown voting until next map
 				log("exit: writing stats to database and collecting votes");
 
-				str reply;
-				if(!server.command("set g_allowVote 0", reply))
-					if(!server.command("set g_allowVote 0", reply))
-						server.command("set g_allowVote 0", reply); // two retry
-				restart_vote = std::time(0) + 120;
+//				str reply;
+//				if(!server.command("set g_allowVote 0", reply))
+//					if(!server.command("set g_allowVote 0", reply))
+//						server.command("set g_allowVote 0", reply); // two retry
+//				restart_vote = std::time(0) + 120;
 
 				// in game timing
 				for(guid_stat_iter i = stats.begin(); i != stats.end(); ++i)
@@ -989,7 +990,12 @@ int main(const int argc, const char* argv[])
 			{
 				trace(cmd << "(" << (in_game?"playing":"waiting") << ")");
 				in_game = false;
-
+				log("CALLVOTE CONTROL: OFF");
+				str reply;
+				if(!server.command("set g_allowVote 0", reply))
+					if(!server.command("set g_allowVote 0", reply))
+						server.command("set g_allowVote 0", reply); // two retry
+				restart_vote = std::time(0) + 120;
 			}
 			else if(cmd == "Warmup:")
 			{
@@ -1489,4 +1495,9 @@ int main(const int argc, const char* argv[])
 	}
 	done = true;
 	pthread_join(teams_thread, 0);
+	log("CALLVOTE CONTROL: ON");
+	str reply;
+	if(!server.command("set g_allowVote 1", reply))
+		if(!server.command("set g_allowVote 1", reply))
+			server.command("set g_allowVote 1", reply); // two retry
 }
