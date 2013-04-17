@@ -423,6 +423,8 @@ void load_records(str_map& recs)
 		recs[key] = val;
 }
 
+time_t restart_vote = 0;
+
 void* set_teams(void* td_vp)
 {
 	thread_data& td = *reinterpret_cast<thread_data*>(td_vp);
@@ -437,6 +439,15 @@ void* set_teams(void* td_vp)
 		thread_sleep_millis(td.delay);
 
 		// cvar controls
+		if(restart_vote && std::time(0) > restart_vote)
+		{
+			str reply;
+			if(!server.command("set g_allowVote 1", reply))
+				if(!server.command("set g_allowVote 1", reply))
+					server.command("set g_allowVote 1", reply); // two retry
+			restart_vote = 0;
+		}
+
 
 		static siz c = 0;
 
@@ -878,9 +889,12 @@ int main(const int argc, const char* argv[])
 				trace(cmd << "(" << (in_game?"playing":"waiting") << ")");
 				// shutdown voting until next map
 				log("exit: writing stats to database and collecting votes");
-//				str reply;
-//				if(!server.command("set g_allowVote 0", reply))
-//					server.command("set g_allowVote 0", reply); // one retry
+
+				str reply;
+				if(!server.command("set g_allowVote 0", reply))
+					if(!server.command("set g_allowVote 0", reply))
+						server.command("set g_allowVote 0", reply); // two retry
+				restart_vote = std::time(0) + 120;
 
 				// in game timing
 				for(guid_stat_iter i = stats.begin(); i != stats.end(); ++i)
