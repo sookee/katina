@@ -1016,16 +1016,22 @@ int main(const int argc, const char* argv[])
 
 					players[clients[num]] = name;
 
+					bug("");
+					bug("team               : " << team);
+					bug("teams[clients[num]]: " << teams[clients[num]]);
+					bug("");
 					if(/*!clients[num].is_bot() &&*/ team != teams[clients[num]])
 					{
 						if((team == TEAM_R || team == TEAM_B)
 						&& (teams[clients[num]] != TEAM_R && teams[clients[num]] != TEAM_B))
 						{
 							// joined game
-							bug("TIMER:       start: " << clients[num]);
-							bug("     : logged_time: " << stats[clients[num]].logged_time);
-
 							stats[clients[num]].joined_time = now;
+
+							bug("TIMER:       start: " << clients[num] << " " << players[clients[num]]);
+							bug("TIMER: logged_time: " << stats[clients[num]].logged_time);
+							bug("TIMER: joined_time: " << stats[clients[num]].joined_time);
+							bug("TIMER:");
 						}
 						else if((team != TEAM_R && team != TEAM_B)
 						&& (teams[clients[num]] == TEAM_R || teams[clients[num]] == TEAM_B))
@@ -1035,8 +1041,10 @@ int main(const int argc, const char* argv[])
 								stats[clients[num]].logged_time += now - stats[clients[num]].joined_time;
 							stats[clients[num]].joined_time = 0; // stop counting time
 
-							bug("TIMER:        stop: " << clients[num]);
+							bug("TIMER:        stop: " << clients[num] << " " << players[clients[num]]);
 							bug("     : logged_time: " << stats[clients[num]].logged_time);
+							bug("TIMER: joined_time: " << stats[clients[num]].joined_time);
+							bug("TIMER:");
 						}
 						teams[clients[num]] = team; // 1 = red, 2 = blue, 3 = spec
 					}
@@ -1284,6 +1292,7 @@ int main(const int argc, const char* argv[])
 			if(cmd == "InitGame:")
 			{
 				trace(cmd << "(" << (in_game?"playing":"waiting") << ")");
+				log("INIT GAME:");
 
 				// SAVE mapvotes from the previous game (if any)
 				// We do this here because if the previous map was voted off
@@ -1335,11 +1344,11 @@ int main(const int argc, const char* argv[])
 						continue;
 					}
 					lower(mapname);
-					bug("mapname: " << mapname);
 
 					// load map votes for new map
 					db.read_map_votes(mapname, map_votes);
 				}
+				log("MAP NAME: " << mapname);
 				if(sk_cfg.do_infos && mapname != old_mapname)
 				{
 					siz love = 0;
