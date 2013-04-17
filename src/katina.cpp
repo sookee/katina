@@ -1294,6 +1294,9 @@ int main(const int argc, const char* argv[])
 				map_votes.clear();
 				// -----------------
 
+				hud_flag[FL_RED] = HUD_FLAG_NONE;
+				hud_flag[FL_BLUE] = HUD_FLAG_NONE;
+
 				time = std::time(0);
 				in_game = true;
 
