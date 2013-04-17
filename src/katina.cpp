@@ -424,6 +424,7 @@ void load_records(str_map& recs)
 }
 
 time_t restart_vote = 0;
+time_t votecontrol_wait = 0;
 
 void* set_teams(void* td_vp)
 {
@@ -454,6 +455,8 @@ void* set_teams(void* td_vp)
 
 		katina_conf old_ka_cfg = ka_cfg;
 		skivvy_conf old_sk_cfg = sk_cfg;
+		time_t old_votecontrol_wait = votecontrol_wait;
+
 		str cvar;
 		siss iss;
 		siz weap;
@@ -612,6 +615,15 @@ void* set_teams(void* td_vp)
 				{
 					log("skivvy: spamkill is now: " << (sk_cfg.spamkill ? "on":"off"));
 					skivvy.chat('*', "^3Spamkill ^1" + str(sk_cfg.spamkill ? "on":"off") + "^3.");
+				}
+			break;
+			case 14:
+				if(!rconset("katina_votecontrol_wait", votecontrol_wait))
+					rconset("katina_votecontrol_wait", votecontrol_wait); // one retry
+				if(votecontrol_wait != old_votecontrol_wait)
+				{
+					log("skivvy: votecontrol_wait is now: " << votecontrol_wait << " seconds");
+					skivvy.chat('*', "^3Votecontrol wait: ^1" + to_string(votecontrol_wait) + "^3 seconds.");
 				}
 			break;
 			default:
@@ -891,11 +903,15 @@ int main(const int argc, const char* argv[])
 				// shutdown voting until next map
 				log("exit: writing stats to database and collecting votes");
 
-//				str reply;
-//				if(!server.command("set g_allowVote 0", reply))
-//					if(!server.command("set g_allowVote 0", reply))
-//						server.command("set g_allowVote 0", reply); // two retry
-//				restart_vote = std::time(0) + 120;
+				if(!restart_vote)
+				{
+					log("CALLVOTE CONTROL: OFF");
+					str reply;
+					if(!server.command("set g_allowVote 0", reply))
+						if(!server.command("set g_allowVote 0", reply))
+							server.command("set g_allowVote 0", reply); // two retry
+					restart_vote = std::time(0) + votecontrol_wait;;
+				}
 
 				// in game timing
 				for(guid_stat_iter i = stats.begin(); i != stats.end(); ++i)
@@ -990,12 +1006,15 @@ int main(const int argc, const char* argv[])
 			{
 				trace(cmd << "(" << (in_game?"playing":"waiting") << ")");
 				in_game = false;
-				log("CALLVOTE CONTROL: OFF");
-				str reply;
-				if(!server.command("set g_allowVote 0", reply))
+				if(!restart_vote)
+				{
+					log("CALLVOTE CONTROL: OFF");
+					str reply;
 					if(!server.command("set g_allowVote 0", reply))
-						server.command("set g_allowVote 0", reply); // two retry
-				restart_vote = std::time(0) + 120;
+						if(!server.command("set g_allowVote 0", reply))
+							server.command("set g_allowVote 0", reply); // two retry
+					restart_vote = std::time(0) + votecontrol_wait;;
+				}
 			}
 			else if(cmd == "Warmup:")
 			{
