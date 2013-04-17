@@ -1071,11 +1071,11 @@ int main(const int argc, const char* argv[])
 			else if(cmd == "ClientConnect:")
 			{
 				trace(cmd << "(" << (in_game?"playing":"waiting") << ")");
-				siz num;
-				if((iss >> num))
-				{
-					stats[clients[num]].joined_time = 0;
-				}
+//				siz num;
+//				if((iss >> num))
+//				{
+//					stats[clients[num]].joined_time = 0;
+//				}
 			}
 			else if(cmd == "ClientDisconnect:")
 			{
