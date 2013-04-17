@@ -984,6 +984,7 @@ int main(const int argc, const char* argv[])
 					continue;
 				}
 
+				bug("line: " << line);
 				bug("num: " << num);
 				bug("skip: " << skip);
 				bug("name: " << name);
