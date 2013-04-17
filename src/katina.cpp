@@ -892,7 +892,8 @@ int main(const int argc, const char* argv[])
 						bug("TIMER:         now: " << now);
 						bug("TIMER: logged_time: " << i->second.logged_time);
 						bug("TIMER: joined_time: " << i->second.joined_time);
-						i->second.logged_time += now - i->second.joined_time;
+						if(i->second.joined_time)
+							i->second.logged_time += now - i->second.joined_time;
 						i->second.joined_time = 0;
 					}
 				}
