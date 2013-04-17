@@ -1202,8 +1202,8 @@ int main(const int argc, const char* argv[])
 								hud = get_hud(m, s, hud_flag);
 							}
 							skivvy.raw_chat('f', hud + oa_to_IRC(nums_team + " " + msg));
-							skivvy.raw_chat('f', hud + oa_to_IRC("^7[ ] ^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED])));
 							hud_flag[col] = HUD_FLAG_NONE;
+							skivvy.raw_chat('f', hud + oa_to_IRC("^7[ ] ^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED])));
 						}
 					}
 				}
@@ -1230,10 +1230,11 @@ int main(const int argc, const char* argv[])
 					{
 						if(sk_cfg.do_flags_hud)
 						{
-							hud_flag[col] = HUD_FLAG_DIE;
+							hud_flag[ncol] = HUD_FLAG_DIE;
 							hud = get_hud(m, s, hud_flag);
 						}
 						skivvy.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + players[clients[num]] + "^3 has killed the " + flag[ncol] + " ^3flag carrier!"));
+						hud_flag[ncol] = HUD_FLAG_NONE;
 					}
 					GUID dasher_guid = dasher[ncol];
 					dasher[ncol] = null_guid;; // end a dash
