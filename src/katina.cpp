@@ -495,7 +495,7 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 					sep = "^2|";
 				}
 
-
+				oss << sep << player;
 //				oss << "^3time: ^7" << mins << "^3:^7" << secs << " " << "^3kills^7/^3d ^5(^7" << kd << "^5) ^3caps^7/^3d ^5(^7" << cd << "^5)^7: " + player;
 				skivvy_scores.insert(std::make_pair(rkd, oss.str()));
 			}
