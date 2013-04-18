@@ -389,7 +389,7 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 		if(sk_cfg.stats_cols & skivvy_conf::RSC_TIME)
 			{ oss << sep << "^3cph"; sep = "^2|"; }
 		if(sk_cfg.stats_cols & skivvy_conf::RSC_TIME)
-			{ oss << sep << "^3fpd "; sep = "^2|"; }
+			{ oss << sep << "^3fpd  "; sep = "^2|"; }
 		if(sk_cfg.stats_cols & skivvy_conf::RSC_TIME)
 			{ oss << sep << "^3cpd  "; sep = "^2|"; }
 		skivvy.chat('s', oss.str());
@@ -419,8 +419,8 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 
 			double rkd = 0.0;
 			double rcd = 0.0;
-			double rkh = 0.0;
-			double rch = 0.0;
+			siz rkh = 0;
+			siz rch = 0;
 			str kd, cd, kh, ch;
 			if(!d)
 			{
@@ -483,7 +483,7 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 				if(sk_cfg.stats_cols & skivvy_conf::RSC_KPD)
 				{
 					col = "^7" + kd;
-					set_width(col, 4, 2);
+					set_width(col, 5, 2);
 					oss << sep << col;
 					sep = "^2|";
 				}
