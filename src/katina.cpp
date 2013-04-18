@@ -910,7 +910,7 @@ int main(const int argc, const char* argv[])
 					if(!server.command("set g_allowVote 0", reply))
 						if(!server.command("set g_allowVote 0", reply))
 							server.command("set g_allowVote 0", reply); // two retry
-					restart_vote = std::time(0) + votecontrol_wait;;
+					restart_vote = 0;//std::time(0) + votecontrol_wait;
 				}
 
 				// in game timing
@@ -1013,7 +1013,7 @@ int main(const int argc, const char* argv[])
 					if(!server.command("set g_allowVote 0", reply))
 						if(!server.command("set g_allowVote 0", reply))
 							server.command("set g_allowVote 0", reply); // two retry
-					restart_vote = std::time(0) + votecontrol_wait;;
+					restart_vote = 0;//std::time(0) + votecontrol_wait;
 				}
 			}
 			else if(cmd == "Warmup:")
@@ -1349,6 +1349,9 @@ int main(const int argc, const char* argv[])
 			{
 				trace(cmd << "(" << (in_game?"playing":"waiting") << ")");
 				log("INIT GAME:");
+
+				log("CALLVOTE CONTROL: TIMED: " << votecontrol_wait << " secs");
+				restart_vote = std::time(0) + votecontrol_wait;
 
 				// SAVE mapvotes from the previous game (if any)
 				// We do this here because if the previous map was voted off
