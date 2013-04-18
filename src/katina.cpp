@@ -791,6 +791,12 @@ str expand_env(const str& var)
 void stack_handler(int sig)
 {
 	con("Error: signal " << sig);
+    
+	log("CALLVOTE CONTROL: OFF");
+	str reply;
+	if(!server.command("set g_allowVote 0", reply))
+		if(!server.command("set g_allowVote 0", reply))
+	server.command("set g_allowVote 0", reply); // two retry
 
 	void *array[2048];
 	size_t size;
