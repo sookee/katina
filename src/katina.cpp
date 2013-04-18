@@ -903,7 +903,7 @@ int main(const int argc, const char* argv[])
 				// shutdown voting until next map
 				log("exit: writing stats to database and collecting votes");
 
-				if(!restart_vote)
+//				if(!restart_vote)
 				{
 					log("CALLVOTE CONTROL: OFF");
 					str reply;
@@ -1006,7 +1006,7 @@ int main(const int argc, const char* argv[])
 			{
 				trace(cmd << "(" << (in_game?"playing":"waiting") << ")");
 				in_game = false;
-				if(!restart_vote)
+//				if(!restart_vote)
 				{
 					log("CALLVOTE CONTROL: OFF");
 					str reply;

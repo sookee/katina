@@ -68,6 +68,7 @@ s = stats (k/d c/d)
 !rcon soo seta katina_skivvy_infos 1
 !rcon soo seta katina_skivvy_stats 0
 !rcon soo seta katina_skivvy_spamkill 1
+!rcon soo seta katina_votecontrol_wait 30
 
 ## config $HOME/.katina/records.txt
 
