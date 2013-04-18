@@ -202,7 +202,7 @@ struct katina_conf
 	bool do_flags;
 	bool do_dashes;
 	bool do_db; // do database writes
-	bool votecontrol_wait; // seconds, 0 = votecontrol off
+	siz votecontrol_wait; // seconds, 0 = votecontrol off
 	std::set<siz> db_weaps; // which weapons to record
 
 	katina_conf()
