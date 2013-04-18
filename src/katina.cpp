@@ -87,7 +87,7 @@ using namespace oastats::string;
 using namespace oastats::net;
 using namespace oastats::time;
 
-const std::string version = "0.5.4";
+const std::string version = "0.5.5";
 const std::string tag = "alpha";
 
 inline std::istream& sgl(std::istream& is, str& line, char delim = '\n')
@@ -202,6 +202,7 @@ struct katina_conf
 	bool do_flags;
 	bool do_dashes;
 	bool do_db; // do database writes
+	bool votecontrol_wait; // seconds, 0 = votecontrol off
 	std::set<siz> db_weaps; // which weapons to record
 
 	katina_conf()
@@ -209,12 +210,22 @@ struct katina_conf
 	, do_flags(false)
 	, do_dashes(false)
 	, do_db(false)
+	, votecontrol_wait(0)
 	{
 	}
 };
 
 struct skivvy_conf
 {
+	enum
+	{
+		RSC_TIME = 0b00000001
+		, RSC_FPH = 0b00000010 // frags/hour
+		, RSC_CPH = 0b00000100 // flags/hour
+		, RSC_KPD = 0b00001000 // kills/deaths
+		, RSC_CPD = 0b00010000 // caps/deaths
+	};
+
 	bool active;
 	bool do_flags;
 	bool do_flags_hud;
@@ -222,6 +233,7 @@ struct skivvy_conf
 	bool do_kills;
 	bool do_infos;
 	bool do_stats;
+	siz stats_cols;
 	bool spamkill;
 	str chans;
 
@@ -233,8 +245,25 @@ struct skivvy_conf
 	, do_kills(false)
 	, do_infos(false)
 	, do_stats(false)
+	, stats_cols(0)
 	, spamkill(false)
 	{
+	}
+
+	str get_stats_cols() const
+	{
+		str cols, sep;
+		if(stats_cols & RSC_TIME)
+			{ cols += sep + "TIME"; sep = " "; }
+		if(stats_cols & RSC_FPH)
+			{ cols += sep + "FPH"; sep = " "; }
+		if(stats_cols & RSC_CPH)
+			{ cols += sep + "CPH"; sep = " "; }
+		if(stats_cols & RSC_KPD)
+			{ cols += sep + "KPD"; sep = " "; }
+		if(stats_cols & RSC_CPD)
+			{ cols += sep + "CPD"; sep = " "; }
+		return cols;
 	}
 };
 
@@ -331,10 +360,40 @@ siz map_get(const siz_map& m, siz key)
 	return m.find(key) == m.end() ? 0 : m.at(key);
 }
 
+/**
+ *
+ * @param var
+ * @param w
+ * @param j - junk (control codes not included in final width)
+ */
+void set_width(str& var, siz w, siz j)
+{
+	w += j;
+	if(var.size() < w)
+		var = str(w - var.size(), ' ') + var;
+}
+
 void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 {
 	std::multimap<double, str> skivvy_scores;
 
+	soss oss;
+	if(sk_cfg.do_stats)
+	{
+		oss.str("");
+		str sep;
+		if(sk_cfg.stats_cols & skivvy_conf::RSC_TIME)
+			{ oss << sep << "^3time "; sep = "^2|"; }
+		if(sk_cfg.stats_cols & skivvy_conf::RSC_FPH)
+			{ oss << sep << "^3fph"; sep = "^2|"; }
+		if(sk_cfg.stats_cols & skivvy_conf::RSC_TIME)
+			{ oss << sep << "^3cph"; sep = "^2|"; }
+		if(sk_cfg.stats_cols & skivvy_conf::RSC_TIME)
+			{ oss << sep << "^3fpd "; sep = "^2|"; }
+		if(sk_cfg.stats_cols & skivvy_conf::RSC_TIME)
+			{ oss << sep << "^3cpd  "; sep = "^2|"; }
+		skivvy.chat('s', oss.str());
+	}
 	for(guid_stat_citer p = stats.begin(); p != stats.end(); ++p)
 	{
 		const str& player = players.at(p->first);
@@ -353,14 +412,16 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 			k += map_get(p->second.kills, MOD_GAUNTLET);
 			siz d = map_get(p->second.deaths, MOD_RAILGUN);
 			d += map_get(p->second.deaths, MOD_GAUNTLET);
-
+			siz h = p->second.logged_time;
 			con("c: " << c);
 			con("k: " << k);
 			con("d: " << d);
 
 			double rkd = 0.0;
 			double rcd = 0.0;
-			str kd, cd;
+			double rkh = 0.0;
+			double rch = 0.0;
+			str kd, cd, kh, ch;
 			if(!d)
 			{
 				if(k)
@@ -372,15 +433,20 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 			{
 				rkd = double(k) / d;
 				rcd = double(c * 100) / d;
-				kd = to_string(rkd, 6);
+				rkh = k * 60 * 60 / h;
+				rch = c * 60 * 60 / h;
+
+				kd = to_string(rkd, 5);
 				cd = to_string(rcd, 6);
+				kh = to_string(rkh, 3);
+				ch = to_string(rch, 2);
 			}
 			if(k || c || d)
 			{
 				str mins, secs;
 				siz m = p->second.logged_time / 60;
 				siz s = p->second.logged_time % 60;
-				soss oss;
+				oss.str("");
 				oss << m;
 				mins = oss.str();
 				oss.str("");
@@ -390,8 +456,47 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 					mins = str(2 - mins.size(), ' ') + mins;
 				if(secs.size() < 2)
 					secs = str(2 - secs.size(), '0') + secs;
+
 				oss.str("");
-				oss << "^3time: ^7" << mins << "^3:^7" << secs << " " << "^3kills^7/^3d ^5(^7" << kd << "^5) ^3caps^7/^3d ^5(^7" << cd << "^5)^7: " + player;
+				str sep, col;
+				if(sk_cfg.stats_cols & skivvy_conf::RSC_TIME)
+				{
+					col = "^7" + mins + "^3:^7" + secs;
+					set_width(col, 5, 6);
+					oss << sep << col;
+					sep = "^2|";
+				}
+				if(sk_cfg.stats_cols & skivvy_conf::RSC_FPH)
+				{
+					col = "^7" + kh;
+					set_width(col, 3, 2);
+					oss << sep << col;
+					sep = "^2|";
+				}
+				if(sk_cfg.stats_cols & skivvy_conf::RSC_CPH)
+				{
+					col = "^7" + ch;
+					set_width(col, 3, 2);
+					oss << sep << col;
+					sep = "^2|";
+				}
+				if(sk_cfg.stats_cols & skivvy_conf::RSC_KPD)
+				{
+					col = "^7" + kd;
+					set_width(col, 4, 2);
+					oss << sep << col;
+					sep = "^2|";
+				}
+				if(sk_cfg.stats_cols & skivvy_conf::RSC_CPD)
+				{
+					col = "^7" + cd;
+					set_width(col, 5, 2);
+					oss << sep << col;
+					sep = "^2|";
+				}
+
+
+//				oss << "^3time: ^7" << mins << "^3:^7" << secs << " " << "^3kills^7/^3d ^5(^7" << kd << "^5) ^3caps^7/^3d ^5(^7" << cd << "^5)^7: " + player;
 				skivvy_scores.insert(std::make_pair(rkd, oss.str()));
 			}
 		}
@@ -424,8 +529,8 @@ void load_records(str_map& recs)
 }
 
 time_t restart_vote = 0;
-time_t votecontrol_wait = 0;
-
+//time_t votecontrol_wait = 0;
+//siz remote_stats_cols = 0; // bitwise column inclusion
 void* set_teams(void* td_vp)
 {
 	thread_data& td = *reinterpret_cast<thread_data*>(td_vp);
@@ -455,7 +560,6 @@ void* set_teams(void* td_vp)
 
 		katina_conf old_ka_cfg = ka_cfg;
 		skivvy_conf old_sk_cfg = sk_cfg;
-		time_t old_votecontrol_wait = votecontrol_wait;
 
 		str cvar;
 		siss iss;
@@ -618,76 +722,27 @@ void* set_teams(void* td_vp)
 				}
 			break;
 			case 14:
-				if(!rconset("katina_votecontrol_wait", votecontrol_wait))
-					rconset("katina_votecontrol_wait", votecontrol_wait); // one retry
-				if(votecontrol_wait != old_votecontrol_wait)
+				if(!rconset("katina_votecontrol_wait", ka_cfg.votecontrol_wait))
+					rconset("katina_votecontrol_wait", ka_cfg.votecontrol_wait); // one retry
+				if(ka_cfg.votecontrol_wait != old_ka_cfg.votecontrol_wait)
 				{
-					log("skivvy: votecontrol_wait is now: " << votecontrol_wait << " seconds");
-					skivvy.chat('*', "^3Votecontrol wait: ^1" + to_string(votecontrol_wait) + "^3 seconds.");
+					log("skivvy: votecontrol wait is now: " << ka_cfg.votecontrol_wait << " seconds");
+					skivvy.chat('*', "^3Votecontrol wait: ^1" + to_string(ka_cfg.votecontrol_wait) + "^3 seconds.");
+				}
+			break;
+			case 15:
+				if(!rconset("katina_remote_stats_cols", sk_cfg.stats_cols))
+					rconset("katina_remote_stats_cols", sk_cfg.stats_cols); // one retry
+				if(sk_cfg.stats_cols != old_sk_cfg.stats_cols)
+				{
+					log("skivvy: stats_cols is now: " << sk_cfg.get_stats_cols());
+					skivvy.chat('*', "^3Stats Cols now: ^1" + sk_cfg.get_stats_cols() + "^3 seconds.");
 				}
 			break;
 			default:
 				c = 0;
 			break;
 		}
-
-//		if(!sk_cfg.active || !sk_cfg.active)
-//			continue;
-//
-//		str reply;
-//		if(server.command("!listplayers", reply))
-//		{
-//			trim(reply);
-//			// !listplayers: 4 players connected:
-//			//  1 R 0   Unknown Player (*)   Major
-//			//  2 B 0   Unknown Player (*)   Tony
-//			//  4 B 0   Unknown Player (*)   Sorceress
-//			//  5 R 0   Unknown Player (*)   Sergei
-//			if(!reply.empty())
-//			{
-//				siz n;
-//				char team;
-//				siss iss(reply);
-//				str line;
-//				std::getline(iss, line); // skip command
-//				std::time_t now = std::time(0);
-//				while(std::getline(iss, line))
-//				{
-//					//bug("\t\tline: " << line);
-//					siss iss(line);
-//					if(iss >> n >> team)
-//					{
-//						pthread_mutex_lock(&mtx);
-//						// TODO: WHAt ABOUT GAME QUITTERS? How to detect that?
-//						if(!clients[n].is_bot() && team != teams[clients[n]])
-//						{
-//							if((team == 'R' || team == 'B')
-//							&& (teams[clients[n]] != 'R' && teams[clients[n]] != 'B'))
-//							{
-//								// joined game
-//								bug("TIMER:        start: " << clients[n]);
-//								bug("     : current time: " << stats[clients[n]].logged_time);
-//
-//								stats[clients[n]].joined_time = now;
-//							}
-//							else if((team != 'R' && team != 'B')
-//							&& (teams[clients[n]] == 'R' || teams[clients[n]] == 'B'))
-//							{
-//								// parted from game
-//								if(stats[clients[n]].joined_time) // 0 for new record
-//									stats[clients[n]].logged_time += now - stats[clients[n]].joined_time;
-//								stats[clients[n]].joined_time = 0; // stop counting time
-//
-//								bug("TIMER:         stop: " << clients[n]);
-//								bug("     : current time: " << stats[clients[n]].logged_time);
-//							}
-//						}
-//						teams[clients[n]] = team;
-//						pthread_mutex_unlock(&mtx);
-//					}
-//				}
-//			}
-//		}
 	}
 	pthread_exit(0);
 }
@@ -1350,8 +1405,8 @@ int main(const int argc, const char* argv[])
 				trace(cmd << "(" << (in_game?"playing":"waiting") << ")");
 				log("INIT GAME:");
 
-				log("CALLVOTE CONTROL: TIMED: " << votecontrol_wait << " secs");
-				restart_vote = std::time(0) + votecontrol_wait;
+				log("CALLVOTE CONTROL: TIMED: " << ka_cfg.votecontrol_wait << " secs");
+				restart_vote = std::time(0) + ka_cfg.votecontrol_wait;
 
 				// SAVE mapvotes from the previous game (if any)
 				// We do this here because if the previous map was voted off
