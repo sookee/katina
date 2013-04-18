@@ -736,7 +736,7 @@ void* set_teams(void* td_vp)
 				if(sk_cfg.stats_cols != old_sk_cfg.stats_cols)
 				{
 					log("skivvy: stats_cols is now: " << sk_cfg.get_stats_cols());
-					skivvy.chat('*', "^3Stats Cols now: ^1" + sk_cfg.get_stats_cols() + "^3 seconds.");
+					skivvy.chat('*', "^3Stats Cols now: ^1" + sk_cfg.get_stats_cols() + "^3.");
 				}
 			break;
 			default:
