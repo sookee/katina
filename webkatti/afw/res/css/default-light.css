@@ -1,0 +1,122 @@
+/*
+ * Copyright © 2013 Aequiternus@gmail.com
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+/*
+ * Colors: 00 1c 39 55 aa c6 e3 ff
+ */
+
+@import "default.css";
+
+body
+{
+    background: #ffffff;
+}
+
+body, a
+{
+    color: #555555;
+}
+
+
+h1, h2, h3, h4, h5, h6,
+acronym, abbr, dfn, dt, table caption, th, ins,
+a:hover
+{
+    color: #000000;
+}
+
+acronym, abbr, dfn
+{
+    border-bottom: 1px #aaaaaa dotted;
+}
+
+hr
+{
+    border-bottom: 1px #aaaaaa solid;
+}
+
+table, td
+{
+    border: 1px #c6c6c6 solid;
+}
+
+th
+{
+    border: 1px #555555 solid;
+    background: #c6c6c6;
+}
+
+kbd, tt, tbody tr:hover td
+{
+    background: #e3e3e3;
+}
+
+input, button, textarea, select
+{
+    outline: 0;
+    color: #555555;
+    background: #ffffff;
+    border: 1px #c6c6c6 solid;
+    box-shadow: 0 0 1ex #c6c6c6;
+}
+
+input:hover, button:hover, textarea:hover, select:hover,
+input:focus, button:focus, textarea:focus, select:focus
+{
+    border-color: #aac6e3 !important;
+    box-shadow: 0 0 1ex #aac6e3 !important;
+}
+
+button,
+input[type=submit],
+input[type=reset],
+input[type=button]
+{
+    background-color: #e3e3e3;
+    text-shadow: 0 1px 1px #ffffff;
+    box-shadow: 0 .3ex 1ex -.25ex #c6c6c6;
+    background-image: -webkit-linear-gradient(top, #ffffff, #e3e3e3);
+    background-image: -moz-linear-gradient(top, #ffffff, #e3e3e3);
+    background-image: -ms-linear-gradient(top, #ffffff, #e3e3e3);
+    background-image: -o-linear-gradient(top, #ffffff, #e3e3e3);
+    background-image: linear-gradient(top, #ffffff, #e3e3e3);
+}
+
+input[type=submit]:hover, input[type=submit]:focus,
+input[type=reset]:hover, input[type=reset]:focus,
+input[type=button]:hover, input[type=button]:focus,
+button:hover, button:focus
+{
+    box-shadow: 0 .3ex 1ex -.25ex #aac6e3 !important;
+    color: #000000;
+}
+
+button:active,
+input[type=submit]:active,
+input[type=reset]:active,
+input[type=button]:active
+{
+    position: relative;
+    top: 1px;
+    box-shadow: 0 0 1ex -.25ex #aac6e3 !important;
+    color: #000000;
+}
+
+.error,
+.error + label
+{
+    color: #aa0000;
+}
+
+.error + label input,
+.error + label textarea,
+.error + label select
+{
+    border-color: #e3aaaa;
+    box-shadow: 0 0 1ex #e3aaaa;
+}
