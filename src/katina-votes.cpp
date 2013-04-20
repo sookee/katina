@@ -53,81 +53,89 @@ int main()
 	siz port = 3306;
 	str user = "katina";
 	str pass = "6B77EA2A";
-	str base = "oadb";
+	//str base = "oadb";
+
+	str_vec bases;
+	bases.push_back("oadb");
+	bases.push_back("oadb3");
 
 	mysql_init(&mysql);
 
-	if(mysql_real_connect(&mysql, host.c_str(), user.c_str()
-		, pass.c_str(), base.c_str(), port, NULL, 0) != &mysql)
+	for(str_vec_iter i = bases.begin(); i != bases.end(); ++i)
 	{
-		log("DATABASE ERROR: Unable to connect; " << mysql_error(&mysql));
-		return 1;
-	}
+		str base = *i;
 
-	bug("Database open");
-
-	soss oss;
-	oss << "select `item`,`count` from `votes` where `type` = 'map'";
-
-	str sql = oss.str();
-
-	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
-	{
-		log("DATABASE ERROR: Unable to read votes; " << mysql_error(&mysql));
-		log("              : sql = " << sql);
-		return false;
-	}
-
-	std::map<str, std::pair<siz, siz> > votes; // mapname -> { loves, hates }
-
-	MYSQL_RES* result = mysql_store_result(&mysql);
-
-	if(result)
-	{
-		bug("Processing votes");
-
-		MYSQL_ROW row;
-		while((row = mysql_fetch_row(result)))
+		if(mysql_real_connect(&mysql, host.c_str(), user.c_str()
+			, pass.c_str(), base.c_str(), port, NULL, 0) != &mysql)
 		{
-			int vote = to<int>(row[1]);
-			if(vote > 0)
-				votes[row[0]].first += vote;
-			else if(vote < 0)
-				votes[row[0]].second -= vote;
+			log("DATABASE ERROR: Unable to connect; " << mysql_error(&mysql));
+			return 1;
 		}
 
-		mysql_free_result(result);
+		bug("Database open");
 
-		for(std::map<str, std::pair<siz, siz> >::iterator i = votes.begin(); i != votes.end(); ++i)
+		soss oss;
+		oss << "select `item`,`count` from `votes` where `type` = 'map'";
+
+		str sql = oss.str();
+
+		if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
 		{
-			con(i->first << ": " << i->second.first << ", " << i->second.second);
+			log("DATABASE ERROR: Unable to read votes; " << mysql_error(&mysql));
+			log("              : sql = " << sql);
+			return false;
+		}
 
-			oss.str("");
-			oss << "insert into `polls` (`type`,`item`,`love`,`hate`) values (";
-			oss << "'map','" << i->first << "','" << i->second.first << "','" << i->second.second << "')";
+		std::map<str, std::pair<siz, siz> > votes; // mapname -> { loves, hates }
 
-			str sql = oss.str();
+		MYSQL_RES* result = mysql_store_result(&mysql);
 
-			if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+		if(result)
+		{
+			bug("Processing votes");
+
+			MYSQL_ROW row;
+			while((row = mysql_fetch_row(result)))
 			{
-				log("DATABASE ERROR: Unable to read votes; " << mysql_error(&mysql));
-				log("              : sql = " << sql);
-				return 1;
+				int vote = to<int>(row[1]);
+				if(vote > 0)
+					votes[row[0]].first += vote;
+				else if(vote < 0)
+					votes[row[0]].second -= vote;
+			}
+
+			mysql_free_result(result);
+
+			for(std::map<str, std::pair<siz, siz> >::iterator i = votes.begin(); i != votes.end(); ++i)
+			{
+				con(i->first << ": " << i->second.first << ", " << i->second.second);
+
+				oss.str("");
+				oss << "insert into `polls` (`type`,`item`,`love`,`hate`) values (";
+				oss << "'map','" << i->first << "','" << i->second.first << "','" << i->second.second << "')";
+
+				str sql = oss.str();
+
+				if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+				{
+					log("DATABASE ERROR: Unable to read votes; " << mysql_error(&mysql));
+					log("              : sql = " << sql);
+					return 1;
+				}
 			}
 		}
+
+		oss.str("");
+		oss << "delete from `votes` where `type` = 'map'";
+
+		sql = oss.str();
+
+		if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+		{
+			log("DATABASE ERROR: Unable to delete votes; " << mysql_error(&mysql));
+			log("              : sql = " << sql);
+			return false;
+		}
+		mysql_close(&mysql);
 	}
-
-	oss.str("");
-	oss << "delete from `votes` where `type` = 'map'";
-
-	sql = oss.str();
-
-	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
-	{
-		log("DATABASE ERROR: Unable to delete votes; " << mysql_error(&mysql));
-		log("              : sql = " << sql);
-		return false;
-	}
-
-	mysql_close(&mysql);
 }
