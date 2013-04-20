@@ -1,0 +1,177 @@
+/*
+ * Main
+ */
+
+body
+{
+    margin: 0;
+    padding: 0;
+    font-family: "Arial", sans-serif;
+}
+
+.r {color: #ff0000}
+.g {color: #00ff00}
+.y {color: #ffff00}
+.b {color: #0000ff}
+.c {color: #00ffff}
+.m {color: #ff00ff}
+.w {color: #ffffff}
+.o {color: #ff9900}
+
+.wrapper
+{
+    max-width: 80em;
+    margin: 0 auto;
+    padding: 0 1.5em;
+}
+
+form header
+{
+    font-size: 3em;
+}
+
+h1 em
+{
+    color: #000000;
+    font-style: normal;
+}
+
+h2 em
+{
+    color: #404040;
+    font-style: normal;
+}
+
+h1 a
+{
+    color: #c0c0c0;
+}
+
+h1 a:hover
+{
+    color: #ffffff;
+}
+
+footer
+{
+    color: #404040;
+    font-size: .8em;
+}
+
+table, td, th
+{
+    border: 0;
+    background: none;
+}
+
+thead tr
+{
+    border-radius: 1ex 1ex 0 0;
+}
+
+tbody td
+{
+    padding: 0 1ex;
+}
+
+body > header
+{
+    padding: 1ex;
+    margin-bottom: 1.5em;
+    background-image: -webkit-linear-gradient(top, #808080, #000000);
+    background-image: -moz-linear-gradient(top, #808080, #000000);
+    background-image: -ms-linear-gradient(top, #808080, #000000);
+    background-image: -o-linear-gradient(top, #808080, #000000);
+    background-image: linear-gradient(top, #808080, #000000);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#808080', EndColorStr='#000000');
+}
+
+header h1
+{
+    text-shadow: 0 -1px 1px #000000;
+}
+
+
+header em
+{
+    text-shadow: 0 1px 1px #808080;
+}
+
+h1 a
+{
+    text-decoration: none;
+}
+
+nav a
+{
+    display: inline-block;
+    line-height: 2;
+    padding: 0 1ex;
+    border-radius: 1ex;
+}
+
+nav a:hover
+{
+    background: #404040;
+}
+
+.games-date, .games-date-submit
+{
+    display: inline;
+}
+
+/*
+ * Tablesorter
+ */
+
+thead
+{
+    background-image: -webkit-linear-gradient(top, #202020, #000000);
+    background-image: -moz-linear-gradient(top, #202020, #000000);
+    background-image: -ms-linear-gradient(top, #202020, #000000);
+    background-image: -o-linear-gradient(top, #202020, #000000);
+    background-image: linear-gradient(top, #202020, #000000);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#202020', EndColorStr='#000000');
+}
+
+thead th
+{
+    border-bottom: 0;
+    padding: 0 1ex;
+    line-height: 2;
+}
+
+th.header
+{
+    background-image: url(bg.gif);
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-position: center right;
+    padding-right: 20px;
+}
+
+th.headerSortUp
+{
+    background-image: url(asc.gif);
+}
+
+th.headerSortDown
+{
+    background-image: url(desc.gif);
+}
+
+th.headerSortUp,
+th.headerSortDown
+{
+    background-color: #404040;
+    border-radius: 1ex;
+}
+
+.registered
+{
+    font-size: .33333em;
+    color: #00ff00;
+    position: relative;
+    top: -1.5em;
+    left: 1ex;
+}

@@ -1,0 +1,39 @@
+
+.col25
+{
+    float: left;
+    width: 25%;
+}
+
+.col33
+{
+    float: left;
+    width: 33.33%;
+}
+
+.col50
+{
+    float: left;
+    width: 50%;
+}
+
+.col66
+{
+    float: left;
+    width: 66.66%;
+}
+
+.coll
+{
+    padding-right: 1.5em;
+}
+
+.colr
+{
+    padding-left: 1.5em;
+}
+
+.center
+{
+    text-align: center;
+}
