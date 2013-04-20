@@ -50,7 +50,7 @@ class Player
                 ->fields('guid1, guid2, sum(count) as count')
                 ->where("game_id in ($gameIds) and (guid1=? or guid2=?)", [$guid, $guid])
                 ->groupBy('guid1, guid2')
-                ->having('count > 10')
+                ->having('count > ?', M::settings()->get('min_deaths_ovo'))
                 ->all();
             $ovos = [];
             foreach ($r as $row)
@@ -81,7 +81,7 @@ class Player
 
                 foreach ($c->ovos as $ovo_guid => &$ovo)
                 {
-                    $ovo['kd']      = $ovo['kills'] / $ovo['deaths'];
+                    $ovo['kd'] = $ovo['kills'] / $ovo['deaths'];
                 }
                 unset($ovo);
 

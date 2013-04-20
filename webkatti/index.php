@@ -21,8 +21,8 @@ $uri = afw\c\Uri::instance();
 
 $uri->setException(function($e)
 {
-	return (new afw\c\Exception($e))
-        ->wrap(new c\Layout());
+    return (new afw\c\Exception($e))
+        ->wrap(new wk\c\Layout());
 });
 
 $uri->addPattern('`^$`',                                function (  ) { return wk\c\Main    ::index     (       ); });
