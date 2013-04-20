@@ -604,13 +604,13 @@ void* set_teams(void* td_vp)
 				{
 					log("katina: database writing is now: " << (ka_cfg.do_db ? "on":"off"));
 					skivvy.chat('*', "^3Flag timing ^1" + str(ka_cfg.do_db ? "on":"off") + "^3.");
-					if(!ka_cfg.do_db)
-						db.off();
-					else
-					{
-						db.on();
-						db.read_map_votes(mapname, map_votes);
-					}
+//					if(!ka_cfg.do_db)
+//						db.off();
+//					else
+//					{
+//						db.on();
+//						db.read_map_votes(mapname, map_votes);
+//					}
 				}
 			break;
 			case 4:
@@ -1010,36 +1010,48 @@ int main(const int argc, const char* argv[])
 					if(ka_cfg.do_flags && !caps.empty())
 						report_caps(caps, players, flags);
 
-					game_id id = db.add_game(recs["rcon.host"], recs["rcon.port"], mapname);
-					bug("id; " << id);
-					if(id != null_id && id != bad_id)
+					if(ka_cfg.do_db)
 					{
-						// TODO: insert game stats here
-						for(guid_stat_citer p = stats.begin(); p != stats.end(); ++p)
-						{
-							const str& player = players.at(p->first);
+						db.on();
 
-							siz count;
-							for(std::set<siz>::iterator weap = ka_cfg.db_weaps.begin(); weap != ka_cfg.db_weaps.end(); ++weap)
+						game_id id = db.add_game(recs["rcon.host"], recs["rcon.port"], mapname);
+						bug("id; " << id);
+						if(id != null_id && id != bad_id)
+						{
+							// TODO: insert game stats here
+							for(guid_stat_citer p = stats.begin(); p != stats.end(); ++p)
 							{
-								if((count = map_get(p->second.kills, *weap)))
-									db.add_weaps(id, "kills", p->first, *weap, count);
-								if((count = map_get(p->second.deaths, *weap)))
-									db.add_weaps(id, "deaths", p->first, *weap, count);
+								const str& player = players.at(p->first);
+
+								siz count;
+								for(std::set<siz>::iterator weap = ka_cfg.db_weaps.begin(); weap != ka_cfg.db_weaps.end(); ++weap)
+								{
+									if((count = map_get(p->second.kills, *weap)))
+										db.add_weaps(id, "kills", p->first, *weap, count);
+									if((count = map_get(p->second.deaths, *weap)))
+										db.add_weaps(id, "deaths", p->first, *weap, count);
+								}
+
+								if((count = map_get(p->second.flags, FL_CAPTURED)))
+									db.add_caps(id, p->first, count);
+
+								if(!p->first.is_bot())
+									if((count = p->second.logged_time))
+										db.add_time(id, p->first, count);
 							}
 
-							if((count = map_get(p->second.flags, FL_CAPTURED)))
-								db.add_caps(id, p->first, count);
-
-							if(!p->first.is_bot())
-								if((count = p->second.logged_time))
-									db.add_time(id, p->first, count);
+							for(onevone_citer o = onevone.begin(); o != onevone.end(); ++o)
+								for(guid_siz_citer p = o->second.begin(); p != o->second.end(); ++p)
+									db.add_ovo(id, o->first, p->first, p->second);
 						}
 
-						for(onevone_citer o = onevone.begin(); o != onevone.end(); ++o)
-							for(guid_siz_citer p = o->second.begin(); p != o->second.end(); ++p)
-								db.add_ovo(id, o->first, p->first, p->second);
+						for(guid_str_map::iterator player = players.begin(); player != players.end(); ++player)
+							if(!player->first.is_bot())
+								db.add_player(player->first, player->second);
+
+						db.off();
 					}
+
 
 					// report
 					con("-- Report: -------------------------------");
@@ -1056,10 +1068,6 @@ int main(const int argc, const char* argv[])
 				{
 					con(e.what());
 				}
-
-				for(guid_str_map::iterator player = players.begin(); player != players.end(); ++player)
-					if(!player->first.is_bot())
-						db.add_player(player->first, player->second);
 
 				log("exit: done");
 			}
@@ -1419,8 +1427,14 @@ int main(const int argc, const char* argv[])
 				// end of map processing will have been avoided.
 
 				// NB. This MUST be done before mapname changes
-				for(guid_int_map_iter i = map_votes.begin(); i != map_votes.end(); ++i)
-					db.add_vote("map", mapname, i->first, i->second);
+				if(ka_cfg.do_db)
+				{
+					db.on();
+					for(guid_int_map_iter i = map_votes.begin(); i != map_votes.end(); ++i)
+						db.add_vote("map", mapname, i->first, i->second);
+					db.off();
+				}
+
 				map_votes.clear();
 				// -----------------
 
@@ -1466,7 +1480,12 @@ int main(const int argc, const char* argv[])
 					lower(mapname);
 
 					// load map votes for new map
-					db.read_map_votes(mapname, map_votes);
+					if(ka_cfg.do_db)
+					{
+						db.on();
+						db.read_map_votes(mapname, map_votes);
+						db.off();
+					}
 				}
 				log("MAP NAME: " << mapname);
 				if(sk_cfg.do_infos && mapname != old_mapname)
