@@ -120,6 +120,15 @@ nav a:hover
     display: inline;
 }
 
+.registered
+{
+    font-size: .33333em;
+    color: #00ff00;
+    position: relative;
+    top: -1.5em;
+    left: 1ex;
+}
+
 /*
  * Tablesorter
  */
@@ -165,13 +174,4 @@ th.headerSortDown
 {
     background-color: #404040;
     border-radius: 1ex;
-}
-
-.registered
-{
-    font-size: .33333em;
-    color: #00ff00;
-    position: relative;
-    top: -1.5em;
-    left: 1ex;
 }

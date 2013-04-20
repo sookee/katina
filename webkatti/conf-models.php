@@ -16,20 +16,23 @@ class M extends \afw\InstanceFactory
 		{
             $m = new afw\m\Settings('.settings', Storage::cache());
 
-            $m->addField('email')
-                ->setFormField(Element::text('Admin e-mail'));
+            $m->addField('min_deaths_ovo')
+                ->setFormField(Element::text('Minimum deaths for 1v1'));
 
-            $m->addField('count_last_games')
-                ->setFormField(Element::text('Player\'s last games count'));
+            $m->addField('min_deaths_game')
+                ->setFormField(Element::text('Minimum deaths for one game'));
+
+            $m->addField('min_deaths_per_game')
+                ->setFormField(Element::text('Minimum deaths per game for main page'));
         });
     }
 
 
 
     /**
-	 * @return afw\m\Supervisor
-	 */
-	static function supervisor()
+     * @return afw\m\Supervisor
+     */
+    static function supervisor()
     {
         return self::instance(__FUNCTION__, function(&$m)
         {
