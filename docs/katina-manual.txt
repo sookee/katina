@@ -63,6 +63,8 @@ s = stats (k/d c/d)
 !rcon zim seta katina_skivvy_spamkill 1
 !rcon zim seta katina_skivvy_chans #katina-zim(icfks)
 
+# zim2
+
 !rcon zim2 seta katina_active 1
 !rcon zim2 seta katina_dashes 0
 !rcon zim2 seta katina_flags 1
@@ -78,6 +80,26 @@ s = stats (k/d c/d)
 !rcon zim2 seta katina_skivvy_stats 0
 !rcon zim2 seta katina_skivvy_spamkill 1
 !rcon zim2 seta katina_skivvy_chans #katina(icfks)
+
+# zim3
+
+!rcon zim3 seta katina_active 1
+!rcon zim3 seta katina_dashes 0
+!rcon zim3 seta katina_flags 1
+
+!rcon zim3 seta katina_db_active 1
+!rcon zim3 seta katina_db_weaps 2 10
+
+!rcon zim3 seta katina_skivvy_active 1
+!rcon zim3 seta katina_skivvy_infos 1
+!rcon zim3 seta katina_skivvy_chats 1
+!rcon zim3 seta katina_skivvy_flags 0
+!rcon zim3 seta katina_skivvy_kills 0
+!rcon zim3 seta katina_skivvy_stats 1
+!rcon zim3 seta katina_skivvy_spamkill 1
+!rcon zim3 seta katina_skivvy_chans #katina-zim(icfks)
+
+# soo
 
 !rcon soo seta katina_active 1
 !rcon soo seta katina_dashes 0
