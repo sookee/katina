@@ -13,7 +13,7 @@
                 <td><?= wk\Utils::server(long2ip($game['host']), $game['port']) ?></td>
                 <td><?= afw\Utils::datef('d.m.Y H:i', $game['date']) ?></td>
                 <td><?= $game['map'] ?></td>
-                <td><a href="/game-<?= $game['game_id'] ?>">View</a></td>
+                <td><a href="<?= wk\c\Link::game($game['game_id']) ?>">View</a></td>
             </tr>
         <?php endforeach ?>
     </tbody>

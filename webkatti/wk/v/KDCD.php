@@ -14,7 +14,7 @@
     <tbody>
         <?php foreach ((array)@$this->players as $guid => $player): ?>
             <tr>
-                <td><a href="/player-<?= $guid ?>"><?php wk\Utils::colorecho($player['name']) ?></a></td>
+                <td><a href="<?= wk\c\Link::player($guid) ?>"><?php wk\Utils::colorecho($player['name']) ?></a></td>
                 <td><?= $player['kills'] ?></td>
                 <td><?= $player['caps'] ?></td>
                 <td><?= $player['deaths'] ?></td>
