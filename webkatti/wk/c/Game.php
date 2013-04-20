@@ -69,7 +69,7 @@ class Game
             ->key($id, 'game_id')
             ->allK();
 
-        $c->players = new KDCD($kills, $caps, $deaths);
+        $c->players = new KDCD($kills, $caps, $deaths, M::settings()->get('min_deaths_game'));
 
         return $c;
     }

@@ -12,7 +12,7 @@
             <a href="/changes">Changes</a>
             <a href="/about">About</a>
             <?php if (M::supervisor()->isAuthed()): ?>
-            <!--<a href="/settings">Settings</a>-->
+            <a href="/settings">Settings</a>
             <a href="/clearCache">Clear cache</a>
             <a href="/logout">Logout</a>
             <?php else: ?>

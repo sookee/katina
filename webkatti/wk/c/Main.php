@@ -28,20 +28,20 @@ class Main
         $c->setData($_POST);
 
         if (!empty($_POST))
-		{
+        {
             try
             {
                 M::supervisor()->authenticate($_POST['name'], $_POST['password']);
                 $c->complete();
             }
-			catch (ModelFilterException $e)
-			{
-				$c->setExceptions($e->getExceptions());
-			}
-			catch (\Exception $e)
-			{
-				$c->fail($e->getMessage());
-			}
+            catch (ModelFilterException $e)
+            {
+                $c->setExceptions($e->getExceptions());
+            }
+            catch (\Exception $e)
+            {
+                $c->fail($e->getMessage());
+            }
         }
 
         $c->push(Element::header($title));
@@ -88,7 +88,7 @@ class Main
             throw new \afw\HttpException(404);
         }
         return \afw\c\FormSettings::save(M::settings(), 'Settings saved', 'Settings', true, 'Save')
-            ->wrap(new \c\Layout());
+            ->wrap(new Layout('Settings'));
     }
 
 
@@ -115,7 +115,7 @@ class Main
             ->key($gameIds, 'game_id')
             ->allK();
 
-        $c->players = new KDCD($kills, $caps, $deaths, 20);
+        $c->players = new KDCD($kills, $caps, $deaths, M::settings()->get('min_deaths_per_game'));
 
         return $c;
     }
