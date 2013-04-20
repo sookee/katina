@@ -1,0 +1,11 @@
+AddDefaultCharset UTF-8
+
+RewriteEngine on
+
+RewriteCond %{HTTP_HOST} ^www\.(.*) [NC]
+RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
+
+RewriteCond %{REQUEST_URI} !=/index.php
+RewriteCond %{REQUEST_URI} !/res/
+RewriteRule .* /index.php [L]
+
