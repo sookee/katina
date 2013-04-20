@@ -25,12 +25,14 @@ $uri->setException(function($e)
         ->wrap(new wk\c\Layout());
 });
 
-$uri->addPattern('`^$`',                                function (  ) { return wk\c\Main    ::index     (       ); });
-$uri->addPattern('`^(clearCache|login|logout|settings|about|changes)$`',
-                                                        function ($m) { return wk\c\Main    ::{$m[1]}   (       ); });
-$uri->addPattern('`^games$`',                           function (  ) { return wk\c\Game    ::index     (       ); });
-$uri->addPattern('`^game-(\d+)$`',                      function ($m) { return wk\c\Game    ::get       ( $m[1] ); });
-$uri->addPattern('`^player-(\w+)$`',                    function ($m) { return wk\c\Player  ::get       ( $m[1] ); });
+$p = Config::urlPrefix;
+
+$uri->addPattern("`^{$p}$`",                function (  ) { return wk\c\Main    ::index     (       ); });
+$uri->addPattern("`^{$p}/(clearCache|login|logout|settings|about|changes)$`",
+                                            function ($m) { return wk\c\Main    ::{$m[1]}   (       ); });
+$uri->addPattern("`^{$p}/games$`",          function (  ) { return wk\c\Game    ::index     (       ); });
+$uri->addPattern("`^{$p}/game-(\d+)$`",     function ($m) { return wk\c\Game    ::get       ( $m[1] ); });
+$uri->addPattern("`^{$p}/player-(\w+)$`",   function ($m) { return wk\c\Player  ::get       ( $m[1] ); });
 
 Debug::log()->resources('prepare');
 

@@ -46,7 +46,7 @@
             <tbody>
                 <?php foreach ($this->ovos as $guid => $ovo): ?>
                     <tr>
-                        <td><a href="/player-<?= $guid ?>"><?= wk\Utils::colorecho($ovo['name']) ?></a></td>
+                        <td><a href="<?= wk\c\Link::player($guid) ?>"><?= wk\Utils::colorecho($ovo['name']) ?></a></td>
                         <td><?= $ovo['kills'] ?></td>
                         <td><?= $ovo['deaths'] ?></td>
                         <td><?= $ovo['kd'] ?></td>

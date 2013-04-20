@@ -3,20 +3,20 @@
 <header>
     <div class="wrapper">
         <h1>
-            <a href="/">WebKatti</a> <em>OpenArena statistics</em>
+            <a href="<?= wk\c\Link::prefix() ?>">WebKatti</a> <em>OpenArena statistics</em>
         </h1>
 
         <nav>
-            <a href="/">Home</a>
-            <a href="/games">Games</a>
-            <a href="/changes">Changes</a>
-            <a href="/about">About</a>
+            <a href="<?= wk\c\Link::prefix() ?>">Home</a>
+            <a href="<?= wk\c\Link::prefix('/games') ?>">Games</a>
+            <a href="<?= wk\c\Link::prefix('/changes') ?>">Changes</a>
+            <a href="<?= wk\c\Link::prefix('/about') ?>">About</a>
             <?php if (M::supervisor()->isAuthed()): ?>
-            <a href="/settings">Settings</a>
-            <a href="/clearCache">Clear cache</a>
-            <a href="/logout">Logout</a>
+            <a href="<?= wk\c\Link::prefix('/settings') ?>">Settings</a>
+            <a href="<?= wk\c\Link::prefix('/clearCache') ?>">Clear cache</a>
+            <a href="<?= wk\c\Link::prefix('/logout') ?>">Logout</a>
             <?php else: ?>
-            <a href="/login">Login</a>
+            <a href="<?= wk\c\Link::prefix('/login') ?>">Login</a>
             <?php endif ?>
         </nav>
     </div>

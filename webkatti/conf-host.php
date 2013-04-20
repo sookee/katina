@@ -9,4 +9,5 @@ class Config
     const debug     = true;
     const cache     = true;
     const cacheTtl  = 3600;
+    const urlPrefix = 'webkatti';
 }

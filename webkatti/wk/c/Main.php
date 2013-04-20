@@ -14,7 +14,7 @@ class Main
     static function clearCache()
     {
         Storage::cache()->clear();
-        header('location: /');
+        header('location: ' . Link::prefix());
         exit;
     }
 
@@ -57,7 +57,7 @@ class Main
     static function logout()
     {
         \afw\Session::destroy();
-        header('location: /');
+        header('location: ' . Link::prefix());
         exit;
     }
 
