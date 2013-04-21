@@ -791,7 +791,7 @@ str expand_env(const str& var)
 void stack_handler(int sig)
 {
 	con("Error: signal " << sig);
-    
+
 	log("CALLVOTE CONTROL: OFF");
 	str reply;
 	if(!server.command("set g_allowVote 0", reply))
@@ -1590,8 +1590,13 @@ int main(const int argc, const char* argv[])
 				if(!extract_name_from_text(line, guid, text))
 					continue;
 
-				if(db.set_preferred_name(guid, players[guid]))
-					server.chat("^7" + players[guid] + "^7: ^3Your preferred name has been registered.");
+				if(ka_cfg.do_db)
+				{
+					db.on();
+					if(db.set_preferred_name(guid, players[guid]))
+						server.chat("^7" + players[guid] + "^7: ^3Your preferred name has been registered.");
+					db.off();
+				}
 			}
 		}
 	}
