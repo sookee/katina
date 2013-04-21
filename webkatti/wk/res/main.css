@@ -129,6 +129,11 @@ nav a:hover
     left: 1ex;
 }
 
+.right
+{
+    text-align: right;
+}
+
 /*
  * Tablesorter
  */

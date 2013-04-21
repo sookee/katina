@@ -6,52 +6,32 @@ use M;
 
 
 
-class KDCD extends \afw\c\Controller
+class PlayerStats extends \afw\c\Controller
 {
 
-    public $kills;
-    public $caps;
-    public $deaths;
     public $players;
-    public $minDeaths;
 
 
-    function __construct($kills, $caps, $deaths, $minDeaths = 1)
+    function __construct($players)
     {
         $this->setTemplate(__CLASS__);
-        $this->kills        = $kills;
-        $this->caps         = $caps;
-        $this->deaths       = $deaths;
-        $this->minDeaths    = $minDeaths;
+        $this->players = $players;
     }
 
 
 
     public function render()
     {
-        $this->players = [];
-
-        foreach ($this->deaths as $guid => $count)
-        {
-            if ($count >= $this->minDeaths)
-            {
-                $this->players[$guid] = [
-                    'deaths'    => $count,
-                    'kills'     => (int)@$this->kills[$guid]    ? : '',
-                    'caps'      => (int)@$this->caps[$guid]     ? : '',
-                ];
-
-            }
-        }
-
         if (!empty($this->players))
         {
             M::user()->setNamesByGuid($this->players);
 
-            foreach ($this->players as $guid => &$player)
+            foreach ($this->players as &$player)
             {
                 $player['kd']   = $player['kills'] / $player['deaths'];
                 $player['cd']   = $player['caps'] / $player['deaths'];
+                $player['tk']   = empty($player['kills']) ? null : $player['time'] / $player['kills'];
+                $player['ct']   = $player['caps'] / ($player['time'] / 3600);
 
                 if (empty($player['kd']))
                 {
@@ -78,6 +58,10 @@ class KDCD extends \afw\c\Controller
                 $player['kd']   = round($player['kd'] * 100)    ? : '';
                 $player['cd']   = round($player['cd'] * 100)    ? : '';
                 $player['kdcd'] = round($player['kdcd'] * 100)  ? : '';
+
+                $player['time'] = \wk\Utils::formatTimeHMS($player['time']);
+                $player['tk']   = sprintf('%.1f', $player['tk']) ? : '';
+                $player['ct']   = round($player['ct']) ? : '';
             }
             unset($player);
         }
