@@ -58,7 +58,11 @@ class Game
         $c->game = M::game()->get($id);
 
         $r = \Storage::main()
-            ->fields('game.game_id, deaths.guid, kills.count as kills, caps.count as caps, deaths.count as deaths, time.count as time')
+            ->fields('deaths.guid,
+                sum(kills.count) as kills,
+                sum(caps.count) as caps,
+                sum(deaths.count) as deaths,
+                sum(time.count) as time')
             ->from('game')
             ->join('deaths',    'game.game_id = deaths.game_id')
             ->join('time',      'game.game_id = time.game_id and deaths.guid = time.guid')
@@ -69,7 +73,7 @@ class Game
                 M::settings()->get('min_deaths_game'),
                 M::settings()->get('min_time_game'),
             ])
-            ->groupBy('game_id, guid')
+            ->groupBy('deaths.guid')
             ->all();
 
         $players = [];
