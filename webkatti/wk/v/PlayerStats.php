@@ -31,3 +31,9 @@
         <?php endforeach ?>
     </tbody>
 </table>
+
+<p>
+    Enabled filters:
+    sum time > <?= round($this->minTime / 60) ?> min,
+    sum respawns > <?= $this->minDeaths ?>
+</p>

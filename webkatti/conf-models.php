@@ -26,10 +26,10 @@ class M extends \afw\InstanceFactory
                 ->setFormField(Element::text('Minimum time in game'));
 
             $m->addField('min_deaths_game_main')
-                ->setFormField(Element::text('Minimum deaths per game for main page'));
+                ->setFormField(Element::text('Minimum deaths for main page'));
 
             $m->addField('min_time_game_main')
-                ->setFormField(Element::text('Minimum time per game for main page'));
+                ->setFormField(Element::text('Minimum time for main page'));
         });
     }
 

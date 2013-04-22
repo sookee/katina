@@ -57,32 +57,30 @@ class Game
 
         $c->game = M::game()->get($id);
 
-        $r = \Storage::main()
-            ->fields('deaths.guid,
-                sum(kills.count) as kills,
-                sum(caps.count) as caps,
-                sum(deaths.count) as deaths,
-                sum(time.count) as time')
-            ->from('game')
-            ->join('deaths',    'game.game_id = deaths.game_id')
-            ->join('time',      'game.game_id = time.game_id and deaths.guid = time.guid')
-            ->join('kills',     'game.game_id = kills.game_id and deaths.guid = kills.guid')
-            ->join('caps',      'game.game_id = caps.game_id and deaths.guid = caps.guid', null, 'left')
-            ->where('game.game_id = ? and deaths.count > ? and time.count > ?', [
-                $id,
-                M::settings()->get('min_deaths_game'),
-                M::settings()->get('min_time_game'),
-            ])
-            ->groupBy('deaths.guid')
-            ->all();
+        $kills = M::kill()->countByGuid()
+            ->key($id, 'game_id')
+            ->allK();
 
-        $players = [];
-        foreach ($r as $row)
-        {
-            $players[$row['guid']] = $row;
-        }
+        $caps = M::cap()->countByGuid()
+            ->key($id, 'game_id')
+            ->allK();
 
-        $c->players = new PlayerStats($players);
+        $deaths = M::death()->countByGuid()
+            ->key($id, 'game_id')
+            ->allK();
+
+        $time = M::time()->countByGuid()
+            ->key($id, 'game_id')
+            ->allK();
+
+        $c->players = new PlayerStats(
+            $kills,
+            $caps,
+            $deaths,
+            $time,
+            M::settings()->get('min_deaths_game'),
+            M::settings()->get('min_time_game')
+        );
 
         return $c;
     }

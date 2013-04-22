@@ -98,32 +98,35 @@ class Main
         $c = new Layout();
         $c->setTemplate(__METHOD__);
 
-        $r = Storage::main()
-            ->cache(Storage::cache())
-            ->fields('deaths.guid,
-                sum(kills.count) as kills,
-                sum(caps.count) as caps,
-                sum(deaths.count) as deaths,
-                sum(time.count) as time')
-            ->from('game')
-            ->join('deaths',    'game.game_id = deaths.game_id')
-            ->join('time',      'game.game_id = time.game_id and deaths.guid = time.guid')
-            ->join('kills',     'game.game_id = kills.game_id and deaths.guid = kills.guid')
-            ->join('caps',      'game.game_id = caps.game_id and deaths.guid = caps.guid', null, 'left')
-            ->where('game.date > now() - interval 1 month and deaths.count > ? and time.count > ?', [
-                M::settings()->get('min_deaths_game_main'),
-                M::settings()->get('min_time_game_main'),
-            ])
-            ->groupBy('deaths.guid')
-            ->all();
+        $gameIds = M::game()->db()
+            ->fields('game_id, game_id')
+            ->where('date > now() - interval 1 month')
+            ->allK();
 
-        $players = [];
-        foreach ($r as $row)
-        {
-            $players[$row['guid']] = $row;
-        }
+        $kills = M::kill()->countByGuid()
+            ->key($gameIds, 'game_id')
+            ->allK();
 
-        $c->players = new PlayerStats($players);
+        $caps = M::cap()->countByGuid()
+            ->key($gameIds, 'game_id')
+            ->allK();
+
+        $deaths = M::death()->countByGuid()
+            ->key($gameIds, 'game_id')
+            ->allK();
+
+        $time = M::time()->countByGuid()
+            ->key($gameIds, 'game_id')
+            ->allK();
+
+        $c->players = new PlayerStats(
+            $kills,
+            $caps,
+            $deaths,
+            $time,
+            M::settings()->get('min_deaths_game_main'),
+            M::settings()->get('min_time_game_main')
+        );
 
         return $c;
     }

@@ -9,19 +9,46 @@ use M;
 class PlayerStats extends \afw\c\Controller
 {
 
+    public $kills;
+    public $caps;
+    public $deaths;
+    public $time;
     public $players;
+    public $minDeaths;
+    public $minTime;
 
 
-    function __construct($players)
+    function __construct($kills, $caps, $deaths, $time, $minDeaths = 1, $minTime = 10)
     {
         $this->setTemplate(__CLASS__);
-        $this->players = $players;
+        $this->kills        = $kills;
+        $this->caps         = $caps;
+        $this->deaths       = $deaths;
+        $this->time         = $time;
+        $this->minDeaths    = $minDeaths;
+        $this->minTime      = $minTime;
     }
 
 
 
     public function render()
     {
+        $this->players = [];
+
+        foreach ($this->deaths as $guid => $count)
+        {
+            if ($count >= $this->minDeaths && @$this->time[$guid] >= $this->minTime)
+            {
+                $this->players[$guid] = [
+                    'deaths'    => $count,
+                    'time'      => (int)@$this->time[$guid]     ? : '',
+                    'kills'     => (int)@$this->kills[$guid]    ? : '',
+                    'caps'      => (int)@$this->caps[$guid]     ? : '',
+                ];
+
+            }
+        }
+
         if (!empty($this->players))
         {
             M::user()->setNamesByGuid($this->players);
