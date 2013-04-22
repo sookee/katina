@@ -100,7 +100,7 @@ class Main
 
         $gameIds = M::game()->db()
             ->fields('game_id, game_id')
-            ->where('date > now() - interval 1 month')
+            ->where('game_id > 1214 and date > now() - interval 1 month')
             ->allK();
 
         $kills = M::kill()->countByGuid()
