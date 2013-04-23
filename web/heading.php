@@ -200,14 +200,16 @@ function add_names_to_guids_from_db($con, &$names)
 	if(count($names) > 0)
 	{
 		// populate $names
-		$sql = 'select * from `player` where';
+
+		$where = '';
 		$sep = ' ';
 		foreach($names as $guid => $name)
 		{
-			$sql = $sql . $sep . '`guid` = \'' . $guid . '\'';
+			$where = $where . $sep . '`guid` = \'' . $guid . '\'';
 			$sep = ' or ';
 		}
 		
+		$sql = 'select * from `player` where' . $where;
 		$sql = $sql . ' order by `count` desc';
 		
 		$result = mysqli_query($con, $sql);
@@ -217,12 +219,35 @@ function add_names_to_guids_from_db($con, &$names)
 			return false;
 		}
 		
+		$last = false;
 		while($row = mysqli_fetch_array($result))
 		{
-			$names[$row[0]] = $row[1];
+			if($row[0] != $last && $row[0] != 'UnnamedPlayer')
+			{
+				$names[$row[0]] = $row[1];
+				$last = $row[0];
+			}	
 		}
 		
 		mysqli_free_result($result);
+
+		$sql = "select `guid`,`name` from `user` where" . $where;
+		//echo $sql . "<br/>"; 
+		
+		$result = mysqli_query($con, $sql);
+		if(!$result)
+		{
+			echo mysqli_error($con);
+			return false;
+		}
+
+		while($row = mysqli_fetch_array($result))
+		{
+			$names[$row[0]] = $row[1] . '<sup><span style="color: green">registered</span></sup>';
+		}
+
+		mysqli_free_result($result);
+
 	}
 	return true;
 }

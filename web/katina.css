@@ -6,6 +6,13 @@ body
 }
 
 form{}
+
+sup
+{
+	vertical-align: super;
+	font-size: smaller;
+}
+
 table{}
 tr{}
 td
