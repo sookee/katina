@@ -1598,6 +1598,23 @@ int main(const int argc, const char* argv[])
 					db.off();
 				}
 			}
+			else if(cmd == "!stats")
+			{
+				str text;
+				GUID guid;
+
+				if(!extract_name_from_text(line, guid, text))
+					continue;
+
+				if(ka_cfg.do_db)
+				{
+					db.on();
+					str stats;
+					if(db.get_ingame_stats(guid, mapname, stats))
+						server.chat("^7STATS: " + players[guid] + "^7: " + stats);
+					db.off();
+				}
+			}
 		}
 	}
 	done = true;

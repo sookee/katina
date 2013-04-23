@@ -102,6 +102,8 @@ public:
 	bool read_map_votes(const str& mapname, guid_int_map& map_votes);
 
 	bool set_preferred_name(const GUID& guid, const str& name);
+
+	bool get_ingame_stats(const GUID& guid, const str& mapname, str& stats);
 };
 
 }} // oastats::data

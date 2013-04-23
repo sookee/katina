@@ -9,6 +9,8 @@
 
 #include <mysql.h>
 
+#include <ctime>
+
 namespace oastats { namespace data {
 
 const game_id bad_id(-1);
@@ -309,6 +311,60 @@ bool Database::set_preferred_name(const GUID& guid, const str& name)
 		return false;
 	}
 
+	return true;
+}
+
+bool Database::get_ingame_stats(const GUID& guid, const str& mapname, str& stats)
+{
+	std::time_t now = std::time(0);
+	std::tm t = *gmtime(&now);
+
+	siz syear = t.tm_year + 1900;
+	siz eyear = syear;
+	siz smonth = t.tm_mon + 1; // 1 - 12
+	siz emonth = smonth + 1;
+	if(emonth > 12)
+	{
+		emonth = 1;
+		++eyear;
+	}
+
+	soss oss;
+	oss << "select sum(`kills`.`count`),sum(`caps`.`count`),sum(`time`.`count`) from `kills`,`caps`,`time` where `game_id` in ";
+	oss << "(select min(game_id) from game where exists(select * from time where time.game_id=game.game_id)";
+	oss << " and `map` = '" + mapname + "`";
+	oss << " and `date` > TIMESTAMP('" << syear << '-' << (smonth < 10 ? "0":"") << smonth << '-' << "01" << "'))";
+
+	str sql = oss.str();
+
+	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+	{
+		log("DATABASE ERROR: Unable to get_ingame_stats; " << mysql_error(&mysql));
+		log("              : sql = " << sql);
+		return false;
+	}
+
+	MYSQL_RES* result = mysql_store_result(&mysql);
+
+	MYSQL_ROW row;
+	if((row = mysql_fetch_row(result)))
+	{
+		siz hours = 0;
+		siz fph = 0;
+		siz cph = 0;
+		siss iss(str(row[0]) + " " + str(row[1]) + " " + str(row[2])); // seconds
+		if((iss >> fph >> cph >> hours) && hours)
+		{
+			hours /= (60 * 60);
+			fph /= hours;
+			cph /= hours;
+
+			soss oss;
+			oss << "^3FPH^7: ^2" << fph << " ^3CPH^7: ^2" << cph;
+			stats = oss.str();
+		}
+	}
+	mysql_free_result(result);
 	return true;
 }
 
