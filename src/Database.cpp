@@ -10,6 +10,7 @@
 #include <mysql.h>
 
 #include <ctime>
+#include "log.h"
 
 namespace oastats { namespace data {
 
@@ -313,15 +314,55 @@ bool Database::set_preferred_name(const GUID& guid, const str& name)
 
 	return true;
 }
-
-bool Database::get_ingame_stats(const GUID& guid, const str& mapname, str& stats)
+bool Database::get_preferred_name(const GUID& guid, str& name)
 {
+	log("DATABASE: get_preferred_name(" << guid << ", " << name << ")");
+
+	soss oss;
+	oss << "select name from user where guid = '" << guid << "'";
+
+	str sql = oss.str();
+
+	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+	{
+		log("DATABASE ERROR: Unable to get_preferred_name; " << mysql_error(&mysql));
+		log("              : sql = " << sql);
+		return false;
+	}
+
+	MYSQL_RES* result = mysql_store_result(&mysql);
+
+	MYSQL_ROW row;
+	if((row = mysql_fetch_row(result)))
+	{
+		name = row[0];
+	}
+	mysql_free_result(result);
+	return true;
+}
+
+bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, str& stats)
+{
+	log("DATABASE: get_ingame_stats(" << guid << ", " << mapname << ", " << prev << ")");
+
 	std::time_t now = std::time(0);
 	std::tm t = *gmtime(&now);
 
+	if(prev > 3)
+		return false;
+
 	siz syear = t.tm_year + 1900;
+	siz smonth = t.tm_mon; // 0 - 11
+	if(smonth < prev)
+	{
+		smonth = smonth + 12 - prev + 1; // 1 - 12
+		--syear;
+	}
+	else
+		smonth = smonth - prev + 1; // 1 - 12
+
 	siz eyear = syear;
-	siz smonth = t.tm_mon + 1; // 1 - 12
+
 	siz emonth = smonth + 1;
 	if(emonth > 12)
 	{
@@ -329,11 +370,17 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, str& stats
 		++eyear;
 	}
 
+	bug_var(syear);
+	bug_var(smonth);
+	bug_var(eyear);
+	bug_var(emonth);
+
 	soss oss;
 	oss << "select sum(`kills`.`count`),sum(`caps`.`count`),sum(`time`.`count`) from `kills`,`caps`,`time` where `game_id` in ";
 	oss << "(select min(game_id) from game where exists(select * from time where time.game_id=game.game_id)";
 	oss << " and `map` = '" + mapname + "`";
-	oss << " and `date` > TIMESTAMP('" << syear << '-' << (smonth < 10 ? "0":"") << smonth << '-' << "01" << "'))";
+	oss << " and `date` >= TIMESTAMP('" << syear << '-' << (smonth < 10 ? "0":"") << smonth << '-' << "01" << "')";
+	oss << " and `date` < TIMESTAMP('" << eyear << '-' << (emonth < 10 ? "0":"") << emonth << '-' << "01" << "'))";
 
 	str sql = oss.str();
 

@@ -281,6 +281,7 @@ guid_siz_map caps; // GUID -> <count> // TODO: caps container duplicated in stat
 guid_stat_map stats; // GUID -> <stat>
 guid_siz_map teams; // GUID -> 'R' | 'B'
 str mapname, old_mapname; // current/previous map name
+guid_str_map users; // GUID -> name // registered name protection
 
 guid_int_map map_votes; // GUID -> 3
 
@@ -604,13 +605,6 @@ void* set_teams(void* td_vp)
 				{
 					log("katina: database writing is now: " << (ka_cfg.do_db ? "on":"off"));
 					skivvy.chat('*', "^3Flag timing ^1" + str(ka_cfg.do_db ? "on":"off") + "^3.");
-//					if(!ka_cfg.do_db)
-//						db.off();
-//					else
-//					{
-//						db.on();
-//						db.read_map_votes(mapname, map_votes);
-//					}
 				}
 			break;
 			case 4:
@@ -844,6 +838,17 @@ const siz TEAM_U = 0;
 const siz TEAM_R = 1;
 const siz TEAM_B = 2;
 const siz TEAM_S = 3;
+
+template<typename Map>
+struct mapped_eq
+{
+	const typename Map::mapped_type m;
+	mapped_eq(const typename Map::mapped_type& m): m(m) {}
+	bool operator()(const typename Map::value_type& v)
+	{
+		return v.second == m;
+	}
+};
 
 int main(const int argc, const char* argv[])
 {
@@ -1106,12 +1111,6 @@ int main(const int argc, const char* argv[])
 					continue;
 				}
 
-//				bug("line: " << line);
-//				bug("num: " << num);
-//				bug("skip: " << skip);
-//				bug("name: " << name);
-//				bug("team: " << team);
-
 				siz pos = line.find("\\id\\");
 				if(pos != str::npos)
 				{
@@ -1123,6 +1122,24 @@ int main(const int argc, const char* argv[])
 						clients[num] = to<GUID>(id.substr(24));
 
 					players[clients[num]] = name;
+
+					if(ka_cfg.do_db)
+					{
+						// registered name processing
+						if(!clients[num].is_bot() && users.find(clients[num]) == users.end())
+							if(db.get_preferred_name(clients[num], name))
+								users[clients[num]] = name;
+
+						guid_str_iter i = std::find_if(users.begin(), users.end(), mapped_eq<guid_str_map>(name));
+						if(i != users.end() && i->first != clients[num])
+						{
+							server.chat("The name " + name + " is registered to another user.");
+							soss oss;
+							oss << "!rename " << to_string(num) << "RenamedPlayer";
+							str reply;
+							server.command(oss.str(), reply);
+						}
+					}
 
 					bug("");
 					bug("team               : " << team);
@@ -1144,46 +1161,11 @@ int main(const int argc, const char* argv[])
 					bug("TIMER: logged_time: " << stats[clients[num]].logged_time);
 					bug("TIMER: joined_time: " << stats[clients[num]].joined_time);
 					bug("TIMER:");
-
-//					if(/*!clients[num].is_bot() &&*/ team != teams[clients[num]])
-//					{
-//						if((team == TEAM_R || team == TEAM_B)
-//						&& (teams[clients[num]] != TEAM_R && teams[clients[num]] != TEAM_B))
-//						{
-//							// joined game
-//							stats[clients[num]].joined_time = now;
-//
-//							bug("TIMER:       start: " << clients[num] << " " << players[clients[num]]);
-//							bug("TIMER: logged_time: " << stats[clients[num]].logged_time);
-//							bug("TIMER: joined_time: " << stats[clients[num]].joined_time);
-//							bug("TIMER:");
-//						}
-//						else if((team != TEAM_R && team != TEAM_B)
-//						&& (teams[clients[num]] == TEAM_R || teams[clients[num]] == TEAM_B))
-//						{
-//							// parted from game
-//							if(stats[clients[num]].joined_time) // 0 for new record
-//								stats[clients[num]].logged_time += now - stats[clients[num]].joined_time;
-//							stats[clients[num]].joined_time = 0; // stop counting time
-//
-//							bug("TIMER:        stop: " << clients[num] << " " << players[clients[num]]);
-//							bug("     : logged_time: " << stats[clients[num]].logged_time);
-//							bug("TIMER: joined_time: " << stats[clients[num]].joined_time);
-//							bug("TIMER:");
-//						}
-//						teams[clients[num]] = team; // 1 = red, 2 = blue, 3 = spec
-//					}
 				}
-//				teams[clients[num]] = team; // 1 = red, 2 = blue, 3 = spec
 			}
 			else if(cmd == "ClientConnect:")
 			{
 				trace(cmd << "(" << (in_game?"playing":"waiting") << ")");
-//				siz num;
-//				if((iss >> num))
-//				{
-//					stats[clients[num]].joined_time = 0;
-//				}
 			}
 			else if(cmd == "ClientDisconnect:")
 			{
@@ -1590,7 +1572,7 @@ int main(const int argc, const char* argv[])
 				if(!extract_name_from_text(line, guid, text))
 					continue;
 
-				if(ka_cfg.do_db)
+				if(ka_cfg.do_db && name != "UnnamedPlayer" && name != "RenamedPlayer")
 				{
 					db.on();
 					if(db.set_preferred_name(guid, players[guid]))
@@ -1606,11 +1588,15 @@ int main(const int argc, const char* argv[])
 				if(!extract_name_from_text(line, guid, text))
 					continue;
 
+				siz prev = 0; // count $prev month's back
+				if(!(iss >> prev))
+					prev = 0;
+
 				if(ka_cfg.do_db)
 				{
 					db.on();
 					str stats;
-					if(db.get_ingame_stats(guid, mapname, stats))
+					if(db.get_ingame_stats(guid, mapname, prev, stats))
 						server.chat("^7STATS: " + players[guid] + "^7: " + stats);
 					db.off();
 				}

@@ -52,11 +52,14 @@ str get_stamp()
 
 #ifndef DEBUG
 #define bug(m)
+#define bug_var(v)
 #define bug_func()
 #define con(m) do{std::cout << m << std::endl;}while(false)
 #define log(m) do{std::cout << oastats::log::get_stamp() << ": " << m << std::endl;}while(false)
 #else
 #define bug(m) do{std::cout << m << std::endl;}while(false)
+#define QUOTE(s) #s
+#define bug_var(v) bug(QUOTE(v:) << std::boolalpha << " " << v)
 struct _
 {
 	const char* n;
