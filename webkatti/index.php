@@ -27,7 +27,7 @@ $uri->setException(function($e)
 
 $p = Config::urlPrefix;
 
-$uri->addPattern("`^{$p}$`",                function (  ) { return wk\c\Main    ::index     (       ); });
+$uri->addPattern("`^({$p}|)$`",                function (  ) { return wk\c\Main    ::index     (       ); });
 $uri->addPattern("`^{$p}/(clearCache|login|logout|settings|about|changes)$`",
                                             function ($m) { return wk\c\Main    ::{$m[1]}   (       ); });
 $uri->addPattern("`^{$p}/games$`",          function (  ) { return wk\c\Game    ::index     (       ); });

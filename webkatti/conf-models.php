@@ -20,10 +20,16 @@ class M extends \afw\InstanceFactory
                 ->setFormField(Element::text('Minimum deaths for 1v1'));
 
             $m->addField('min_deaths_game')
-                ->setFormField(Element::text('Minimum deaths for one game'));
+                ->setFormField(Element::text('Minimum deaths in game'));
 
-            $m->addField('min_deaths_per_game')
-                ->setFormField(Element::text('Minimum deaths per game for main page'));
+            $m->addField('min_time_game')
+                ->setFormField(Element::text('Minimum time in game'));
+
+            $m->addField('min_deaths_game_main')
+                ->setFormField(Element::text('Minimum deaths for main page'));
+
+            $m->addField('min_time_game_main')
+                ->setFormField(Element::text('Minimum time for main page'));
         });
     }
 
@@ -164,6 +170,24 @@ class M extends \afw\InstanceFactory
             $m->addField('count');
 
             $m->addReference(M::game(), 'ovos', 'game', 'game_id');
+        });
+    }
+
+
+    /**
+     * @return wk\m\Action
+     */
+    static function time()
+    {
+        return self::instance(__FUNCTION__, function(&$m)
+        {
+            $m = new wk\m\Action(Storage::main(), 'time');
+            $m->pkey = ['game_id', 'guid'];
+            $m->setCache(Storage::cache());
+
+            $m->addField('count');
+
+            $m->addReference(M::game(), 'times', 'game', 'game_id');
         });
     }
 

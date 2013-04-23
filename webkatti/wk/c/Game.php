@@ -69,7 +69,18 @@ class Game
             ->key($id, 'game_id')
             ->allK();
 
-        $c->players = new KDCD($kills, $caps, $deaths, M::settings()->get('min_deaths_game'));
+        $time = M::time()->countByGuid()
+            ->key($id, 'game_id')
+            ->allK();
+
+        $c->players = new PlayerStats(
+            $kills,
+            $caps,
+            $deaths,
+            $time,
+            M::settings()->get('min_deaths_game'),
+            M::settings()->get('min_time_game')
+        );
 
         return $c;
     }

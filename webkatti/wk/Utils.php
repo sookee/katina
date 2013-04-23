@@ -133,4 +133,32 @@ class Utils
         }
     }
 
+
+
+	static function formatTimeHMS($time)
+	{
+        if (empty($time))
+        {
+            return '';
+        }
+        $s = $time % 60;
+        $time = ($time - $s) / 60;
+        $m = $time % 60;
+        $h = ($time - $m) / 60;
+        return sprintf('%02d:%02d:%02d', $h, $m, $s);
+	}
+
+
+
+	static function formatTimeMS($time)
+	{
+        if (empty($time))
+        {
+            return '';
+        }
+        $s = $time % 60;
+        $m = ($time - $s) / 60;
+        return sprintf('%02d:%02d', $m, $s);
+	}
+
 }

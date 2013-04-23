@@ -100,7 +100,7 @@ class Main
 
         $gameIds = M::game()->db()
             ->fields('game_id, game_id')
-            ->where('date > now() - interval 1 month')
+            ->where('game_id > 1214 and date > now() - interval 1 month')
             ->allK();
 
         $kills = M::kill()->countByGuid()
@@ -115,7 +115,18 @@ class Main
             ->key($gameIds, 'game_id')
             ->allK();
 
-        $c->players = new KDCD($kills, $caps, $deaths, M::settings()->get('min_deaths_per_game'));
+        $time = M::time()->countByGuid()
+            ->key($gameIds, 'game_id')
+            ->allK();
+
+        $c->players = new PlayerStats(
+            $kills,
+            $caps,
+            $deaths,
+            $time,
+            M::settings()->get('min_deaths_game_main'),
+            M::settings()->get('min_time_game_main')
+        );
 
         return $c;
     }
