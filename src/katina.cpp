@@ -409,10 +409,19 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 		if(sk_cfg.do_stats)
 		{
 			siz c = map_get(p->second.flags, FL_CAPTURED);
-			siz k = map_get(p->second.kills, MOD_RAILGUN);
-			k += map_get(p->second.kills, MOD_GAUNTLET);
-			siz d = map_get(p->second.deaths, MOD_RAILGUN);
-			d += map_get(p->second.deaths, MOD_GAUNTLET);
+
+			siz k = 0;
+			for(siz i = 0; i < MOD_MAXVALUE; ++i)
+				k += map_get(p->second.kills, i);
+
+			siz d = 0;
+			for(siz i = 0; i < MOD_MAXVALUE; ++i)
+				d += map_get(p->second.deaths, i);
+
+//			siz k = map_get(p->second.kills, MOD_RAILGUN);
+//			k += map_get(p->second.kills, MOD_GAUNTLET);
+//			siz d = map_get(p->second.deaths, MOD_RAILGUN);
+//			d += map_get(p->second.deaths, MOD_GAUNTLET);
 			siz h = p->second.logged_time;
 			con("c: " << c);
 			con("k: " << k);
