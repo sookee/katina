@@ -507,18 +507,10 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 			skivvy.chat('s', r->second);
 }
 
-str get_katina_data()
-{
-	str KATINA_DATA = getenv("KATINA_DATA");
-	if(KATINA_DATA.empty())
-		KATINA_DATA = str(getenv("HOME")) + "/.katina";
-	return KATINA_DATA;
-}
-
 void save_records(const str_map& recs)
 {
 	log("save_records:");
-	std::ofstream ofs((get_katina_data() + "/records.txt").c_str());
+	std::ofstream ofs((str(getenv("HOME")) + "/.katina/records.txt").c_str());
 
 	str sep;
 	for(str_map_citer r = recs.begin(); r != recs.end(); ++r)
@@ -528,7 +520,7 @@ void save_records(const str_map& recs)
 void load_records(str_map& recs)
 {
 	log("load_records:");
-	std::ifstream ifs((get_katina_data() + "/records.txt").c_str());
+	std::ifstream ifs((str(getenv("HOME")) + "/.katina/records.txt").c_str());
 
 	recs.clear();
 	str key;
