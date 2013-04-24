@@ -87,8 +87,8 @@ using namespace oastats::string;
 using namespace oastats::net;
 using namespace oastats::time;
 
-const std::string version = "0.5.5";
-const std::string tag = "alpha";
+const std::string version = "0.5.6";
+const std::string tag = "dev";
 
 inline std::istream& sgl(std::istream& is, str& line, char delim = '\n')
 {
