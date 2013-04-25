@@ -435,7 +435,7 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 			if(!d)
 			{
 				if(k)
-					kd = "perf  ";
+					kd = "perf ";
 				if(c)
 					cd = "perf  ";
 			}
@@ -1556,11 +1556,11 @@ int main(const int argc, const char* argv[])
 				if(lower(trim(text)) == "map")
 				{
 					if(map_votes.count(guid) && map_votes[guid] == 1)
-						server.chat("^3You can only vote once per week.");
+						server.chat("^3You have already voted for this map.");
 					else if(map_votes.count(guid))
-						server.chat("^3Your vote has changed.");
+						server.chat("^3Your vote has changed for this map.");
 					else
-						server.chat("^7" + players[guid] + "^7: ^3Your vote is counted.");
+						server.chat("^7" + players[guid] + "^7: ^3Your vote will be counted.");
 					map_votes[guid] = 1;
 				}
 			}
@@ -1577,11 +1577,11 @@ int main(const int argc, const char* argv[])
 				if(lower(trim(text)) == "map")
 				{
 					if(map_votes.count(guid) && map_votes[guid] == -1)
-						server.chat("^3You can only vote once per week.");
+						server.chat("^3You have already voted for this map.");
 					else if(map_votes.count(guid))
-						server.chat("^3Your vote has changed.");
+						server.chat("^3Your vote has changed for this map.");
 					else
-						server.chat("^7" + players[guid] + "^7: ^3Your vote is counted.");
+						server.chat("^7" + players[guid] + "^7: ^3Your vote will be counted.");
 					map_votes[guid] = -1;
 				}
 			}
