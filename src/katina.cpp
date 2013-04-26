@@ -516,11 +516,18 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 			skivvy.chat('s', r->second);
 }
 
+str safe_get_env(const str& var)
+{
+	if(const char* v = getenv(var.c_str()))
+		return str(v);
+	return "";
+}
+
 str get_katina_data()
 {
-	str KATINA_DATA = getenv("KATINA_DATA");
+	str KATINA_DATA = safe_get_env("KATINA_DATA");
 	if(KATINA_DATA.empty())
-		KATINA_DATA = str(getenv("HOME")) + "/.katina";
+		KATINA_DATA = str(safe_get_env("HOME")) + "/.katina";
 	return KATINA_DATA;
 }
 
