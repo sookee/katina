@@ -1157,7 +1157,8 @@ int main(const int argc, const char* argv[])
 						if(!clients[num].is_bot() && users.find(clients[num]) == users.end())
 						{
 							db.on();
-							if(db.get_preferred_name(clients[num], name))
+							str name;
+							if(db.get_preferred_name(clients[num], name) && !name.empty())
 								users[clients[num]] = name;
 							db.off();
 						}
