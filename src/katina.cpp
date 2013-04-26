@@ -1153,18 +1153,19 @@ int main(const int argc, const char* argv[])
 
 					if(ka_cfg.do_db)
 					{
-						// registered name processing
-						if(!clients[num].is_bot() && users.find(clients[num]) == users.end())
-						{
-							db.on();
-							str name;
-							if(db.get_preferred_name(clients[num], name) && !name.empty())
-								users[clients[num]] = name;
-							db.off();
-						}
 
 						if(ka_cfg.protect_names)
 						{
+							// registered name processing
+							if(!clients[num].is_bot() && users.find(clients[num]) == users.end())
+							{
+								db.on();
+								str name;
+								if(db.get_preferred_name(clients[num], name) && !name.empty())
+									users[clients[num]] = name;
+								db.off();
+							}
+
 							guid_str_iter i = std::find_if(users.begin(), users.end(), mapped_eq<guid_str_map>(name));
 							if(i != users.end() && i->first != clients[num])
 							{
@@ -1213,6 +1214,13 @@ int main(const int argc, const char* argv[])
 					if(stats[clients[num]].joined_time)
 						stats[clients[num]].logged_time += now - stats[clients[num]].joined_time;
 					stats[clients[num]].joined_time = 0;
+				}
+
+				if(ka_cfg.protect_names)
+				{
+					guid_str_iter i = users.find(clients[num]);
+					if(i != users.end())
+						users.erase(i);
 				}
 			}
 			else if(cmd == "Kill:")
