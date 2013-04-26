@@ -1148,8 +1148,12 @@ int main(const int argc, const char* argv[])
 					{
 						// registered name processing
 						if(!clients[num].is_bot() && users.find(clients[num]) == users.end())
+						{
+							db.on();
 							if(db.get_preferred_name(clients[num], name))
 								users[clients[num]] = name;
+							db.off();
+						}
 
 						guid_str_iter i = std::find_if(users.begin(), users.end(), mapped_eq<guid_str_map>(name));
 						if(i != users.end() && i->first != clients[num])
