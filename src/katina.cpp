@@ -202,6 +202,7 @@ struct katina_conf
 	bool do_flags;
 	bool do_dashes;
 	bool do_db; // do database writes
+	bool protect_names;
 	siz votecontrol_wait; // seconds, 0 = votecontrol off
 	std::set<siz> db_weaps; // which weapons to record
 
@@ -210,6 +211,7 @@ struct katina_conf
 	, do_flags(false)
 	, do_dashes(false)
 	, do_db(false)
+	, protect_names(false)
 	, votecontrol_wait(0)
 	{
 	}
@@ -299,19 +301,8 @@ void report_players(const guid_str_map& players)
 		con("player: " << i->first << ", " << i->second);
 }
 
-//void report_onevone(const onevone_map& onevone, const guid_str_map& players)
-//{
-//	for(onevone_citer o = onevone.begin(); o != onevone.end(); ++o)
-//		for(guid_siz_citer p = o->second.begin(); p != o->second.end(); ++p)
-//		{
-//			str p1 = players.at(o->first);
-//			str p2 = players.at(p->first);
-//			con("player: " << p1 << " killed " << p2 << " " << p->second << " times.");
-//		}
-//}
-
 typedef std::multimap<siz, GUID> siz_guid_mmap;
-//typedef std::pair<const siz, GUID> siz_guid_pair;
+//typedef std::pair<const siz, GUID> siz_guid_mmap_pair;
 typedef siz_guid_mmap::reverse_iterator siz_guid_mmap_ritr;
 
 void report_caps(const guid_siz_map& caps, const guid_str_map& players, siz flags[2])
@@ -757,6 +748,15 @@ void* set_teams(void* td_vp)
 					skivvy.chat('*', "^3Stats Cols now: ^1" + sk_cfg.get_stats_cols() + "^3.");
 				}
 			break;
+			case 16:
+				if(!rconset("katina_protect_names", ka_cfg.protect_names))
+					rconset("katina_protect_names", ka_cfg.protect_names); // one retry
+				if(ka_cfg.protect_names != old_ka_cfg.protect_names)
+				{
+					log("skivvy: name protection is now: " << (ka_cfg.protect_names ? "on":"off"));
+					skivvy.chat('*', "^3Name protection ^1" + str(ka_cfg.protect_names ? "on":"off") + "^3.");
+				}
+			break;
 			default:
 				c = 0;
 			break;
@@ -1163,14 +1163,17 @@ int main(const int argc, const char* argv[])
 							db.off();
 						}
 
-						guid_str_iter i = std::find_if(users.begin(), users.end(), mapped_eq<guid_str_map>(name));
-						if(i != users.end() && i->first != clients[num])
+						if(ka_cfg.protect_names)
 						{
-							server.chat("The name " + name + " is registered to another user.");
-							soss oss;
-							oss << "!rename " << to_string(num) << "RenamedPlayer";
-							str reply;
-							server.command(oss.str(), reply);
+							guid_str_iter i = std::find_if(users.begin(), users.end(), mapped_eq<guid_str_map>(name));
+							if(i != users.end() && i->first != clients[num])
+							{
+								server.chat("The name " + name + " is registered to another user.");
+								soss oss;
+								oss << "!rename " << num << " RenamedPlayer";
+								str reply;
+								server.command(oss.str(), reply);
+							}
 						}
 					}
 

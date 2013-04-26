@@ -93,7 +93,7 @@ s = stats (k/d c/d)
 !rcon zaw seta katina_skivvy_chans #katina-zaw(icfks)
 !rcon zaw seta katina_remote_stats_cols 31
 !rcon zaw seta katina_votecontrol_wait 10
-
+!rcon zaw katina_protect_names 0
 # soo
 
 !rcon soo seta katina_active 1
