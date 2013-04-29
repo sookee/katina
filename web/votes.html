@@ -1,24 +1,25 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
-		<script src="jquery-1.9.1.js"></script>
-		<script src="jquery.xslt.js"></script>
+		<script src="js/sarissa/sarissa.js"></script>
+		<script src="js/sarissa/sarissa_ieemu_xpath.js"></script>
+		<script src="js/jquery-1.9.1.js"></script>
+		<script src="js/jquery.xslTransform.js"></script>
+		<script src="js/jquery.xslt.js"></script>
 	</head>
 	<body>
 		<script>
 			function injectBases()
 			{
-				var params =
-						'&base=' + document.getElementById('sel-bases').value
+				var params = '?func=get_bases'
+						+ '&base=' + document.getElementById('sel-bases').value
 						+ '&poll=' + document.getElementById('sel-polls').value;
 				
 				$.xslt({
-					xmlUrl: 'rest-api.php?func=get_bases' + params
+					xmlUrl: 'rest-api.php' + params
 					, xslUrl: 'sel-bases.xsl'
 					, callback: function(output) {
-						var sel = document.getElementById('sel-bases');
-						sel.innerHTML = output;
-						//selSet('sel-bases');
+						document.getElementById('sel-bases').innerHTML = output;
 						injectPolls();				
 					}
 				});
@@ -26,45 +27,40 @@
 			
 			function injectPolls()
 			{
-				var params =
-						'&base=' + document.getElementById('sel-bases').value;
+				var params = '?func=get_polls'
+						+ '&base=' + document.getElementById('sel-bases').value;
 				
 				$.xslt({
-					xmlUrl: 'rest-api.php?func=get_polls' + params
+					xmlUrl: 'rest-api.php' + params
 					, xslUrl: 'sel-polls.xsl'
 					, xmlCache: false
 					, callback: function(output) {
-						var sel = document.getElementById('sel-polls');
-						sel.innerHTML = output;
-						//selSet('sel-polls');
+						document.getElementById('sel-polls').innerHTML = output;
+						injectTable();
 					}
 				});
 			}
 			
-			function inject()
+			function injectTable()
 			{
-				//injectBases();
-				injectPolls();
+				var params = '?func=get_poll'
+						+ '&base=' + document.getElementById('sel-bases').value
+						+ '&poll=' + document.getElementById('sel-polls').value;
+				
+				$('#div-table').getTransform(
+					'div-table.xsl'
+					, 'rest-api.php' + params
+				);
 			}
 			
 			$(document).ready(function() {
 				injectBases();
-				//selSet('sel-bases');
-				//injectPolls();
-				//selSet('sel-polls');
-				//inject();
 			});
-			
-			function selDo() {
-				var div = document.getElementById("div-tab");
-				div.innerHTML = sel.value;
-			}
-			
 		</script>
 		<div>
 			<select id="sel-bases" onChange="injectPolls();"></select> 
-			<select id="sel-polls"></select> 
+			<select id="sel-polls" onChange="injectTable();"></select> 
 		</div>
-		<div id="div-tab"></div>
+		<div id="div-table"></div>
 	</body>
 </html>
