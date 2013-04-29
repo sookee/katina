@@ -269,6 +269,15 @@ struct skivvy_conf
 	}
 };
 
+typedef std::map<GUID, guid_siz_map> onevone_map;
+typedef std::pair<const GUID, guid_siz_map> onevone_pair;
+typedef std::map<GUID, guid_siz_map>::iterator onevone_iter;
+typedef std::map<GUID, guid_siz_map>::const_iterator onevone_citer;
+
+typedef std::map<GUID, stats> guid_stat_map;
+typedef std::pair<const GUID, stats> guid_stat_pair;
+typedef std::map<GUID, stats>::iterator guid_stat_iter;
+typedef std::map<GUID, stats>::const_iterator guid_stat_citer;
 
 //bool katina_active = false;
 katina_conf ka_cfg;

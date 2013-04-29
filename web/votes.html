@@ -1,0 +1,70 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<script src="jquery-1.9.1.js"></script>
+		<script src="jquery.xslt.js"></script>
+	</head>
+	<body>
+		<script>
+			function injectBases()
+			{
+				var params =
+						'&base=' + document.getElementById('sel-bases').value
+						+ '&poll=' + document.getElementById('sel-polls').value;
+				
+				$.xslt({
+					xmlUrl: 'rest-api.php?func=get_bases' + params
+					, xslUrl: 'sel-bases.xsl'
+					, callback: function(output) {
+						var sel = document.getElementById('sel-bases');
+						sel.innerHTML = output;
+						//selSet('sel-bases');
+						injectPolls();				
+					}
+				});
+			}
+			
+			function injectPolls()
+			{
+				var params =
+						'&base=' + document.getElementById('sel-bases').value;
+				
+				$.xslt({
+					xmlUrl: 'rest-api.php?func=get_polls' + params
+					, xslUrl: 'sel-polls.xsl'
+					, xmlCache: false
+					, callback: function(output) {
+						var sel = document.getElementById('sel-polls');
+						sel.innerHTML = output;
+						//selSet('sel-polls');
+					}
+				});
+			}
+			
+			function inject()
+			{
+				//injectBases();
+				injectPolls();
+			}
+			
+			$(document).ready(function() {
+				injectBases();
+				//selSet('sel-bases');
+				//injectPolls();
+				//selSet('sel-polls');
+				//inject();
+			});
+			
+			function selDo() {
+				var div = document.getElementById("div-tab");
+				div.innerHTML = sel.value;
+			}
+			
+		</script>
+		<div>
+			<select id="sel-bases" onChange="injectPolls();"></select> 
+			<select id="sel-polls"></select> 
+		</div>
+		<div id="div-tab"></div>
+	</body>
+</html>

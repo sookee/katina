@@ -76,8 +76,11 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include "RemoteClient.h"
 #include "Database.h"
 #include "GUID.h"
+#include "KatinaPlugin.h"
 
 #include <arpa/inet.h> // IP to int
+
+#include <dirent.h>
 
 using namespace oastats;
 using namespace oastats::data;
@@ -87,8 +90,8 @@ using namespace oastats::string;
 using namespace oastats::net;
 using namespace oastats::time;
 
-const std::string version = "0.5.5";
-const std::string tag = "alpha";
+const std::string version = "0.5.6";
+const std::string tag = "dev";
 
 inline std::istream& sgl(std::istream& is, str& line, char delim = '\n')
 {
@@ -109,27 +112,9 @@ GUID bot_guid(siz num)
 	return GUID(id.c_str());
 }
 
-struct stats
-{
-	siz_map kills;
-	siz_map deaths;
-	siz_map flags;
-	siz_map awards;
-
-	time_t joined_time;
-	siz logged_time;
-
-	stats(): kills(), deaths(), flags(), awards(), joined_time(0), logged_time(0) {}
-};
-
-typedef std::map<GUID, stats> guid_stat_map;
-typedef std::pair<const GUID, stats> guid_stat_pair;
-typedef std::map<GUID, stats>::iterator guid_stat_iter;
-typedef std::map<GUID, stats>::const_iterator guid_stat_citer;
-
 RCon server;
 SkivvyClient skivvy;
-Database db;
+//Database db;
 
 /**
  * Set a variable from a cvar using rcon.
@@ -202,6 +187,7 @@ struct katina_conf
 	bool do_flags;
 	bool do_dashes;
 	bool do_db; // do database writes
+	bool protect_names;
 	siz votecontrol_wait; // seconds, 0 = votecontrol off
 	std::set<siz> db_weaps; // which weapons to record
 
@@ -210,6 +196,7 @@ struct katina_conf
 	, do_flags(false)
 	, do_dashes(false)
 	, do_db(false)
+	, protect_names(false)
 	, votecontrol_wait(0)
 	{
 	}
@@ -274,13 +261,15 @@ skivvy_conf sk_cfg;
 
 str_map recs; // high scores/ config etc
 
-siz_guid_map clients; // slot -> GUID
-guid_str_map players; // GUID -> name
-onevone_map onevone; // GUID -> GUID -> <count> //
+GameInfo gi;
+
+//siz_guid_map gi.clients; // slot -> GUID
+//guid_str_map players; // GUID -> name
+//onevone_map onevone; // GUID -> GUID -> <count> //
 guid_siz_map caps; // GUID -> <count> // TODO: caps container duplicated in stats::caps
-guid_stat_map stats; // GUID -> <stat>
-guid_siz_map teams; // GUID -> 'R' | 'B'
-str mapname, old_mapname; // current/previous map name
+//guid_stat_map stats; // GUID -> <stat>
+//guid_siz_map teams; // GUID -> 'R' | 'B'
+str /*mapname,*/ old_mapname; // current/previous map name
 guid_str_map users; // GUID -> name // registered name protection
 
 guid_int_map map_votes; // GUID -> 3
@@ -299,19 +288,8 @@ void report_players(const guid_str_map& players)
 		con("player: " << i->first << ", " << i->second);
 }
 
-//void report_onevone(const onevone_map& onevone, const guid_str_map& players)
-//{
-//	for(onevone_citer o = onevone.begin(); o != onevone.end(); ++o)
-//		for(guid_siz_citer p = o->second.begin(); p != o->second.end(); ++p)
-//		{
-//			str p1 = players.at(o->first);
-//			str p2 = players.at(p->first);
-//			con("player: " << p1 << " killed " << p2 << " " << p->second << " times.");
-//		}
-//}
-
 typedef std::multimap<siz, GUID> siz_guid_mmap;
-//typedef std::pair<const siz, GUID> siz_guid_pair;
+//typedef std::pair<const siz, GUID> siz_guid_mmap_pair;
 typedef siz_guid_mmap::reverse_iterator siz_guid_mmap_ritr;
 
 void report_caps(const guid_siz_map& caps, const guid_str_map& players, siz flags[2])
@@ -409,10 +387,19 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 		if(sk_cfg.do_stats)
 		{
 			siz c = map_get(p->second.flags, FL_CAPTURED);
-			siz k = map_get(p->second.kills, MOD_RAILGUN);
-			k += map_get(p->second.kills, MOD_GAUNTLET);
-			siz d = map_get(p->second.deaths, MOD_RAILGUN);
-			d += map_get(p->second.deaths, MOD_GAUNTLET);
+
+			siz k = 0;
+			for(siz i = 0; i < MOD_MAXVALUE; ++i)
+				k += map_get(p->second.kills, i);
+
+			siz d = 0;
+			for(siz i = 0; i < MOD_MAXVALUE; ++i)
+				d += map_get(p->second.deaths, i);
+
+//			siz k = map_get(p->second.kills, MOD_RAILGUN);
+//			k += map_get(p->second.kills, MOD_GAUNTLET);
+//			siz d = map_get(p->second.deaths, MOD_RAILGUN);
+//			d += map_get(p->second.deaths, MOD_GAUNTLET);
 			siz h = p->second.logged_time;
 			con("c: " << c);
 			con("k: " << k);
@@ -426,7 +413,7 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 			if(!d)
 			{
 				if(k)
-					kd = "perf  ";
+					kd = "perf ";
 				if(c)
 					cd = "perf  ";
 			}
@@ -507,10 +494,25 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 			skivvy.chat('s', r->second);
 }
 
+str safe_get_env(const str& var)
+{
+	if(const char* v = getenv(var.c_str()))
+		return str(v);
+	return "";
+}
+
+str get_katina_data()
+{
+	str KATINA_DATA = safe_get_env("KATINA_DATA");
+	if(KATINA_DATA.empty())
+		KATINA_DATA = str(safe_get_env("HOME")) + "/.katina";
+	return KATINA_DATA;
+}
+
 void save_records(const str_map& recs)
 {
 	log("save_records:");
-	std::ofstream ofs((str(getenv("HOME")) + "/.katina/records.txt").c_str());
+	std::ofstream ofs((get_katina_data() + "/records.txt").c_str());
 
 	str sep;
 	for(str_map_citer r = recs.begin(); r != recs.end(); ++r)
@@ -520,7 +522,7 @@ void save_records(const str_map& recs)
 void load_records(str_map& recs)
 {
 	log("load_records:");
-	std::ifstream ifs((str(getenv("HOME")) + "/.katina/records.txt").c_str());
+	std::ifstream ifs((get_katina_data() + "/records.txt").c_str());
 
 	recs.clear();
 	str key;
@@ -733,6 +735,15 @@ void* set_teams(void* td_vp)
 					skivvy.chat('*', "^3Stats Cols now: ^1" + sk_cfg.get_stats_cols() + "^3.");
 				}
 			break;
+			case 16:
+				if(!rconset("katina_protect_names", ka_cfg.protect_names))
+					rconset("katina_protect_names", ka_cfg.protect_names); // one retry
+				if(ka_cfg.protect_names != old_ka_cfg.protect_names)
+				{
+					log("skivvy: name protection is now: " << (ka_cfg.protect_names ? "on":"off"));
+					skivvy.chat('*', "^3Name protection ^1" + str(ka_cfg.protect_names ? "on":"off") + "^3.");
+				}
+			break;
 			default:
 				c = 0;
 			break;
@@ -743,7 +754,7 @@ void* set_teams(void* td_vp)
 
 GUID guid_from_name(const str& name)
 {
-	for(guid_str_iter i = players.begin(); i != players.end(); ++i)
+	for(guid_str_iter i = gi.players.begin(); i != gi.players.end(); ++i)
 		if(i->second == name)
 			return i->first;
 	return null_guid;
@@ -850,6 +861,36 @@ struct mapped_eq
 	}
 };
 
+// Plugins
+
+/**
+ *
+ * @param folder
+ * @param files
+ * @return true on success, if false errno has error code
+ */
+bool ls(const str& folder, str_vec &files)
+{
+    DIR* dir;
+	dirent* dirp;
+
+	if(!(dir = opendir(folder.c_str())))
+		return false;;
+
+	files.clear();
+	while((dirp = readdir(dir)))
+		files.push_back(dirp->d_name);
+
+	if(closedir(dir))
+		return false;
+
+	return true;
+}
+
+typedef std::vector<KatinaPluginAPtr> plugin_vec;
+typedef plugin_vec::iterator plugin_vec_iter;
+typedef plugin_vec::const_iterator plugin_vec_citer;
+
 int main(const int argc, const char* argv[])
 {
 	signal(11, stack_handler);
@@ -872,9 +913,21 @@ int main(const int argc, const char* argv[])
 		return -2;
 	}
 
+	// load plugins
+	str_vec files;
+	plugin_vec plugins;
+
+//	if(ls(get_katina_data() + "/plugins", files))
+//	{
+//		for(siz i = 0; i < files.size(); ++i)
+//		{
+//			if()
+//		}
+//	}
+
 	server.config(recs["rcon.host"], to<siz>(recs["rcon.port"]), recs["rcon.pass"]);
 	skivvy.config(recs["skivvy.host"], to<siz>(recs["skivvy.port"]));
-	db.config(recs["db.host"], to<siz>(recs["db.port"]), recs["db.user"], recs["db.pass"], recs["db.base"]);
+//	db.config(recs["db.host"], to<siz>(recs["db.port"]), recs["db.user"], recs["db.pass"], recs["db.base"]);
 
 	str reply;
 	if(!server.command("set g_allowVote 1", reply))
@@ -935,7 +988,7 @@ int main(const int argc, const char* argv[])
 	milliseconds thread_delay = 6000; // default
 	if(recs.count("rcon.delay"))
 		thread_delay = to<milliseconds>(recs["rcon.delay"]);
-	thread_data td = {thread_delay, &clients, &teams};
+	thread_data td = {thread_delay, &gi.clients, &gi.teams};
 	pthread_create(&teams_thread, NULL, &set_teams, (void*) &td);
 
 	milliseconds sleep_time = 100; // milliseconds
@@ -969,11 +1022,7 @@ int main(const int argc, const char* argv[])
 		{
 			if(cmd == "Exit:")
 			{
-				trace(cmd << "(" << (in_game?"playing":"waiting") << ")");
-				// shutdown voting until next map
-				log("exit: writing stats to database and collecting votes");
-
-//				if(!restart_vote)
+				trace(cmd);
 				{
 					log("CALLVOTE CONTROL: OFF");
 					str reply;
@@ -983,24 +1032,7 @@ int main(const int argc, const char* argv[])
 					restart_vote = 0;//std::time(0) + votecontrol_wait;
 				}
 
-				// in game timing
-				for(guid_stat_iter i = stats.begin(); i != stats.end(); ++i)
-				{
-					bug("TIMER:         EOG: " << i->first);
-					if(i->second.joined_time);
-					{
-						bug("TIMER:         ADD: " << i->first);
-						bug("TIMER:         now: " << now);
-						bug("TIMER: logged_time: " << i->second.logged_time);
-						bug("TIMER: joined_time: " << i->second.joined_time);
-						if(i->second.joined_time)
-							i->second.logged_time += now - i->second.joined_time;
-						i->second.joined_time = 0;
-					}
-				}
-
 				skivvy.chat('*', "^3Game Over");
-				in_game = false;
 
 				// erase non spam marked messages
 				for(str_siz_map_iter i = spam.begin(); i != spam.end();)
@@ -1014,75 +1046,25 @@ int main(const int argc, const char* argv[])
 						++i;
 				}
 
-				try
-				{
-					if(ka_cfg.do_flags && !caps.empty())
-						report_caps(caps, players, flags);
+				// report
+//				con("-- Report: -------------------------------");
+//				report_clients(gi.clients);
+//				con("");
+//				report_players(gi.players);
+////					con("");
+////					report_onevone(onevone, gi.players);
+//				con("");
+//				report_stats(stats, gi.players);
+				con("------------------------------------------");
 
-					if(ka_cfg.do_db)
-					{
-						db.on();
-
-						game_id id = db.add_game(recs["rcon.host"], recs["rcon.port"], mapname);
-						bug("id; " << id);
-						if(id != null_id && id != bad_id)
-						{
-							// TODO: insert game stats here
-							for(guid_stat_citer p = stats.begin(); p != stats.end(); ++p)
-							{
-								const str& player = players.at(p->first);
-
-								siz count;
-								for(std::set<siz>::iterator weap = ka_cfg.db_weaps.begin(); weap != ka_cfg.db_weaps.end(); ++weap)
-								{
-									if((count = map_get(p->second.kills, *weap)))
-										db.add_weaps(id, "kills", p->first, *weap, count);
-									if((count = map_get(p->second.deaths, *weap)))
-										db.add_weaps(id, "deaths", p->first, *weap, count);
-								}
-
-								if((count = map_get(p->second.flags, FL_CAPTURED)))
-									db.add_caps(id, p->first, count);
-
-								if(!p->first.is_bot())
-									if((count = p->second.logged_time))
-										db.add_time(id, p->first, count);
-							}
-
-							for(onevone_citer o = onevone.begin(); o != onevone.end(); ++o)
-								for(guid_siz_citer p = o->second.begin(); p != o->second.end(); ++p)
-									db.add_ovo(id, o->first, p->first, p->second);
-						}
-
-						for(guid_str_map::iterator player = players.begin(); player != players.end(); ++player)
-							if(!player->first.is_bot())
-								db.add_player(player->first, player->second);
-
-						db.off();
-					}
-
-
-					// report
-					con("-- Report: -------------------------------");
-					report_clients(clients);
-					con("");
-					report_players(players);
-//					con("");
-//					report_onevone(onevone, players);
-					con("");
-					report_stats(stats, players);
-					con("------------------------------------------");
-				}
-				catch(std::exception& e)
-				{
-					con(e.what());
-				}
+				for(siz i = 0; i < plugins.size(); ++i)
+					plugins[i]->exit(gi);
 
 				log("exit: done");
 			}
 			else if(cmd == "ShutdownGame:")
 			{
-				trace(cmd << "(" << (in_game?"playing":"waiting") << ")");
+				trace(cmd << "(" << (gi.in_game?"playing":"waiting") << ")");
 				in_game = false;
 //				if(!restart_vote)
 				{
@@ -1096,12 +1078,12 @@ int main(const int argc, const char* argv[])
 			}
 			else if(cmd == "Warmup:")
 			{
-				trace(cmd << "(" << (in_game?"playing":"waiting") << ")");
+				trace(cmd << "(" << (gi.in_game?"playing":"waiting") << ")");
 				in_game = false;
 			}
 			else if(cmd == "ClientUserinfoChanged:")
 			{
-				trace(cmd << "(" << (in_game?"playing":"waiting") << ")");
+				trace(cmd);
 
 				// 1:58 ClientUserinfoChanged: 2 n\<name>\t\<team>\model\sar
 
@@ -1121,71 +1103,82 @@ int main(const int argc, const char* argv[])
 					str id = line.substr(pos + 4, 32);
 
 					if(id.size() != 32)
-						clients[num] = bot_guid(num);//null_guid;
+						gi.clients[num] = bot_guid(num);//null_guid;
 					else
-						clients[num] = to<GUID>(id.substr(24));
+						gi.clients[num] = to<GUID>(id.substr(24));
 
-					players[clients[num]] = name;
+					gi.players[gi.clients[num]] = name;
 
 					if(ka_cfg.do_db)
 					{
-						// registered name processing
-						if(!clients[num].is_bot() && users.find(clients[num]) == users.end())
-							if(db.get_preferred_name(clients[num], name))
-								users[clients[num]] = name;
 
-						guid_str_iter i = std::find_if(users.begin(), users.end(), mapped_eq<guid_str_map>(name));
-						if(i != users.end() && i->first != clients[num])
+						if(ka_cfg.protect_names)
 						{
-							server.chat("The name " + name + " is registered to another user.");
-							soss oss;
-							oss << "!rename " << to_string(num) << "RenamedPlayer";
-							str reply;
-							server.command(oss.str(), reply);
+							// registered name processing
+							if(!gi.clients[num].is_bot() && users.find(gi.clients[num]) == users.end())
+							{
+								db.on();
+								str name;
+								if(db.get_preferred_name(gi.clients[num], name) && !name.empty())
+									users[gi.clients[num]] = name;
+								db.off();
+							}
+
+							guid_str_iter i = std::find_if(users.begin(), users.end(), mapped_eq<guid_str_map>(name));
+							if(i != users.end() && i->first != gi.clients[num])
+							{
+								server.chat("The name " + name + " is registered to another user.");
+								soss oss;
+								oss << "!rename " << num << " RenamedPlayer";
+								str reply;
+								server.command(oss.str(), reply);
+							}
 						}
 					}
 
 					bug("");
 					bug("team               : " << team);
-					bug("teams[clients[num]]: " << teams[clients[num]]);
+					bug("gi.teams[gi.clients[num]]: " << gi.teams[gi.clients[num]]);
 					bug("");
 
-					teams[clients[num]] = team; // 1 = red, 2 = blue, 3 = spec
+					gi.teams[gi.clients[num]] = team; // 1 = red, 2 = blue, 3 = spec
 
-					bug("TIMER: joined_time: " << stats[clients[num]].joined_time);
-
-					if(stats[clients[num]].joined_time)
-						stats[clients[num]].logged_time += now - stats[clients[num]].joined_time;
-
-					if(teams[clients[num]] == TEAM_R || teams[clients[num]] == TEAM_B)
-						stats[clients[num]].joined_time = now;
-					else
-						stats[clients[num]].joined_time = 0;
-
-					bug("TIMER: logged_time: " << stats[clients[num]].logged_time);
-					bug("TIMER: joined_time: " << stats[clients[num]].joined_time);
-					bug("TIMER:");
+					for(siz i = 0; i < plugins.size(); ++i)
+						plugins[i]->client_userinfo_changed(gi);
 				}
 			}
 			else if(cmd == "ClientConnect:")
 			{
-				trace(cmd << "(" << (in_game?"playing":"waiting") << ")");
+				trace(cmd);
+				siz num;
+				if(!(iss >> num))
+				{
+					std::cout << "Error parsing ClientConnect: "  << line << '\n';
+					continue;
+				}
+				for(siz i = 0; i < plugins.size(); ++i)
+					plugins[i]->client_connect(gi, num);
 			}
 			else if(cmd == "ClientDisconnect:")
 			{
-				trace(cmd << "(" << (in_game?"playing":"waiting") << ")");
-				bug("now: " << now);
+				trace(cmd);
 				siz num;
-				if((iss >> num))
+				if(!(iss >> num))
 				{
-					if(stats[clients[num]].joined_time)
-						stats[clients[num]].logged_time += now - stats[clients[num]].joined_time;
-					stats[clients[num]].joined_time = 0;
+					std::cout << "Error parsing ClientConnect: "  << line << '\n';
+					continue;
+				}
+
+				if(ka_cfg.protect_names)
+				{
+					guid_str_iter i = users.find(gi.clients[num]);
+					if(i != users.end())
+						users.erase(i);
 				}
 			}
 			else if(cmd == "Kill:")
 			{
-				trace(cmd << "(" << (in_game?"playing":"waiting") << ")");
+				trace(cmd);
 				//bug("Kill:");
 				// 3:20 Kill: 2 1 10: ^1S^2oo^3K^5ee killed Neko by MOD_RAILGUN
 				siz num1, num2, weap;
@@ -1200,35 +1193,25 @@ int main(const int argc, const char* argv[])
 					// 14:22 Kill: 2 2 20: ^1S^2oo^3K^5ee killed ^1S^2oo^3K^5ee by MOD_SUICIDE
 					for(siz i = 0; i < 2; ++i)
 					{
-						if(dasher[i] == clients[num1])
+						if(dasher[i] == gi.clients[num1])
 						{
 							dasher[i] = null_guid; // end current dash (if exists)
 							dashing[i] = true; // (re) enable dashing
 						}
 					}
 				}
-				else if(clients.find(num1) != clients.end() && clients.find(num2) != clients.end())
+				else if(gi.clients.find(num1) != gi.clients.end() && gi.clients.find(num2) != gi.clients.end())
 				{
-					if(num1 == 1022 && !clients[num2].is_bot()) // no killer
-						++stats[clients[num2]].deaths[weap];
-					else if(!clients[num1].is_bot() && !clients[num2].is_bot())
-					{
-						if(num1 != num2)
-						{
-							++stats[clients[num1]].kills[weap];
-							++onevone[clients[num1]][clients[num2]];
-						}
-						++stats[clients[num2]].deaths[weap];
-
-						if(sk_cfg.do_kills)
-							skivvy.chat('k', "^7" + players[clients[num1]] + " ^4killed ^7" + players[clients[num2]]
-								+ " ^4with a ^7" + weapons[weap]);
-					}
+					if(sk_cfg.do_kills)
+						skivvy.chat('k', "^7" + gi.players[gi.clients[num1]] + " ^4killed ^7" + gi.players[gi.clients[num2]]
+							+ " ^4with a ^7" + weapons[weap]);
 				}
+				for(siz i = 0; i < plugins.size(); ++i)
+					plugins[i]->kill(gi, num1, num2, weap);
 			}
 			else if(cmd == "CTF:")
 			{
-				trace(cmd << "(" << (in_game?"playing":"waiting") << ")");
+				trace(cmd);
 				// 10:26 CTF: 0 2 1: ^5A^6lien ^5S^6urf ^5G^6irl captured the BLUE flag!
 				// 0 = got, 1 = cap, 2 = ret
 				siz num, col, act;
@@ -1245,20 +1228,17 @@ int main(const int argc, const char* argv[])
 				str nums_nteam = "^7[^2U^7]"; // unknown team
 
 				//pthread_mutex_lock(&mtx);
-				if(teams[clients[num]] == TEAM_R)
+				if(gi.teams[gi.clients[num]] == TEAM_R)
 					nums_team = "^7[^1R^7]";
-				else if(teams[clients[num]] == TEAM_B)
+				else if(gi.teams[gi.clients[num]] == TEAM_B)
 					nums_team = "^7[^4B^7]";
-				if(teams[clients[num]] == TEAM_B)
+				if(gi.teams[gi.clients[num]] == TEAM_B)
 					nums_nteam = "^7[^1R^7]";
-				else if(teams[clients[num]] == TEAM_R)
+				else if(gi.teams[gi.clients[num]] == TEAM_R)
 					nums_nteam = "^7[^4B^7]";
 				//pthread_mutex_unlock(&mtx);
 
 				//bug("inc stats");
-				if(!clients[num].is_bot())
-					++stats[clients[num]].flags[act];
-
 				str hud;
 
 				if(act == FL_CAPTURED) // In Game Announcer
@@ -1271,48 +1251,48 @@ int main(const int argc, const char* argv[])
 						std::ostringstream oss;
 						oss.precision(2);
 						oss << std::fixed << sec;
-						server.chat(players[clients[num]] + "^3 took ^7" + oss.str()
+						server.chat(gi.players[gi.clients[num]] + "^3 took ^7" + oss.str()
 							+ "^3 seconds to capture the " + flag[col] + "^3 flag.");
 						if(sk_cfg.do_flags)
-							skivvy.chat('f', players[clients[num]] + "^3 took ^7" + oss.str()
+							skivvy.chat('f', gi.players[gi.clients[num]] + "^3 took ^7" + oss.str()
 								+ "^3 seconds to capture the " + flag[col] + "^3 flag.");
 
-						double rec = to<double>(recs["dash." + mapname + ".secs"]);
+						double rec = to<double>(recs["dash." + gi.mapname + ".secs"]);
 
 						bug("rec: " << rec);
 
 						if(rec < 0.5)
 						{
-							server.chat(players[clients[num]] + "^3 has set the record for this map.");
-							skivvy.chat('f', players[clients[num]] + "^3 has set the record for this map.");
-							recs["dash." + mapname + ".guid"] = to_string(clients[num]);
-							recs["dash." + mapname + ".name"] = players[clients[num]];
-							recs["dash." + mapname + ".secs"] = oss.str();
+							server.chat(gi.players[gi.clients[num]] + "^3 has set the record for this map.");
+							skivvy.chat('f', gi.players[gi.clients[num]] + "^3 has set the record for this map.");
+							recs["dash." + gi.mapname + ".guid"] = to_string(gi.clients[num]);
+							recs["dash." + gi.mapname + ".name"] = gi.players[gi.clients[num]];
+							recs["dash." + gi.mapname + ".secs"] = oss.str();
 							save_records(recs);
 						}
 						else if(sec < rec)
 						{
-							server.chat(players[clients[num]] + "^3 beat ^7"
-								+ recs["dash." + mapname + ".name"] + "'^3s ^7"
-								+ recs["dash." + mapname + ".secs"] + " ^3seconds.");
-							skivvy.chat('f', players[clients[num]] + "^3 beat ^7"
-								+ recs["dash." + mapname + ".name"] + "'^3s ^7"
-								+ recs["dash." + mapname + ".secs"] + " ^3seconds.");
-							recs["dash." + mapname + ".guid"] = to_string(clients[num]);
-							recs["dash." + mapname + ".name"] = players[clients[num]];
-							recs["dash." + mapname + ".secs"] = oss.str();
+							server.chat(gi.players[gi.clients[num]] + "^3 beat ^7"
+								+ recs["dash." + gi.mapname + ".name"] + "'^3s ^7"
+								+ recs["dash." + gi.mapname + ".secs"] + " ^3seconds.");
+							skivvy.chat('f', gi.players[gi.clients[num]] + "^3 beat ^7"
+								+ recs["dash." + gi.mapname + ".name"] + "'^3s ^7"
+								+ recs["dash." + gi.mapname + ".secs"] + " ^3seconds.");
+							recs["dash." + gi.mapname + ".guid"] = to_string(gi.clients[num]);
+							recs["dash." + gi.mapname + ".name"] = gi.players[gi.clients[num]];
+							recs["dash." + gi.mapname + ".secs"] = oss.str();
 							save_records(recs);
 						}
 					}
 
 					++flags[col];
-					++caps[clients[num]];
+					++caps[gi.clients[num]];
 					dasher[col] = null_guid;
 					dashing[col] = true; // new dash now possible
 
 					if(ka_cfg.do_flags)
 					{
-						str msg = players[clients[num]] + "^3 has ^7" + to_string(caps[clients[num]]) + "^3 flag" + (caps[clients[num]]==1?"":"s") + "!";
+						str msg = gi.players[gi.clients[num]] + "^3 has ^7" + to_string(caps[gi.clients[num]]) + "^3 flag" + (caps[gi.clients[num]]==1?"":"s") + "!";
 						server.cp(msg);
 						if(sk_cfg.do_flags)
 						{
@@ -1336,7 +1316,7 @@ int main(const int argc, const char* argv[])
 					if(dashing[col])
 						dash[col] = get_millitime();
 
-					dasher[col] = clients[num];
+					dasher[col] = gi.clients[num];
 
 					if(sk_cfg.do_flags)
 					{
@@ -1345,7 +1325,7 @@ int main(const int argc, const char* argv[])
 							hud_flag[col] = HUD_FLAG_P;
 							hud = get_hud(m, s, hud_flag);
 						}
-						skivvy.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + players[clients[num]] + "^3 has taken the " + flag[col] + " ^3flag!"));
+						skivvy.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + gi.players[gi.clients[num]] + "^3 has taken the " + flag[col] + " ^3flag!"));
 					}
 				}
 				else if(act == FL_DROPPED)
@@ -1358,17 +1338,11 @@ int main(const int argc, const char* argv[])
 							hud = get_hud(m, s, hud_flag);
 							hud_flag[ncol] = HUD_FLAG_NONE;
 						}
-						skivvy.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + players[clients[num]] + "^3 has killed the " + flag[ncol] + " ^3flag carrier!"));
+						skivvy.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + gi.players[gi.clients[num]] + "^3 has killed " + gi.players[dasher[ncol]] + " the " + flag[ncol] + " ^3flag carrier!"));
 					}
 					GUID dasher_guid = dasher[ncol];
 					dasher[ncol] = null_guid;; // end a dash
 					dashing[ncol] = false; // no more dashes until return, capture or suicide
-//					if(sk_cfg.do_flags)
-//					{
-//						if(sk_cfg.do_flags_hud)
-//							hud = get_hud(m, s, dasher);
-//						skivvy.raw_chat('f', hud + oa_to_IRC(nums_nteam + " ^7" + players[dasher_guid] + "^3 has dropped the " + flag[ncol] + " ^3flag!"));
-//					}
 				}
 				else if(act == FL_RETURNED)
 				{
@@ -1382,9 +1356,12 @@ int main(const int argc, const char* argv[])
 							hud = get_hud(m, s, hud_flag);
 							hud_flag[col] = HUD_FLAG_NONE;
 						}
-						skivvy.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + players[clients[num]] + "^3 has returned the " + flag[col] + " ^3flag!"));
+						skivvy.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + gi.players[gi.clients[num]] + "^3 has returned the " + flag[col] + " ^3flag!"));
 					}
 				}
+
+				for(siz i = 0; i < plugins.size(); ++i)
+					plugins[i]->ctf(gi, num, col, act);
 			}
 			else if(cmd == "Award:")
 			{
@@ -1395,7 +1372,9 @@ int main(const int argc, const char* argv[])
 					std::cout << "Error parsing Award:" << '\n';
 					continue;
 				}
-				++stats[clients[num]].awards[awd];
+
+				for(siz i = 0; i < plugins.size(); ++i)
+					plugins[i]->award(gi, num, awd);
 			}
 		}
 		else
@@ -1417,7 +1396,7 @@ int main(const int argc, const char* argv[])
 				{
 					db.on();
 					for(guid_int_map_iter i = map_votes.begin(); i != map_votes.end(); ++i)
-						db.add_vote("map", mapname, i->first, i->second);
+						db.add_vote("map", gi.mapname, i->first, i->second);
 					db.off();
 				}
 
@@ -1433,12 +1412,10 @@ int main(const int argc, const char* argv[])
 				flags[FL_RED] = 0;
 				flags[FL_BLUE] = 0;
 
-				clients.clear();
-				players.clear();
-				onevone.clear();
+				gi.clients.clear();
+				gi.players.clear();
 				caps.clear();
-				stats.clear();
-				teams.clear();
+				gi.teams.clear();
 
 				dasher[FL_RED] = null_guid;;
 				dasher[FL_BLUE] = null_guid;;
@@ -1456,25 +1433,25 @@ int main(const int argc, const char* argv[])
 				siz pos;
 				if((pos = line.find("mapname\\")) != str::npos)
 				{
-					mapname.clear();
+					gi.mapname.clear();
 					std::istringstream iss(line.substr(pos + 8));
-					if(!std::getline(iss, mapname, '\\'))
+					if(!std::getline(iss, gi.mapname, '\\'))
 					{
 						std::cout << "Error parsing mapname\\" << '\n';
 						continue;
 					}
-					lower(mapname);
+					lower(gi.mapname);
 
 					// load map votes for new map
 					if(ka_cfg.do_db)
 					{
 						db.on();
-						db.read_map_votes(mapname, map_votes);
+						db.read_map_votes(gi.mapname, map_votes);
 						db.off();
 					}
 				}
-				log("MAP NAME: " << mapname);
-				if(sk_cfg.do_infos && mapname != old_mapname)
+				log("MAP NAME: " << gi.mapname);
+				if(sk_cfg.do_infos && gi.mapname != old_mapname)
 				{
 					siz love = 0;
 					siz hate = 0;
@@ -1486,9 +1463,9 @@ int main(const int argc, const char* argv[])
 							++hate;
 					}
 					skivvy.chat('i', ".");
-					skivvy.chat('i', "^3== Playing Map: ^7" + mapname + "^3 == ^7" + to_string(love)
+					skivvy.chat('i', "^3== Playing Map: ^7" + gi.mapname + "^3 == ^7" + to_string(love)
 						+ " ^1LOVE ^7" + to_string(hate) + " ^2HATE ^3==");
-					old_mapname = mapname;
+					old_mapname = gi.mapname;
 				}
 			}
 		}
@@ -1504,7 +1481,7 @@ int main(const int argc, const char* argv[])
 
 				if(extract_name_from_text(line, guid, text))
 					if(!sk_cfg.spamkill || ++spam[text] < spam_limit)
-						skivvy.chat('c', "^7say: " + players[guid] + " ^2" + text);
+						skivvy.chat('c', "^7say: " + gi.players[guid] + " ^2" + text);
 			}
 
 			siz pos;
@@ -1523,8 +1500,8 @@ int main(const int argc, const char* argv[])
 			{
 				con("!record");
 				server.chat("^3MAP RECORD: ^7"
-					+ recs["dash." + mapname + ".secs"]
-					+ "^3 set by ^7" + recs["dash." + mapname + ".name"]);
+					+ recs["dash." + gi.mapname + ".secs"]
+					+ "^3 set by ^7" + recs["dash." + gi.mapname + ".name"]);
 			}
 			else if(cmd == "!love") // TODO:
 			{
@@ -1539,11 +1516,11 @@ int main(const int argc, const char* argv[])
 				if(lower(trim(text)) == "map")
 				{
 					if(map_votes.count(guid) && map_votes[guid] == 1)
-						server.chat("^3You can only vote once per week.");
+						server.chat("^3You have already voted for this map.");
 					else if(map_votes.count(guid))
-						server.chat("^3Your vote has changed.");
+						server.chat("^3Your vote has changed for this map.");
 					else
-						server.chat("^7" + players[guid] + "^7: ^3Your vote is counted.");
+						server.chat("^7" + gi.players[guid] + "^7: ^3Your vote will be counted.");
 					map_votes[guid] = 1;
 				}
 			}
@@ -1560,11 +1537,11 @@ int main(const int argc, const char* argv[])
 				if(lower(trim(text)) == "map")
 				{
 					if(map_votes.count(guid) && map_votes[guid] == -1)
-						server.chat("^3You can only vote once per week.");
+						server.chat("^3You have already voted for this map.");
 					else if(map_votes.count(guid))
-						server.chat("^3Your vote has changed.");
+						server.chat("^3Your vote has changed for this map.");
 					else
-						server.chat("^7" + players[guid] + "^7: ^3Your vote is counted.");
+						server.chat("^7" + gi.players[guid] + "^7: ^3Your vote will be counted.");
 					map_votes[guid] = -1;
 				}
 			}
@@ -1579,32 +1556,32 @@ int main(const int argc, const char* argv[])
 				if(ka_cfg.do_db && name != "UnnamedPlayer" && name != "RenamedPlayer")
 				{
 					db.on();
-					if(db.set_preferred_name(guid, players[guid]))
-						server.chat("^7" + players[guid] + "^7: ^3Your preferred name has been registered.");
+					if(db.set_preferred_name(guid, gi.players[guid]))
+						server.chat("^7" + gi.players[guid] + "^7: ^3Your preferred name has been registered.");
 					db.off();
 				}
 			}
-			else if(cmd == "!stats")
-			{
-				str text;
-				GUID guid;
-
-				if(!extract_name_from_text(line, guid, text))
-					continue;
-
-				siz prev = 0; // count $prev month's back
-				if(!(iss >> prev))
-					prev = 0;
-
-				if(ka_cfg.do_db)
-				{
-					db.on();
-					str stats;
-					if(db.get_ingame_stats(guid, mapname, prev, stats))
-						server.chat("^7STATS: " + players[guid] + "^7: " + stats);
-					db.off();
-				}
-			}
+//			else if(cmd == "!stats")
+//			{
+//				str text;
+//				GUID guid;
+//
+//				if(!extract_name_from_text(line, guid, text))
+//					continue;
+//
+//				siz prev = 0; // count $prev month's back
+//				if(!(iss >> prev))
+//					prev = 0;
+//
+//				if(ka_cfg.do_db)
+//				{
+//					db.on();
+//					str stats;
+//					if(db.get_ingame_stats(guid, gi.mapname, prev, stats))
+//						server.chat("^7STATS: " + gi.players[guid] + "^7: " + stats);
+//					db.off();
+//				}
+//			}
 		}
 	}
 	done = true;

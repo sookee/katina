@@ -10,6 +10,10 @@ KATINA_FLAGS = -D DEBUG -O0 -g3 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread
 KATINA_LIBS = $(MYSQL_LIBS) -lrt -pthread
 KATINA_OBJS = katina.o rcon.o RemoteClient.o irc.o Database.o GUID.o
 
+KATINA_1_FLAGS = -D DEBUG -O0 -g3 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread
+KATINA_1_LIBS = $(MYSQL_LIBS) -lrt -pthread
+KATINA_1_OBJS = katina-1.o rcon.o RemoteClient.o irc.o Database.o GUID.o
+
 KATINA_IRC_FLAGS = -O3 -g0 -pthread
 KATINA_IRC_LIBS = -lrt -pthread
 KATINA_IRC_OBJS = katina-irc.o rcon.o irc.o message.o
@@ -18,7 +22,7 @@ KATINA_VOTES_FLAGS = -O0 -g3 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread
 KATINA_VOTES_LIBS = $(MYSQL_LIBS) -lrt -pthread
 KATINA_VOTES_OBJS = katina-votes.o
 
-PROGRAMS = katina katina-irc katina-votes
+PROGRAMS = katina katina-1 katina-irc katina-votes
 
 all: $(PROGRAMS)
 
@@ -27,6 +31,12 @@ katina: $(KATINA_OBJS)
 	
 katina.o: katina.cpp $(INCLUDES)
 	$(CXX) -c $(KATINA_FLAGS) -o $@ $<
+	
+katina-1: $(KATINA_1_OBJS)
+	$(CXX) -o $@ $(KATINA_1_OBJS) $(KATINA_1_LIBS)
+	
+katina-1.o: katina-1.cpp $(INCLUDES)
+	$(CXX) -c $(KATINA_1_FLAGS) -o $@ $<
 	
 katina-irc: $(KATINA_IRC_OBJS)
 	$(CXX) -o $@ $(KATINA_IRC_OBJS) $(KATINA_IRC_LIBS)

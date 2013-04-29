@@ -121,11 +121,6 @@ typedef std::pair<const GUID, siz> guid_siz_pair;
 typedef std::map<GUID, siz>::iterator guid_siz_iter;
 typedef std::map<GUID, siz>::const_iterator guid_siz_citer;
 
-typedef std::map<GUID, guid_siz_map> onevone_map;
-typedef std::pair<const GUID, guid_siz_map> onevone_pair;
-typedef std::map<GUID, guid_siz_map>::iterator onevone_iter;
-typedef std::map<GUID, guid_siz_map>::const_iterator onevone_citer;
-
 typedef std::multimap<siz, str> siz_str_mmap;
 typedef siz_str_mmap::reverse_iterator siz_str_mmap_ritr;
 typedef siz_str_mmap::iterator siz_str_mmap_iter;
