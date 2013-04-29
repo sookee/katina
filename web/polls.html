@@ -1,0 +1,59 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<script src="js/sarissa/sarissa-compressed.js"></script>
+		<script src="js/sarissa/sarissa_ieemu_xpath-compressed.js"></script>
+		<script src="js/jquery-1.9.1.min.js"></script>
+		<script src="js/jquery.xslTransform.packed.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/polls-table.css"/>
+	</head>
+	<body>
+		<script>
+			function injectBases()
+			{
+				var params = '?func=get_bases';
+				
+				$('#sel-base').getTransform(
+					'xsl/polls-sel-base.xsl'
+					, 'rest-api.php' + params
+					, { callback: function() { injectPolls(); }}
+				);
+			}
+			
+			function injectPolls()
+			{
+				var params = '?func=get_polls'
+						+ '&base=' + document.getElementById('sel-base').value;
+				
+				$('#sel-poll').getTransform(
+					'xsl/polls-sel-poll.xsl'
+					, 'rest-api.php' + params
+					, { callback: function() { injectTable(); }}
+				);
+			}
+			
+			function injectTable()
+			{
+				var params = '?func=get_poll'
+						+ '&base=' + document.getElementById('sel-base').value
+						+ '&poll=' + document.getElementById('sel-poll').value;
+				
+				$('#div-table').getTransform(
+					'xsl/polls-table.xsl'
+					, 'rest-api.php' + params
+				);
+			}
+			
+			$(document).ready(function() {
+				injectBases();
+			});
+		</script>
+		<div id="div-bases">
+			<select id="sel-base" onChange="injectPolls();"></select> 
+		</div>
+		<div id="div-polls">
+			<select id="sel-poll" onChange="injectTable();"></select> 
+		</div>
+		<div id="div-table"></div>
+	</body>
+</html>

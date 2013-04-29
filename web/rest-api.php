@@ -72,8 +72,7 @@ if($func == "get_bases")
 	
 	foreach($bases as $id => $name)
 	{
-		$sel = $id == $base;
-		echo "\t<base sel='$sel'>\n";
+		echo "\t<base>\n";
 		echo "\t\t<id>$id</id>\n";
 		echo "\t\t<name>$name</name>\n";
 		echo "\t</base>\n";
@@ -92,10 +91,7 @@ else if($func == 'get_polls')
 	echo get_xsl();
 	echo "<polls>\n";
 	while(($row = mysqli_fetch_array($result)))
-	{
-		$sel = $row[0] == $poll;
-		echo "\t<poll sel='$sel'>$row[0]</poll>\n";
-	}
+		echo "\t<poll>$row[0]</poll>\n";
 	echo "</polls>\n";
 	
 	mysqli_free_result($result);

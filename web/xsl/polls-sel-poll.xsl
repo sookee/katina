@@ -5,14 +5,7 @@
 <xsl:template match="/">
 	<xsl:for-each select='polls/poll'>
 		<xsl:sort select='.' order='ascending'/>
-		<xsl:choose>
-			<xsl:when test="@sel = '1'">
-				<option selected='1'><xsl:value-of select='.'/></option>
-			</xsl:when> 
-			<xsl:otherwise>
-				<option><xsl:value-of select='.'/></option>
-			</xsl:otherwise>		
-		</xsl:choose>
+			<option><xsl:value-of select='.'/></option>
 	</xsl:for-each>
 </xsl:template>
 

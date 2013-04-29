@@ -174,7 +174,7 @@ function cmp_cd($a, $b)
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="stylesheet" type="text/css" href="katina.css"/>
+<link rel="stylesheet" type="text/css" href="css/katina.css"/>
 <script type="text/javascript">
 function sort_by(type)
 {

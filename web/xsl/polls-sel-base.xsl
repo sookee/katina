@@ -7,12 +7,8 @@
 		<xsl:sort select='love div (love + hate)' order='ascending'/>
 		<option>
 			<xsl:attribute name="value">
-				<xsl:value-of select="id" />
+				<xsl:value-of select="id"/>
 			</xsl:attribute>
-			<xsl:if test="@sel = '1'">
-				<xsl:attribute name="selected">
-				</xsl:attribute>
-			</xsl:if> 
 			<xsl:value-of select='name'/>
 		</option>
 	</xsl:for-each>
