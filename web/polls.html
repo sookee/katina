@@ -10,14 +10,27 @@
 	</head>
 	<body>
 		<script>
+			function addEventHandler(elem, eventType, handler) {
+				if (elem.addEventListener)
+				   elem.addEventListener (eventType,handler,false);
+				else if (elem.attachEvent)
+				   elem.attachEvent ('on'+eventType,handler); 
+			}
+			
 			function injectBases()
 			{
 				var params = '?func=get_bases';
 				
-				$('#sel-base').getTransform(
+				$('#div-bases').getTransform(
 					'xsl/polls-sel-base.xsl'
 					, 'rest-api.php' + params
-					, { callback: function() { injectPolls(); }}
+					, {
+						params: { id: 'sel-base'/*, prefix: 'wobble' */ }
+						, callback: function() {
+							addEventHandler(document.getElementById('sel-base'), 'change', injectPolls);
+							injectPolls();
+						}
+					}
 				);
 			}
 			
@@ -26,10 +39,16 @@
 				var params = '?func=get_polls'
 						+ '&base=' + document.getElementById('sel-base').value;
 				
-				$('#sel-poll').getTransform(
+				$('#div-polls').getTransform(
 					'xsl/polls-sel-poll.xsl'
 					, 'rest-api.php' + params
-					, { callback: function() { injectTable(); }}
+					, {
+						params: { id: 'sel-poll'/*, prefix: 'wobble' */ }
+						, callback: function() {
+							addEventHandler(document.getElementById('sel-poll'), 'change', injectTable);
+							injectTable();
+						}
+					}
 				);
 			}
 			
@@ -50,12 +69,8 @@
 				injectBases();
 			});
 		</script>
-		<div id="div-bases">
-			<select id="sel-base" onChange="injectPolls();"></select> 
-		</div>
-		<div id="div-polls">
-			<select id="sel-poll" onChange="injectTable();"></select> 
-		</div>
+		<div id="div-bases"></div>
+		<div id="div-polls"></div>
 		<div id="div-table"></div>
 	</body>
 </html>
