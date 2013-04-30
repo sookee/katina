@@ -4,7 +4,8 @@
 		<script src="js/sarissa/sarissa-compressed.js"></script>
 		<script src="js/sarissa/sarissa_ieemu_xpath-compressed.js"></script>
 		<script src="js/jquery-1.9.1.min.js"></script>
-		<script src="js/jquery.xslTransform.packed.js"></script>
+		<script src="js/jquery.debug.js"></script>
+		<script src="js/jquery.xslTransform.js"></script>
 		<link rel="stylesheet" type="text/css" href="css/polls-table.css"/>
 	</head>
 	<body>
@@ -41,6 +42,7 @@
 				$('#div-table').getTransform(
 					'xsl/polls-table.xsl'
 					, 'rest-api.php' + params
+					//, { params: { id: 'wibble'/*, prefix: 'wobble' */ } }
 				);
 			}
 			

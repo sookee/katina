@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+<xsl:param name="id" select="'xsl-polls-table'"/>
+<xsl:param name="prefix" select="$id"/>
 	
 <xsl:template match="/">
 	<xsl:variable name="pcformat" select="'#%'"/>
-	<xsl:variable name="pre" select="'xsl-polls-table'"/>
-	<xsl:variable name="head" select="'xsl-polls-table-thead'"/>
-	<xsl:variable name="body" select="'xsl-polls-table-tbody'"/>
-	<xsl:variable name="foot" select="'xsl-polls-table-tfoot'"/>
-	<table class="{$pre}">
+	<xsl:variable name="head" select="concat($prefix, '-thead')"/>
+	<xsl:variable name="body" select="concat($prefix, '-tbody')"/>
+	<xsl:variable name="foot" select="concat($prefix, '-tfoot')"/>
+	<table>
+		<xsl:attribute name="id">
+			<xsl:value-of select='$id'/>
+		</xsl:attribute>
+		<xsl:attribute name="class">
+			<xsl:value-of select='$prefix'/>
+		</xsl:attribute>
 		<thead>
 			<tr class="{$head}-tr">
 				<th class="{$head}-th {$head}-map">Map</th>
