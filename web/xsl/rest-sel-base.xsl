@@ -2,7 +2,7 @@
 
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 	
-<xsl:param name="id" select="'xsl-polls-sel-base'"/>
+<xsl:param name="id" select="'xsl-rest-sel-base'"/>
 <xsl:param name="prefix" select="$id"/>
 	
 <xsl:template match="/">
@@ -15,7 +15,7 @@
 		</xsl:attribute>
 		<xsl:for-each select='bases/base'>
 			<xsl:sort select='love div (love + hate)' order='ascending'/>
-			<option>
+			<option class="{$prefix}-opt">
 				<xsl:attribute name="value">
 					<xsl:value-of select="id"/>
 				</xsl:attribute>

@@ -121,6 +121,31 @@ else if($func == 'get_poll')
 	
 	mysqli_free_result($result);
 }
+else if($func == 'get_stats')
+{
+	set_db_param($con, 'poll', $poll);
+	
+	$table = array();
+	
+	@$result = mysqli_query($con, 'select `item`,`love`,`hate` from `polls` where `type` = \'map\' and `date` = \'' . $poll . '\'');
+	if(!$result)
+		error(mysqli_error($con));
+	
+	echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+	echo get_xsl();
+	echo "<poll>\n";
+	for($i = 0; ($row = mysqli_fetch_array($result)); ++$i)
+	{
+		echo "\t<map>\n";
+		echo "\t\t<name>$row[0]</name>\n";
+		echo "\t\t<love>$row[1]</love>\n";
+		echo "\t\t<hate>$row[2]</hate>\n";
+		echo "\t</map>\n";
+	}
+	echo "</poll>\n";
+	
+	mysqli_free_result($result);
+}
 else
 {
 	error("Unknown function: $func");

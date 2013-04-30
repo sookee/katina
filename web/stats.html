@@ -1,0 +1,109 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<script src="js/sarissa/sarissa-compressed.js"></script>
+		<script src="js/sarissa/sarissa_ieemu_xpath-compressed.js"></script>
+		<script src="js/jquery-1.9.1.min.js"></script>
+		<script src="js/jquery.debug.js"></script>
+		<script src="js/jquery.xslTransform.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/polls-table.css"/>
+		<link rel="stylesheet" type="text/css" href="css/polls-sel-base.css"/>
+	</head>
+	<body>
+		<script>
+			function addEventHandler(elem, eventType, handler) {
+				if (elem.addEventListener)
+				   elem.addEventListener (eventType,handler,false);
+				else if (elem.attachEvent)
+				   elem.attachEvent ('on'+eventType,handler); 
+			}
+			
+			function injectBases()
+			{
+				var id = 'sel-serv';
+				var action = injectYears;
+				var prefix = 'xsl-rest-sel-base';
+				var params = '?func=get_bases';
+				
+				$('#div-serv').getTransform(
+					'xsl/rest-sel-base.xsl'
+					, 'rest-api.php' + params
+					, {
+						params: { id: id, prefix: prefix }
+						, callback: function() {
+							addEventHandler(document.getElementById(id), 'change', action);
+							action();
+						}
+					}
+				);
+			}
+			
+			function injectYears()
+			{
+				var params = '?func=get_years'
+						+ '&base=' + document.getElementById('sel-base').value;
+				
+				$('#div-polls').getTransform(
+					'xsl/polls-sel-poll.xsl'
+					, 'rest-api.php' + params
+					, {
+						params: { id: 'sel-poll'/*, prefix: 'wobble' */ }
+						, callback: function() {
+							addEventHandler(document.getElementById('sel-poll'), 'change', injectTable);
+							injectTable();
+						}
+					}
+				);
+			}
+			
+			function injectTable()
+			{
+				var params = '?func=get_poll'
+						+ '&base=' + document.getElementById('sel-base').value
+						+ '&poll=' + document.getElementById('sel-poll').value;
+				
+				$('#div-table').getTransform(
+					'xsl/polls-table.xsl'
+					, 'rest-api.php' + params
+					//, { params: { id: 'wibble'/*, prefix: 'wobble' */ } }
+				);
+			}
+			
+			$(document).ready(function() {
+				injectBases();
+			});
+		</script>
+		<div id="selectors"> <!--[server][year|*][month|*][map|*][guid|*][game_id|*]-->
+			<div id="div-sel-serv"></div>
+			<div id="div-sel-year"></div>
+			<div id="div-sel-mnth"></div>
+			<div id="div-sel-maps"></div>
+			<div id="div-sel-guid"></div>
+			<div id="div-sel-game"></div>
+		</div>
+		<div id="displayers">
+			<div id="div-dis-serv"></div>
+			<div id="div-dis-year"></div>
+			<div id="div-dis-mnth"></div>
+			<div id="div-dis-maps"></div>
+			<div id="div-dis-guid"></div>
+			<div id="div-dis-game"></div>
+		</div>
+
+{year:
+	Year
+	{month:
+		Month|The whole year|The year to date ?(to date)
+		{map:
+			Mapname|All Maps
+			{guid:
+				Player|All Players
+				{game_id:
+					FPH, CPH, FPH * CPH, F/D, C/D%, F/D * C/D%
+				}
+			}
+		}
+	}
+}
+	</body>
+</html>

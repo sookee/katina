@@ -1,0 +1,15 @@
+/*
+ * CSS companion to rest-sel-base.xsl
+ */
+
+.xsl-rest-sel-base
+{
+	border-style: solid;
+	border-width: thin;
+	border-color: blueviolet;
+}
+
+.xsl-rest-sel-base-opt
+{
+	color: blue;
+}
