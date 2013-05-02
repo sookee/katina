@@ -30,8 +30,21 @@ using namespace oastats::types;
 class KatinaPluginExample
 : public KatinaPlugin
 {
+private:
+	str& mapname;
+	siz_guid_map& clients; // slot -> GUID
+	guid_str_map& players; // GUID -> name
+	guid_siz_map& teams; // GUID -> 'R' | 'B'
+
 public:
-	KatinaPluginExample(Katina& katina): KatinaPlugin(katina) {}
+	KatinaPluginExample(Katina& katina)
+	: KatinaPlugin(katina)
+	, mapname(katina.mapname)
+	, clients(katina.clients)
+	, players(katina.players)
+	, teams(katina.teams)
+	{
+	}
 
 	// INTERFACE: KatinaPlugin
 

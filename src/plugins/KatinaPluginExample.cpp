@@ -53,6 +53,8 @@ bool KatinaPluginExample::warmup()
 bool KatinaPluginExample::client_userinfo_changed(siz num, siz team, const GUID& guid, const str& name)
 {
 	log("client_userinfo_changed(" << num << ", " << team << ", " << guid << ", " << name << ")");
+	log("clients[" << num << "]         : " << clients[num]);
+	log("players[clients[" << num << "]]: " << players[clients[num]]);
 	return true;
 }
 bool KatinaPluginExample::client_connect(siz num)
@@ -84,6 +86,7 @@ bool KatinaPluginExample::award(siz num, siz awd)
 bool KatinaPluginExample::init_game()
 {
 	log("init_game()");
+	log("mapname: " << mapname);
 	return true;
 }
 
@@ -95,7 +98,7 @@ bool KatinaPluginExample::say(const GUID& guid, const str& text)
 
 bool KatinaPluginExample::unknown(const str& line)
 {
-	log("unknown(" << line << ")");
+	//log("unknown(" << line << ")");
 	return true;
 }
 

@@ -65,18 +65,19 @@ public:
 	 */
 	virtual str get_version() const = 0;
 
-	virtual bool exit() = 0;
-	virtual bool shutdown_game() = 0;
-	virtual bool warmup() = 0;
-	virtual bool client_userinfo_changed(siz num, siz team, const GUID& guid, const str& name) = 0;
-	virtual bool client_connect(siz num) = 0;
-	virtual bool client_disconnect(siz num) = 0;
-	virtual bool kill(siz num1, siz num2, siz weap) = 0;
-	virtual bool ctf(siz num, siz team, siz act) = 0;
-	virtual bool award(siz num, siz awd) = 0;
-	virtual bool init_game() = 0;
-	virtual bool say(const GUID& guid, const str& text) = 0;
-	virtual bool unknown(const str& line) = 0;
+	// Game server log events
+	virtual bool exit() {}
+	virtual bool shutdown_game() {}
+	virtual bool warmup() {}
+	virtual bool client_userinfo_changed(siz num, siz team, const GUID& guid, const str& name) {}
+	virtual bool client_connect(siz num) {}
+	virtual bool client_disconnect(siz num) {}
+	virtual bool kill(siz num1, siz num2, siz weap) {}
+	virtual bool ctf(siz num, siz team, siz act) {}
+	virtual bool award(siz num, siz awd) {}
+	virtual bool init_game() {}
+	virtual bool say(const GUID& guid, const str& text) {}
+	virtual bool unknown(const str& line) {}
 
 	/**
 	 * This provides an opportunity for a plugin to clean
