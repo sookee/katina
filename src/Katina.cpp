@@ -146,7 +146,7 @@ bool Katina::start(const str& config)
 		load_plugin(pluginfiles[i]);
 	}
 
-	ifs.open(get("logfile").c_str());
+	ifs.open(get("logfile").c_str(), std::ios::ate);
 
 	if(!ifs.is_open())
 	{
