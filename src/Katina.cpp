@@ -80,7 +80,7 @@ bool Katina::load_plugin(const str& file)
 	//if(!(dl = dlopen(file.c_str(), RTLD_NOW|RTLD_GLOBAL)))
 	if(!(dl = dlopen(file.c_str(), RTLD_LAZY|RTLD_GLOBAL)))
 	{
-		log(dlerror());
+		log("PLUGIN LOAD: " << dlerror());
 		return false;
 	}
 
@@ -88,21 +88,23 @@ bool Katina::load_plugin(const str& file)
 
 	if(!(*(void**)&katina_plugin_factory = dlsym(dl, "katina_plugin_factory")))
 	{
-		log(dlerror());
+		log("PLUGIN LOAD: " << dlerror());
 		return false;
 	}
 
 //	bug("Invoking factory function");
 
 	if(!(plugin = katina_plugin_factory(*this)))
+	{
+		log("PLUGIN LOAD: plugin factory failed");
 		return false;
+	}
 
 //	bug("Adding newly created plugin");
 
 	plugin->dl = dl;
 	plugins.push_back(plugin);
-//	del_plugin(plugin->get_id());
-//	add_plugin(plugin);
+	log("PLUGIN LOAD: OK");
 	return true;
 }
 

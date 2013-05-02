@@ -34,7 +34,10 @@ PROGRAMS = katina katina-1 katina-irc katina-votes
 all: $(LIBRARIES) $(PROGRAMS)
 
 libkatina.so: $(LIBKATINA_OBJS)
-	g++ -shared -Wl,-soname,libkatina.so.0 -o libkatina.so $(LIBKATINA_OBJS) $(KATINA_LIBS)
+	g++ -shared -Wl,-soname,libkatina.so.0 -o libkatina.so.0.0.0 $(LIBKATINA_OBJS) $(KATINA_LIBS)
+	@ln -f -s libkatina.so.0.0.0 libkatina.so.0.0
+	@ln -f -s libkatina.so.0.0 libkatina.so.0
+	@ln -f -s libkatina.so.0 libkatina.so
 
 katina: $(KATINA_OBJS)
 	$(CXX) -o $@ $(KATINA_OBJS) $(KATINA_LIBS)
