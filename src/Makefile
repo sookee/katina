@@ -72,5 +72,5 @@ install: $(PROGRAMS)
 	for program in $(PROGRAMS); do cp $$program $(HOME)/bin; done
 
 clean:
-	rm -f *.o *.so $(PROGRAMS)
+	rm -f *.o *.so* $(PROGRAMS)
 

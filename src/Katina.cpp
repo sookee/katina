@@ -34,7 +34,7 @@ const str tag = "dev";
 
 Katina::Katina()
 : done(false)
-, active(false)
+, active(true) // TODO: make this false
 {
 }
 
