@@ -9,7 +9,7 @@ namespace katina { namespace plugin {
 using namespace oastats::log;
 using namespace oastats::types;
 
-KATINA_PLUGIN(KatinaPluginExample);
+KATINA_PLUGIN_TYPE(KatinaPluginExample);
 KATINA_PLUGIN_INFO("katina::example", "Katina Example", "0.1-dev");
 
 bool KatinaPluginExample::open()

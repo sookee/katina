@@ -15,7 +15,7 @@ using namespace oastats::log;
 using namespace oastats::data;
 using namespace oastats::types;
 
-KATINA_PLUGIN(KatinaPluginStats);
+KATINA_PLUGIN_TYPE(KatinaPluginStats);
 KATINA_PLUGIN_INFO("katina::stats", "katina Stats", "0.1-dev");
 
 const siz TEAM_U = 0;

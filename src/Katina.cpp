@@ -70,21 +70,18 @@ bool Katina::extract_name_from_text(const str& line, GUID& guid, str& text)
 
 bool Katina::load_plugin(const str& file)
 {
-	KatinaPluginSPtr plugin;
+	KatinaPlugin* plugin;
 
 	void* dl = 0;
-	KatinaPluginSPtr(*katina_plugin_factory)(Katina&) = 0;
+	KatinaPlugin* (*katina_plugin_factory)(Katina&) = 0;
 
 	log("PLUGIN LOAD: " << file);
 
-	//if(!(dl = dlopen(file.c_str(), RTLD_NOW|RTLD_GLOBAL)))
 	if(!(dl = dlopen(file.c_str(), RTLD_LAZY|RTLD_GLOBAL)))
 	{
 		log("PLUGIN LOAD: " << dlerror());
 		return false;
 	}
-
-//	bug("Getting factory function");
 
 	if(!(*(void**)&katina_plugin_factory = dlsym(dl, "katina_plugin_factory")))
 	{
@@ -92,20 +89,103 @@ bool Katina::load_plugin(const str& file)
 		return false;
 	}
 
-//	bug("Invoking factory function");
-
 	if(!(plugin = katina_plugin_factory(*this)))
 	{
 		log("PLUGIN LOAD: plugin factory failed");
+		if(dlclose(dl))
+			log("PLUGIN LOAD: plugin failed to unload: " << dlerror());
 		return false;
 	}
 
-//	bug("Adding newly created plugin");
-
 	plugin->dl = dl;
-	plugins.push_back(plugin);
+
+	if(!plugin->open())
+	{
+		log("PLUGIN LOAD: plugin failed to open");
+		delete plugin;
+		if(dlclose(dl))
+			log("PLUGIN LOAD: plugin failed to unload: " << dlerror());
+		return false;
+	}
+
+	plugins[plugin->get_id()] = plugin;
+	plugin_files[plugin->get_id()] = file;
+
 	log("PLUGIN LOAD: OK");
+
 	return true;
+}
+
+bool Katina::unload_plugin(const str& id)
+{
+	plugin_map_iter i = plugins.find(id);
+
+	if(i == plugins.end())
+	{
+		log("PLUGIN UNLOAD: plugin not found: " << id);
+		return false;
+	}
+
+	i->second->close();
+	void* dl = i->second->dl;
+	delete i->second;
+	plugins.erase(i);
+
+	if(dlclose(dl))
+	{
+		log("PLUGIN UNLOAD: " << dlerror());
+		return false;
+	}
+
+	return true;
+}
+
+bool Katina::reload_plugin(const str& id)
+{
+	plugin_map_iter i = plugins.find(id);
+
+	if(i == plugins.end())
+	{
+		log("PLUGIN RELOAD: plugin not found: " << id);
+		return false;
+	}
+
+	str_map_iter f = plugin_files.find(id);
+
+	if(f == plugin_files.end())
+	{
+		log("PLUGIN RELOAD: plugin file not known: " << id);
+		return false;
+	}
+
+	if(!unload_plugin(id))
+		log("PLUGIN RELOAD: plugin '" << id << "' failed to unload: " << f->second);
+
+	if(!load_plugin(f->second))
+	{
+		log("PLUGIN RELOAD: plugin '" << id << "' failed to reload: " << f->second);
+		return false;
+	}
+
+	return true;
+}
+
+KatinaPlugin* Katina::get_plugin(const str& id, const str& version)
+{
+	plugin_map_iter i = plugins.find(id);
+
+	if(i == plugins.end())
+	{
+		log("get_plugin: plugin not found: " << id);
+		return 0;
+	}
+	if(i->second->get_version() < version)
+	{
+		log("get_plugin: wrong version found: " << i->second->get_version() << " expected " << version);
+		return 0;
+	}
+
+	return i->second;
 }
 
 bool Katina::start(const str& config)
@@ -161,7 +241,12 @@ bool Katina::start(const str& config)
 	while(!done)
 	{
 		if(!std::getline(is, line) || is.eof())
-			{ thread_sleep_millis(100); is.clear(); is.seekg(gpos); continue; }
+		{
+			thread_sleep_millis(100);
+			is.clear();
+			is.seekg(gpos);
+			continue;
+		}
 
 		gpos = is.tellg();
 
@@ -174,18 +259,18 @@ bool Katina::start(const str& config)
 
 		if(cmd == "Exit:")
 		{
-			for(siz i = 0; i < plugins.size(); ++i)
-				plugins[i]->exit();
+			for(plugin_map_iter i = plugins.begin(); i != plugins.end(); ++i)
+				i->second->exit();
 		}
 		else if(cmd == "ShutdownGame:")
 		{
-			for(siz i = 0; i < plugins.size(); ++i)
-				plugins[i]->shutdown_game();
+			for(plugin_map_iter i = plugins.begin(); i != plugins.end(); ++i)
+				i->second->shutdown_game();
 		}
 		else if(cmd == "Warmup:")
 		{
-			for(siz i = 0; i < plugins.size(); ++i)
-				plugins[i]->warmup();
+			for(plugin_map_iter i = plugins.begin(); i != plugins.end(); ++i)
+				i->second->warmup();
 		}
 		else if(cmd == "ClientUserinfoChanged:")
 		{
@@ -211,8 +296,8 @@ bool Katina::start(const str& config)
 				teams[clients[num]] = team; // 1 = red, 2 = blue, 3 = spec
 				players[clients[num]] = name;
 
-				for(siz i = 0; i < plugins.size(); ++i)
-					plugins[i]->client_userinfo_changed(num, team, guid, name);
+				for(plugin_map_iter i = plugins.begin(); i != plugins.end(); ++i)
+					i->second->client_userinfo_changed(num, team, guid, name);
 			}
 		}
 		else if(cmd == "ClientConnect:")
@@ -224,8 +309,8 @@ bool Katina::start(const str& config)
 				std::cout << "Error parsing ClientConnect: "  << line << '\n';
 				continue;
 			}
-			for(siz i = 0; i < plugins.size(); ++i)
-				plugins[i]->client_connect(num);
+			for(plugin_map_iter i = plugins.begin(); i != plugins.end(); ++i)
+				i->second->client_connect(num);
 		}
 		else if(cmd == "ClientDisconnect:")
 		{
@@ -236,8 +321,8 @@ bool Katina::start(const str& config)
 				std::cout << "Error parsing ClientConnect: "  << line << '\n';
 				continue;
 			}
-			for(siz i = 0; i < plugins.size(); ++i)
-				plugins[i]->client_disconnect(num);
+			for(plugin_map_iter i = plugins.begin(); i != plugins.end(); ++i)
+				i->second->client_disconnect(num);
 		}
 		else if(cmd == "Kill:")
 		{
@@ -250,8 +335,8 @@ bool Katina::start(const str& config)
 				continue;
 			}
 
-			for(siz i = 0; i < plugins.size(); ++i)
-				plugins[i]->kill(num1, num2, weap);
+			for(plugin_map_iter i = plugins.begin(); i != plugins.end(); ++i)
+				i->second->kill(num1, num2, weap);
 		}
 		else if(cmd == "CTF:")
 		{
@@ -264,8 +349,8 @@ bool Katina::start(const str& config)
 				continue;
 			}
 
-			for(siz i = 0; i < plugins.size(); ++i)
-				plugins[i]->ctf(num, col, act);
+			for(plugin_map_iter i = plugins.begin(); i != plugins.end(); ++i)
+				i->second->ctf(num, col, act);
 		}
 		else if(cmd == "Award:")
 		{
@@ -276,8 +361,8 @@ bool Katina::start(const str& config)
 				continue;
 			}
 
-			for(siz i = 0; i < plugins.size(); ++i)
-				plugins[i]->award(num, awd);
+			for(plugin_map_iter i = plugins.begin(); i != plugins.end(); ++i)
+				i->second->award(num, awd);
 		}
 		else if(cmd == "InitGame:")
 		{
@@ -304,8 +389,8 @@ bool Katina::start(const str& config)
 			}
 			log("MAP NAME: " << mapname);
 
-			for(siz i = 0; i < plugins.size(); ++i)
-				plugins[i]->init_game();
+			for(plugin_map_iter i = plugins.begin(); i != plugins.end(); ++i)
+				i->second->init_game();
 		}
 		else if(cmd == "say:")
 		{
@@ -313,13 +398,13 @@ bool Katina::start(const str& config)
 			GUID guid;
 
 			if(extract_name_from_text(line, guid, text))
-				for(siz i = 0; i < plugins.size(); ++i)
-					plugins[i]->say(guid, text);
+				for(plugin_map_iter i = plugins.begin(); i != plugins.end(); ++i)
+					i->second->say(guid, text);
 		}
 		else
 		{
-			for(siz i = 0; i < plugins.size(); ++i)
-				plugins[i]->unknown(line);
+			for(plugin_map_iter i = plugins.begin(); i != plugins.end(); ++i)
+				i->second->unknown(line);
 		}
 	}
 	return true;

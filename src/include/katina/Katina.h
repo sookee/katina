@@ -37,11 +37,14 @@ private:
 
 	property_map props;
 
-	plugin_vec plugins;
+	plugin_map plugins; // id -> KatinaPlugin*
+	str_map plugin_files; // id -> filename (for reloading))
 
 	GUID guid_from_name(const str& name);
 	bool extract_name_from_text(const str& line, GUID& guid, str& text);
 	bool load_plugin(const str& file);
+	bool unload_plugin(const str& id);
+	bool reload_plugin(const str& id);
 
 public:
 	Katina();
@@ -50,6 +53,8 @@ public:
 	siz_guid_map clients; // slot -> GUID
 	guid_str_map players; // GUID -> name
 	guid_siz_map teams; // GUID -> 'R' | 'B'
+
+	KatinaPlugin* get_plugin(const str& id, const str& version);
 
 	template<typename T>
 	T get(const str& s, const T& dflt = T())

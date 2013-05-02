@@ -66,18 +66,18 @@ public:
 	virtual str get_version() const = 0;
 
 	// Game server log events
-	virtual bool exit() {}
-	virtual bool shutdown_game() {}
+	virtual bool init_game() {}
 	virtual bool warmup() {}
-	virtual bool client_userinfo_changed(siz num, siz team, const GUID& guid, const str& name) {}
 	virtual bool client_connect(siz num) {}
 	virtual bool client_disconnect(siz num) {}
+	virtual bool client_userinfo_changed(siz num, siz team, const GUID& guid, const str& name) {}
 	virtual bool kill(siz num1, siz num2, siz weap) {}
 	virtual bool ctf(siz num, siz team, siz act) {}
 	virtual bool award(siz num, siz awd) {}
-	virtual bool init_game() {}
 	virtual bool say(const GUID& guid, const str& text) {}
 	virtual bool unknown(const str& line) {}
+	virtual bool shutdown_game() {}
+	virtual bool exit() {}
 
 	/**
 	 * This provides an opportunity for a plugin to clean
@@ -88,11 +88,14 @@ public:
 };
 
 //typedef boost::shared_ptr<KatinaPlugin> KatinaPluginSPtr;
-typedef KatinaPlugin* KatinaPluginSPtr;
-
-typedef std::vector<KatinaPluginSPtr> plugin_vec;
+typedef std::vector<KatinaPlugin*> plugin_vec;
 typedef plugin_vec::iterator plugin_vec_iter;
 typedef plugin_vec::const_iterator plugin_vec_citer;
+
+typedef std::map<str, KatinaPlugin*> plugin_map;
+typedef plugin_map::value_type plugin_map_vt;
+typedef plugin_map::iterator plugin_map_iter;
+typedef plugin_map::const_iterator plugin_map_citer;
 
 /**
  * The plugin implementation source should
@@ -106,10 +109,10 @@ typedef plugin_vec::const_iterator plugin_vec_citer;
  *
  */
 
-#define KATINA_PLUGIN(name) \
-extern "C" KatinaPluginSPtr katina_plugin_factory(Katina& katina) \
+#define KATINA_PLUGIN_TYPE(type) \
+extern "C" KatinaPlugin* katina_plugin_factory(Katina& katina) \
 { \
-	return KatinaPluginSPtr(new name(katina)); \
+	return new type(katina); \
 } extern int _missing_semicolon_()
 
 #define KATINA_PLUGIN_INFO(I, N, V) \
