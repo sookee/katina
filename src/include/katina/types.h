@@ -31,7 +31,6 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 '-----------------------------------------------------------------*/
 
-#include <iostream>
 #include <ctime>
 #include <cmath>
 #include <algorithm>
@@ -46,6 +45,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <ostream>
 #include <sstream>
 #include <fstream>
+#include <iostream>
 
 namespace oastats { namespace types {
 

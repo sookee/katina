@@ -2,6 +2,11 @@
 header("Content-type: text/xml");
 date_default_timezone_set('GMT');
 
+/**
+ * format: generic <items><item/><item/><item/></items>
+ *                 <items><item><key/><value/></item><item><key/><value/></item></items>
+ */
+
 function error($msg)
 {
 	echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
@@ -41,12 +46,13 @@ function set_db_param($con, $name, &$param, $dflt = false)
 set_param('func', $func, false);
 set_param('xsl', $xsl, false);
 set_param('base', $base, false);
+set_param('format', $format, 'normal');
 
 function get_xsl()
 {
 	global $xsl;
 	if($xsl)
-		return "\n<?xml-stylesheet type=\"text/xsl\" href=\"$xsl.xsl\"?>\n\n";
+		return "\n<?xml-stylesheet type=\"text/xsl\" href=\"xsl/$xsl.xsl\"?>\n\n";
 	return '';
 }
 
@@ -66,33 +72,181 @@ if($func == "get_bases")
 		, 'oadb3' => 'ZimsMall Instantgib'
 	);
 	
+	$tag = $format == 'generic' ? 'item' : 'year';
+	$tags = $tag . 's';
+	$key = $format == 'generic' ? 'key' : 'id';
+	$value = $format == 'generic' ? 'value' : 'name';
+	
 	echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 	echo get_xsl();
-	echo "<bases>\n";
+	echo "<$tags>\n";
 	
 	foreach($bases as $id => $name)
 	{
-		echo "\t<base>\n";
-		echo "\t\t<id>$id</id>\n";
-		echo "\t\t<name>$name</name>\n";
-		echo "\t</base>\n";
+		echo "\t<$tag>\n";
+		echo "\t\t<$key>$id</$key>\n";
+		echo "\t\t<$value>$name</$value>\n";
+		echo "\t</$tag>\n";
 	}
-	echo "</bases>\n";
+	echo "</$tags>\n";
+}
+else if($func == 'get_years')
+{
+	@$result = mysqli_query($con, 'select distinct YEAR(`date`) from `game`');
+	if(!$result)
+		error(mysqli_error($con));
+	
+	$tag = $format == 'generic' ? 'item' : 'year';
+	$tags = $tag . 's';
+	
+	echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+	echo get_xsl();
+	echo "<$tags>\n";
+	while(($row = mysqli_fetch_array($result)))
+		echo "\t<$tag>$row[0]</$tag>\n";
+	echo "</$tags>\n";
+	
+	mysqli_free_result($result);
+}
+else if($func == 'get_months')
+{
+	set_db_param($con, 'year', $year);
+	
+	if($year)
+		$where = "where YEAR(`date`) = '$year'";
+	
+	@$result = mysqli_query($con, "select distinct MONTH(`date`),MONTHNAME(`date`) from `game` $where order by MONTH(`date`)");
+	if(!$result)
+		error(mysqli_error($con));
+	
+	$tag = $format == 'generic' ? 'item' : 'month';
+	$tags = $tag . 's';
+	$key = $format == 'generic' ? 'key' : 'number';
+	$value = $format == 'generic' ? 'value' : 'name';
+		
+	echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+	echo get_xsl();
+	echo "<$tags>\n";
+	while(($row = mysqli_fetch_array($result)))
+	{
+		echo "\t<$tag>\n";
+		echo "\t<$key>$row[0]</$key>\n";
+		echo "\t<$value>$row[1]</$value>\n";
+		echo "\t</$tag>\n";
+	}
+	echo "</$tags>\n";
+	
+	mysqli_free_result($result);
+}
+else if($func == 'get_maps')
+{
+	set_db_param($con, 'sdate', $sdate);
+	set_db_param($con, 'edate', $edate);
+	
+	$sep = "where";
+	
+	if($sdate)
+		{ $where = "$sep `date` >= '$sdate'"; $sep = "and"; }
+	if($edate)
+		{ $where = "$where $sep `date` >= '$sdate'"; $sep = "and"; }
+	
+	
+	@$result = mysqli_query($con, "select distinct `map` from `game` $where");
+	if(!$result)
+		error(mysqli_error($con));
+	
+	$tag = $format == 'generic' ? 'item' : 'map';
+	$tags = $tag . 's';
+	
+	echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+	echo get_xsl();
+	echo "<$tags>\n";
+	while(($row = mysqli_fetch_array($result)))
+		echo "\t<$tag>$row[0]</$tag>\n";
+	echo "</$tags>\n";
+	
+	mysqli_free_result($result);
+}
+else if($func == 'get_players')
+{
+	set_db_param($con, 'sdate', $sdate);
+	set_db_param($con, 'edate', $edate);
+	set_db_param($con, 'map', $map);
+	set_db_param($con, 'game', $game);
+	
+	if($game)
+	{
+		$where = "`guid` in (select guid from kills where game_id = '$game')"
+			. " and `guid` in (select guid from deaths where game_id = '$game')"
+			. " and `guid` in (select guid from caps where game_id = '$game')";
+	}
+	else
+	{
+		$sep = "where";
+	
+		if($sdate)
+			{ $subwhere = "$sep `date` >= '$sdate'"; $sep = "and"; }
+		if($edate)
+			{ $subwhere = "$subwhere $sep `date` >= '$sdate'"; $sep = "and"; }
+		if($map)
+			{ $subwhere = "$subwhere $sep `map` = '$map'"; $sep = "and"; }
+
+			if(isset($subwhere))
+				$subwhere = "where game_id in (select `game_id` from `game` $subwhere)";
+			
+		$where = "where `guid` in (select guid from kills $subwhere)"
+			. " and `guid` in (select guid from deaths $subwhere)"
+			. " and `guid` in (select guid from caps $subwhere)";
+	}
+	
+	$sql = "select `guid`,`name` from `player` $where";
+	
+	//echo "<div>SQL: $sql</div>";
+	
+	@$result = mysqli_query($con, $sql);
+	if(!$result)
+		error(mysqli_error($con));
+	
+	$tag = $format == 'generic' ? 'item' : 'player';
+	$tags = $tag . 's';
+	$key = $format == 'generic' ? 'key' : 'guid';
+	$value = $format == 'generic' ? 'value' : 'name';
+		
+	echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+	echo get_xsl();
+	echo "<$tags>\n";
+	while(($row = mysqli_fetch_array($result)))
+	{
+		$safe = "";
+		for($i = 0; i < strlen($row[1]); ++$i)
+			if(ctype_print($row[1][$i]))
+				$safe = $safe . $row[1][$i];
+		$html = htmlentities($safe);
+		$cdata = "<![CDATA[$html]]]>";
+		echo "\t<$tag>\n";
+		echo "\t\t<$key>$row[0]</$key>\n";
+		echo "\t\t<$value>$cdata</$value>\n";
+		echo "\t</$tag>\n";
+	}
+	echo "</$tags>\n";
+	
+	mysqli_free_result($result);
 }
 else if($func == 'get_polls')
 {
-	set_db_param($con, 'poll', $poll);
-	
 	@$result = mysqli_query($con, 'select distinct `date` from `polls` where `type` = \'map\'');
 	if(!$result)
 		error(mysqli_error($con));
 	
+	$tag = $format == 'generic' ? 'item' : 'poll';
+	$tags = $tag . 's';
+	
 	echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 	echo get_xsl();
-	echo "<polls>\n";
+	echo "<$tags>\n";
 	while(($row = mysqli_fetch_array($result)))
-		echo "\t<poll>$row[0]</poll>\n";
-	echo "</polls>\n";
+		echo "\t<$tag>$row[0]</$tag>\n";
+	echo "</$tags>\n";
 	
 	mysqli_free_result($result);
 }
@@ -123,28 +277,6 @@ else if($func == 'get_poll')
 }
 else if($func == 'get_stats')
 {
-	set_db_param($con, 'poll', $poll);
-	
-	$table = array();
-	
-	@$result = mysqli_query($con, 'select `item`,`love`,`hate` from `polls` where `type` = \'map\' and `date` = \'' . $poll . '\'');
-	if(!$result)
-		error(mysqli_error($con));
-	
-	echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-	echo get_xsl();
-	echo "<poll>\n";
-	for($i = 0; ($row = mysqli_fetch_array($result)); ++$i)
-	{
-		echo "\t<map>\n";
-		echo "\t\t<name>$row[0]</name>\n";
-		echo "\t\t<love>$row[1]</love>\n";
-		echo "\t\t<hate>$row[2]</hate>\n";
-		echo "\t</map>\n";
-	}
-	echo "</poll>\n";
-	
-	mysqli_free_result($result);
 }
 else
 {

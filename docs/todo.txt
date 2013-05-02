@@ -3,4 +3,28 @@
 
 team stats - red verses blue
 
- 
+[year|*][month|*][map|*][guid|*][game_id|*]
+
+
+{year:
+	Year
+	{month:
+		Month|The whole year|The year to date ?(to date)
+		{map:
+			Mapname|All Maps
+			{guid:
+				Player|All Players
+				{game_id:
+					FPH, CPH, FPH * CPH, F/D, C/D%, F/D * C/D%
+
+					? when: TIMESTAMP(year-month)
+					? when: mapname = ''
+					? 
+				}
+			}
+		}
+	}
+}
+
+
+

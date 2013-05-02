@@ -1,0 +1,246 @@
+
+#include <katina/KatinaPlugin.h>
+#include "KatinaPluginStats.h"
+
+#include <katina/Database.h>
+#include <katina/GUID.h>
+
+#include <katina/types.h>
+#include <katina/log.h>
+#include <katina/codes.h>
+
+namespace katina { namespace plugin {
+
+using namespace oastats::log;
+using namespace oastats::data;
+using namespace oastats::types;
+
+KATINA_PLUGIN(KatinaPluginStats);
+KATINA_PLUGIN_INFO("katina::stats", "katina Stats", "0.1-dev");
+
+const siz TEAM_U = 0;
+const siz TEAM_R = 1;
+const siz TEAM_B = 2;
+const siz TEAM_S = 3;
+
+siz map_get(const siz_map& m, siz key)
+{
+	return m.find(key) == m.end() ? 0 : m.at(key);
+}
+
+bool KatinaPluginStats::open()
+{
+	host = katina.get("rcon.host", "localhost");
+	port = katina.get("rcon.port", "27960");
+	db.config(
+		katina.get("db.host", "localhost")
+		, katina.get("db.port", 3306)
+		, katina.get("db.user")
+		, katina.get("db.pass", "")
+		, katina.get("db.base"));
+	return katina.has("db.base") && katina.has("db.user");
+}
+
+str KatinaPluginStats::get_id() const
+{
+	return ID;
+}
+
+str KatinaPluginStats::get_name() const
+{
+	return NAME;
+}
+
+str KatinaPluginStats::get_version() const
+{
+	return VERSION;
+}
+
+bool KatinaPluginStats::exit()
+{
+	if(!in_game)
+		return true;
+	in_game = false;
+
+	// in game timing
+	for(guid_stat_iter i = stats.begin(); i != stats.end(); ++i)
+	{
+		bug("TIMER:         EOG: " << i->first);
+		if(i->second.joined_time);
+		{
+			std::time_t now = std::time(0);
+			bug("TIMER:         ADD: " << i->first);
+			bug("TIMER:         now: " << now);
+			bug("TIMER: logged_time: " << i->second.logged_time);
+			bug("TIMER: joined_time: " << i->second.joined_time);
+			if(i->second.joined_time)
+				i->second.logged_time += now - i->second.joined_time;
+			i->second.joined_time = 0;
+		}
+	}
+
+	db.on();
+
+	game_id id = db.add_game(host, port, katina.mapname);
+
+	if(id != null_id && id != bad_id)
+	{
+		// TODO: insert game stats here
+		for(guid_stat_citer p = stats.begin(); p != stats.end(); ++p)
+		{
+			const str& player = katina.players.at(p->first);
+
+			siz count;
+			for(std::set<siz>::iterator weap = db_weaps.begin(); weap != db_weaps.end(); ++weap)
+			{
+				if((count = map_get(p->second.kills, *weap)))
+					db.add_weaps(id, "kills", p->first, *weap, count);
+				if((count = map_get(p->second.deaths, *weap)))
+					db.add_weaps(id, "deaths", p->first, *weap, count);
+			}
+
+			if((count = map_get(p->second.flags, FL_CAPTURED)))
+				db.add_caps(id, p->first, count);
+
+			if(!p->first.is_bot())
+				if((count = p->second.logged_time))
+					db.add_time(id, p->first, count);
+		}
+
+		for(onevone_citer o = onevone.begin(); o != onevone.end(); ++o)
+			for(guid_siz_citer p = o->second.begin(); p != o->second.end(); ++p)
+				db.add_ovo(id, o->first, p->first, p->second);
+	}
+
+	for(guid_str_map::iterator player = katina.players.begin(); player != katina.players.end(); ++player)
+		if(!player->first.is_bot())
+			db.add_player(player->first, player->second);
+
+	db.off();
+
+	return true;
+}
+
+bool KatinaPluginStats::shutdown_game()
+{
+	in_game = false;
+	return true;
+}
+
+bool KatinaPluginStats::warmup()
+{
+	in_game = false;
+	return true;
+}
+
+bool KatinaPluginStats::client_userinfo_changed(siz num, siz team, const GUID& guid, const str& name)
+{
+	if(!in_game)
+		return true;
+
+	bug("TIMER: joined_time: " << stats[katina.clients[num]].joined_time);
+
+	std::time_t now = std::time(0);
+
+	if(stats[katina.clients[num]].joined_time)
+		stats[katina.clients[num]].logged_time += now - stats[katina.clients[num]].joined_time;
+
+	if(katina.teams[katina.clients[num]] == TEAM_R || katina.teams[katina.clients[num]] == TEAM_B)
+		stats[katina.clients[num]].joined_time = now;
+	else
+		stats[katina.clients[num]].joined_time = 0;
+
+	bug("TIMER: logged_time: " << stats[katina.clients[num]].logged_time);
+	bug("TIMER: joined_time: " << stats[katina.clients[num]].joined_time);
+	bug("TIMER:");
+
+	return true;
+}
+bool KatinaPluginStats::client_connect(siz num)
+{
+
+}
+bool KatinaPluginStats::client_disconnect(siz num)
+{
+	if(!in_game)
+		return true;
+
+	std::time_t now = std::time(0);
+
+	if(stats[katina.clients[num]].joined_time)
+		stats[katina.clients[num]].logged_time += now - stats[katina.clients[num]].joined_time;
+	stats[katina.clients[num]].joined_time = 0;
+
+	return true;
+}
+bool KatinaPluginStats::kill(siz num1, siz num2, siz weap)
+{
+	if(!in_game)
+		return true;
+
+	if(katina.clients.find(num1) != katina.clients.end() && katina.clients.find(num2) != katina.clients.end())
+	{
+		if(num1 == 1022 && !katina.clients[num2].is_bot()) // no killer
+			++stats[katina.clients[num2]].deaths[weap];
+		else if(!katina.clients[num1].is_bot() && !katina.clients[num2].is_bot())
+		{
+			if(num1 != num2)
+			{
+				++stats[katina.clients[num1]].kills[weap];
+				++onevone[katina.clients[num1]][katina.clients[num2]];
+			}
+			++stats[katina.clients[num2]].deaths[weap];
+		}
+	}
+
+	return true;
+}
+bool KatinaPluginStats::ctf(siz num, siz team, siz act)
+{
+	if(!in_game)
+		return true;
+
+	if(!katina.clients[num].is_bot())
+		++stats[katina.clients[num]].flags[act];
+
+	return true;
+}
+bool KatinaPluginStats::award(siz num, siz awd)
+{
+	if(!in_game)
+		return true;
+
+	++stats[katina.clients[num]].awards[awd];
+
+	return true;
+}
+
+bool KatinaPluginStats::init_game()
+{
+	if(in_game)
+		return true;
+
+	stats.clear();
+	onevone.clear();
+
+	in_game = true;
+
+	return true;
+}
+
+bool KatinaPluginStats::say(const GUID& guid, const str& text)
+{
+	return true;
+}
+
+bool KatinaPluginStats::unknown(const str& line)
+{
+	return true;
+}
+
+void KatinaPluginStats::close()
+{
+
+}
+
+}} // katina::plugin

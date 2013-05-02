@@ -9,10 +9,10 @@
  *      Author: oasookee@gmail.com
  */
 
-#include "types.h"
-#include "GUID.h"
-#include "str.h"
-#include "log.h"
+#include <katina/types.h>
+#include <katina/GUID.h>
+#include <katina/str.h>
+#include <katina/log.h>
 
 #include <mysql.h>
 

@@ -6,68 +6,159 @@
 		<script src="js/jquery-1.9.1.min.js"></script>
 		<script src="js/jquery.debug.js"></script>
 		<script src="js/jquery.xslTransform.js"></script>
+		<script src="js/rest-api.js"></script>
 		<link rel="stylesheet" type="text/css" href="css/polls-table.css"/>
 		<link rel="stylesheet" type="text/css" href="css/polls-sel-base.css"/>
 	</head>
 	<body>
 		<script>
-			function addEventHandler(elem, eventType, handler) {
-				if (elem.addEventListener)
-				   elem.addEventListener (eventType,handler,false);
-				else if (elem.attachEvent)
-				   elem.attachEvent ('on'+eventType,handler); 
+			var cserv = false;
+			var cyear = false;
+			var cmnth = false;
+			var cmaps = false;
+			var cguid = false;
+			var cgame = false;
+			var set = false;
+			
+			function reset()
+			{
+//				if(!set)
+//				{
+					document.getElementById("sel-serv").value = cserv;
+					document.getElementById("sel-year").value = cyear;
+					document.getElementById("sel-mnth").value = cmnth;
+					document.getElementById("sel-maps").value = cmaps;
+					document.getElementById("sel-guid").value = cguid;
+					document.getElementById("sel-game").value = cgame;
+//					set = true;
+//				}
 			}
 			
 			function injectBases()
 			{
-				var id = 'sel-serv';
-				var action = injectYears;
-				var prefix = 'xsl-rest-sel-base';
-				var params = '?func=get_bases';
-				
-				$('#div-serv').getTransform(
-					'xsl/rest-sel-base.xsl'
-					, 'rest-api.php' + params
+				cserv = $('#sel-serv').val();
+				inject(
+					{
+						target: '#div-sel-serv'
+						, action: injectYears
+						, params: '?func=get_bases&format=generic'
+					}
 					, {
-						params: { id: id, prefix: prefix }
-						, callback: function() {
-							addEventHandler(document.getElementById(id), 'change', action);
-							action();
+						xsl: 'xsl/rest-select-asoc.xsl'
+						, options: {
+							id: 'sel-serv'
+							, prefix: 'sel-serv'
 						}
 					}
 				);
+				$('#sel-serv').val(cserv);
 			}
-			
+
 			function injectYears()
 			{
-				var params = '?func=get_years'
-						+ '&base=' + document.getElementById('sel-base').value;
-				
-				$('#div-polls').getTransform(
-					'xsl/polls-sel-poll.xsl'
-					, 'rest-api.php' + params
+				cyear = $('#sel-year').val();
+				inject(
+					{
+						target: '#div-sel-year'
+						, action: injectMnth
+						, params:'?func=get_years&format=generic'
+							+ '&base=' + document.getElementById('sel-serv').value
+					}
 					, {
-						params: { id: 'sel-poll'/*, prefix: 'wobble' */ }
-						, callback: function() {
-							addEventHandler(document.getElementById('sel-poll'), 'change', injectTable);
-							injectTable();
+						xsl: 'xsl/rest-select.xsl'
+						, options: {
+							id: 'sel-year'
+							, prefix: 'sel-year'
 						}
 					}
-				);
+				);		
+				$('#sel-year').val(cyear);
 			}
 			
-			function injectTable()
+			function injectMnth()
 			{
-				var params = '?func=get_poll'
-						+ '&base=' + document.getElementById('sel-base').value
-						+ '&poll=' + document.getElementById('sel-poll').value;
-				
-				$('#div-table').getTransform(
-					'xsl/polls-table.xsl'
-					, 'rest-api.php' + params
-					//, { params: { id: 'wibble'/*, prefix: 'wobble' */ } }
-				);
+				cmnth = $('#sel-mnth').val();
+				inject(
+					{
+						target: '#div-sel-mnth'
+						, action: injectMaps
+						, params:'?func=get_months&format=generic'
+							+ '&base=' + document.getElementById('sel-serv').value
+							+ '&year=' + document.getElementById('sel-year').value
+					}
+					, {
+						xsl: 'xsl/rest-select-asoc.xsl'
+						, options: {
+							id: 'sel-mnth'
+							, prefix: 'sel-mnth'
+						}
+					}
+				);		
+				$('#sel-mnth').val(cmnth);
 			}
+		
+			function injectMaps()
+			{
+				cmaps = $('#sel-maps').val();
+				
+				var sy = parseInt(document.getElementById('sel-year').value);
+				var ey = sy;
+				var sm = parseInt(document.getElementById('sel-mnth').value);
+				var em = sm + 1;
+				if(em > 12)
+				{
+					em = 1;
+					++ey;
+				}
+				var sdate = sy + '-' + (sm<10?'0':'') + sm + '-00';
+				var edate = ey + '-' + (em<10?'0':'') + em + '-00';
+				inject(
+					{
+						target: '#div-sel-maps'
+						, action: injectGuid
+						, params:'?func=get_maps&format=generic'
+							+ '&base=' + document.getElementById('sel-serv').value
+							+ '&sdate=' + sdate
+							+ '&edate=' + edate
+					}
+					, {
+						xsl: 'xsl/rest-select.xsl'
+						, options: {
+							id: 'sel-maps'
+							, prefix: 'sel-maps'
+						}
+					}
+				);		
+				$('#sel-maps').val(cmaps);
+			}
+//			// TODO: here
+			function injectGuid()
+			{
+//				inject({
+//					id: 'sel-mnth'
+//					, xsl: 'xsl/rest-sel-base.xsl'
+//					, target: '#div-sel-year'
+//					, action: injectGame
+////					, prefix: 'xsl-rest-sel-base'
+//					, params:'?func=get_months'
+//						+ '&base=' + document.getElementById('sel-serv').value
+//						+ '&poll=' + document.getElementById('sel-year').value
+//				});		
+			}
+//			
+//			function injectGame()
+//			{
+//				inject({
+//					id: 'sel-mnth'
+//					, xsl: 'xsl/rest-sel-base.xsl'
+//					, target: '#div-sel-year'
+//					, action: injectYears
+////					, prefix: 'xsl-rest-sel-base'
+//					, params:'?func=get_months'
+//						+ '&base=' + document.getElementById('sel-serv').value
+//						+ '&poll=' + document.getElementById('sel-year').value
+//				});		
+//			}
 			
 			$(document).ready(function() {
 				injectBases();
@@ -89,7 +180,7 @@
 			<div id="div-dis-guid"></div>
 			<div id="div-dis-game"></div>
 		</div>
-
+<!--
 {year:
 	Year
 	{month:
@@ -105,5 +196,6 @@
 		}
 	}
 }
+-->
 	</body>
 </html>

@@ -133,6 +133,20 @@ typedef guid_int_map::const_iterator guid_int_map_citer;
 
 extern const GUID null_guid;
 
+/*
+ * Create a GUID for bots based on their slot number
+ */
+inline GUID bot_guid(siz num)
+{
+	soss oss;
+	oss << num;
+	str id = oss.str();
+	if(id.size() < GUID::SIZE)
+		id = str(GUID::SIZE - id.size(), '0') + id;
+
+	return GUID(id.c_str());
+}
+
 } // oastats
 
 #endif /* _OASTATS_GUID_H_ */

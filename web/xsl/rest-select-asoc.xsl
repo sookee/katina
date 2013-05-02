@@ -4,25 +4,17 @@
 	
 <xsl:param name="id" select="'xsl-rest-sel-base'"/>
 <xsl:param name="prefix" select="$id"/>
-	
+
 <xsl:template match="/">
-	<select>
-		<xsl:attribute name="id">
-			<xsl:value-of select='$id'/>
-		</xsl:attribute>
-		<xsl:attribute name="class">
-			<xsl:value-of select='$prefix'/>
-		</xsl:attribute>
-		<xsl:for-each select='bases/base'>
-			<xsl:sort select='.' order='ascending'/>
+	<select id="{$id}" class="{$prefix}-sel">
+		<xsl:for-each select="items/item">
 			<option class="{$prefix}-opt">
 				<xsl:attribute name="value">
-					<xsl:value-of select="id"/>
+					<xsl:value-of select="key"/>
 				</xsl:attribute>
-				<xsl:value-of select='name'/>
+				<xsl:value-of select="value"/>
 			</option>
-		</xsl:for-each>
-		
+		</xsl:for-each>		
 	</select>
 
 </xsl:template>

@@ -5,7 +5,7 @@
  *      Author: oasookee@gmail.com
  */
 
-#include "GUID.h"
+#include <katina/GUID.h>
 
 namespace oastats {
 

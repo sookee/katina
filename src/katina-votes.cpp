@@ -29,9 +29,9 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 '-----------------------------------------------------------------*/
 
-#include "types.h"
-#include "log.h"
-#include "str.h"
+#include <katina/types.h>
+#include <katina/log.h>
+#include <katina/str.h>
 
 #include <mysql.h>
 
