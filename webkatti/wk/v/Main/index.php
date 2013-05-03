@@ -1,3 +1,4 @@
+<h2>Statistics <?= afw\Utils::datef('d.m.Y', $this->dateFrom) ?> &mdash; <?= afw\Utils::datef('d.m.Y', $this->dateTo) ?></h2>
 <form action="" method="get">
     <?php if (!empty($this->error)): ?>
         <p class="error"><?= $this->error ?></p>

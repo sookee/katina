@@ -112,7 +112,6 @@ class Main
             $c->dateFrom = time() - 60 * 60 * 24 * 30;
         }
         $c->dateFrom = date('Y-m-d', $c->dateFrom);
-
         $db->where('date >= ?', $c->dateFrom . ' 00:00:00');
 
         $c->dateTo = strtotime(@$_GET['to']);
@@ -122,13 +121,10 @@ class Main
             {
                 $c->error = 'Wrong value';
             }
-            $c->dateTo = null;
+            $c->dateTo = time();
         }
-        else
-        {
-            $c->dateTo = date('Y-m-d', $c->dateTo);
-            $db->where('date <= ?', $c->dateTo . ' 23:59:59');
-        }
+        $c->dateTo = date('Y-m-d', $c->dateTo);
+        $db->where('date <= ?', $c->dateTo . ' 23:59:59');
 
         $gameIds = $db->allK();
 
