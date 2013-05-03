@@ -29,7 +29,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 '-----------------------------------------------------------------*/
 
-#include "codes.h"
+#include <katina/codes.h>
 
 #include <fstream>
 #include <sstream>
@@ -67,15 +67,15 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include <pthread.h>
 
-#include "types.h"
-#include "log.h"
-#include "socketstream.h"
-#include "str.h"
-#include "rcon.h"
-#include "time.h"
-#include "RemoteClient.h"
-#include "Database.h"
-#include "GUID.h"
+#include <katina/types.h>
+#include <katina/log.h>
+#include <katina/socketstream.h>
+#include <katina/str.h>
+#include <katina/rcon.h>
+#include <katina/time.h>
+#include <katina/RemoteClient.h>
+#include <katina/Database.h>
+#include <katina/GUID.h>
 
 #include <arpa/inet.h> // IP to int
 
@@ -93,20 +93,6 @@ const std::string tag = "dev";
 inline std::istream& sgl(std::istream& is, str& line, char delim = '\n')
 {
 	return std::getline(is, line, delim);
-}
-
-/*
- * Create a GUID for bots based on their slot number
- */
-GUID bot_guid(siz num)
-{
-	soss oss;
-	oss << num;
-	str id = oss.str();
-	if(id.size() < GUID::SIZE)
-		id = str(GUID::SIZE - id.size(), '0') + id;
-
-	return GUID(id.c_str());
 }
 
 struct stats
@@ -269,6 +255,15 @@ struct skivvy_conf
 	}
 };
 
+typedef std::map<GUID, guid_siz_map> onevone_map;
+typedef std::pair<const GUID, guid_siz_map> onevone_pair;
+typedef std::map<GUID, guid_siz_map>::iterator onevone_iter;
+typedef std::map<GUID, guid_siz_map>::const_iterator onevone_citer;
+
+typedef std::map<GUID, stats> guid_stat_map;
+typedef std::pair<const GUID, stats> guid_stat_pair;
+typedef std::map<GUID, stats>::iterator guid_stat_iter;
+typedef std::map<GUID, stats>::const_iterator guid_stat_citer;
 
 //bool katina_active = false;
 katina_conf ka_cfg;
@@ -423,12 +418,22 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 			siz rkh = 0;
 			siz rch = 0;
 			str kd, cd, kh, ch;
-			if(!d)
+			if(!d | !h)
 			{
-				if(k)
-					kd = "perf ";
-				if(c)
-					cd = "perf  ";
+				if(!d)
+				{
+					if(k)
+						kd = "perf ";
+					if(c)
+						cd = "perf  ";
+				}
+				if(!h)
+				{
+					if(k)
+						kh = "inf";
+					if(c)
+						ch = "inf";
+				}
 			}
 			else
 			{

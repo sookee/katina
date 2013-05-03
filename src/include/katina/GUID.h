@@ -121,11 +121,6 @@ typedef std::pair<const GUID, siz> guid_siz_pair;
 typedef std::map<GUID, siz>::iterator guid_siz_iter;
 typedef std::map<GUID, siz>::const_iterator guid_siz_citer;
 
-typedef std::map<GUID, guid_siz_map> onevone_map;
-typedef std::pair<const GUID, guid_siz_map> onevone_pair;
-typedef std::map<GUID, guid_siz_map>::iterator onevone_iter;
-typedef std::map<GUID, guid_siz_map>::const_iterator onevone_citer;
-
 typedef std::multimap<siz, str> siz_str_mmap;
 typedef siz_str_mmap::reverse_iterator siz_str_mmap_ritr;
 typedef siz_str_mmap::iterator siz_str_mmap_iter;
@@ -137,6 +132,20 @@ typedef guid_int_map::iterator guid_int_map_iter;
 typedef guid_int_map::const_iterator guid_int_map_citer;
 
 extern const GUID null_guid;
+
+/*
+ * Create a GUID for bots based on their slot number
+ */
+inline GUID bot_guid(siz num)
+{
+	soss oss;
+	oss << num;
+	str id = oss.str();
+	if(id.size() < GUID::SIZE)
+		id = str(GUID::SIZE - id.size(), '0') + id;
+
+	return GUID(id.c_str());
+}
 
 } // oastats
 

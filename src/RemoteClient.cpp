@@ -5,7 +5,7 @@
  *      Author: oasookee@gmail.com
  */
 
-#include "RemoteClient.h"
+#include <katina/RemoteClient.h>
 
 namespace oastats { namespace net {
 

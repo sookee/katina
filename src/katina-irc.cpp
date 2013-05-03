@@ -32,12 +32,12 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <cstring>
 #include <cstdlib>
 
-#include "time.h"
-#include "types.h"
-#include "log.h"
-#include "socketstream.h"
-#include "str.h"
-#include "message.h"
+#include <katina/time.h>
+#include <katina/types.h>
+#include <katina/log.h>
+#include <katina/socketstream.h>
+#include <katina/str.h>
+#include <katina/message.h>
 
 #include <pthread.h>
 

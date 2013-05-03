@@ -5,12 +5,12 @@
  *      Author: oasookee@gmail.com
  */
 
-#include "Database.h"
+#include <katina/Database.h>
 
 #include <mysql.h>
 
 #include <ctime>
-#include "log.h"
+#include <katina/log.h>
 
 namespace oastats { namespace data {
 

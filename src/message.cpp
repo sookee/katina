@@ -28,11 +28,11 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 '-----------------------------------------------------------------*/
 
-#include "message.h"
+#include <katina/message.h>
 
-#include "types.h"
-#include "str.h"
-#include "log.h"
+#include <katina/types.h>
+#include <katina/str.h>
+#include <katina/log.h>
 
 #define CSTRING(s) s,sizeof(s)
 #define STRC(c) str(1, c)

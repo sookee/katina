@@ -1,0 +1,48 @@
+/*
+ * CSS companion to polls-table.xsl
+ */
+
+.xsl-polls-table-table
+{
+	border-style: solid;
+	border-width: thin;
+	border-color: blueviolet;
+}
+
+.xsl-polls-table-thead-tr
+{
+	background-color: silver;
+}
+
+.xsl-polls-table-thead-th {}
+.xsl-polls-table-thead-map {}
+.xsl-polls-table-thead-love {}
+.xsl-polls-table-thead-hate {}
+.xsl-polls-table-thead-feel {}
+.xsl-polls-table-thead-votes {}
+.xsl-polls-table-thead-like {}
+
+.xsl-polls-table-tbody-tr {}
+
+.xsl-polls-table-tbody-td
+{
+	border-style: solid;
+}
+
+.xsl-polls-table-tbody-map {}
+.xsl-polls-table-tbody-love { background-color: activeborder; }
+.xsl-polls-table-tbody-hate {}
+.xsl-polls-table-tbody-feel {}
+.xsl-polls-table-tbody-votes {}
+.xsl-polls-table-tbody-like {}
+
+.xsl-polls-table-tfoot-tr {}
+
+.xsl-polls-table-tfoot-td {}
+.xsl-polls-table-tfoot-map {}
+.xsl-polls-table-tfoot-love { background-color: activeborder; }
+.xsl-polls-table-tfoot-hate {}
+.xsl-polls-table-tfoot-feel {}
+.xsl-polls-table-tfoot-votes {}
+.xsl-polls-table-tfoot-like {}
+

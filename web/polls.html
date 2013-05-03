@@ -1,0 +1,62 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<script src="js/sarissa/sarissa-compressed.js"></script>
+		<script src="js/sarissa/sarissa_ieemu_xpath-compressed.js"></script>
+		<script src="js/jquery-1.9.1.min.js"></script>
+		<script src="js/jquery.debug.js"></script>
+		<script src="js/jquery.xslTransform.js"></script>
+		<script src="js/rest-api.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/polls-table.css"/>
+		<link rel="stylesheet" type="text/css" href="css/polls-sel-base.css"/>
+	</head>
+	<body>
+		<script>
+			function injectBases()
+			{
+				injectOld({
+					id: 'sel-base'
+					, xsl: 'xsl/rest-sel-base.xsl'
+					, target: '#div-bases'
+					, action: injectPolls
+					, prefix: 'xsl-rest-sel-base'
+					, params:'?func=get_bases'
+				});		
+			}
+			
+			function injectPolls()
+			{
+				injectOld({
+					id: 'sel-poll'
+					, xsl: 'xsl/polls-sel-poll.xsl'
+					, target: '#div-polls'
+					, action: injectTable
+					, prefix: 'xsl-polls-sel-poll'
+					, params:'?func=get_polls'
+						+ '&base=' + document.getElementById('sel-base').value
+				});		
+			}
+			
+			function injectTable()
+			{
+				injectOld({
+					id: 'sel-poll'
+					, xsl: 'xsl/polls-table.xsl'
+					, target: '#div-table'
+//					, action: injectTable
+					, prefix: 'xsl-polls-table'
+					, params:'?func=get_poll'
+						+ '&base=' + document.getElementById('sel-base').value
+						+ '&poll=' + document.getElementById('sel-poll').value
+				});		
+			}
+			
+			$(document).ready(function() {
+				injectBases();
+			});
+		</script>
+		<div id="div-bases"></div>
+		<div id="div-polls"></div>
+		<div id="div-table"></div>
+	</body>
+</html>

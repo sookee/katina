@@ -75,6 +75,7 @@ struct _
 //#define trace(m)
 #define trace(m) bug("TRACE: " << m << ": " << __LINE__)
 
+inline
 bool log_error(const str& m, bool status = false) { log(m); return status; }
 
 }} // oastats::log

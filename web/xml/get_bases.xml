@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bases>
+	<base>
+		<id>oadb</id>
+		<name>ZimsNEW Instantgib</name>
+	</base>
+	<base>
+		<id>oadb_aw</id>
+		<name> ZimsNEW Allweapons</name>
+	</base>
+	<base>
+		<id>oadb3</id>
+		<name>ZimsMall Instantgib</name>
+	</base>
+</bases>
