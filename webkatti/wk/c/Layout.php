@@ -19,6 +19,8 @@ class Layout extends \afw\c\Layout
             $this->addTitle($title);
         }
 
+        $this->resourcesBase = '/' . \Config::urlPrefix . '/';
+
         $this->addCss('afw/res/css/default-dark.css');
         $this->addCss('wk/res/main.css');
 //        $this->addJs('wk/res/main.js');

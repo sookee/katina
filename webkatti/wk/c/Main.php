@@ -98,26 +98,65 @@ class Main
         $c = new Layout();
         $c->setTemplate(__METHOD__);
 
-        $gameIds = M::game()->db()
+        $db = M::game()->db()
             ->fields('game_id, game_id')
-            ->where('game_id > 1214 and date > now() - interval 1 month')
-            ->allK();
+            ->where('game_id > 1214');
 
-        $kills = M::kill()->countByGuid()
-            ->key($gameIds, 'game_id')
-            ->allK();
+        $c->dateFrom = strtotime(@$_GET['from']);
+        if (empty($c->dateFrom))
+        {
+            if (!empty($_GET['from']))
+            {
+                $c->error = 'Wrong value';
+            }
+            $c->dateFrom = time() - 60 * 60 * 24 * 30;
+        }
+        $c->dateFrom = date('Y-m-d', $c->dateFrom);
 
-        $caps = M::cap()->countByGuid()
-            ->key($gameIds, 'game_id')
-            ->allK();
+        $db->where('date >= ?', $c->dateFrom . ' 00:00:00');
 
-        $deaths = M::death()->countByGuid()
-            ->key($gameIds, 'game_id')
-            ->allK();
+        $c->dateTo = strtotime(@$_GET['to']);
+        if (empty($c->dateTo))
+        {
+            if (!empty($_GET['to']))
+            {
+                $c->error = 'Wrong value';
+            }
+            $c->dateTo = null;
+        }
+        else
+        {
+            $c->dateTo = date('Y-m-d', $c->dateTo);
+            $db->where('date <= ?', $c->dateTo . ' 23:59:59');
+        }
 
-        $time = M::time()->countByGuid()
-            ->key($gameIds, 'game_id')
-            ->allK();
+        $gameIds = $db->allK();
+
+        if (!empty($gameIds))
+        {
+            $kills = M::kill()->countByGuid()
+                ->key($gameIds, 'game_id')
+                ->allK();
+
+            $caps = M::cap()->countByGuid()
+                ->key($gameIds, 'game_id')
+                ->allK();
+
+            $deaths = M::death()->countByGuid()
+                ->key($gameIds, 'game_id')
+                ->allK();
+
+            $time = M::time()->countByGuid()
+                ->key($gameIds, 'game_id')
+                ->allK();
+        }
+        else
+        {
+            $kills = [];
+            $caps = [];
+            $deaths = [];
+            $time = [];
+        }
 
         $c->players = new PlayerStats(
             $kills,
