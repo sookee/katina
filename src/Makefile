@@ -11,7 +11,7 @@ LIBKATINA_FLAGS = -D DEBUG -O0 -g3 -fPIC -pthread -Iinclude
 LIBKATINA_LIBS = -lrt -pthread -ldl
 LIBKATINA_OBJS = rcon.o RemoteClient.o irc.o GUID.o Katina.o
 
-LIBRARIES = libkatina.so
+LIBRARIES = libkatina.so.0.0.0
 
 KATINA_FLAGS = -D DEBUG -O0 -g3 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread -Iinclude
 KATINA_LIBS = $(MYSQL_LIBS) -lrt -pthread
@@ -33,7 +33,7 @@ PROGRAMS = katina katina-1 katina-irc katina-votes
 
 all: $(LIBRARIES) $(PROGRAMS)
 
-libkatina.so: $(LIBKATINA_OBJS)
+libkatina.so.0.0.0: $(LIBKATINA_OBJS)
 	g++ -shared -Wl,-soname,libkatina.so.0 -o libkatina.so.0.0.0 $(LIBKATINA_OBJS) $(KATINA_LIBS)
 	@ln -f -s libkatina.so.0.0.0 libkatina.so.0.0
 	@ln -f -s libkatina.so.0.0 libkatina.so.0
@@ -69,8 +69,10 @@ katina-votes.o: katina-votes.cpp $(INCLUDES)
 	
 install: $(PROGRAMS)
 	mkdir -p $(HOME)/bin
-	for program in $(PROGRAMS); do cp $$program $(HOME)/bin; done
+	for program in $(PROGRAMS); \
+	    do cp $$program $(HOME)/bin; \
+	done
 
 clean:
-	rm -f *.o *.so* $(PROGRAMS)
+	rm -f *.o *.so* $(PROGRAMS) $(LIBRARIES) 
 

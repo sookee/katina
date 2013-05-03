@@ -1,19 +1,24 @@
 
-#include "KatinaPlugin.h"
+#include <katina/KatinaPlugin.h>
 #include "KatinaPluginStats.h"
 
-#include "Database.h"
-#include "GUID.h"
+#include <katina/Database.h>
+#include <katina/GUID.h>
 
-#include "types.h"
-#include "log.h"
-#include "KatinaPluginStatsReport.h"
+#include <katina/types.h>
+#include <katina/log.h>
+#include "KatinaPluginReports.h"
+
+#include <gcrypt.h>
 
 namespace katina { namespace plugin {
 
 using namespace oastats::log;
 using namespace oastats::data;
 using namespace oastats::types;
+
+KATINA_PLUGIN_TYPE(KatinaPluginReports);
+KATINA_PLUGIN_INFO("katina::report", "Katina Reports", "0.1");
 
 const str HUD_FLAG_P = "⚑";
 const str HUD_FLAG_DIE = "*";
@@ -33,13 +38,17 @@ str get_hud(siz m, siz s, str hud_flag[2])
 	return oss.str();
 }
 
-virtual bool KatinaPluginStatsReport::open(Katina& katina)
+virtual bool KatinaPluginReports::open()
 {
-	if(!katina.has_plugin("katina::stats", "0.0"))
-		return false;
+	if(!gcry_check_version(GCRYPT_VERSION))
+	{
+		log(ID << "gcrypt version mismatch: " << stats->get_name()));
+	}
 
-	if(!(kpsp = katina_get_pligin_raw_ptr("katina::stats"))
-		return false;
+	if((stats = katina.get_plugin("katina::stats", "0.0")))
+		log(ID << "Found: " << stats->get_name()));
+
+
 
 	skivvy.config(recs["skivvy.host"], to<siz>(recs["skivvy.port"]));
 
@@ -48,22 +57,22 @@ virtual bool KatinaPluginStatsReport::open(Katina& katina)
 	return true;
 }
 
-virtual str KatinaPluginStatsReport::get_id() const
+virtual str KatinaPluginReports::get_id() const
 {
-	return "katina::stats::report";
+	return "katina::reports";
 }
 
-virtual str KatinaPluginStatsReport::get_name() const
+virtual str KatinaPluginReports::get_name() const
 {
 	return "Stats Reporting";
 }
 
-virtual str KatinaPluginStatsReport::get_version() const
+virtual str KatinaPluginReports::get_version() const
 {
 	return "0.1-dev";
 }
 
-virtual bool KatinaPluginStatsReport::exit(GameInfo& gi)
+virtual bool KatinaPluginReports::exit()
 {
 	if(!in_game)
 		return true;
@@ -220,50 +229,38 @@ virtual bool KatinaPluginStatsReport::exit(GameInfo& gi)
 	return true;
 }
 
-virtual bool KatinaPluginStats::shutdown_game(GameInfo& gi)
+virtual bool KatinaPluginReports::shutdown_game()
 {
-	in_game = false;
 	return true;
 }
 
-virtual bool KatinaPluginStats::warmup(GameInfo& gi)
+virtual bool KatinaPluginReports::warmup()
 {
-	in_game = false;
 	return true;
 }
 
-virtual bool KatinaPluginStats::client_userinfo_changed(GameInfo& gi, siz num, siz team, const GUID& guid, const str& name)
+virtual bool KatinaPluginReports::client_userinfo_changed(siz num, siz team, const GUID& guid, const str& name)
 {
-	if(!in_game)
-		return true;
 	return true;
 }
-virtual bool KatinaPluginStats::client_connect(GameInfo& gi, siz num)
+virtual bool KatinaPluginReports::client_connect(siz num)
 {
 
 }
-virtual bool KatinaPluginStats::client_disconnect(GameInfo& gi, siz num)
+virtual bool KatinaPluginReports::client_disconnect(siz num)
 {
-	if(!in_game)
-		return true;
 	return true;
 }
-virtual bool KatinaPluginStats::kill(GameInfo& gi, siz num1, siz num2, siz weap)
+virtual bool KatinaPluginReports::kill(siz num1, siz num2, siz weap)
 {
-	if(!in_game)
-		return true;
-
 	if(weap != MOD_SUICIDE && gi.clients.find(num1) != gi.clients.end() && gi.clients.find(num2) != gi.clients.end())
 		skivvy.chat('k', "^7" + gi.players[gi.clients[num1]] + " ^4killed ^7" + gi.players[gi.clients[num2]]
 			+ " ^4with a ^7" + weapons[weap]);
 
 	return true;
 }
-virtual bool KatinaPluginStats::ctf(GameInfo& gi, siz num, siz team, siz act)
+virtual bool KatinaPluginReports::ctf(siz num, siz team, siz act)
 {
-	if(!in_game)
-		return true;
-
 	siz pcol = team - 1; // make 0-1 for array index
 	siz ncol = pcol ? 0 : 1;
 
@@ -353,14 +350,12 @@ virtual bool KatinaPluginStats::ctf(GameInfo& gi, siz num, siz team, siz act)
 
 	return true;
 }
-virtual bool KatinaPluginStats::award(GameInfo& gi)
-{
-	if(!in_game)
-		return true;
 
+virtual bool KatinaPluginReports::award(siz num, siz awd)
+{
 	return true;
 }
-virtual bool KatinaPluginStats::init_game(GameInfo& gi)
+virtual bool KatinaPluginReports::init_game()
 {
 	if(in_game)
 		return true;
@@ -386,7 +381,7 @@ virtual bool KatinaPluginStats::init_game(GameInfo& gi)
 
 	return true;
 }
-virtual bool KatinaPluginStats::say(GameInfo& gi, const str& text)
+virtual bool KatinaPluginReports::say(const str& text)
 {
 	if(sk_cfg.do_chats)
 	{
@@ -400,12 +395,12 @@ virtual bool KatinaPluginStats::say(GameInfo& gi, const str& text)
 
 	return true;
 }
-virtual bool KatinaPluginStats::unknown(GameInfo& gi)
+virtual bool KatinaPluginReports::unknown()
 {
 
 }
 
-virtual void KatinaPluginStats::close()
+virtual void KatinaPluginReports::close()
 {
 
 }

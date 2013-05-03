@@ -17,7 +17,11 @@ PLUGIN_STATS_FLAGS = -D DEBUG -O0 -g3 -Wl,-E -shared -pthread
 PLUGIN_STATS_LIBS = -pthread -L.. -lkatina
 PLUGIN_STATS_OBJS = KatinaPluginStats.o ../Database.o
 
-PLUGINS = katina-plugin-example.so katina-plugin-stats.so
+PLUGIN_REPORTS_FLAGS = -D DEBUG -O0 -g3 -Wl,-E -shared -pthread
+PLUGIN_REPORTS_LIBS = -pthread -L.. -lkatina
+PLUGIN_REPORTS_OBJS = KatinaPluginReports.o ../RemoteClient.o
+
+PLUGINS = katina-plugin-example.so katina-plugin-stats.so katina-plugin-reports.so
 
 all: $(PLUGINS)
 
@@ -26,6 +30,9 @@ katina-plugin-example.so: $(PLUGIN_EXAMPLE_OBJS)
 
 katina-plugin-stats.so: $(PLUGIN_STATS_OBJS)
 	$(CXX) $(PLUGIN_STATS_FLAGS) -o $@ $(PLUGIN_STATS_OBJS) $(PLUGIN_STATS_LIBS)
+
+katina-plugin-reports.so: $(PLUGIN_REPORTS_OBJS)
+	$(CXX) $(PLUGIN_REPORTS_FLAGS) -o $@ $(PLUGIN_REPORTS_OBJS) $(PLUGIN_REPORTS_LIBS)
 
 %.o: %.cpp %.h
 	$(CXX) $(CXXFLAGS) $(MYSQL_INCL) -c -o $@ $<
