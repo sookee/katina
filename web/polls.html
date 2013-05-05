@@ -12,16 +12,25 @@
 	</head>
 	<body>
 		<script>
+			var cserv = false;
 			function injectBases()
 			{
-				injectOld({
-					id: 'sel-base'
-					, xsl: 'xsl/rest-sel-base.xsl'
-					, target: '#div-bases'
-					, action: injectPolls
-					, prefix: 'xsl-rest-sel-base'
-					, params:'?func=get_bases'
-				});		
+				cserv = $('#div-bases').val();
+				inject(
+					{
+						target: '#div-bases'
+						, action: injectPolls
+						, params: '?func=get_bases&format=generic'
+					}
+					, {
+						xsl: 'xsl/rest-select-asoc.xsl'
+						, options: {
+							id: 'sel-base'
+							, prefix: 'sel-base'
+						}
+					}
+				);
+				$('#sel-serv').val(cserv);
 			}
 			
 			function injectPolls()
