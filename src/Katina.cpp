@@ -98,7 +98,7 @@ void* cvarpoll(void* vp)
 		str value;
 		if(!katina.rconset(katina.prefix + mi->first, value))
 			katina.rconset(katina.prefix + mi->first, value); // one retry
-		bug("new: " << old_value);
+		bug("new: " << value);
 		
 		if(value != old_value) // changed
 		{
