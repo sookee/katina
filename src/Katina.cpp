@@ -85,6 +85,7 @@ void* cvarpoll(void* vp)
 		if(mi == mmi->second.end())
 		{
 			++mmi;
+			mi = mmi->second.begin();
 			continue;
 		}
 		
