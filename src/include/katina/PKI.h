@@ -9,8 +9,11 @@
 #define	_OASTATS_PKI_H
 
 #include <gcrypt.h>
+#include "types.h"
 
 namespace oastats { namespace pki {
+
+using namespace oastats::types;
 
 class PKI
 {
@@ -28,9 +31,9 @@ private:
 	std::map<str, gcry_sexp_t> pkeys;
 
 	bool set_keys(const key_t keypair);
-	bool create_sexp_from_text(const str& exp, gcry_sexp_t& sexp);
-	bool get_sexp_as_text(const key_t& sexp, str& text);
-	bool create_signature(const gcry_sexp_t& sexp, str& signature);
+	bool create_sexp_from_text(const str& exp, gcry_sexp_t& sexp) const;
+	bool get_sexp_as_text(const key_t& sexp, str& text) const;
+	bool get_signature(const gcry_sexp_t& sexp, str& signature) const;
 
 public:
 	PKI();
@@ -71,9 +74,9 @@ public:
 	bool read_keypair(std::istream& is);
 	bool load_keypair(const str& file);
 
-	bool get_keypair_as_text(str& keypair);
-	bool get_public_key_as_text(str& text);
-	bool get_private_key_as_text(str& text);
+	bool get_keypair_as_text(str& keypair) const;
+	bool get_public_key_as_text(str& text) const;
+	bool get_private_key_as_text(str& text) const;
 
 	/**
 	 * Encrypt text using public key belonging to id
@@ -83,21 +86,21 @@ public:
 	 * unchanged on error.
 	 * @return true = success else false
 	 */
-	bool encrypt(const str& id, const str& text, str& code);
+	bool encrypt(const str& id, const str& text, str& code) const;
 
 	/**
 	 * Decrypt text using private key
 	 */
-	bool decrypt(const str& code, str& text);
+	bool decrypt(const str& code, str& text) const;
 
-	bool create_signature(str& signature); // use pkey
-	bool create_signature(const str& text, str& signature);
+	bool get_signature(str& signature) const; // use pkey
+	bool get_signature(const str& text, str& signature) const;
 
-	bool verify_signature(const str& id, const str& signature, bool& is_good); // pkey
-	bool verify_signature(const str& id, const str& signature, const str& text, bool& is_good);
+	bool verify_signature(const str& id, const str& signature, bool& is_good) const; // pkey
+	bool verify_signature(const str& id, const str& signature, const str& text, bool& is_good) const;
 };
 
-}} oastats::pki
+}} // oastats::pki
 
 #endif	// _OASTATS_PKI_H
 

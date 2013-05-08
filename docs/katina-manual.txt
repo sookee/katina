@@ -93,7 +93,29 @@ s = stats (k/d c/d)
 !rcon zaw seta katina_skivvy_chans #katina-zaw(icfks)
 !rcon zaw seta katina_remote_stats_cols 31
 !rcon zaw seta katina_votecontrol_wait 10
-!rcon zaw katina_protect_names 0
+!rcon zaw seta katina_protect_names 0
+
+# zimp
+
+!rcon zimp seta katina_active 1
+!rcon zimp seta katina_dashes 0
+!rcon zimp seta katina_flags 1
+
+!rcon zimp seta katina_db_active 0
+!rcon zimp seta katina_db_weaps 2 10
+
+!rcon zimp seta katina_skivvy_active 1
+!rcon zimp seta katina_skivvy_infos 1
+!rcon zimp seta katina_skivvy_chats 1
+!rcon zimp seta katina_skivvy_flags 1
+!rcon zimp seta katina_skivvy_flags_hud 1 // [03:24 ⚑⚑]
+!rcon zimp seta katina_skivvy_kills 0
+!rcon zimp seta katina_skivvy_stats 1
+!rcon zimp seta katina_skivvy_spamkill 0
+!rcon zimp seta katina_skivvy_chans #katina-pri(icfks)
+!rcon zimp seta katina_remote_stats_cols 31
+!rcon zimp seta katina_votecontrol_wait 10
+!rcon zimp seta katina_protect_names 0
 
 # soo
 
@@ -155,28 +177,4 @@ foreach game_id as id
 	select guid, count from kills where game_id == id
 
   
-== BUG DATA ==
 
-<Pixelized> SooKee: 
-<Pixelized> I capped 5 flags last round as /dev/urandom
-<Pixelized> 19:41 <@Skivvy> [Katina] == RESULTS == 2 RED 8 BLUE  ==
-<Pixelized> 19:41 <@Skivvy> [Katina] #1 chs/bloodz capped 5 flags.
-<Pixelized> 19:41 <@Skivvy> [Katina] #2 *m*^eAx capped 3 flags.
-<Pixelized> 19:41 <@Skivvy> [Katina] #3 3bl00dz capped 1 flags.
-<Pixelized> 19:41 <@Skivvy> [Katina] #3 /opt capped 1 flags.
-<Pixelized> 19:41 <@Skivvy> [Katina] ----------------------------------
-<Pixelized> 19:41 <@Skivvy> [Katina] kills/d (  1.45) caps/d ( 17.24): chs/bloodz
-<Pixelized> 19:41 <@Skivvy> [Katina] kills/d (  1.00) caps/d ( 21.43): *m*^eAx
-<Pixelized> 19:41 <@Skivvy> [Katina] kills/d (  0.83) caps/d (  0.00): Ugly Ursula
-<Pixelized> 19:41 <@Skivvy> [Katina] kills/d (  0.82) caps/d (  4.55): 3bl00dz
-
-game_id = 1045
-
-http://u10117.netangels.ru/game-1045
-
-Name 	Frags 	Caps 	Respawns 	F / R % 	C / R % 	F / R * C / R %
-Pixelized 	42 	5 	29 	145 	17 	25
-*m*^eAx 	14 	3 	14 	100 	21 	21
-3bl00dz 	18 	1 	22 	82 	5 	4
-/opt 	20 	1 	28 	71 	4 	3
-Not_*M*^Zim106 	5 		6 	83

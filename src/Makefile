@@ -8,17 +8,17 @@ INCLUDES = $(wildcard include/katina/*.h)
 CXXFLAGS = -D DEBUG -O0 -g3 -Iinclude
 
 LIBKATINA_FLAGS = -D DEBUG -O0 -g3 -fPIC -pthread -Iinclude
-LIBKATINA_LIBS = -lrt -pthread -ldl
-LIBKATINA_OBJS = rcon.o RemoteClient.o irc.o GUID.o Katina.o
+LIBKATINA_LIBS = -lrt -pthread -ldl -lgcrypt
+LIBKATINA_OBJS = rcon.o RemoteClient.o irc.o GUID.o Katina.o PKI.o
 
 LIBRARIES = libkatina.so.0.0.0
 
 KATINA_FLAGS = -D DEBUG -O0 -g3 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread -Iinclude
 KATINA_LIBS = $(MYSQL_LIBS) -lrt -pthread
-KATINA_OBJS = katina.o rcon.o RemoteClient.o irc.o Database.o GUID.o
+KATINA_OBJS = katina.o rcon.o RemoteClient_v0_x.o irc.o Database.o GUID.o
 
 KATINA_1_FLAGS = -D DEBUG -O0 -g3 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread -Iinclude
-KATINA_1_LIBS = $(MYSQL_LIBS) -lrt -pthread -ldl -L. -lkatina
+KATINA_1_LIBS = $(MYSQL_LIBS) -lrt -pthread -ldl -lgcrypt -L. -lkatina
 KATINA_1_OBJS = katina-1.o Database.o
 
 KATINA_IRC_FLAGS = -O3 -g0 -pthread -Iinclude

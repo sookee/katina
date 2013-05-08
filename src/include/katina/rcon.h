@@ -88,8 +88,18 @@ public:
 		str ret;
 		rcon("rcon " + pass + " cp " + msg, ret, host, port);
 	}
-};
+	
+	bool s_chat(const str& msg) const
+	{
+		str ret;
+		return s_chat(msg, ret);
+	}
 
+	bool s_chat(const str& msg, str& ret) const
+	{
+		return rcon("rcon " + pass + " chat ^1K^7at^3i^7na^8: ^7" + msg, ret, host, port);
+	}
+};
 }} // oastats::net
 
 #endif /* _OASTATS_RCON_H_ */

@@ -5,7 +5,7 @@
  * Created on May 3, 2013, 7:40 AM
  */
 
-#include "PKI.h"
+#include <katina/PKI.h>
 
 #include <fstream>
 #include <gcrypt.h>
@@ -194,7 +194,7 @@ bool PKI::read_public_key(const str& id, const str& s)
 	return true;
 }
 
-bool PKI::get_sexp_as_text(const gcry_sexp_t& sexp, str& text)
+bool PKI::get_sexp_as_text(const gcry_sexp_t& sexp, str& text) const
 {
 	siz len = 0;
 
@@ -219,7 +219,7 @@ bool PKI::get_sexp_as_text(const gcry_sexp_t& sexp, str& text)
 	return true;
 }
 
-bool PKI::get_keypair_as_text(str& keypair)
+bool PKI::get_keypair_as_text(str& keypair) const
 {
 	gcry_sexp_t keys = 0;
 	if(gcry_error_t e = gcry_sexp_build (&keys, 0, "(key-data\n  %S\n  %S\n )", pkey, skey))
@@ -240,17 +240,17 @@ bool PKI::get_keypair_as_text(str& keypair)
 	return true;
 }
 
-bool PKI::get_public_key_as_text(str& text)
+bool PKI::get_public_key_as_text(str& text) const
 {
 	return get_sexp_as_text(pkey, text);
 }
 
-bool PKI::get_private_key_as_text(str& text)
+bool PKI::get_private_key_as_text(str& text) const
 {
 	return get_sexp_as_text(skey, text);
 }
 
-bool PKI::encrypt(const str& id, const str& text, str& code)
+bool PKI::encrypt(const str& id, const str& text, str& code) const
 {
 	gcry_sexp_t data = 0;
 
@@ -288,7 +288,7 @@ bool PKI::encrypt(const str& id, const str& text, str& code)
 	return true;
 }
 
-bool PKI::decrypt(const str& code, str& text)
+bool PKI::decrypt(const str& code, str& text) const
 {
 	gcry_sexp_t data = 0;
 
@@ -325,7 +325,7 @@ bool PKI::decrypt(const str& code, str& text)
 	return true;
 }
 
-bool PKI::create_sexp_from_text(const str& exp, gcry_sexp_t& sexp)
+bool PKI::create_sexp_from_text(const str& exp, gcry_sexp_t& sexp) const
 {
 	gcry_sexp_t data = 0;
 
@@ -340,19 +340,19 @@ bool PKI::create_sexp_from_text(const str& exp, gcry_sexp_t& sexp)
 	return true;
 }
 
-bool PKI::create_signature(str& signature)
+bool PKI::get_signature(str& signature) const
 {
-	return create_signature(pkey, signature);
+	return get_signature(pkey, signature);
 }
 
-bool PKI::create_signature(const str& text, str& signature)
+bool PKI::get_signature(const str& text, str& signature) const
 {
 	gcry_sexp_t data = 0;
 
 	if(!create_sexp_from_text(text, data))
 		return false;
 
-	if(!create_signature(data, signature))
+	if(!get_signature(data, signature))
 	{
 		gcry_sexp_release(data);
 		return false;
@@ -363,7 +363,7 @@ bool PKI::create_signature(const str& text, str& signature)
 	return true;
 }
 
-bool PKI::create_signature(const gcry_sexp_t& sexp, str& signature)
+bool PKI::get_signature(const gcry_sexp_t& sexp, str& signature) const
 {
 	gcry_sexp_t result = 0;
 
@@ -380,11 +380,11 @@ bool PKI::create_signature(const gcry_sexp_t& sexp, str& signature)
 	}
 
 	gcry_sexp_release(result);
-
+	
 	return true;
 }
 
-bool PKI::verify_signature(const str& id, const str& signature, bool& is_good)
+bool PKI::verify_signature(const str& id, const str& signature, bool& is_good) const
 {
 	if(pkeys.find(id) == pkeys.end())
 	{
@@ -408,7 +408,7 @@ bool PKI::verify_signature(const str& id, const str& signature, bool& is_good)
 	return true;
 }
 
-bool PKI::verify_signature(const str& id, const str& signature, const str& text, bool& is_good)
+bool PKI::verify_signature(const str& id, const str& signature, const str& text, bool& is_good) const
 {
 	if(pkeys.find(id) == pkeys.end())
 	{

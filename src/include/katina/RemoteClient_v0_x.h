@@ -13,22 +13,18 @@
 #include "log.h"
 #include "irc.h"
 
-namespace oastats {
-
-class Katina;
-	
-namespace net {
+namespace oastats { namespace net {
 
 using namespace oastats::irc;
 using namespace oastats::log;
 using namespace oastats::types;
 
-class RemoteClient
+class RemoteClient_v0_x
 {
 protected:
-	class Katina& katina;
-
 	bool active;
+	str host;
+	siz port;
 
 	typedef std::map<str, std::set<char> > chan_map;
 	typedef chan_map::iterator chan_map_iter;
@@ -37,11 +33,17 @@ protected:
 	chan_map chans; // #channel -> {'c','f','k'}
 
 public:
-	RemoteClient(Katina& katina): katina(katina), active(false) {}
-	virtual ~RemoteClient() {}
+	RemoteClient_v0_x(): active(false), host("localhost"), port(7334) {}
+	virtual ~RemoteClient_v0_x() {}
 
 	void on() { active = true; }
 	void off() { active = false; }
+
+	void config(const str& host, siz port)
+	{
+		this->host = host;
+		this->port = port;
+	}
 
 	void set_chans(const str& chans);
 	bool say(char f, const str& text);
@@ -64,8 +66,6 @@ public:
 	bool chat(char f, const str& text) { return say(f, oa_to_IRC(text)); }
 	bool raw_chat(char f, const str& text) { return say(f, text); }
 
-	virtual bool configure(const str& params) { return true; }
-
 	/**
 	 * Implementing classes need to override this function.
 	 * @param msg The message being sent.
@@ -73,41 +73,31 @@ public:
 	 * @return false on communications failure.
 	 */
 	virtual bool send(const str& msg, str& res) = 0;
-	
-	static RemoteClient* create(Katina& katina, const str& config);
 };
 
-class PKIClient
-: public RemoteClient
+class SkivvyClient
+: public RemoteClient_v0_x
 {
 	net::socketstream ss;
-	bool connected;
-	
-	struct session
-	{
-		str key;
-		str sig;
-		session() {}
-		session(str key, str sig): key(key), sig(sig) {}
-		session(const session& s): key(s.key), sig(s.sig) {}
-	};
-	
-	typedef std::map<str, session> session_map;
-	typedef session_map::iterator session_map_iter;
-	typedef session_map::const_iterator session_map_citer;
 
-	str host;
-	siz port;
-	str key, sig;
-
-	session_map sessions;
-	
 public:
-	PKIClient(Katina& katina): RemoteClient(katina), connected(false), port(0) {}
+	// SkivvyClient(Katina& katina): RemoteClient(katina) {}
+
 	// RemoteClient Interface
 
-	virtual bool configure(const str& params);
-	virtual bool send(const str& cmd, str& res);
+	virtual bool send(const str& cmd, str& res)
+	{
+		if(!active)
+			return true;
+
+		if(!ss.open(host, port))
+		{
+			log("error: " << std::strerror(errno));
+			return false;
+		}
+		(ss << cmd).put('\0') << std::flush;
+		return std::getline(ss, res, '\0');
+	}
 };
 
 }} // oastats::net

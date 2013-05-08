@@ -8,8 +8,8 @@
  * Created on May 06, 2013
  */
 
-#include <map>
 #include <utility>
+#include <deque>
 
 #include <katina/Katina.h>
 #include <katina/KatinaPlugin.h>
@@ -33,6 +33,16 @@ private:
 	siz_guid_map& clients; // slot -> GUID
 	guid_str_map& players; // GUID -> name
 	guid_siz_map& teams; // GUID -> 'R' | 'B'
+	
+	typedef siz slot;
+	typedef std::deque<slot> slot_deq;
+	typedef slot_deq::iteratr slot_deq_iter;
+	typedef slot_deq::const_iteratr slot_deq_citer;
+	
+	KatinaPluginStats* stats;
+	
+	slot winner;
+	slot_deq q;
 
 public:
 	WinnerStaysOn(Katina& katina)
