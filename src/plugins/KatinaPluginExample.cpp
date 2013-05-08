@@ -18,13 +18,13 @@ KatinaPluginExample::KatinaPluginExample(Katina& katina)
 , clients(katina.clients)
 , players(katina.players)
 , teams(katina.teams)
-, flag(false)
+, active(false)
 {
 }
 
 bool KatinaPluginExample::open()
 {
-	katina.add_var_event(this, "example_flag", flag);
+	katina.add_var_event(this, "example_active", active);
 	//katina.add_var_event(this, "flag", "0");
 	katina.add_log_event(this, EXIT);
 	katina.add_log_event(this, SHUTDOWN_GAME);
@@ -72,57 +72,82 @@ void KatinaPluginExample::cvar_event(const str& name, const str& value)
 
 bool KatinaPluginExample::exit(siz min, siz sec)
 {
+	if(!active)
+		return true;
 	log("exit()");
 	return true;
 }
 
 bool KatinaPluginExample::shutdown_game(siz min, siz sec)
 {
+	if(!active)
+		return true;
 	log("shutdown_game()");
 	return true;
 }
 
 bool KatinaPluginExample::warmup(siz min, siz sec)
 {
+	if(!active)
+		return true;
 	log("warmup()");
 	return true;
 }
 
 bool KatinaPluginExample::client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name)
 {
+	if(!active)
+		return true;
 	log("client_userinfo_changed(" << num << ", " << team << ", " << guid << ", " << name << ")");
 	log("clients[" << num << "]         : " << clients[num]);
 	log("players[clients[" << num << "]]: " << players[clients[num]]);
 	return true;
 }
+
 bool KatinaPluginExample::client_connect(siz min, siz sec, siz num)
 {
+	if(!active)
+		return true;
 	log("client_connect(" << num << ")");
 	return true;
 }
+
 bool KatinaPluginExample::client_disconnect(siz min, siz sec, siz num)
 {
+	if(!active)
+		return true;
 	log("client_disconnect(" << num << ")");
 	return true;
 }
+
 bool KatinaPluginExample::kill(siz min, siz sec, siz num1, siz num2, siz weap)
 {
+	if(!active)
+		return true;
 	log("kill(" << num1 << ", " << num2 << ", " << weap << ")");
 	return true;
 }
+
 bool KatinaPluginExample::ctf(siz min, siz sec, siz num, siz team, siz act)
 {
+	if(!active)
+		return true;
 	log("ctf(" << num << ", " << team << ", " << act<< ")");
 	return true;
 }
+
 bool KatinaPluginExample::award(siz min, siz sec, siz num, siz awd)
 {
+	if(!active)
+		return true;
 	log("award(" << num << ", " << awd << ")");
 	return true;
 }
 
 bool KatinaPluginExample::init_game(siz min, siz sec)
 {
+	if(!active)
+		return true;
 	log("init_game()");
 	log("mapname: " << mapname);
 	return true;
@@ -130,19 +155,19 @@ bool KatinaPluginExample::init_game(siz min, siz sec)
 
 bool KatinaPluginExample::say(siz min, siz sec, const GUID& guid, const str& text)
 {
+	if(!active)
+		return true;
 	log("say(" << guid << ", " << text << ")");
-	if(flag)
-	{
-		str s = text;
-		std::reverse(s.begin(), s.end());
-		katina.chat_to(guid, s);
-	}
+	str s = text;
+	std::reverse(s.begin(), s.end());
+	katina.chat_to(guid, s);
 	return true;
 }
 
 bool KatinaPluginExample::unknown(siz min, siz sec, const str& cmd, const str& params)
 {
-	//log("unknown(" << line << ")");
+	if(!active)
+		return true;
 	return true;
 }
 

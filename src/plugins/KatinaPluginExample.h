@@ -38,7 +38,7 @@ private:
 	guid_str_map& players; // GUID -> name
 	guid_siz_map& teams; // GUID -> 'R' | 'B'
 	
-	bool flag;
+	bool active;
 
 public:
 	KatinaPluginExample(Katina& katina);
