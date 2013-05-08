@@ -146,6 +146,11 @@ bool Katina::rconset(const str& cvar, str& val)
 
 	str sval;
 
+	trim(response);
+	
+	if(response.empty())
+		return false;
+	
 	if(response.find("unknown command:"))
 	{
 		str skip;
@@ -206,11 +211,15 @@ bool Katina::load_plugin(const str& file)
 		return false;
 	}
 
+	log("PLUGIN OPEN:");
+
 	if(!(*(void**)&katina_plugin_factory = dlsym(dl, "katina_plugin_factory")))
 	{
 		log("PLUGIN LOAD: " << dlerror());
 		return false;
 	}
+
+	log("PLUGIN CREATE:");
 
 	if(!(plugin = katina_plugin_factory(*this)))
 	{
@@ -392,7 +401,9 @@ bool Katina::start(const str& dir)
 	// initialize rcon
 	
 	server.config(get("rcon.host"), get<siz>("rcon.port"), get("rcon.pass"));
-		
+	
+	if(get("rcon.active") == "true")
+		server.on();
 //	if(!server.command("status"))
 
 	// load plugins
@@ -402,8 +413,15 @@ bool Katina::start(const str& dir)
 	{
 		load_plugin(pluginfiles[i]);
 	}
+	
+	std::ios::openmode mode = std::ios::in|std::ios::ate;
 
-	ifs.open(get("logfile").c_str(), std::ios::ate);
+	bool rerun = get("run.mode") == "rerun";
+	
+	if(rerun)
+		mode = std::ios::in;
+
+	ifs.open(get("logfile").c_str(), mode);
 
 	if(!ifs.is_open())
 	{
@@ -414,11 +432,34 @@ bool Katina::start(const str& dir)
 	std::istream& is = ifs;
 
 	std::ios::streampos gpos = is.tellg();
+	
+	// Sometimes the ClientUserinfoChanged messahe is split over
+	// two lines. This is a fudge to compensate for that
+	struct client_userinfo_bug_t
+	{
+		bool active;
+		siz num, team;
+		str name;
+		client_userinfo_bug_t(): active(false), num(0), team(0) {}
+		void set(bool state) { active = state; }
+		void set(siz num, const str& name, siz team)
+		{
+			this->num = num;
+			this->name = name;
+			this->team = team;
+			set(true);
+		}
+		operator bool() { return active; }
+	} client_userinfo_bug;
 
+	client_userinfo_bug.set(false);
+	
 	while(!done)
 	{
 		if(!std::getline(is, line) || is.eof())
 		{
+			if(rerun)
+				done = true;
 			thread_sleep_millis(100);
 			is.clear();
 			is.seekg(gpos);
@@ -436,9 +477,34 @@ bool Katina::start(const str& dir)
 		str params;
 		if(!sgl(iss >> min >> c >> sec >> cmd >> std::ws, params))
 		{
-			log("ERROR: parsing logfile: " << line);
-			continue;
+			if(client_userinfo_bug)
+			{
+				log("WANING: possible ClientUserinfoChanged bug");
+				// \c2\ \hc\100\w\0\l\0\tt\0\tl\0\id\041BD1732752BCC408FAF45616A8F64B
+				siz pos;
+				if((pos = line.find("\\id\\")) == str::npos)
+				{
+					log("ERROR: parsing logfile: " << line);
+					continue;
+				}
+				else
+				{
+					log("ALERT: ClientUserinfoChanged bug detected");
+					// 2 n\^1S^2oo^3K^5ee\t\3\mo
+					cmd = "ClientUserinfoChanged:";
+					soss oss;
+					oss << client_userinfo_bug.num;
+					oss << " n\\" << client_userinfo_bug.name;
+					oss << "\\t\\" << client_userinfo_bug.team;
+					oss << line;
+					params = oss.str();
+					log("     : cmd   : " << cmd);
+					log("     : params: " << params);
+				}
+			}			
 		}
+		
+		client_userinfo_bug.set(false);
 
 		iss.clear();
 		iss.str(params);
@@ -471,14 +537,16 @@ bool Katina::start(const str& dir)
 			bug(cmd << "(" << params << ")");
 			
 			// 0 n\Merman\t\2\model\merman\hmodel\merman\c1\1\c2\1\hc\70\w\0\l\0\skill\ 2.00\tt\0\tl\0\id\
-			
+			// 2 \n\^1S^2oo^3K^5ee\t\3\c2\d\hc\100\w\0\l\0\tt\0\tl\0\id\041BD1732752BCC408FAF45616A8F64B
 			siz num, team;
 			if(!(sgl(sgl(sgl(iss >> num, skip, '\\'), name, '\\'), skip, '\\') >> team))
 				std::cout << "Error parsing ClientUserinfoChanged: "  << params << '\n';
 			else
 			{
 				siz pos = line.find("\\id\\");
-				if(pos != str::npos)
+				if(pos == str::npos)
+					client_userinfo_bug.set(num, name, team);
+				else
 				{
 					str id = line.substr(pos + 4, 32);
 					GUID guid;
@@ -590,6 +658,33 @@ bool Katina::start(const str& dir)
 			for(plugin_vec_iter i = events[INIT_GAME].begin()
 				; i != events[INIT_GAME].end(); ++i)
 				(*i)->init_game(min, sec);
+		}
+		else if(cmd == "ClientBegin:")
+		{
+		}
+		else if(cmd == "Playerstore:")
+		{
+		}
+		else if(cmd == "Restored")
+		{
+		}
+		else if(cmd == "PlayerScore:")
+		{
+		}
+		else if(cmd == "Challenge:")
+		{
+		}
+		else if(cmd == "Info:")
+		{
+		}
+		else if(cmd == "Item:")
+		{
+		}
+		else if(cmd == "score:")
+		{
+		}
+		else if(cmd == "sayteam:")
+		{
 		}
 		else if(cmd == "say:")
 		{

@@ -38,7 +38,24 @@ bool KatinaPluginStats::open()
 		, katina.get("db.user")
 		, katina.get("db.pass", "")
 		, katina.get("db.base"));
-	return katina.has("db.base") && katina.has("db.user");
+	
+	if(!katina.has("db.base") || !katina.has("db.user"))
+		return false;
+	
+	katina.add_log_event(this, EXIT);
+	katina.add_log_event(this, SHUTDOWN_GAME);
+	katina.add_log_event(this, WARMUP);
+	katina.add_log_event(this, CLIENT_USERINFO_CHANGED);
+	katina.add_log_event(this, CLIENT_CONNECT);
+	katina.add_log_event(this, CLIENT_DISCONNECT);
+	katina.add_log_event(this, KILL);
+	katina.add_log_event(this, CTF);
+	katina.add_log_event(this, AWARD);
+	katina.add_log_event(this, INIT_GAME);
+	//katina.add_log_event(this, SAY);
+	//katina.add_log_event(this, UNKNOWN);
+	
+	return true;
 }
 
 str KatinaPluginStats::get_id() const
@@ -58,6 +75,7 @@ str KatinaPluginStats::get_version() const
 
 bool KatinaPluginStats::exit(siz min, siz sec)
 {
+	bug("in_game: " << in_game);
 	if(!in_game)
 		return true;
 	in_game = false;
@@ -123,18 +141,21 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 
 bool KatinaPluginStats::shutdown_game(siz min, siz sec)
 {
+	bug("in_game: " << in_game);
 	in_game = false;
 	return true;
 }
 
 bool KatinaPluginStats::warmup(siz min, siz sec)
 {
+	bug("in_game: " << in_game);
 	in_game = false;
 	return true;
 }
 
 bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name)
 {
+	bug("in_game: " << in_game);
 	if(!in_game)
 		return true;
 
@@ -158,10 +179,11 @@ bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, siz num, siz t
 }
 bool KatinaPluginStats::client_connect(siz min, siz sec, siz num)
 {
-
+	bug("in_game: " << in_game);
 }
 bool KatinaPluginStats::client_disconnect(siz min, siz sec, siz num)
 {
+	bug("in_game: " << in_game);
 	if(!in_game)
 		return true;
 
@@ -175,6 +197,7 @@ bool KatinaPluginStats::client_disconnect(siz min, siz sec, siz num)
 }
 bool KatinaPluginStats::kill(siz min, siz sec, siz num1, siz num2, siz weap)
 {
+	bug("in_game: " << in_game);
 	if(!in_game)
 		return true;
 
@@ -197,6 +220,7 @@ bool KatinaPluginStats::kill(siz min, siz sec, siz num1, siz num2, siz weap)
 }
 bool KatinaPluginStats::ctf(siz min, siz sec, siz num, siz team, siz act)
 {
+	bug("in_game: " << in_game);
 	if(!in_game)
 		return true;
 
@@ -207,6 +231,7 @@ bool KatinaPluginStats::ctf(siz min, siz sec, siz num, siz team, siz act)
 }
 bool KatinaPluginStats::award(siz min, siz sec, siz num, siz awd)
 {
+	bug("in_game: " << in_game);
 	if(!in_game)
 		return true;
 
@@ -217,6 +242,7 @@ bool KatinaPluginStats::award(siz min, siz sec, siz num, siz awd)
 
 bool KatinaPluginStats::init_game(siz min, siz sec)
 {
+	bug("in_game: " << in_game);
 	if(in_game)
 		return true;
 
@@ -230,6 +256,7 @@ bool KatinaPluginStats::init_game(siz min, siz sec)
 
 bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 {
+	bug("in_game: " << in_game);
 	return true;
 }
 
