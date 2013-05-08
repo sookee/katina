@@ -446,27 +446,31 @@ bool Katina::start(const str& dir)
 		
 		if(cmd == "Exit:")
 		{
+			bug(cmd << "(" << params << ")");
 			for(plugin_vec_iter i = events[EXIT].begin()
 				; i != events[EXIT].end(); ++i)
 				(*i)->exit(min, sec);
 		}
 		else if(cmd == "ShutdownGame:")
 		{
+			bug(cmd << "(" << params << ")");
 			for(plugin_vec_iter i = events[SHUTDOWN_GAME].begin()
 				; i != events[SHUTDOWN_GAME].end(); ++i)
 				(*i)->shutdown_game(min, sec);
 		}
 		else if(cmd == "Warmup:")
 		{
+			bug(cmd << "(" << params << ")");
 			for(plugin_vec_iter i = events[WARMUP].begin()
 				; i != events[WARMUP].end(); ++i)
 				(*i)->warmup(min, sec);
 		}
 		else if(cmd == "ClientUserinfoChanged:")
 		{
+			bug(cmd << "(" << params << ")");
 			siz num, team;
 			if(!(sgl(sgl(sgl(iss >> num, skip, '\\'), name, '\\'), skip, '\\') >> team))
-				std::cout << "Error parsing ClientUserinfoChanged: "  << line << '\n';
+				std::cout << "Error parsing ClientUserinfoChanged: "  << params << '\n';
 			else
 			{
 				siz pos = line.find("\\id\\");
@@ -492,10 +496,10 @@ bool Katina::start(const str& dir)
 		}
 		else if(cmd == "ClientConnect:")
 		{
-			bug(cmd);
+			bug(cmd << "(" << params << ")");
 			siz num;
 			if(!(iss >> num))
-				std::cout << "Error parsing ClientConnect: "  << line << '\n';
+				std::cout << "Error parsing ClientConnect: "  << params << '\n';
 			else
 			{
 				for(plugin_vec_iter i = events[CLIENT_CONNECT].begin()
@@ -505,10 +509,10 @@ bool Katina::start(const str& dir)
 		}
 		else if(cmd == "ClientDisconnect:")
 		{
-			bug(cmd);
+			bug(cmd << "(" << params << ")");
 			siz num;
 			if(!(iss >> num))
-				std::cout << "Error parsing ClientConnect: "  << line << '\n';
+				std::cout << "Error parsing ClientConnect: "  << params << '\n';
 			else
 			{
 				for(plugin_vec_iter i = events[CLIENT_DISCONNECT].begin()
@@ -518,11 +522,11 @@ bool Katina::start(const str& dir)
 		}
 		else if(cmd == "Kill:")
 		{
-			bug(cmd);
+			bug(cmd << "(" << params << ")");
 
 			siz num1, num2, weap;
 			if(!(iss >> num1 >> num2 >> weap))
-				log("Error parsing Kill:" << line);
+				log("Error parsing Kill:" << params);
 			else
 			{
 				for(plugin_vec_iter i = events[KILL].begin()
@@ -532,11 +536,11 @@ bool Katina::start(const str& dir)
 		}
 		else if(cmd == "CTF:")
 		{
-			bug(cmd);
+			bug(cmd << "(" << params << ")");
 
 			siz num, col, act;
 			if(!(iss >> num >> col >> act) || col < 1 || col > 2)
-				std::cout << "Error parsing CTF:" << '\n';
+				log("Error parsing CTF:" << params);
 			else
 			{
 				for(plugin_vec_iter i = events[CTF].begin()
@@ -546,9 +550,10 @@ bool Katina::start(const str& dir)
 		}
 		else if(cmd == "Award:")
 		{
+			bug(cmd << "(" << params << ")");
 			siz num, awd;
 			if(!(iss >> num >> awd))
-				std::cout << "Error parsing Award:" << '\n';
+				log("Error parsing Award:" << params);
 			else
 			{
 				for(plugin_vec_iter i = events[AWARD].begin()
@@ -558,7 +563,7 @@ bool Katina::start(const str& dir)
 		}
 		else if(cmd == "InitGame:")
 		{
-			bug(cmd);
+			bug(cmd << "(" << params << ")");
 
 			clients.clear();
 			players.clear();
@@ -584,6 +589,7 @@ bool Katina::start(const str& dir)
 		}
 		else if(cmd == "say:")
 		{
+			bug(cmd << "(" << params << ")");
 			str text;
 			GUID guid;
 
@@ -594,6 +600,7 @@ bool Katina::start(const str& dir)
 		}
 		else
 		{
+			bug("UNKNOWN: " << cmd << "(" << params << ")");
 			for(plugin_vec_iter i = events[UNKNOWN].begin()
 				; i != events[UNKNOWN].end(); ++i)
 				(*i)->unknown(min, sec, cmd, params);
