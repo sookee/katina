@@ -329,6 +329,8 @@ bool Katina::chat_to(const str& name, const str& text)
 bool Katina::start(const str& dir)
 {
 	config_dir = expand_env(dir);
+	
+	log("Setting config dir: " << dir);
 
 	std::ifstream ifs((config_dir + "/katina.conf").c_str());
 
@@ -386,6 +388,12 @@ bool Katina::start(const str& dir)
 			ofs << sexp;
 		}
 	}
+	
+	// initialize rcon
+	
+	server.config(get("rcon.host"), get<siz>("rcon.port"), get("rcon.pass"));
+		
+//	if(!server.command("status"))
 
 	// load plugins
 

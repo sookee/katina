@@ -71,6 +71,12 @@ public:
 		this->pass = pass;
 	}
 
+	bool command(const str& cmd)
+	{
+		str reply;
+		return command(cmd, reply);
+	}
+
 	bool command(const str& cmd, str& reply)
 	{
 		return rcon("rcon " + pass + " " + cmd, reply, host, port, 2000);
