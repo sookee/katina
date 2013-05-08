@@ -440,6 +440,7 @@ bool Katina::start(const str& dir)
 			continue;
 		}
 
+		iss.clear();
 		iss.str(params);
 		
 		lock_guard lock(cvarevts_mtx);
@@ -468,6 +469,9 @@ bool Katina::start(const str& dir)
 		else if(cmd == "ClientUserinfoChanged:")
 		{
 			bug(cmd << "(" << params << ")");
+			
+			// 0 n\Merman\t\2\model\merman\hmodel\merman\c1\1\c2\1\hc\70\w\0\l\0\skill\ 2.00\tt\0\tl\0\id\
+			
 			siz num, team;
 			if(!(sgl(sgl(sgl(iss >> num, skip, '\\'), name, '\\'), skip, '\\') >> team))
 				std::cout << "Error parsing ClientUserinfoChanged: "  << params << '\n';
