@@ -432,6 +432,8 @@ bool Katina::start(const str& dir)
 			continue;
 		}
 
+		iss.str(params);
+		
 		lock_guard lock(cvarevts_mtx);
 		
 		if(cmd == "Exit:")
