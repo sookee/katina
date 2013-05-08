@@ -101,7 +101,7 @@ public:
 	virtual bool ctf(siz min, siz sec, siz num, siz team, siz act);
 	virtual bool award(siz min, siz sec, siz num, siz awd);
 	virtual bool init_game(siz min, siz sec);
-	virtual bool say(siz min, siz sec, const GUID& guid, const str& text);
+//	virtual bool say(siz min, siz sec, const GUID& guid, const str& text);
 //	virtual bool unknown(siz min, siz sec, const str& cmd, const str& params);
 
 	virtual void close();
