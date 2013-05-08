@@ -57,6 +57,7 @@ const str tag = "dev";
 	pthread_exit(0);
 }
  */
+ 
 void* cvarpoll(void* vp)
 {
 	Katina& katina = *reinterpret_cast<Katina*>(vp);
@@ -92,11 +93,16 @@ void* cvarpoll(void* vp)
 		
 		mi->second->get(old_value);
 		
-		if(!katina.rconset(mi->first, value))
-			katina.rconset(mi->first, value); // one retry
+		bug("cvar: " << mi->first);
+			
+		if(!katina.rconset(katina.prefix + mi->first, value))
+			katina.rconset(katina.prefix + mi->first, value); // one retry
 
 		if(value != old_value) // changed
+		{
+			log("INFO: cvar: " << (katina.prefix + mi->first) << " changing value: " << value);
 			mi->second->set(value);
+		}
 		
 		++mi;
 	}
@@ -108,7 +114,6 @@ Katina::Katina()
 , active(true) // TODO: make this false
 {
 	pthread_mutex_init(&cvarevts_mtx, 0);
-	pthread_create(&cvarevts_thread, 0, &cvarpoll, (void*) this);
 }
 
 Katina::~Katina()
@@ -410,9 +415,12 @@ bool Katina::start(const str& dir)
 
 	str_vec pluginfiles = get_vec("plugin");
 	for(siz i = 0; i < pluginfiles.size(); ++i)
-	{
 		load_plugin(pluginfiles[i]);
-	}
+
+	prefix = get("rcon.cvar.prefix");
+	if(!prefix.empty())
+		prefix += "_";
+	pthread_create(&cvarevts_thread, 0, &cvarpoll, (void*) this);
 	
 	std::ios::openmode mode = std::ios::in|std::ios::ate;
 

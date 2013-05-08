@@ -57,7 +57,7 @@ str get_stamp()
 #define con(m) do{std::cout << m << std::endl;}while(false)
 #define log(m) do{std::cout << oastats::log::get_stamp() << ": " << m << std::endl;}while(false)
 #else
-#define bug(m) do{std::cout << m << std::endl;}while(false)
+#define bug(m) do{std::cout << "BUG: " << m << " [" << __FILE__ << "]" << " (" << __LINE__ << ")" << std::endl;}while(false)
 #define QUOTE(s) #s
 #define bug_var(v) bug(QUOTE(v:) << std::boolalpha << " " << v)
 struct _

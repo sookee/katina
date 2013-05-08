@@ -146,6 +146,7 @@ private:
 	pthread_t cvarevts_thread;
 	pthread_mutex_t cvarevts_mtx;
 
+	str prefix;
 	cvarevt_lst cvarevts;
 	property_map props;
 
