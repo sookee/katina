@@ -89,16 +89,17 @@ void* cvarpoll(void* vp)
 			continue;
 		}
 		
-		str value;
-		str old_value;
-		
-		mi->second->get(old_value);
-		
 		bug("cvar: " << mi->first);
+
+		str old_value;		
+		mi->second->get(old_value);		
+		bug("old: " << old_value);
 			
+		str value;
 		if(!katina.rconset(katina.prefix + mi->first, value))
 			katina.rconset(katina.prefix + mi->first, value); // one retry
-
+		bug("new: " << old_value);
+		
 		if(value != old_value) // changed
 		{
 			log("INFO: cvar: " << (katina.prefix + mi->first) << " changing value: " << value);
