@@ -118,6 +118,31 @@ bool KatinaPluginReports::open()
 	
 	client->chat('*', "^3Stats Reporting System v^7" + get_version() + " - ^1ONLINE");
 
+	katina.add_var_event(this, "example_active", active);
+	katina.add_var_event(this, "report_active", active);
+	katina.add_var_event(this, "report_flags", do_flags);
+	katina.add_var_event(this, "report_flags_hud", do_flags_hud);
+	katina.add_var_event(this, "report_chats", do_chats);
+	katina.add_var_event(this, "report_kills", do_kills);
+	katina.add_var_event(this, "report_infos", do_infos);
+	katina.add_var_event(this, "report_stats", do_stats);
+	katina.add_var_event(this, "report_stats_cols", stats_cols);
+	katina.add_var_event(this, "report_spamkill", spamkill);
+	katina.add_var_event(this, "report_spam_limit", spam_limit);
+
+	katina.add_log_event(this, EXIT);
+	katina.add_log_event(this, SHUTDOWN_GAME);
+	katina.add_log_event(this, WARMUP);
+	katina.add_log_event(this, CLIENT_USERINFO_CHANGED);
+	katina.add_log_event(this, CLIENT_CONNECT);
+	katina.add_log_event(this, CLIENT_DISCONNECT);
+	katina.add_log_event(this, KILL);
+	katina.add_log_event(this, CTF);
+	katina.add_log_event(this, AWARD);
+	katina.add_log_event(this, INIT_GAME);
+	katina.add_log_event(this, SAY);
+
+	
 	return true;
 }
 
@@ -205,12 +230,22 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 		siz rkh = 0;
 		siz rch = 0;
 		str kd, cd, kh, ch;
-		if(!d)
+		if(!d | !h)
 		{
-			if(k)
-				kd = "perf ";
-			if(c)
-				cd = "perf  ";
+			if(!d)
+			{
+				if(k)
+					kd = "perf ";
+				if(c)
+					cd = "perf  ";
+			}
+			if(!h)
+			{
+				if(k)
+					kh = "inf";
+				if(c)
+					ch = "inf";
+			}
 		}
 		else
 		{

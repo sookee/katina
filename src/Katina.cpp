@@ -378,7 +378,7 @@ bool Katina::start(const str& dir)
 	// load pki
 
 	str keypair_file = get("pki.keypair", "keypair.pki");
-	str pkey_file = get("pki.pkey", "pkey.pki");
+	str pkey_file = get("pki.pkeys", "pkeys.pki");
 
 	if(!pki.load_keypair(config_dir + "/" + keypair_file))
 	{
@@ -397,12 +397,16 @@ bool Katina::start(const str& dir)
 			std::ofstream ofs((config_dir + "/" + keypair_file).c_str());
 			ofs << sexp;
 		}
+		
 		if(pki.get_public_key_as_text(sexp))
 		{
 			std::ofstream ofs((config_dir + "/" + pkey_file).c_str());
 			ofs << sexp;
 		}
 	}
+	
+	std::ifstream ifs((config_dir + "/" + pkey_file).c_str());
+	while(pki.read_public_key(, ifs)) {}
 	
 	// initialize rcon
 	
@@ -442,7 +446,7 @@ bool Katina::start(const str& dir)
 
 	std::ios::streampos gpos = is.tellg();
 	
-	// Sometimes the ClientUserinfoChanged messahe is split over
+	// Sometimes the ClientUserinfoChanged message is split over
 	// two lines. This is a fudge to compensate for that
 	struct client_userinfo_bug_t
 	{

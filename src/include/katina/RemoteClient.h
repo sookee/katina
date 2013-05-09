@@ -82,7 +82,7 @@ class PKIClient
 {
 	net::socketstream ss;
 	bool connected;
-	
+/*	
 	struct session
 	{
 		str key;
@@ -95,12 +95,14 @@ class PKIClient
 	typedef std::map<str, session> session_map;
 	typedef session_map::iterator session_map_iter;
 	typedef session_map::const_iterator session_map_citer;
-
+*/
 	str host;
 	siz port;
 	str key, sig;
+	
+	str ref; // session ref
 
-	session_map sessions;
+	//session_map sessions;
 	
 public:
 	PKIClient(Katina& katina): RemoteClient(katina), connected(false), port(0) {}

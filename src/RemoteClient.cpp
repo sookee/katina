@@ -125,6 +125,11 @@ bool PKIClient::send(const str& cmd, str& res)
 		}
 		
 		sessions[ref] = session(key, sig);
+		connected = true;
+	}
+	
+	if(connected)
+	{
 	}
 	
 	(ss << cmd).put('\0') << std::flush;
