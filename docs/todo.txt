@@ -1,5 +1,8 @@
 
 
+1v1-winner stays
+
+
 
 team stats - red verses blue
 
@@ -27,4 +30,15 @@ team stats - red verses blue
 }
 
 
+
+## PKI comms
+
+c: request(pkey)
+s: respond(signed(encrypt(pkey, token1))) // accept connection
+
+c: report(signed(token1))
+s: respond(signed(encrypt(pkey, token2)))
+
+c: ping(signed(token2))
+s: respond(signed(encrypt(pkey, token3)))
 

@@ -73,7 +73,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <katina/str.h>
 #include <katina/rcon.h>
 #include <katina/time.h>
-#include <katina/RemoteClient.h>
+#include <katina/RemoteClient_v0_x.h>
 #include <katina/Database.h>
 #include <katina/GUID.h>
 

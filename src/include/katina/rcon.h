@@ -56,13 +56,15 @@ bool rcon(const str& cmd, str& reply, const str& host, int port, siz wait = TIME
 class RCon
 {
 private:
+	bool active;
+	
 	str host;
 	siz port;
 	str pass;
 
 public:
-	RCon() {}
-	RCon(const str& host, siz port, const str& pass): host(host), port(port), pass(pass) {}
+	RCon(): active(false) {}
+	RCon(const str& host, siz port, const str& pass): active(false), host(host), port(port), pass(pass) {}
 
 	void config(const str& host, siz port, const str& pass)
 	{
@@ -71,13 +73,28 @@ public:
 		this->pass = pass;
 	}
 
+	void on() { active = true; }
+	void off() { active = false; }
+	
+	bool command(const str& cmd)
+	{
+		if(!active)
+			return true;
+		str reply;
+		return command(cmd, reply);
+	}
+
 	bool command(const str& cmd, str& reply)
 	{
+		if(!active)
+			return true;
 		return rcon("rcon " + pass + " " + cmd, reply, host, port, 2000);
 	}
 
 	str chat(const str& msg) const
 	{
+		if(!active)
+			return "";
 		str ret;
 		rcon("rcon " + pass + " chat ^1K^7at^3i^7na^8: ^7" + msg, ret, host, port);
 		return ret;
@@ -85,11 +102,27 @@ public:
 
 	void cp(const str& msg) const
 	{
+		if(!active)
+			return;
 		str ret;
 		rcon("rcon " + pass + " cp " + msg, ret, host, port);
 	}
-};
+	
+	bool s_chat(const str& msg) const
+	{
+		if(!active)
+			return true;
+		str ret;
+		return s_chat(msg, ret);
+	}
 
+	bool s_chat(const str& msg, str& ret) const
+	{
+		if(!active)
+			return true;
+		return rcon("rcon " + pass + " chat ^1K^7at^3i^7na^8: ^7" + msg, ret, host, port);
+	}
+};
 }} // oastats::net
 
 #endif /* _OASTATS_RCON_H_ */

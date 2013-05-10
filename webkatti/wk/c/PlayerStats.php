@@ -60,31 +60,24 @@ class PlayerStats extends \afw\c\Controller
                 $player['tk']   = empty($player['kills']) ? null : $player['time'] / $player['kills'];
                 $player['ct']   = $player['caps'] / ($player['time'] / 3600);
 
-                if (empty($player['kd']))
-                {
-                    $player['kdcd'] = $player['cd'] * 0.001;
-                }
-                else if (empty($player['cd']))
-                {
-                    $player['kdcd'] = $player['kd'] * 0.001;
-                }
-                else
-                {
-                    $player['kdcd'] = $player['kd'] * $player['cd'];
-                }
+                $player['kcd']  = sqrt($player['kills'] * $player['caps']) / $player['deaths'];
+                $player['kct']  = sqrt($player['kills'] * $player['caps']) / ($player['time'] / 3600);
+                $player['kcdt'] = ($player['kills'] * $player['caps']) / ($player['deaths'] * ($player['time'] / 3600));
             }
             unset($player);
 
             uasort($this->players, function($a, $b)
             {
-                return ($b['kdcd'] - $a['kdcd']) * 1000000;
+                return ($b['kcdt'] - $a['kcdt']) * 10000;
             });
 
             foreach ($this->players as &$player)
             {
-                $player['kd']   = round($player['kd'] * 100)    ? : '';
-                $player['cd']   = round($player['cd'] * 100)    ? : '';
-                $player['kdcd'] = round($player['kdcd'] * 100)  ? : '';
+                $player['kd']   = round($player['kd']  * 100) ? : '';
+                $player['cd']   = round($player['cd']  * 100) ? : '';
+                $player['kcd']  = round($player['kcd'] * 100) ? : '';
+                $player['kct']  = round($player['kct']      ) ? : '';
+                $player['kcdt'] = round($player['kcdt']     ) ? : '';
 
                 $player['time'] = \wk\Utils::formatTimeHMS($player['time']);
                 $player['tk']   = sprintf('%.1f', $player['tk']) ? : '';

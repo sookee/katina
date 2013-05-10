@@ -36,6 +36,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <string>
 #include <wordexp.h>
 #include <dirent.h>
+#include <pthread.h>
 
 // STACK TRACE
 #include <cstdio>
@@ -117,6 +118,15 @@ bool ls(const str& folder, str_vec &files)
 
 	return true;
 }
+
+class lock_guard
+{
+	pthread_mutex_t& mtx;
+	
+public:
+	lock_guard(pthread_mutex_t& mtx): mtx(mtx) { pthread_mutex_lock(&mtx); }
+	~lock_guard() { pthread_mutex_unlock(&mtx); }
+};
 
 }} // oastats::utils
 

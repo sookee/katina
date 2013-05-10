@@ -124,7 +124,7 @@ bool rcon(const str& cmd, str& reply, const str& host, int port, siz wait)
 
 	if(packets.empty())
 	{
-		log("ron: Empty response.");
+		log("rcon: Empty response.");
 		return false;
 	}
 
@@ -133,7 +133,7 @@ bool rcon(const str& cmd, str& reply, const str& host, int port, siz wait)
 	{
 		if(packet->find(header) != 0)
 		{
-			log("ron: Unrecognised response.");
+			log("rcon: Unrecognised response.");
 			return false;
 		}
 

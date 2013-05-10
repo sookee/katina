@@ -1,35 +1,31 @@
 #pragma once
-#ifndef _OASTATS_KATINA_PLUGIN_EXAMPLE_H
-#define	_OASTATS_KATINA_PLUGIN_EXAMPLE_H
+#ifndef _OASTATS_KATINA_PLUGIN_WINNER_STAYS_ON_H
+#define	_OASTATS_KATINA_PLUGIN_WINNER_STAYS_ON_H
 /*
- * File:   KatinaPluginStats.h
+ * File:   WinnerStaysOn.h
  * Author: SooKee oasookee@gmail.com
  *
- * Created on April 27, 2013, 10:02 AM
+ * Created on May 06, 2013
  */
 
-#include <map>
 #include <utility>
+#include <deque>
 
 #include <katina/Katina.h>
 #include <katina/KatinaPlugin.h>
 
-#include <katina/Database.h>
 #include <katina/GUID.h>
 
 #include <katina/types.h>
 #include <katina/log.h>
 
-#include <pthread.h>
-
 namespace katina { namespace plugin {
 
 using namespace oastats;
 using namespace oastats::log;
-using namespace oastats::data;
 using namespace oastats::types;
 
-class KatinaPluginExample
+class WinnerStaysOn
 : public KatinaPlugin
 {
 private:
@@ -38,10 +34,25 @@ private:
 	guid_str_map& players; // GUID -> name
 	guid_siz_map& teams; // GUID -> 'R' | 'B'
 	
-	bool active;
+	typedef siz slot;
+	typedef std::deque<slot> slot_deq;
+	typedef slot_deq::iteratr slot_deq_iter;
+	typedef slot_deq::const_iteratr slot_deq_citer;
+	
+	KatinaPluginStats* stats;
+	
+	slot winner;
+	slot_deq q;
 
 public:
-	KatinaPluginExample(Katina& katina);
+	WinnerStaysOn(Katina& katina)
+	: KatinaPlugin(katina)
+	, mapname(katina.mapname)
+	, clients(katina.clients)
+	, players(katina.players)
+	, teams(katina.teams)
+	{
+	}
 
 	// INTERFACE: KatinaPlugin
 
@@ -51,8 +62,6 @@ public:
 	virtual str get_name() const;
 	virtual str get_version() const;
 
-	//virtual void cvar_event(const str& name, const str& value);
-	
 	virtual bool exit(siz min, siz sec);
 	virtual bool shutdown_game(siz min, siz sec);
 	virtual bool warmup(siz min, siz sec);
@@ -71,5 +80,5 @@ public:
 
 }} // katina::plugin
 
-#endif // _OASTATS_KATINA_PLUGIN_EXAMPLE_H
+#endif // _OASTATS_KATINA_PLUGIN_WINNER_STAYS_ON_H
 

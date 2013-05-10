@@ -5,8 +5,8 @@
  * Created on May 1, 2013, 6:23 PM
  */
 
-#include <iosfwd>
 #include <dlfcn.h>
+#include <cassert>
 
 #include <katina/Katina.h>
 #include <katina/KatinaPlugin.h>
@@ -32,10 +32,144 @@ using namespace oastats::string;
 const str version = "1.0";
 const str tag = "dev";
 
+/* void* cvarpoll(void* vp)
+{
+	Katina& katina = *reinterpret_cast<Katina*>(vp);
+	cvarevt_lst& cvarevts = katina.cvarevts;
+	cvarevt_lst_iter cvar = cvarevts.begin();
+	
+	while(!katina.done)
+	{
+		thread_sleep_millis(3000);
+
+		str value = cvar->value;
+		if(!katina.rconset(cvar->name, cvar->value))
+			katina.rconset(cvar->name, cvar->value); // one retry
+
+		if(value != cvar->value) // changed
+			cvar->plugin->cvar_event(cvar->name, cvar->value);
+		
+		pthread_mutex_lock(&katina.cvarevts_mtx);
+		if(++cvar == cvarevts.end())
+			cvar = cvarevts.begin();
+		pthread_mutex_unlock(&katina.cvarevts_mtx);
+	}
+	pthread_exit(0);
+}
+ */
+ 
+void* cvarpoll(void* vp)
+{
+	Katina& katina = *reinterpret_cast<Katina*>(vp);
+	cvar_map_map& cvars = katina.cvars;
+	
+	cvar_map_iter mi;
+	cvar_map_map_iter mmi = cvars.end();
+	
+	while(!katina.done)
+	{
+		thread_sleep_millis(3000);
+
+		lock_guard lock(katina.cvarevts_mtx);
+		
+		if(mmi == cvars.end())
+		{
+			mmi = cvars.begin();
+			if(mmi != cvars.end())
+				mi = mmi->second.begin();
+		}
+		
+		if(mmi == cvars.end())
+			continue;
+		
+		if(mi == mmi->second.end())
+		{
+			++mmi;
+			mi = mmi->second.begin();
+			continue;
+		}
+		
+		//bug("cvar: " << mi->first);
+
+		str old_value;		
+		mi->second->get(old_value);		
+		//bug("old: " << old_value);
+			
+		str value;
+		if(katina.rconset(katina.prefix + mi->first, value))
+			mi->second->set(value);
+		else if(katina.rconset(katina.prefix + mi->first, value)) // one retry
+			mi->second->set(value);
+		
+		mi->second->get(value);
+		if(value != old_value) // changed
+			log("INFO: cvar: " << (katina.prefix + mi->first) << " changing value: " << value);
+		
+		++mi;
+	}
+	pthread_exit(0);
+}
+
 Katina::Katina()
 : done(false)
 , active(true) // TODO: make this false
 {
+	pthread_mutex_init(&cvarevts_mtx, 0);
+}
+
+Katina::~Katina()
+{
+	done = true;
+	pthread_join(cvarevts_thread, 0);
+}
+/*
+void Katina::add_var_event(KatinaPlugin* plugin, const str& name, const str& value)
+{
+	cvarevt e;
+	e.name = name;
+	e.value = value;
+	e.plugin = plugin;
+	
+	pthread_mutex_lock(&cvarevts_mtx);
+	if(std::find(cvarevts.begin(), cvarevts.end(), e) == cvarevts.end())
+		cvarevts.push_back(e);
+	pthread_mutex_unlock(&cvarevts_mtx);
+}
+*/
+bool Katina::rconset(const str& cvar, str& val)
+{
+	str response;
+	if(!server.command(cvar, response))
+	{
+		log("WARN: rconset failure: " << cvar);
+		return false;
+	}
+
+	// Possible responses:
+	// -> unknown command: <var>
+	// -> "<var>" is:"<val>^7", the default
+	// -> "katina_skivvy_chans" is:"#katina-test(c) #katina(c)^7" default:"#katina-test(c)^7"
+
+	str sval;
+
+	trim(response);
+	
+	if(response.empty())
+		return false;
+	
+	if(response.find("unknown command:"))
+	{
+		str skip;
+		siss iss(response);
+		if(!std::getline(std::getline(iss, skip, ':').ignore(), sval, '^'))
+		{
+			log("ERROR: parsing rconset response: " << response);
+			return false;
+		}
+	}
+
+	val = sval;
+	return true;
 }
 
 GUID Katina::guid_from_name(const str& name)
@@ -83,11 +217,15 @@ bool Katina::load_plugin(const str& file)
 		return false;
 	}
 
+	log("PLUGIN OPEN:");
+
 	if(!(*(void**)&katina_plugin_factory = dlsym(dl, "katina_plugin_factory")))
 	{
 		log("PLUGIN LOAD: " << dlerror());
 		return false;
 	}
+
+	log("PLUGIN CREATE:");
 
 	if(!(plugin = katina_plugin_factory(*this)))
 	{
@@ -188,13 +326,32 @@ KatinaPlugin* Katina::get_plugin(const str& id, const str& version)
 	return i->second;
 }
 
-bool Katina::start(const str& config)
+bool Katina::chat_to(siz num, const str& text)
 {
-	std::ifstream ifs((expand_env(config) + "/katina.conf").c_str());
+	return chat_to(clients[num], text);
+}
+
+bool Katina::chat_to(const GUID& guid, const str& text)
+{
+	return chat_to(players[guid], text);
+}
+
+bool Katina::chat_to(const str& name, const str& text)
+{
+	return server.s_chat(name + "^2 " + text);
+}
+
+bool Katina::start(const str& dir)
+{
+	config_dir = expand_env(dir);
+	
+	log("Setting config dir: " << dir);
+
+	std::ifstream ifs((config_dir + "/katina.conf").c_str());
 
 	// working variables
 	char c;
-	siz m, s;
+	siz min, sec;
 	str skip, name, cmd;
 	siss iss;
 	siz pos;
@@ -218,15 +375,62 @@ bool Katina::start(const str& config)
 	}
 	ifs.close();
 
+	// load pki
+
+	str keypair_file = get("pki.keypair", "keypair.pki");
+	str pkey_file = get("pki.pkey", "pkey.pki");
+
+	if(!pki.load_keypair(config_dir + "/" + keypair_file))
+	{
+		log("WARNING: Unable to load keypair: " << keypair_file);
+		log("       : Creating a new one");
+
+		if(!pki.generate_keypair(128))
+		{
+			log("FATAL: Unable to generate keypair");
+			return false;
+		}
+
+		str sexp;
+		if(pki.get_keypair_as_text(sexp))
+		{
+			std::ofstream ofs((config_dir + "/" + keypair_file).c_str());
+			ofs << sexp;
+		}
+		if(pki.get_public_key_as_text(sexp))
+		{
+			std::ofstream ofs((config_dir + "/" + pkey_file).c_str());
+			ofs << sexp;
+		}
+	}
+	
+	// initialize rcon
+	
+	server.config(get("rcon.host"), get<siz>("rcon.port"), get("rcon.pass"));
+	
+	if(get("rcon.active") == "true")
+		server.on();
+//	if(!server.command("status"))
+
 	// load plugins
 
 	str_vec pluginfiles = get_vec("plugin");
 	for(siz i = 0; i < pluginfiles.size(); ++i)
-	{
 		load_plugin(pluginfiles[i]);
-	}
 
-	ifs.open(get("logfile").c_str(), std::ios::ate);
+	prefix = get("rcon.cvar.prefix");
+	if(!prefix.empty())
+		prefix += "_";
+	pthread_create(&cvarevts_thread, 0, &cvarpoll, (void*) this);
+	
+	std::ios::openmode mode = std::ios::in|std::ios::ate;
+
+	bool rerun = get("run.mode") == "rerun";
+	
+	if(rerun)
+		mode = std::ios::in;
+
+	ifs.open(get("logfile").c_str(), mode);
 
 	if(!ifs.is_open())
 	{
@@ -237,11 +441,34 @@ bool Katina::start(const str& config)
 	std::istream& is = ifs;
 
 	std::ios::streampos gpos = is.tellg();
+	
+	// Sometimes the ClientUserinfoChanged messahe is split over
+	// two lines. This is a fudge to compensate for that
+	struct client_userinfo_bug_t
+	{
+		bool active;
+		siz num, team;
+		str name;
+		client_userinfo_bug_t(): active(false), num(0), team(0) {}
+		void set(bool state) { active = state; }
+		void set(siz num, const str& name, siz team)
+		{
+			this->num = num;
+			this->name = name;
+			this->team = team;
+			set(true);
+		}
+		operator bool() { return active; }
+	} client_userinfo_bug;
 
+	client_userinfo_bug.set(false);
+	
 	while(!done)
 	{
 		if(!std::getline(is, line) || is.eof())
 		{
+			if(rerun)
+				done = true;
 			thread_sleep_millis(100);
 			is.clear();
 			is.seekg(gpos);
@@ -255,118 +482,169 @@ bool Katina::start(const str& config)
 
 		iss.clear();
 		iss.str(line);
-		iss >> m >> c >> s >> cmd;
 
+		str params;
+		if(!sgl(iss >> min >> c >> sec >> cmd >> std::ws, params))
+		{
+			if(client_userinfo_bug)
+			{
+				log("WANING: possible ClientUserinfoChanged bug");
+				// \c2\ \hc\100\w\0\l\0\tt\0\tl\0\id\041BD1732752BCC408FAF45616A8F64B
+				siz pos;
+				if((pos = line.find("\\id\\")) == str::npos)
+				{
+					log("ERROR: parsing logfile: " << line);
+					continue;
+				}
+				else
+				{
+					log("ALERT: ClientUserinfoChanged bug detected");
+					// 2 n\^1S^2oo^3K^5ee\t\3\mo
+					cmd = "ClientUserinfoChanged:";
+					soss oss;
+					oss << client_userinfo_bug.num;
+					oss << " n\\" << client_userinfo_bug.name;
+					oss << "\\t\\" << client_userinfo_bug.team;
+					oss << line;
+					params = oss.str();
+					log("     : cmd   : " << cmd);
+					log("     : params: " << params);
+				}
+			}			
+		}
+		
+		client_userinfo_bug.set(false);
+
+		iss.clear();
+		iss.str(params);
+		
+		lock_guard lock(cvarevts_mtx);
+		
 		if(cmd == "Exit:")
 		{
-			for(plugin_map_iter i = plugins.begin(); i != plugins.end(); ++i)
-				i->second->exit();
+			bug(cmd << "(" << params << ")");
+			for(plugin_vec_iter i = events[EXIT].begin()
+				; i != events[EXIT].end(); ++i)
+				(*i)->exit(min, sec);
 		}
 		else if(cmd == "ShutdownGame:")
 		{
-			for(plugin_map_iter i = plugins.begin(); i != plugins.end(); ++i)
-				i->second->shutdown_game();
+			bug(cmd << "(" << params << ")");
+			for(plugin_vec_iter i = events[SHUTDOWN_GAME].begin()
+				; i != events[SHUTDOWN_GAME].end(); ++i)
+				(*i)->shutdown_game(min, sec);
 		}
 		else if(cmd == "Warmup:")
 		{
-			for(plugin_map_iter i = plugins.begin(); i != plugins.end(); ++i)
-				i->second->warmup();
+			bug(cmd << "(" << params << ")");
+			for(plugin_vec_iter i = events[WARMUP].begin()
+				; i != events[WARMUP].end(); ++i)
+				(*i)->warmup(min, sec);
 		}
 		else if(cmd == "ClientUserinfoChanged:")
 		{
+			bug(cmd << "(" << params << ")");
+			
+			// 0 n\Merman\t\2\model\merman\hmodel\merman\c1\1\c2\1\hc\70\w\0\l\0\skill\ 2.00\tt\0\tl\0\id\
+			// 2 \n\^1S^2oo^3K^5ee\t\3\c2\d\hc\100\w\0\l\0\tt\0\tl\0\id\041BD1732752BCC408FAF45616A8F64B
 			siz num, team;
 			if(!(sgl(sgl(sgl(iss >> num, skip, '\\'), name, '\\'), skip, '\\') >> team))
+				std::cout << "Error parsing ClientUserinfoChanged: "  << params << '\n';
+			else
 			{
-				std::cout << "Error parsing ClientUserinfoChanged: "  << line << '\n';
-				continue;
-			}
-
-			siz pos = line.find("\\id\\");
-			if(pos != str::npos)
-			{
-				str id = line.substr(pos + 4, 32);
-				GUID guid;
-
-				if(id.size() != 32)
-					guid = bot_guid(num);//null_guid;
+				siz pos = line.find("\\id\\");
+				if(pos == str::npos)
+					client_userinfo_bug.set(num, name, team);
 				else
-					guid = to<GUID>(id.substr(24));
-
-				clients[num] = guid;
-				teams[clients[num]] = team; // 1 = red, 2 = blue, 3 = spec
-				players[clients[num]] = name;
-
-				for(plugin_map_iter i = plugins.begin(); i != plugins.end(); ++i)
-					i->second->client_userinfo_changed(num, team, guid, name);
+				{
+					str id = line.substr(pos + 4, 32);
+					GUID guid;
+	
+					if(id.size() != 32)
+						guid = bot_guid(num);//null_guid;
+					else
+						guid = to<GUID>(id.substr(24));
+	
+					clients[num] = guid;
+					teams[clients[num]] = team; // 1 = red, 2 = blue, 3 = spec
+					players[clients[num]] = name;
+	
+					for(plugin_vec_iter i = events[CLIENT_USERINFO_CHANGED].begin()
+						; i != events[CLIENT_USERINFO_CHANGED].end(); ++i)
+						(*i)->client_userinfo_changed(min, sec, num, team, guid, name);
+				}
 			}
 		}
 		else if(cmd == "ClientConnect:")
 		{
-			bug(cmd);
+			bug(cmd << "(" << params << ")");
 			siz num;
 			if(!(iss >> num))
+				std::cout << "Error parsing ClientConnect: "  << params << '\n';
+			else
 			{
-				std::cout << "Error parsing ClientConnect: "  << line << '\n';
-				continue;
+				for(plugin_vec_iter i = events[CLIENT_CONNECT].begin()
+					; i != events[CLIENT_CONNECT].end(); ++i)
+					(*i)->client_connect(min, sec, num);
 			}
-			for(plugin_map_iter i = plugins.begin(); i != plugins.end(); ++i)
-				i->second->client_connect(num);
 		}
 		else if(cmd == "ClientDisconnect:")
 		{
-			bug(cmd);
+			bug(cmd << "(" << params << ")");
 			siz num;
 			if(!(iss >> num))
+				std::cout << "Error parsing ClientConnect: "  << params << '\n';
+			else
 			{
-				std::cout << "Error parsing ClientConnect: "  << line << '\n';
-				continue;
+				for(plugin_vec_iter i = events[CLIENT_DISCONNECT].begin()
+					; i != events[CLIENT_DISCONNECT].end(); ++i)
+					(*i)->client_disconnect(min, sec, num);
 			}
-			for(plugin_map_iter i = plugins.begin(); i != plugins.end(); ++i)
-				i->second->client_disconnect(num);
 		}
 		else if(cmd == "Kill:")
 		{
-			bug(cmd);
+			bug(cmd << "(" << params << ")");
 
 			siz num1, num2, weap;
 			if(!(iss >> num1 >> num2 >> weap))
+				log("Error parsing Kill:" << params);
+			else
 			{
-				log("Error parsing Kill:" << line);
-				continue;
+				for(plugin_vec_iter i = events[KILL].begin()
+					; i != events[KILL].end(); ++i)
+					(*i)->kill(min, sec, num1, num2, weap);
 			}
-
-			for(plugin_map_iter i = plugins.begin(); i != plugins.end(); ++i)
-				i->second->kill(num1, num2, weap);
 		}
 		else if(cmd == "CTF:")
 		{
-			bug(cmd);
+			bug(cmd << "(" << params << ")");
 
 			siz num, col, act;
 			if(!(iss >> num >> col >> act) || col < 1 || col > 2)
+				log("Error parsing CTF:" << params);
+			else
 			{
-				std::cout << "Error parsing CTF:" << '\n';
-				continue;
+				for(plugin_vec_iter i = events[CTF].begin()
+					; i != events[CTF].end(); ++i)
+					(*i)->ctf(min, sec, num, col, act);
 			}
-
-			for(plugin_map_iter i = plugins.begin(); i != plugins.end(); ++i)
-				i->second->ctf(num, col, act);
 		}
 		else if(cmd == "Award:")
 		{
+			bug(cmd << "(" << params << ")");
 			siz num, awd;
 			if(!(iss >> num >> awd))
+				log("Error parsing Award:" << params);
+			else
 			{
-				std::cout << "Error parsing Award:" << '\n';
-				continue;
+				for(plugin_vec_iter i = events[AWARD].begin()
+					; i != events[AWARD].end(); ++i)
+					(*i)->award(min, sec, num, awd);
 			}
-
-			for(plugin_map_iter i = plugins.begin(); i != plugins.end(); ++i)
-				i->second->award(num, awd);
 		}
 		else if(cmd == "InitGame:")
 		{
-			bug(cmd);
+			bug(cmd << "(" << params << ")");
 
 			clients.clear();
 			players.clear();
@@ -378,34 +656,64 @@ bool Katina::start(const str& config)
 			siz pos;
 			if((pos = line.find("mapname\\")) != str::npos)
 			{
-				mapname.clear();
+				mapname = "unknown";
 				std::istringstream iss(line.substr(pos + 8));
 				if(!std::getline(iss, mapname, '\\'))
-				{
 					std::cout << "Error parsing mapname\\" << '\n';
-					continue;
-				}
 				lower(mapname);
 			}
 			log("MAP NAME: " << mapname);
 
-			for(plugin_map_iter i = plugins.begin(); i != plugins.end(); ++i)
-				i->second->init_game();
+			for(plugin_vec_iter i = events[INIT_GAME].begin()
+				; i != events[INIT_GAME].end(); ++i)
+				(*i)->init_game(min, sec);
+		}
+		else if(cmd == "ClientBegin:")
+		{
+		}
+		else if(cmd == "Playerstore:")
+		{
+		}
+		else if(cmd == "Restored")
+		{
+		}
+		else if(cmd == "PlayerScore:")
+		{
+		}
+		else if(cmd == "Challenge:")
+		{
+		}
+		else if(cmd == "Info:")
+		{
+		}
+		else if(cmd == "Item:")
+		{
+		}
+		else if(cmd == "score:")
+		{
+		}
+		else if(cmd == "sayteam:")
+		{
 		}
 		else if(cmd == "say:")
 		{
+			bug(cmd << "(" << params << ")");
 			str text;
 			GUID guid;
 
 			if(extract_name_from_text(line, guid, text))
-				for(plugin_map_iter i = plugins.begin(); i != plugins.end(); ++i)
-					i->second->say(guid, text);
+				for(plugin_vec_iter i = events[SAY].begin()
+					; i != events[SAY].end(); ++i)
+					(*i)->say(min, sec, guid, text);
 		}
 		else
 		{
-			for(plugin_map_iter i = plugins.begin(); i != plugins.end(); ++i)
-				i->second->unknown(line);
+			bug("UNKNOWN: " << cmd << "(" << params << ")");
+			for(plugin_vec_iter i = events[UNKNOWN].begin()
+				; i != events[UNKNOWN].end(); ++i)
+				(*i)->unknown(min, sec, cmd, params);
 		}
+		//pthread_mutex_unlock(&cvarevts_mtx);
 	}
 	return true;
 }

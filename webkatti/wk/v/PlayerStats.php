@@ -6,12 +6,14 @@
             <th>H:M:S</th>
             <th>Respawns</th>
             <th>Frags</th>
-            <th>S / F</th>
             <th>F / R %</th>
+            <th>S / F</th>
             <th>Caps</th>
-            <th>C / H</th>
             <th>C / R %</th>
-            <th>F / R * C / R %</th>
+            <th>C / H</th>
+            <th title="√ (Frags * Caps) / Respawns %">Agility</th>
+            <th title="√ (Frags * Caps) / Hours">Speed</th>
+            <th title="(Frags * Caps) / (Respawns * Hours)">Power</th>
         </tr>
     </thead>
     <tbody>
@@ -21,12 +23,14 @@
                 <td class="right"><?= $player['time'] ?></td>
                 <td class="right"><?= $player['deaths'] ?></td>
                 <td class="right"><?= $player['kills'] ?></td>
-                <td class="right"><?= $player['tk'] ?></td>
                 <td class="right"><?= $player['kd'] ?></td>
+                <td class="right"><?= $player['tk'] ?></td>
                 <td class="right"><?= $player['caps'] ?></td>
-                <td class="right"><?= $player['ct'] ?></td>
                 <td class="right"><?= $player['cd'] ?></td>
-                <td class="right"><?= $player['kdcd'] ?></td>
+                <td class="right"><?= $player['ct'] ?></td>
+                <td class="right"><?= $player['kcd'] ?></td>
+                <td class="right"><?= $player['kct'] ?></td>
+                <td class="right"><?= $player['kcdt'] ?></td>
             </tr>
         <?php endforeach ?>
     </tbody>
