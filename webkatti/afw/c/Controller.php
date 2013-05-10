@@ -41,9 +41,9 @@ class Controller
 
 
 
-	function setTemplate($class_or_method)
+	function setView($class_or_method)
 	{
-		$this->setTemplateFile(
+		$this->setViewFile(
 			str_replace(
                 [static::DIR_CONTROLLER . '\\', '\\', '::'],
                 [static::DIR_VIEW . '/', '/', '/'],
@@ -54,7 +54,7 @@ class Controller
 
 
 
-	protected function setTemplateFile($path)
+	protected function setViewFile($path)
 	{
 		$this->templates []= $path;
 	}

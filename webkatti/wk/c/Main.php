@@ -66,7 +66,7 @@ class Main
     static function about()
     {
         $c = new Layout();
-        $c->setTemplate(__METHOD__);
+        $c->setView(__METHOD__);
         return $c;
     }
 
@@ -75,7 +75,7 @@ class Main
     static function changes()
     {
         $c = new Layout();
-        $c->setTemplate(__METHOD__);
+        $c->setView(__METHOD__);
         return $c;
     }
 
@@ -96,7 +96,7 @@ class Main
     static function index()
     {
         $c = new Layout();
-        $c->setTemplate(__METHOD__);
+        $c->setView(__METHOD__);
 
         $db = M::game()->db()
             ->fields('game_id, game_id')

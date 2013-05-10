@@ -10,7 +10,7 @@ class Layout extends \afw\c\Layout
     function __construct($title = null)
     {
         parent::__construct();
-        $this->setTemplate(__CLASS__);
+        $this->setView(__CLASS__);
 
         $this->addTitle('WebKatti OpenArena statistics');
 

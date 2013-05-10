@@ -22,7 +22,7 @@ class SimpleList extends Controller
     function __construct($__METHOD__, &$items)
     {
         parent::__construct();
-        $this->setTemplate($__METHOD__);
+        $this->setView($__METHOD__);
         $this->items =& $items;
     }
 

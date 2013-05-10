@@ -36,7 +36,7 @@ class Layout extends Controller
 	function __construct()
 	{
 		parent::__construct();
-		$this->setTemplate(__CLASS__);
+		$this->setView(__CLASS__);
 	}
 
 

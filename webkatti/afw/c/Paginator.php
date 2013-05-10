@@ -29,7 +29,7 @@ class Paginator extends Controller
 	function __construct($count = 0, $current = 1, $prefix = 'page-')
 	{
 		parent::__construct();
-		$this->setTemplate(__CLASS__);
+		$this->setView(__CLASS__);
 		$this->count = $count;
 		$this->current = empty($current) ? 1 : $current;
 		$this->prefix = $prefix;

@@ -24,7 +24,7 @@ class Field extends Element
 	function __construct($label = null, $name = null, $value = null)
 	{
 		parent::__construct($label);
-        $this->setTemplate(__CLASS__);
+        $this->setView(__CLASS__);
 		$this->name = $name;
         $this->value = $value;
 	}

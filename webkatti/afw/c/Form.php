@@ -39,7 +39,7 @@ class Form extends Controller
 	{
 		parent::__construct();
 
-		$this->setTemplate(__CLASS__);
+		$this->setView(__CLASS__);
 		$this->completeMessage = $completeMessage;
 		$this->action = $action;
 		$this->method = $method;

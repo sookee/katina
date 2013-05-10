@@ -19,7 +19,7 @@ class Game
     static function index()
     {
         $c = new Layout();
-        $c->setTemplate(__METHOD__);
+        $c->setView(__METHOD__);
 
         $time = strtotime(@$_GET['date']);
         if (empty($time))
@@ -53,7 +53,7 @@ class Game
     static function get($id)
     {
         $c = new Layout();
-        $c->setTemplate(__METHOD__);
+        $c->setView(__METHOD__);
 
         $c->game = M::game()->get($id);
 

@@ -47,7 +47,7 @@ class Element extends Controller
 	 */
 	private static function simpleElement($__FUNCTION__, Controller $controller)
 	{
-		$controller->setTemplate(get_called_class().'::'.$__FUNCTION__);
+		$controller->setView(get_called_class().'::'.$__FUNCTION__);
 		return $controller;
 	}
 
