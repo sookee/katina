@@ -398,7 +398,7 @@ bool Katina::start(const str& dir)
 	log("Reading keypair:");
 
 	str keypair_file = get("pki.keypair", "keypair.pki");
-	str pkey_file = get("pki.pkeys", "pkeys.pki");
+	str pkeys_file = get("pki.pkeys", "pkeys.pki");
 
 	if(!pki.load_keypair(config_dir + "/" + keypair_file))
 	{
@@ -420,14 +420,14 @@ bool Katina::start(const str& dir)
 		
 		if(pki.get_public_key_as_text(sexp))
 		{
-			std::ofstream ofs((config_dir + "/" + pkey_file).c_str());
+			std::ofstream ofs((config_dir + "/" + pkeys_file).c_str());
 			ofs << sexp;
 		}
 	}
 	
 	log("Reading public keys:");
 
-	ifs.open((config_dir + "/" + pkey_file).c_str());
+	ifs.open((config_dir + "/" + pkeys_file).c_str());
 	//while(pki.read_public_key(, ifs)) {}
 	ifs.close();
 	
@@ -475,25 +475,16 @@ bool Katina::start(const str& dir)
 	std::ios::streampos gpos = is.tellg();
 	
 	// Sometimes the ClientUserinfoChanged message is split over
-	// two lines. This is a fudge to compensate for that
+	// two lines. This is a fudge to compensate for that bug
 	struct client_userinfo_bug_t
 	{
-		bool active;
-		siz num, team;
-		str name;
-		client_userinfo_bug_t(): active(false), num(0), team(0) {}
-		void set(bool state) { active = state; }
-		void set(siz num, const str& name, siz team)
-		{
-			this->num = num;
-			this->name = name;
-			this->team = team;
-			set(true);
-		}
-		operator bool() { return active; }
+		str params;
+		void set(const str& params) { this->params = params; }
+		void reset() { params.clear(); }
+		operator bool() { return !params.empty(); }
 	} client_userinfo_bug;
 
-	client_userinfo_bug.set(false);
+	client_userinfo_bug.reset();
 	
 	log("Processing:");
 
@@ -535,19 +526,14 @@ bool Katina::start(const str& dir)
 					log("ALERT: ClientUserinfoChanged bug detected");
 					// 2 n\^1S^2oo^3K^5ee\t\3\mo
 					cmd = "ClientUserinfoChanged:";
-					soss oss;
-					oss << client_userinfo_bug.num;
-					oss << " n\\" << client_userinfo_bug.name;
-					oss << "\\t\\" << client_userinfo_bug.team;
-					oss << line;
-					params = oss.str();
+					params = client_userinfo_bug.params + line;
 					log("     : cmd   : " << cmd);
 					log("     : params: " << params);
 				}
 			}			
 		}
 		
-		client_userinfo_bug.set(false);
+		client_userinfo_bug.reset();
 
 		iss.clear();
 		iss.str(params);
@@ -588,7 +574,7 @@ bool Katina::start(const str& dir)
 			{
 				siz pos = line.find("\\id\\");
 				if(pos == str::npos)
-					client_userinfo_bug.set(num, name, team);
+					client_userinfo_bug.set(params);
 				else
 				{
 					str id = line.substr(pos + 4, 32);
