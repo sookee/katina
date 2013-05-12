@@ -888,9 +888,7 @@ int main(const int argc, const char* argv[])
 	log("Records loaded: " << recs.size());
 
 	sifs ifs;
-	if(argc > 1)
-		ifs.open(argv[1], std::ios::ate);
-	else if(!recs["logfile"].empty())
+	if(!recs["logfile"].empty())
 		ifs.open(expand_env(recs["logfile"]).c_str(), std::ios::ate);
 
 	sis& is = ifs.is_open() ? ifs : std::cin;
