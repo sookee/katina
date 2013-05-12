@@ -10,6 +10,7 @@ CXXFLAGS = -D DEBUG -O0 -g3 -Iinclude
 LIBKATINA_FLAGS = -D DEBUG -O0 -g3 -fPIC -pthread -Iinclude
 LIBKATINA_LIBS = -lrt -pthread -ldl -lgcrypt
 LIBKATINA_OBJS = rcon.o RemoteClient.o irc.o GUID.o Katina.o PKI.o
+#LIBKATINA_OBJS = rcon.o irc.o GUID.o Katina.o PKI.o
 
 LIBRARIES = libkatina.so.0.0.0
 

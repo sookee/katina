@@ -126,6 +126,11 @@ typedef std::map<KatinaPlugin*, cvar_map> cvar_map_map;
 typedef cvar_map_map::iterator cvar_map_map_iter;
 typedef cvar_map_map::const_iterator cvar_map_map_citer;
 
+enum
+{
+	LOG_NONE, LOG_NORMAL, LOG_VERBOSE
+};
+
 class Katina
 {
 	friend void* cvarpoll(void* vp);
@@ -134,6 +139,7 @@ class Katina
 private:
 	bool done;
 	bool active;
+	siz logmode;
 
 	typedef std::map<str, str_vec> property_map;
 	typedef std::pair<const str, str_vec> property_map_pair;

@@ -50,6 +50,9 @@ public:
 	void del_flag(const str& chan, char f) { chans[chan].erase(f); }
 	void set_flags(const str& chan, const str& flags)
 	{
+		bug_func();
+		bug_var(chan);
+		bug_var(flags);
 		for(siz i = 0; i < flags.size(); ++i)
 			add_flag(chan, flags[i]);
 	}
@@ -110,6 +113,63 @@ public:
 
 	virtual bool configure(const str& params);
 	virtual bool send(const str& cmd, str& res);
+};
+
+class InsecureClient
+: public RemoteClient
+{
+	net::socketstream ss;
+	str host;
+	siz port;
+
+public:
+	InsecureClient(Katina& katina): RemoteClient(katina) {}
+
+	// RemoteClient Interface
+
+	virtual bool configure(const str& params);
+
+	virtual bool send(const str& cmd, str& res)
+	{
+		if(!active)
+			return true;
+
+		if(!ss.open(host, port))
+		{
+			log("error: " << std::strerror(errno));
+			return false;
+		}
+		(ss << cmd).put('\0') << std::flush;
+		return std::getline(ss, res, '\0');
+	}
+};
+
+class FileClient
+: public RemoteClient
+{
+	str ofile;
+	str ifile;
+	std::ofstream ofs;
+	std::ifstream ifs;
+
+public:
+	FileClient(Katina& katina): RemoteClient(katina) {}
+
+	// RemoteClient Interface
+
+	virtual bool configure(const str& params);
+
+	virtual bool send(const str& cmd, str& res)
+	{
+		bug_func();
+		bug_var(cmd);
+		bug_var(active);
+		if(!active)
+			return true;
+
+		ofs << cmd << std::endl;
+		return std::getline(ifs, res);
+	}
 };
 
 }} // oastats::net

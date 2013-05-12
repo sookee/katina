@@ -17,8 +17,10 @@
 #include <katina/types.h>
 #include <katina/utils.h>
 #include <katina/str.h>
-#include <katina/log.h>
 #include <katina/GUID.h>
+
+#undef DEBUG
+#include <katina/log.h>
 
 namespace oastats {
 
@@ -113,6 +115,7 @@ void* cvarpoll(void* vp)
 Katina::Katina()
 : done(false)
 , active(true) // TODO: make this false
+, logmode(1) // 0 = none, 1 = normal, 2 = verbose
 {
 	pthread_mutex_init(&cvarevts_mtx, 0);
 }
@@ -359,23 +362,40 @@ bool Katina::start(const str& dir)
 
 	// read in config
 
+	log("Reading config file:");
+
+	siz no = 0;
 	while(sgl(ifs, line))
 	{
+		++no;
+		//bug(no << ": line: " << line);
+		
 		if((pos = line.find("//")) != str::npos)
 			line.erase(pos);
+		
+		//bug(no << ": line: " << line);
 
 		trim(line);
-
+		
+		//bug(no << ": line: " << line);
+		//bug("");
+		
 		if(line.empty() || line[0] == '#')
 			continue;
-
+		
+		// remote.irc.client: file data/irc-output.txt data/irc-input.txt #test-channel(*)
 		siss iss(line);
 		if(sgl(sgl(iss, key, ':') >> std::ws, val))
-			props[key].push_back(expand_env(val));
+		{
+			//bug("expand_env(val): " << expand_env(val, WRDE_SHOWERR|WRDE_UNDEF));
+			props[key].push_back(expand_env(val, WRDE_SHOWERR|WRDE_UNDEF));
+		}
 	}
 	ifs.close();
 
 	// load pki
+
+	log("Reading keypair:");
 
 	str keypair_file = get("pki.keypair", "keypair.pki");
 	str pkey_file = get("pki.pkeys", "pkeys.pki");
@@ -405,18 +425,24 @@ bool Katina::start(const str& dir)
 		}
 	}
 	
-	std::ifstream ifs((config_dir + "/" + pkey_file).c_str());
-	while(pki.read_public_key(, ifs)) {}
+	log("Reading public keys:");
+
+	ifs.open((config_dir + "/" + pkey_file).c_str());
+	//while(pki.read_public_key(, ifs)) {}
+	ifs.close();
 	
 	// initialize rcon
 	
+	log("Initializing rcon:");
+
 	server.config(get("rcon.host"), get<siz>("rcon.port"), get("rcon.pass"));
 	
 	if(get("rcon.active") == "true")
 		server.on();
-//	if(!server.command("status"))
 
 	// load plugins
+
+	log("Loading plugins:");
 
 	str_vec pluginfiles = get_vec("plugin");
 	for(siz i = 0; i < pluginfiles.size(); ++i)
@@ -433,6 +459,8 @@ bool Katina::start(const str& dir)
 	
 	if(rerun)
 		mode = std::ios::in;
+
+	log("Opening logfile (" << get("run.mode") << "): " << get("logfile"));
 
 	ifs.open(get("logfile").c_str(), mode);
 
@@ -467,6 +495,8 @@ bool Katina::start(const str& dir)
 
 	client_userinfo_bug.set(false);
 	
+	log("Processing:");
+
 	while(!done)
 	{
 		if(!std::getline(is, line) || is.eof())

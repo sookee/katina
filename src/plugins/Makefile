@@ -19,7 +19,8 @@ PLUGIN_STATS_OBJS = KatinaPluginStats.o ../Database.o
 
 PLUGIN_REPORTS_FLAGS = -D DEBUG -O0 -g3 -Wl,-E -shared -pthread
 PLUGIN_REPORTS_LIBS = -pthread -L.. -lkatina
-PLUGIN_REPORTS_OBJS = KatinaPluginReports.o ../RemoteClient.o
+#PLUGIN_REPORTS_OBJS = KatinaPluginReports.o ../RemoteClient.o
+PLUGIN_REPORTS_OBJS = KatinaPluginReports.o
 
 PLUGINS = katina-plugin-example.so katina-plugin-stats.so katina-plugin-reports.so
 

@@ -418,16 +418,16 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 			siz rkh = 0;
 			siz rch = 0;
 			str kd, cd, kh, ch;
-			if(!d | !h)
+			if(d == 0 || h == 0)
 			{
-				if(!d)
+				if(d == 0)
 				{
 					if(k)
 						kd = "perf ";
 					if(c)
 						cd = "perf  ";
 				}
-				if(!h)
+				if(h == 0)
 				{
 					if(k)
 						kh = "inf";

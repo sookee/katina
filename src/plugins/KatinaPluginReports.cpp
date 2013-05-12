@@ -98,25 +98,56 @@ void set_width(str& var, siz w, siz j)
 		var = str(w - var.size(), ' ') + var;
 }
 
+RemoteClientList::RemoteClientList(Katina& katina)
+//: RemoteClient(katina)
+{
+}
+
+RemoteClientList::~RemoteClientList()
+{
+	for(siz i = 0; i < clients.size(); ++i)
+		delete clients[i];
+}
+
+bool RemoteClientList::send(const str& cmd, str& res)
+{
+	bug("RemoteClientList::send(" << cmd << ", " << res << ")");
+	str ress, sep;
+	for(siz i = 0; i < clients.size(); ++i)
+	{
+		clients[i]->send(cmd, ress);
+		res += sep + ress;
+		sep = "\n";
+	}
+	return true;
+}
+
 bool KatinaPluginReports::open()
 {
 	if((stats = dynamic_cast<KatinaPluginStats*>(katina.get_plugin("katina::stats", "0.0"))))
 		plog("Found: " << stats->get_name());
 
-	delete client;
-	
-	if(!(client = new RemoteClientList(katina)))
-	{
-		plog("FATAL: unable to crate remote client list");
-		return false;
-	}
+	client.off();
+	client.clear();
 	
 	str_vec clients = katina.get_vec("remote.irc.client");
 	
 	for(siz i = 0; i < clients.size(); ++i)
-		client->add(RemoteClient::create(katina, clients[i]));
+	{
+		log("Creating client: " << clients[i]);
+		RemoteClient* c = RemoteClient::create(katina, clients[i]);
+		bug_var(&client);
+		bug_var(c);
+		if(c)
+		{
+			c->on();
+			client.add(c);
+		}
+	}
 	
-	client->chat('*', "^3Stats Reporting System v^7" + get_version() + " - ^1ONLINE");
+	client.on();
+	
+	client.chat('*', "^3Stats Reporting System v^7" + get_version() + " - ^1ONLINE");
 
 	katina.add_var_event(this, "example_active", active);
 	katina.add_var_event(this, "report_active", active);
@@ -131,14 +162,14 @@ bool KatinaPluginReports::open()
 	katina.add_var_event(this, "report_spam_limit", spam_limit);
 
 	katina.add_log_event(this, EXIT);
-	katina.add_log_event(this, SHUTDOWN_GAME);
-	katina.add_log_event(this, WARMUP);
-	katina.add_log_event(this, CLIENT_USERINFO_CHANGED);
-	katina.add_log_event(this, CLIENT_CONNECT);
-	katina.add_log_event(this, CLIENT_DISCONNECT);
+	//katina.add_log_event(this, SHUTDOWN_GAME);
+	//katina.add_log_event(this, WARMUP);
+	//katina.add_log_event(this, CLIENT_USERINFO_CHANGED);
+	//katina.add_log_event(this, CLIENT_CONNECT);
+	//katina.add_log_event(this, CLIENT_DISCONNECT);
 	katina.add_log_event(this, KILL);
 	katina.add_log_event(this, CTF);
-	katina.add_log_event(this, AWARD);
+	//katina.add_log_event(this, AWARD);
 	katina.add_log_event(this, INIT_GAME);
 	katina.add_log_event(this, SAY);
 
@@ -163,7 +194,7 @@ str KatinaPluginReports::get_version() const
 
 bool KatinaPluginReports::exit(siz min, siz sec)
 {
-	client->chat('*', "^3Game Over");
+	client.chat('*', "^3Game Over");
 
 	// erase non spam marked messages
 	for(str_siz_map_iter i = spam.begin(); i != spam.end();)
@@ -192,7 +223,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 		{ oss << sep << "^3fpd  "; sep = "^2|"; }
 	if(stats_cols & RSC_TIME)
 		{ oss << sep << "^3cpd  "; sep = "^2|"; }
-	client->chat('s', oss.str());
+	client.chat('s', oss.str());
 
 	for(guid_stat_citer p = stats->stats.begin(); p != stats->stats.end(); ++p)
 	{
@@ -230,16 +261,16 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 		siz rkh = 0;
 		siz rch = 0;
 		str kd, cd, kh, ch;
-		if(!d | !h)
+		if(d == 0 || h == 0)
 		{
-			if(!d)
+			if(d == 0)
 			{
 				if(k)
 					kd = "perf ";
 				if(c)
 					cd = "perf  ";
 			}
-			if(!h)
+			if(h == 0)
 			{
 				if(k)
 					kh = "inf";
@@ -319,41 +350,45 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 		}
 	}
 	for(std::multimap<double, str>::reverse_iterator r = skivvy_scores.rbegin(); r != skivvy_scores.rend(); ++r)
-		client->chat('s', r->second);
+		client.chat('s', r->second);
 
 	return true;
 }
 
-bool KatinaPluginReports::shutdown_game(siz min, siz sec)
-{
-	return true;
-}
+//bool KatinaPluginReports::shutdown_game(siz min, siz sec)
+//{
+//	return true;
+//}
 
-bool KatinaPluginReports::warmup(siz min, siz sec)
-{
-	return true;
-}
+//bool KatinaPluginReports::warmup(siz min, siz sec)
+//{
+//	return true;
+//}
 
-bool KatinaPluginReports::client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name)
-{
-	return true;
-}
-bool KatinaPluginReports::client_connect(siz min, siz sec, siz num)
-{
+//bool KatinaPluginReports::client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name)
+//{
+//	return true;
+//}
 
-}
-bool KatinaPluginReports::client_disconnect(siz min, siz sec, siz num)
-{
-	return true;
-}
+//bool KatinaPluginReports::client_connect(siz min, siz sec, siz num)
+//{
+//	return true;
+//}
+
+//bool KatinaPluginReports::client_disconnect(siz min, siz sec, siz num)
+//{
+//	return true;
+//}
+
 bool KatinaPluginReports::kill(siz min, siz sec, siz num1, siz num2, siz weap)
 {
 	if(weap != MOD_SUICIDE && katina.clients.find(num1) != katina.clients.end() && katina.clients.find(num2) != katina.clients.end())
-		client->chat('k', "^7" + katina.players[katina.clients[num1]] + " ^4killed ^7" + katina.players[katina.clients[num2]]
+		client.chat('k', "^7" + katina.players[katina.clients[num1]] + " ^4killed ^7" + katina.players[katina.clients[num2]]
 			+ " ^4with a ^7" + weapons[weap]);
 
 	return true;
 }
+
 bool KatinaPluginReports::ctf(siz min, siz sec, siz num, siz team, siz act)
 {
 	siz pcol = team - 1; // make 0-1 for array index
@@ -375,40 +410,37 @@ bool KatinaPluginReports::ctf(siz min, siz sec, siz num, siz team, siz act)
 
 	if(act == FL_CAPTURED) // In Game Announcer
 	{
-		if(client)
+		siz caps = map_get(stats->stats[katina.clients[num]].flags, FL_CAPTURED);
+		str msg = katina.players[katina.clients[num]]
+			+ "^3 has ^7" + to_string(caps) + "^3 flag" + (caps==1?"":"s") + "!";
+		if(do_flags_hud)
 		{
-			siz caps = map_get(stats->stats[katina.clients[num]].flags, FL_CAPTURED);
-			str msg = katina.players[katina.clients[num]]
-				+ "^3 has ^7" + to_string(caps) + "^3 flag" + (caps==1?"":"s") + "!";
-			if(do_flags_hud)
-			{
-				hud_flag[pcol] = HUD_FLAG_CAP;
-				hud = get_hud(min, sec, hud_flag);
-			}
-			client->raw_chat('f', hud + oa_to_IRC(nums_team + " " + msg));
-			if(do_flags_hud)
-			{
-				hud_flag[pcol] = HUD_FLAG_NONE;
-				hud = get_hud(min, sec, hud_flag);
-			}
-			client->raw_chat('f', hud + oa_to_IRC("^7[ ] ^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED])));
+			hud_flag[pcol] = HUD_FLAG_CAP;
+			hud = get_hud(min, sec, hud_flag);
 		}
+		client.raw_chat('f', hud + oa_to_IRC(nums_team + " " + msg));
+		if(do_flags_hud)
+		{
+			hud_flag[pcol] = HUD_FLAG_NONE;
+			hud = get_hud(min, sec, hud_flag);
+		}
+		client.raw_chat('f', hud + oa_to_IRC("^7[ ] ^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED])));
 	}
 	else if(act == FL_TAKEN)
 	{
-		if(client && do_flags)
+		if(do_flags)
 		{
 			if(do_flags_hud)
 			{
 				hud_flag[pcol] = HUD_FLAG_P;
 				hud = get_hud(min, sec, hud_flag);
 			}
-			client->raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + katina.players[katina.clients[num]] + "^3 has taken the " + flag[pcol] + " ^3flag!"));
+			client.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + katina.players[katina.clients[num]] + "^3 has taken the " + flag[pcol] + " ^3flag!"));
 		}
 	}
 	else if(act == FL_DROPPED)
 	{
-		if(client && do_flags)
+		if(do_flags)
 		{
 			if(do_flags_hud)
 			{
@@ -416,12 +448,12 @@ bool KatinaPluginReports::ctf(siz min, siz sec, siz num, siz team, siz act)
 				hud = get_hud(min, sec, hud_flag);
 				hud_flag[ncol] = HUD_FLAG_NONE;
 			}
-			client->raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + katina.players[katina.clients[num]] + "^3 has killed the " + flag[ncol] + " ^3flag carrier!"));
+			client.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + katina.players[katina.clients[num]] + "^3 has killed the " + flag[ncol] + " ^3flag carrier!"));
 		}
 	}
 	else if(act == FL_RETURNED)
 	{
-		if(client && do_flags)
+		if(do_flags)
 		{
 			if(do_flags_hud)
 			{
@@ -429,24 +461,24 @@ bool KatinaPluginReports::ctf(siz min, siz sec, siz num, siz team, siz act)
 				hud = get_hud(min, sec, hud_flag);
 				hud_flag[pcol] = HUD_FLAG_NONE;
 			}
-			client->raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + katina.players[katina.clients[num]] + "^3 has returned the " + flag[pcol] + " ^3flag!"));
+			client.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + katina.players[katina.clients[num]] + "^3 has returned the " + flag[pcol] + " ^3flag!"));
 		}
 	}
 
 	return true;
 }
 
-bool KatinaPluginReports::award(siz min, siz sec, siz num, siz awd)
-{
-	return true;
-}
+//bool KatinaPluginReports::award(siz min, siz sec, siz num, siz awd)
+//{
+//	return true;
+//}
 
 bool KatinaPluginReports::init_game(siz min, siz sec)
 {
 	flags[FL_RED] = 0;
 	flags[FL_BLUE] = 0;
 
-	if(client && do_infos && katina.mapname != old_mapname)
+	if(do_infos && katina.mapname != old_mapname)
 	{
 		// TODO: add this after writing KainaPluginVotes
 //		siz love = 0;
@@ -458,8 +490,8 @@ bool KatinaPluginReports::init_game(siz min, siz sec)
 //			else
 //				++hate;
 //		}
-		client->chat('i', ".");
-		client->chat('i', "^3== Playing Map: ^7" + katina.mapname + "^3 == ^7");// + to_string(love)
+		client.chat('i', ".");
+		client.chat('i', "^3== Playing Map: ^7" + katina.mapname + "^3 == ^7");// + to_string(love)
 //			+ " ^1LOVE ^7" + to_string(hate) + " ^2HATE ^3==");
 		old_mapname = katina.mapname;
 	}
@@ -472,7 +504,7 @@ bool KatinaPluginReports::say(siz min, siz sec, const GUID& guid, const str& tex
 	if(do_chats)
 	{
 		if(!spamkill || ++spam[text] < spam_limit)
-			client->chat('c', "^7say: " + katina.players[guid] + " ^2" + text);
+			client.chat('c', "^7say: " + katina.players[guid] + " ^2" + text);
 	}
 
 	return true;

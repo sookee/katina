@@ -51,6 +51,7 @@ using namespace oastats::types;
  */
 int main(const int argc, const char* argv[])
 {
+	bug("argc: " << argc);
 	Katina katina;
 	katina.start(str(argc == 2 ? argv[1] : "$HOME/.katina"));
 }
