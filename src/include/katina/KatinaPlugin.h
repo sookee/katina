@@ -69,7 +69,7 @@ public:
 	//virtual void cvar_event(const str& name, const str& value) {}
 
 	// Game server log events
-	virtual bool init_game(siz min, siz sec) {}
+	virtual bool init_game(siz min, siz sec, const str_map& cvars) {}
 	virtual bool warmup(siz min, siz sec) {}
 	virtual bool client_connect(siz min, siz sec, siz num) {}
 	virtual bool client_disconnect(siz min, siz sec, siz num) {}

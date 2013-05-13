@@ -666,6 +666,20 @@ bool Katina::start(const str& dir)
 		{
 			bug(cmd << "(" << params << ")");
 
+			// \videoflags\0\sv_dlURL\http://sookee.dyndns.org/maps\sv_floodProtect\1\sv_maxPing\0\sv_minPing\0\sv_maxRate\25000\sv_minRate\2500\sv_hostname\^1S^2oo^3K^5ee ^3i^7CTF ^1K^7at^3i^7na ^5Testing\sv_maxclients\10\fraglimit\15\timelimit\20\sv_fps\20\sv_allowdownload\1\g_needpass\0\g_delagHitscan\1\bot_minplayers\1\g_maxGameClients\10\g_doWarmup\3\g_allowVote\1\g_voteGametypes\/4/\dmflags\0\capturelimit\8\g_voteMaxTimelimit\0\g_voteMinTimelimit\0\g_voteMaxFraglimit\0\g_voteMinFraglimit\0\elimination_roundtime\90\g_lms_mode\0\_Admin\^1S^2oo^3K^5ee\_Email\oasookee@googlemail.com\_Location\Europe, England\_Website\http://sookee.dyndns.org/oatab\version\ioq3+oa 1.36_SVN1910M linux-i386 Dec 25 2011\protocol\71\g_gametype\4\mapname\oasago2\snaps\20\g_instantgib\2\gamename\baseoa\elimflags\0\voteflags\263\g_obeliskRespawnDelay\10\g_enableDust\0\g_enableBreath\0\g_rockets\0\g_altExcellent\0\g_timestamp\2013-05-08 10:31:26
+			str key, val;
+			str_map cvars;
+			
+			//bug("--------------------------------------");
+			iss.ignore(); // skip initial '\\'
+			while(sgl(sgl(iss, key, '\\'), val, '\\'))
+			{
+				//bug_var(key);
+				//bug_var(val);
+				cvars[key] = val;
+			}
+			//bug("--------------------------------------");
+			
 			clients.clear();
 			players.clear();
 			teams.clear();
@@ -686,7 +700,7 @@ bool Katina::start(const str& dir)
 
 			for(plugin_vec_iter i = events[INIT_GAME].begin()
 				; i != events[INIT_GAME].end(); ++i)
-				(*i)->init_game(min, sec);
+				(*i)->init_game(min, sec, cvars);
 		}
 		else if(cmd == "ClientBegin:")
 		{

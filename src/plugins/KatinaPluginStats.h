@@ -64,6 +64,7 @@ private:
 	str host;
 	str port;
 
+	// cvars
 	bool active;
 	bool write;
 	
@@ -100,7 +101,7 @@ public:
 	virtual bool kill(siz min, siz sec, siz num1, siz num2, siz weap);
 	virtual bool ctf(siz min, siz sec, siz num, siz team, siz act);
 	virtual bool award(siz min, siz sec, siz num, siz awd);
-	virtual bool init_game(siz min, siz sec);
+	virtual bool init_game(siz min, siz sec, const str_map& cvars);
 //	virtual bool say(siz min, siz sec, const GUID& guid, const str& text);
 //	virtual bool unknown(siz min, siz sec, const str& cmd, const str& params);
 

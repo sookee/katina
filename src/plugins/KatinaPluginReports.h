@@ -75,6 +75,7 @@ private:
 		, RSC_CPD = 0b00010000 // caps/deaths
 	};
 
+	// cvars
 	bool active;
 	bool do_flags;
 	bool do_flags_hud;
@@ -114,22 +115,14 @@ public:
 	: KatinaPlugin(katina)
 	, stats(0)
 	, client(katina)
-	// , active(false)
-	// , do_flags(false)
-	// , do_flags_hud(false)
-	// , do_chats(false)
-	// , do_kills(false)
-	// , do_infos(false)
-	// , do_stats(false)
-	// , stats_cols(0)
-	, active(true)
-	, do_flags(true)
-	, do_flags_hud(true)
-	, do_chats(true)
-	, do_kills(true)
-	, do_infos(true)
-	, do_stats(true)
-	, stats_cols(31)
+	, active(false)
+	, do_flags(false)
+	, do_flags_hud(false)
+	, do_chats(false)
+	, do_kills(false)
+	, do_infos(false)
+	, do_stats(false)
+	, stats_cols(0)
 	, spamkill(false)
 	, spam_limit(2)
 	{
@@ -143,7 +136,7 @@ public:
 	virtual str get_name() const;
 	virtual str get_version() const;
 
-	virtual bool init_game(siz min, siz sec);
+	virtual bool init_game(siz min, siz sec, const str_map& cvars);
 	//virtual bool warmup(siz min, siz sec);
 	//virtual bool client_connect(siz min, siz sec, siz num);
 	//virtual bool client_disconnect(siz min, siz sec, siz num);

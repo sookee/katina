@@ -25,9 +25,7 @@ PKI::PKI()
 , pkey(0)
 {
 	if(!gcry_check_version(GCRYPT_VERSION))
-	{
 		log("PKI: ERROR: version check failed: " << GCRYPT_VERSION);
-	}
 	gcry_control(GCRYCTL_INITIALIZATION_FINISHED, 0);
 }
 
@@ -50,7 +48,7 @@ bool PKI::generate_keypair(siz bits)
 	oss.str("");
 	oss << "(genkey (rsa (nbits " << sbits.size() << ":" << sbits << ")))";
 
-	con("genkey param: " << oss.str() << "(" << bits << ")");
+	//con("genkey param: " << oss.str() << "(" << bits << ")");
 
 	if(gcry_error_t e = gcry_sexp_build(&params, 0, oss.str().c_str()))
 	{
@@ -69,9 +67,9 @@ bool PKI::generate_keypair(siz bits)
 	}
 
 	// DEBUG
-	str s;
-	if(get_sexp_as_text(keypair, s))
-		con("XXX: " << s);
+//	str s;
+//	if(get_sexp_as_text(keypair, s))
+//		con("XXX: " << s);
 
 	if(!set_keys(keypair))
 	{
@@ -80,7 +78,6 @@ bool PKI::generate_keypair(siz bits)
 	}
 
 	gcry_sexp_release(keypair);
-
 	return true;
 }
 
@@ -152,7 +149,6 @@ bool PKI::read_keypair(const str& s)
 	}
 
 	gcry_sexp_release(keypair);
-
 	return true;
 }
 

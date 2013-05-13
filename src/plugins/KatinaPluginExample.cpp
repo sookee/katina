@@ -18,7 +18,7 @@ KatinaPluginExample::KatinaPluginExample(Katina& katina)
 , clients(katina.clients)
 , players(katina.players)
 , teams(katina.teams)
-, active(false)
+, active(true)
 {
 }
 
@@ -144,12 +144,14 @@ bool KatinaPluginExample::award(siz min, siz sec, siz num, siz awd)
 	return true;
 }
 
-bool KatinaPluginExample::init_game(siz min, siz sec)
+bool KatinaPluginExample::init_game(siz min, siz sec, const str_map& cvars)
 {
 	if(!active)
 		return true;
 	log("init_game()");
 	log("mapname: " << mapname);
+	for(str_map_citer i = cvars.begin(); i != cvars.end(); ++i)
+		log("cvar: " << i->first << " = " << i->second);
 	return true;
 }
 

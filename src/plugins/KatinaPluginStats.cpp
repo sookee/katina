@@ -250,7 +250,7 @@ bool KatinaPluginStats::award(siz min, siz sec, siz num, siz awd)
 	return true;
 }
 
-bool KatinaPluginStats::init_game(siz min, siz sec)
+bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 {
 	// bug("in_game: " << in_game);
 	if(in_game)

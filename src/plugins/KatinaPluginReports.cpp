@@ -173,7 +173,17 @@ bool KatinaPluginReports::open()
 	katina.add_log_event(this, INIT_GAME);
 	katina.add_log_event(this, SAY);
 
-	
+	active = katina.get("plugin.reports.active", false);
+	do_flags = katina.get("plugin.reports.flags", false);
+	do_flags_hud = katina.get("plugin.reports.flags_hud", false);
+	do_chats = katina.get("plugin.reports.chats", false);
+	do_kills = katina.get("plugin.reports.kills", false);
+	do_infos = katina.get("plugin.reports.infos", false);
+	do_stats = katina.get("plugin.reports.stats", false);
+	stats_cols = katina.get("plugin.reports.stats_cols", 0); // 31 = full
+	spamkill = katina.get("plugin.reports.spamkill", false);
+	spam_limit = katina.get("plugin.reports.spam_limit", 2);
+
 	return true;
 }
 
@@ -207,181 +217,202 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 		else
 			++i;
 	}
-
-	std::multimap<double, str> skivvy_scores;
-
-	soss oss;
-	oss.str("");
-	str sep;
-	if(stats_cols & RSC_TIME)
-		{ oss << sep << "^3time "; sep = "^2|"; }
-	if(stats_cols & RSC_FPH)
-		{ oss << sep << "^3fph"; sep = "^2|"; }
-	if(stats_cols & RSC_TIME)
-		{ oss << sep << "^3cph"; sep = "^2|"; }
-	if(stats_cols & RSC_TIME)
-		{ oss << sep << "^3fpd  "; sep = "^2|"; }
-	if(stats_cols & RSC_TIME)
-		{ oss << sep << "^3cpd  "; sep = "^2|"; }
-	client.chat('s', oss.str());
-
-	for(guid_stat_citer p = stats->stats.begin(); p != stats->stats.end(); ++p)
+	
+	if(do_flags && stats)
 	{
-		const str& player = katina.players.at(p->first);
-		con("player: " << player);
-		con("\t  caps: " << map_get(p->second.flags, FL_CAPTURED));
-		con("\t kills: " << map_get(p->second.kills, MOD_RAILGUN));
-		con("\tdeaths: " << map_get(p->second.deaths, MOD_RAILGUN));
-		con("\t  defs: " << map_get(p->second.awards, AW_DEFENCE));
-		con("\t gaunt: " << map_get(p->second.awards, AW_GAUNTLET));
-		con("\t  time: " << p->second.logged_time << 's');
-		// TODO: modify this to add AW options as well as insta
-
-		siz c = map_get(p->second.flags, FL_CAPTURED);
-
-		siz k = 0;
-		for(siz i = 0; i < MOD_MAXVALUE; ++i)
-			k += map_get(p->second.kills, i);
-
-		siz d = 0;
-		for(siz i = 0; i < MOD_MAXVALUE; ++i)
-			d += map_get(p->second.deaths, i);
-
-//			siz k = map_get(p->second.kills, MOD_RAILGUN);
-//			k += map_get(p->second.kills, MOD_GAUNTLET);
-//			siz d = map_get(p->second.deaths, MOD_RAILGUN);
-//			d += map_get(p->second.deaths, MOD_GAUNTLET);
-		siz h = p->second.logged_time;
-		con("c: " << c);
-		con("k: " << k);
-		con("d: " << d);
-
-		double rkd = 0.0;
-		double rcd = 0.0;
-		siz rkh = 0;
-		siz rch = 0;
-		str kd, cd, kh, ch;
-		if(d == 0 || h == 0)
+		typedef std::multimap<siz, GUID> siz_guid_mmap;
+		typedef siz_guid_mmap::reverse_iterator siz_guid_mmap_ritr;
+		
+		siz_guid_mmap sorted;
+		
+		for(guid_stat_citer p = stats->stats.begin(); p != stats->stats.end(); ++p)
+			sorted.insert(siz_guid_pair(map_get(p->second.flags, FL_CAPTURED), p->first));
+		
+		//for(guid_siz_citer c = caps.begin(); c != caps.end(); ++c)
+		//	sorted.insert(siz_guid_pair(c->second, c->first));
+	
+		siz i = 0;
+		siz d = 1;
+		siz max = 0;
+		siz f = 0; // flags
+		str_vec results;
+		std::ostringstream oss;
+		for(siz_guid_mmap_ritr ri = sorted.rbegin(); ri != sorted.rend(); ++ri)
 		{
-			if(d == 0)
-			{
-				if(k)
-					kd = "perf ";
-				if(c)
-					cd = "perf  ";
-			}
-			if(h == 0)
-			{
-				if(k)
-					kh = "inf";
-				if(c)
-					ch = "inf";
-			}
+			++i;
+			if(f != ri->first)
+				{ d = i; f = ri->first; }
+			oss.str("");
+			oss << "^3#" << d << " ^7" << katina.players.at(ri->second) << " ^3capped ^7" << ri->first << "^3 flags.";
+			results.push_back(oss.str());
+			if(oss.str().size() > max)
+				max = oss.str().size();
 		}
-		else
+	
+		katina.server.chat("^5== ^6RESULTS ^5" + str(max - 23, '='));
+		for(siz i = 0; i < results.size(); ++i)
+			katina.server.chat(results[i]);
+		katina.server.chat("^5" + str(max - 12, '-'));
+	
+		if(do_infos)
 		{
-			rkd = double(k) / d;
-			rcd = double(c * 100) / d;
-			rkh = k * 60 * 60 / h;
-			rch = c * 60 * 60 / h;
-
-			kd = to_string(rkd, 5);
-			cd = to_string(rcd, 6);
-			kh = to_string(rkh, 3);
-			ch = to_string(rch, 2);
-		}
-		if(k || c || d)
-		{
-			str mins, secs;
-			siz m = p->second.logged_time / 60;
-			siz s = p->second.logged_time % 60;
-			oss.str("");
-			oss << m;
-			mins = oss.str();
-			oss.str("");
-			oss << s;
-			secs = oss.str();
-			if(mins.size() < 2)
-				mins = str(2 - mins.size(), ' ') + mins;
-			if(secs.size() < 2)
-				secs = str(2 - secs.size(), '0') + secs;
-
-			oss.str("");
-			str sep, col;
-			if(stats_cols & RSC_TIME)
-			{
-				col = "^7" + mins + "^3:^7" + secs;
-				set_width(col, 5, 6);
-				oss << sep << col;
-				sep = "^2|";
-			}
-			if(stats_cols & RSC_FPH)
-			{
-				col = "^7" + kh;
-				set_width(col, 3, 2);
-				oss << sep << col;
-				sep = "^2|";
-			}
-			if(stats_cols & RSC_CPH)
-			{
-				col = "^7" + ch;
-				set_width(col, 3, 2);
-				oss << sep << col;
-				sep = "^2|";
-			}
-			if(stats_cols & RSC_KPD)
-			{
-				col = "^7" + kd;
-				set_width(col, 5, 2);
-				oss << sep << col;
-				sep = "^2|";
-			}
-			if(stats_cols & RSC_CPD)
-			{
-				col = "^7" + cd;
-				set_width(col, 5, 2);
-				oss << sep << col;
-				sep = "^2|";
-			}
-
-			oss << sep << "^7" << player;
-//				oss << "^3time: ^7" << mins << "^3:^7" << secs << " " << "^3kills^7/^3d ^5(^7" << kd << "^5) ^3caps^7/^3d ^5(^7" << cd << "^5)^7: " + player;
-			skivvy_scores.insert(std::make_pair(rkh, oss.str()));
+			client.chat('i', "^5== ^6RESULTS ^5== ^7"
+				+ to_string(flags[FL_BLUE]) + " ^1RED ^7"
+				+ to_string(flags[FL_RED]) + " ^4BLUE ^3 ==");
+			for(siz i = 0; i < results.size(); ++i)
+				client.chat('f', results[i]);
+			client.chat('i', "^5" + str(max - 12, '-'));
 		}
 	}
-	for(std::multimap<double, str>::reverse_iterator r = skivvy_scores.rbegin(); r != skivvy_scores.rend(); ++r)
-		client.chat('s', r->second);
+	
+	if(do_stats && stats)
+	{
+		std::multimap<double, str> scores;
+	
+		soss oss;
+		oss.str("");
+		str sep;
+		if(stats_cols & RSC_TIME)
+			{ oss << sep << "^3time "; sep = "^2|"; }
+		if(stats_cols & RSC_FPH)
+			{ oss << sep << "^3fph"; sep = "^2|"; }
+		if(stats_cols & RSC_TIME)
+			{ oss << sep << "^3cph"; sep = "^2|"; }
+		if(stats_cols & RSC_TIME)
+			{ oss << sep << "^3fpd  "; sep = "^2|"; }
+		if(stats_cols & RSC_TIME)
+			{ oss << sep << "^3cpd  "; sep = "^2|"; }
+		client.chat('s', oss.str());
+	
+		for(guid_stat_citer p = stats->stats.begin(); p != stats->stats.end(); ++p)
+		{
+			const str& player = katina.players.at(p->first);
+			con("player: " << player);
+			con("\t  caps: " << map_get(p->second.flags, FL_CAPTURED));
+			con("\t kills: " << map_get(p->second.kills, MOD_RAILGUN));
+			con("\tdeaths: " << map_get(p->second.deaths, MOD_RAILGUN));
+			con("\t  defs: " << map_get(p->second.awards, AW_DEFENCE));
+			con("\t gaunt: " << map_get(p->second.awards, AW_GAUNTLET));
+			con("\t  time: " << p->second.logged_time << 's');
+			// TODO: modify this to add AW options as well as insta
+	
+			siz c = map_get(p->second.flags, FL_CAPTURED);
+	
+			siz k = 0;
+			for(siz i = 0; i < MOD_MAXVALUE; ++i)
+				k += map_get(p->second.kills, i);
+	
+			siz d = 0;
+			for(siz i = 0; i < MOD_MAXVALUE; ++i)
+				d += map_get(p->second.deaths, i);
+	
+			siz h = p->second.logged_time;
+
+			double rkd = 0.0;
+			double rcd = 0.0;
+			siz rkh = 0;
+			siz rch = 0;
+			str kd, cd, kh, ch;
+			
+			if(d == 0 || h == 0)
+			{
+				if(d == 0)
+				{
+					if(k)
+						kd = "perf ";
+					if(c)
+						cd = "perf  ";
+				}
+				if(h == 0)
+				{
+					if(k)
+						kh = "inf";
+					if(c)
+						ch = "inf";
+				}
+			}
+			else
+			{
+				rkd = double(k) / d;
+				rcd = double(c * 100) / d;
+				rkh = k * 60 * 60 / h;
+				rch = c * 60 * 60 / h;
+	
+				kd = to_string(rkd, 5);
+				cd = to_string(rcd, 6);
+				kh = to_string(rkh, 3);
+				ch = to_string(rch, 2);
+			}
+			if(k || c || d)
+			{
+				str mins, secs;
+				siz m = p->second.logged_time / 60;
+				siz s = p->second.logged_time % 60;
+				oss.str("");
+				oss << m;
+				mins = oss.str();
+				oss.str("");
+				oss << s;
+				secs = oss.str();
+				if(mins.size() < 2)
+					mins = str(2 - mins.size(), ' ') + mins;
+				if(secs.size() < 2)
+					secs = str(2 - secs.size(), '0') + secs;
+	
+				oss.str("");
+				str sep, col;
+				if(stats_cols & RSC_TIME)
+				{
+					col = "^7" + mins + "^3:^7" + secs;
+					set_width(col, 5, 6);
+					oss << sep << col;
+					sep = "^2|";
+				}
+				if(stats_cols & RSC_FPH)
+				{
+					col = "^7" + kh;
+					set_width(col, 3, 2);
+					oss << sep << col;
+					sep = "^2|";
+				}
+				if(stats_cols & RSC_CPH)
+				{
+					col = "^7" + ch;
+					set_width(col, 3, 2);
+					oss << sep << col;
+					sep = "^2|";
+				}
+				if(stats_cols & RSC_KPD)
+				{
+					col = "^7" + kd;
+					set_width(col, 5, 2);
+					oss << sep << col;
+					sep = "^2|";
+				}
+				if(stats_cols & RSC_CPD)
+				{
+					col = "^7" + cd;
+					set_width(col, 5, 2);
+					oss << sep << col;
+					sep = "^2|";
+				}
+	
+				oss << sep << "^7" << player;
+				scores.insert(std::make_pair(rkh, oss.str()));
+			}
+		}
+		for(std::multimap<double, str>::reverse_iterator r = scores.rbegin(); r != scores.rend(); ++r)
+			client.chat('s', r->second);
+	}
 
 	return true;
 }
 
-//bool KatinaPluginReports::shutdown_game(siz min, siz sec)
-//{
-//	return true;
-//}
-
-//bool KatinaPluginReports::warmup(siz min, siz sec)
-//{
-//	return true;
-//}
-
-//bool KatinaPluginReports::client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name)
-//{
-//	return true;
-//}
-
-//bool KatinaPluginReports::client_connect(siz min, siz sec, siz num)
-//{
-//	return true;
-//}
-
-//bool KatinaPluginReports::client_disconnect(siz min, siz sec, siz num)
-//{
-//	return true;
-//}
-
 bool KatinaPluginReports::kill(siz min, siz sec, siz num1, siz num2, siz weap)
 {
+	if(!do_kills)
+		return true;
+	
 	if(weap != MOD_SUICIDE && katina.clients.find(num1) != katina.clients.end() && katina.clients.find(num2) != katina.clients.end())
 		client.chat('k', "^7" + katina.players[katina.clients[num1]] + " ^4killed ^7" + katina.players[katina.clients[num2]]
 			+ " ^4with a ^7" + weapons[weap]);
@@ -391,6 +422,9 @@ bool KatinaPluginReports::kill(siz min, siz sec, siz num1, siz num2, siz weap)
 
 bool KatinaPluginReports::ctf(siz min, siz sec, siz num, siz team, siz act)
 {
+	if(!do_flags)
+		return true;
+		
 	siz pcol = team - 1; // make 0-1 for array index
 	siz ncol = pcol ? 0 : 1;
 
@@ -408,7 +442,7 @@ bool KatinaPluginReports::ctf(siz min, siz sec, siz num, siz team, siz act)
 
 	str hud;
 
-	if(act == FL_CAPTURED) // In Game Announcer
+	if(act == FL_CAPTURED)
 	{
 		siz caps = map_get(stats->stats[katina.clients[num]].flags, FL_CAPTURED);
 		str msg = katina.players[katina.clients[num]]
@@ -428,41 +462,32 @@ bool KatinaPluginReports::ctf(siz min, siz sec, siz num, siz team, siz act)
 	}
 	else if(act == FL_TAKEN)
 	{
-		if(do_flags)
+		if(do_flags_hud)
 		{
-			if(do_flags_hud)
-			{
-				hud_flag[pcol] = HUD_FLAG_P;
-				hud = get_hud(min, sec, hud_flag);
-			}
-			client.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + katina.players[katina.clients[num]] + "^3 has taken the " + flag[pcol] + " ^3flag!"));
+			hud_flag[pcol] = HUD_FLAG_P;
+			hud = get_hud(min, sec, hud_flag);
 		}
+		client.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + katina.players[katina.clients[num]] + "^3 has taken the " + flag[pcol] + " ^3flag!"));
 	}
 	else if(act == FL_DROPPED)
 	{
-		if(do_flags)
+		if(do_flags_hud)
 		{
-			if(do_flags_hud)
-			{
-				hud_flag[ncol] = HUD_FLAG_DIE;
-				hud = get_hud(min, sec, hud_flag);
-				hud_flag[ncol] = HUD_FLAG_NONE;
-			}
-			client.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + katina.players[katina.clients[num]] + "^3 has killed the " + flag[ncol] + " ^3flag carrier!"));
+			hud_flag[ncol] = HUD_FLAG_DIE;
+			hud = get_hud(min, sec, hud_flag);
+			hud_flag[ncol] = HUD_FLAG_NONE;
 		}
+		client.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + katina.players[katina.clients[num]] + "^3 has killed the " + flag[ncol] + " ^3flag carrier!"));
 	}
 	else if(act == FL_RETURNED)
 	{
-		if(do_flags)
+		if(do_flags_hud)
 		{
-			if(do_flags_hud)
-			{
-				hud_flag[pcol] = HUD_FLAG_RETURN;
-				hud = get_hud(min, sec, hud_flag);
-				hud_flag[pcol] = HUD_FLAG_NONE;
-			}
-			client.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + katina.players[katina.clients[num]] + "^3 has returned the " + flag[pcol] + " ^3flag!"));
+			hud_flag[pcol] = HUD_FLAG_RETURN;
+			hud = get_hud(min, sec, hud_flag);
+			hud_flag[pcol] = HUD_FLAG_NONE;
 		}
+		client.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + katina.players[katina.clients[num]] + "^3 has returned the " + flag[pcol] + " ^3flag!"));
 	}
 
 	return true;
@@ -473,7 +498,7 @@ bool KatinaPluginReports::ctf(siz min, siz sec, siz num, siz team, siz act)
 //	return true;
 //}
 
-bool KatinaPluginReports::init_game(siz min, siz sec)
+bool KatinaPluginReports::init_game(siz min, siz sec, const str_map& cvars)
 {
 	flags[FL_RED] = 0;
 	flags[FL_BLUE] = 0;

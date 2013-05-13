@@ -58,7 +58,7 @@ function get_xsl()
 
 if($base && $base != 'dummy')
 {
-	@$con = mysqli_connect('176.56.235.126', 'oadb', '', $base);
+	@$con = mysqli_connect('95.47.119.63', 'oadb', '', $base);
 	if(mysqli_connect_errno($con))
 		error(mysqli_connect_error());
 }
