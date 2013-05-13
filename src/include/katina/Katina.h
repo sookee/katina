@@ -182,6 +182,12 @@ public:
 	guid_siz_map teams; // GUID -> 'R' | 'B'
 
 	KatinaPlugin* get_plugin(const str& id, const str& version);
+	
+	template<typename Plugin>
+	bool get_plugin(const str& id, const str& version, Plugin*& plugin)
+	{
+		return (plugin = dynamic_cast<Plugin*>(get_plugin(id, version)));
+	}
 
 	template<typename T>
 	T get(const str& s, const T& dflt = T())

@@ -40,7 +40,10 @@ bool KatinaPluginStats::open()
 		, katina.get("db.base"));
 	
 	if(!katina.has("db.base") || !katina.has("db.user"))
+	{
+		plog("FATAL: no database config found");
 		return false;
+	}
 	
 	katina.add_var_event(this, "stats_active", active);
 	katina.add_var_event(this, "stats_write", write);

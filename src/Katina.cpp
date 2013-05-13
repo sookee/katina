@@ -216,20 +216,40 @@ bool Katina::load_plugin(const str& file)
 
 	if(!(dl = dlopen(file.c_str(), RTLD_LAZY|RTLD_GLOBAL)))
 	{
-		log("PLUGIN LOAD: " << dlerror());
+		log("PLUGIN LOAD ERROR: dlopen: " << dlerror());
 		return false;
 	}
-
-	log("PLUGIN OPEN:");
 
 	if(!(*(void**)&katina_plugin_factory = dlsym(dl, "katina_plugin_factory")))
 	{
-		log("PLUGIN LOAD: " << dlerror());
+		log("PLUGIN LOAD ERROR: dlsym: " << dlerror());
 		return false;
 	}
 
-	log("PLUGIN CREATE:");
+	const char* ID;
 
+	if(!(*(void**)&ID = dlsym(dl, "ID")))
+	{
+		log("PLUGIN LOAD ERROR: ID: " << dlerror());
+		return false;
+	}
+
+	const char* NAME;
+
+	if(!(*(void**)&NAME = dlsym(dl, "NAME")))
+	{
+		log("PLUGIN LOAD ERROR: NAME: " << dlerror());
+		return false;
+	}
+
+	const char* VERSION;
+	
+	if(!(*(void**)&VERSION = dlsym(dl, "VERSION")))
+	{
+		log("PLUGIN LOAD ERROR: VERSION: " << dlerror());
+		return false;
+	}
+	
 	if(!(plugin = katina_plugin_factory(*this)))
 	{
 		log("PLUGIN LOAD: plugin factory failed");

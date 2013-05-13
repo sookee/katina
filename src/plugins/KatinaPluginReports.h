@@ -12,6 +12,8 @@
 #include <utility>
 
 #include "KatinaPluginStats.h"
+#include "KatinaPluginVotes.h"
+
 #include <katina/Database.h>
 #include <katina/RemoteClient.h>
 #include <katina/GUID.h>
@@ -64,6 +66,8 @@ public:
 
 private:
 	KatinaPluginStats* stats;
+	KatinaPluginVotes* votes;
+	
 	RemoteClientList client;
 
 	enum

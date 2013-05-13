@@ -124,8 +124,13 @@ bool RemoteClientList::send(const str& cmd, str& res)
 
 bool KatinaPluginReports::open()
 {
-	if((stats = dynamic_cast<KatinaPluginStats*>(katina.get_plugin("katina::stats", "0.0"))))
+	// if((stats = dynamic_cast<KatinaPluginStats*>(katina.get_plugin("katina::stats", "0.0"))))
+	if(katina.get_plugin("katina::stats", "0.0", stats))
 		plog("Found: " << stats->get_name());
+
+	// if((votes = dynamic_cast<KatinaPluginVotes*>(katina.get_plugin("katina::stats", "0.0"))))
+	if(katina.get_plugin("katina::votes", "0.0", votes))
+		plog("Found: " << votes->get_name());
 
 	client.off();
 	client.clear();

@@ -20,14 +20,6 @@ namespace oastats {
 
 using namespace oastats::types;
 
-//struct GameInfo
-//{
-//	str mapname;
-//	siz_guid_map clients; // slot -> GUID
-//	guid_str_map players; // GUID -> name
-//	guid_siz_map teams; // GUID -> 'R' | 'B'
-//};
-
 class KatinaPlugin
 {
 	friend class Katina;
@@ -65,9 +57,6 @@ public:
 	 */
 	virtual str get_version() const = 0;
 	
-	// cvar events
-	//virtual void cvar_event(const str& name, const str& value) {}
-
 	// Game server log events
 	virtual bool init_game(siz min, siz sec, const str_map& cvars) {}
 	virtual bool warmup(siz min, siz sec) {}
@@ -84,7 +73,7 @@ public:
 
 	/**
 	 * This provides an opportunity for a plugin to clean
-	 * itself up. It is called when the IrcBot is closed down.
+	 * itself up. It is called before the plugin is removed/reloaded.
 	 * This is a good place to clean up any threads, close files etc.
 	 */
 	virtual void close() = 0;
@@ -111,17 +100,23 @@ typedef plugin_map::const_iterator plugin_map_citer;
  * The plugin class should derive from KatinaPlugin.
  *
  */
-
 #define KATINA_PLUGIN_TYPE(type) \
 extern "C" KatinaPlugin* katina_plugin_factory(Katina& katina) \
 { \
 	return new type(katina); \
 } extern int _missing_semicolon_()
 
+/**
+ * Plugins should define this which provides
+ * an interface to plugin loaders.
+ */
 #define KATINA_PLUGIN_INFO(I, N, V) \
-static const char* ID = I; \
-static const char* NAME = N; \
-static const char* VERSION = V
+extern "C" const char* ID; \
+const char* ID = I; \
+extern "C" const char* NAME; \
+const char* NAME = N; \
+extern "C" const char* VERSION; \
+const char* VERSION = V
 
 #define plog(m) log(ID << ": " << m)
 
