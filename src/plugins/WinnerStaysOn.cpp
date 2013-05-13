@@ -16,6 +16,20 @@ using namespace oastats::types;
 KATINA_PLUGIN_TYPE(WinnerStaysOn);
 KATINA_PLUGIN_INFO("katina::winner-stays-on", "Winner Stays On", "0.1-dev");
 
+// 1 = red, 2 = blue, 3 = spec
+const siz TEAM_R = 1;
+const siz TEAM_B = 2;
+const siz TEAM_S = 3;
+
+str get_team(siz team) { return team == TEAM_R ? "r" : team == TEAM_B ? "b" : "s"; }
+
+str to_str(siz n)
+{
+	soss oss;
+	oss << n;
+	return oss.str();
+}
+
 bool WinnerStaysOn::open()
 {
 	katina.add_log_event(this, EXIT);
@@ -28,6 +42,8 @@ bool WinnerStaysOn::open()
 	katina.add_log_event(this, CTF_EXIT);
 	katina.add_log_event(this, INIT_GAME);
 	katina.add_log_event(this, SAY);
+	
+	server.chat("^7== ^3Winner Stays On ^1v^7" + str(VERSION) + " ^7==");
 
 	return true;
 }
@@ -45,20 +61,6 @@ str WinnerStaysOn::get_name() const
 str WinnerStaysOn::get_version() const
 {
 	return VERSION;
-}
-
-// 1 = red, 2 = blue, 3 = spec
-const siz TEAM_R = 1;
-const siz TEAM_B = 2;
-const siz TEAM_S = 3;
-
-str get_team(siz team) { return team == TEAM_R ? "r" : team == TEAM_B ? "b" : "s"; }
-
-str to_str(siz n)
-{
-	soss oss;
-	oss << n;
-	return oss.str();
 }
 
 void WinnerStaysOn::ensure_teams()
@@ -110,6 +112,9 @@ bool WinnerStaysOn::vote_disable()
 
 bool WinnerStaysOn::warmup(siz min, siz sec)
 {
+	server.chat("^7== ^3Winner Stays On ^1v^7" + str(VERSION) + " ^7==");
+	server.cp("^7== ^3Winner Stays On ^1v^7" + str(VERSION) + " ^7==");
+
 	server.command("!lock r");
 	server.command("!lock b");
 	
