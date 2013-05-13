@@ -50,9 +50,9 @@ public:
 	void del_flag(const str& chan, char f) { chans[chan].erase(f); }
 	void set_flags(const str& chan, const str& flags)
 	{
-		bug_func();
-		bug_var(chan);
-		bug_var(flags);
+		// bug_func();
+		// bug_var(chan);
+		// bug_var(flags);
 		for(siz i = 0; i < flags.size(); ++i)
 			add_flag(chan, flags[i]);
 	}
@@ -161,9 +161,9 @@ public:
 
 	virtual bool send(const str& cmd, str& res)
 	{
-		bug_func();
-		bug_var(cmd);
-		bug_var(active);
+		// bug_func();
+		// bug_var(cmd);
+		// bug_var(active);
 		if(!active)
 			return true;
 

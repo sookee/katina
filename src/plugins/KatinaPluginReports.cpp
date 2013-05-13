@@ -21,7 +21,7 @@ using namespace oastats::data;
 using namespace oastats::types;
 
 KATINA_PLUGIN_TYPE(KatinaPluginReports);
-KATINA_PLUGIN_INFO("katina::report", "Katina Reports", "0.1");
+KATINA_PLUGIN_INFO("katina::reports", "Katina Reports", "0.1");
 
 const str HUD_FLAG_P = "⚑";
 const str HUD_FLAG_DIE = "*";
@@ -99,7 +99,6 @@ void set_width(str& var, siz w, siz j)
 }
 
 RemoteClientList::RemoteClientList(Katina& katina)
-//: RemoteClient(katina)
 {
 }
 
@@ -122,13 +121,30 @@ bool RemoteClientList::send(const str& cmd, str& res)
 	return true;
 }
 
+KatinaPluginReports::KatinaPluginReports(Katina& katina)
+: KatinaPlugin(katina)
+, stats(0)
+, client(katina)
+, active(false)
+, do_flags(false)
+, do_flags_hud(false)
+, do_chats(false)
+, do_kills(false)
+, do_infos(false)
+, do_stats(false)
+, stats_cols(0)
+, spamkill(false)
+, spam_limit(2)
+{
+}
+
 bool KatinaPluginReports::open()
 {
-	// if((stats = dynamic_cast<KatinaPluginStats*>(katina.get_plugin("katina::stats", "0.0"))))
+	//if((stats = dynamic_cast<KatinaPluginStats*>(katina.get_plugin("katina::stats", "0.0"))))
 	if(katina.get_plugin("katina::stats", "0.0", stats))
 		plog("Found: " << stats->get_name());
-
-	// if((votes = dynamic_cast<KatinaPluginVotes*>(katina.get_plugin("katina::stats", "0.0"))))
+		
+	//if((votes = dynamic_cast<KatinaPluginVotes*>(katina.get_plugin("katina::votes", "0.0"))))
 	if(katina.get_plugin("katina::votes", "0.0", votes))
 		plog("Found: " << votes->get_name());
 
@@ -194,17 +210,17 @@ bool KatinaPluginReports::open()
 
 str KatinaPluginReports::get_id() const
 {
-	return "katina::reports";
+	return ID;
 }
 
 str KatinaPluginReports::get_name() const
 {
-	return "Stats Reporting";
+	return NAME;
 }
 
 str KatinaPluginReports::get_version() const
 {
-	return "0.1-dev";
+	return VERSION;
 }
 
 bool KatinaPluginReports::exit(siz min, siz sec)
@@ -449,15 +465,18 @@ bool KatinaPluginReports::ctf(siz min, siz sec, siz num, siz team, siz act)
 
 	if(act == FL_CAPTURED)
 	{
-		siz caps = map_get(stats->stats[katina.clients[num]].flags, FL_CAPTURED);
-		str msg = katina.players[katina.clients[num]]
-			+ "^3 has ^7" + to_string(caps) + "^3 flag" + (caps==1?"":"s") + "!";
-		if(do_flags_hud)
+		if(stats)
 		{
-			hud_flag[pcol] = HUD_FLAG_CAP;
-			hud = get_hud(min, sec, hud_flag);
+			siz caps = map_get(stats->stats[katina.clients[num]].flags, FL_CAPTURED);
+			str msg = katina.players[katina.clients[num]]
+				+ "^3 has ^7" + to_string(caps) + "^3 flag" + (caps==1?"":"s") + "!";
+			if(do_flags_hud)
+			{
+				hud_flag[pcol] = HUD_FLAG_CAP;
+				hud = get_hud(min, sec, hud_flag);
+			}
+			client.raw_chat('f', hud + oa_to_IRC(nums_team + " " + msg));
 		}
-		client.raw_chat('f', hud + oa_to_IRC(nums_team + " " + msg));
 		if(do_flags_hud)
 		{
 			hud_flag[pcol] = HUD_FLAG_NONE;
@@ -510,19 +529,20 @@ bool KatinaPluginReports::init_game(siz min, siz sec, const str_map& cvars)
 
 	if(do_infos && katina.mapname != old_mapname)
 	{
-		// TODO: add this after writing KainaPluginVotes
-//		siz love = 0;
-//		siz hate = 0;
-//		for(guid_int_map_iter i = map_votes.begin(); i != map_votes.end(); ++i)
-//		{
-//			if(i->second > 0)
-//				++love;
-//			else
-//				++hate;
-//		}
+		str vote;
+		
+		if(votes)
+		{
+			siz love, hate;
+			votes->get_votes(love, hate);
+			soss oss;
+			oss << " ^7" << love << " ^1LOVE ^7" << hate << " ^2HATE ^3==";
+			vote = oss.str();
+		}
+		
 		client.chat('i', ".");
-		client.chat('i', "^3== Playing Map: ^7" + katina.mapname + "^3 == ^7");// + to_string(love)
-//			+ " ^1LOVE ^7" + to_string(hate) + " ^2HATE ^3==");
+		client.chat('i', "^3== Playing Map: ^7" + katina.mapname + "^3 ==" + vote);
+
 		old_mapname = katina.mapname;
 	}
 

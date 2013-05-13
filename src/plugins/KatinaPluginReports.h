@@ -115,22 +115,7 @@ private:
 	}
 
 public:
-	KatinaPluginReports(Katina& katina)
-	: KatinaPlugin(katina)
-	, stats(0)
-	, client(katina)
-	, active(false)
-	, do_flags(false)
-	, do_flags_hud(false)
-	, do_chats(false)
-	, do_kills(false)
-	, do_infos(false)
-	, do_stats(false)
-	, stats_cols(0)
-	, spamkill(false)
-	, spam_limit(2)
-	{
-	}
+	KatinaPluginReports(Katina& katina);
 
 	// INTERFACE: KatinaPlugin
 

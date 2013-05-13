@@ -54,6 +54,7 @@ enum event_t
 	, CLIENT_DISCONNECT
 	, KILL
 	, CTF
+	, CTF_EXIT
 	, AWARD
 	, INIT_GAME
 	, SAY

@@ -207,9 +207,8 @@ bool Katina::extract_name_from_text(const str& line, GUID& guid, str& text)
 
 bool Katina::load_plugin(const str& file)
 {
-	KatinaPlugin* plugin;
-
 	void* dl = 0;
+	KatinaPlugin* plugin = 0;
 	KatinaPlugin* (*katina_plugin_factory)(Katina&) = 0;
 
 	log("PLUGIN LOAD: " << file);
@@ -226,30 +225,6 @@ bool Katina::load_plugin(const str& file)
 		return false;
 	}
 
-	const char* ID;
-
-	if(!(*(void**)&ID = dlsym(dl, "ID")))
-	{
-		log("PLUGIN LOAD ERROR: ID: " << dlerror());
-		return false;
-	}
-
-	const char* NAME;
-
-	if(!(*(void**)&NAME = dlsym(dl, "NAME")))
-	{
-		log("PLUGIN LOAD ERROR: NAME: " << dlerror());
-		return false;
-	}
-
-	const char* VERSION;
-	
-	if(!(*(void**)&VERSION = dlsym(dl, "VERSION")))
-	{
-		log("PLUGIN LOAD ERROR: VERSION: " << dlerror());
-		return false;
-	}
-	
 	if(!(plugin = katina_plugin_factory(*this)))
 	{
 		log("PLUGIN LOAD: plugin factory failed");
@@ -257,7 +232,7 @@ bool Katina::load_plugin(const str& file)
 			log("PLUGIN LOAD: plugin failed to unload: " << dlerror());
 		return false;
 	}
-
+	
 	plugin->dl = dl;
 
 	if(!plugin->open())
@@ -272,7 +247,7 @@ bool Katina::load_plugin(const str& file)
 	plugins[plugin->get_id()] = plugin;
 	plugin_files[plugin->get_id()] = file;
 
-	log("PLUGIN LOAD: OK");
+	log("PLUGIN LOAD: OK: " << plugin->get_id() << ", " << plugin->get_name() << ", " << plugin->get_version());
 
 	return true;
 }
@@ -307,7 +282,7 @@ bool Katina::reload_plugin(const str& id)
 
 	if(i == plugins.end())
 	{
-		log("PLUGIN RELOAD: plugin not found: " << id);
+		log("PLUGIN RELOAD: ERROR: plugin not found: " << id);
 		return false;
 	}
 
@@ -315,16 +290,16 @@ bool Katina::reload_plugin(const str& id)
 
 	if(f == plugin_files.end())
 	{
-		log("PLUGIN RELOAD: plugin file not known: " << id);
+		log("PLUGIN RELOAD: ERROR: plugin file not known: " << id);
 		return false;
 	}
 
 	if(!unload_plugin(id))
-		log("PLUGIN RELOAD: plugin '" << id << "' failed to unload: " << f->second);
+		log("PLUGIN RELOAD: ERROR: plugin '" << id << "' failed to unload: " << f->second);
 
 	if(!load_plugin(f->second))
 	{
-		log("PLUGIN RELOAD: plugin '" << id << "' failed to reload: " << f->second);
+		log("PLUGIN RELOAD: ERROR: plugin '" << id << "' failed to reload: " << f->second);
 		return false;
 	}
 
@@ -333,16 +308,19 @@ bool Katina::reload_plugin(const str& id)
 
 KatinaPlugin* Katina::get_plugin(const str& id, const str& version)
 {
+//	bug_func();
+//	bug_var(id);
+//	bug_var(version);
 	plugin_map_iter i = plugins.find(id);
 
 	if(i == plugins.end())
 	{
-		log("get_plugin: plugin not found: " << id);
+		log("ERROR: plugin not found: " << id);
 		return 0;
 	}
 	if(i->second->get_version() < version)
 	{
-		log("get_plugin: wrong version found: " << i->second->get_version() << " expected " << version);
+		log("ERROR: wrong version found: " << i->second->get_version() << " expected " << version);
 		return 0;
 	}
 
@@ -529,7 +507,7 @@ bool Katina::start(const str& dir)
 		iss.str(line);
 
 		str params;
-		if(!sgl(iss >> min >> c >> sec >> cmd >> std::ws, params))
+		if(!sgl(sgl(iss >> min >> c >> sec >> std::ws, cmd, ':') >> std::ws, params))
 		{
 			if(client_userinfo_bug)
 			{
@@ -545,13 +523,18 @@ bool Katina::start(const str& dir)
 				{
 					log("ALERT: ClientUserinfoChanged bug detected");
 					// 2 n\^1S^2oo^3K^5ee\t\3\mo
-					cmd = "ClientUserinfoChanged:";
+					cmd = "ClientUserinfoChanged";
 					params = client_userinfo_bug.params + line;
 					log("     : cmd   : " << cmd);
 					log("     : params: " << params);
 				}
 			}			
 		}
+		
+		cmd += ":";
+		
+//		bug_var(cmd);
+//		bug_var(params);
 		
 		client_userinfo_bug.reset();
 
@@ -639,6 +622,10 @@ bool Katina::start(const str& dir)
 				for(plugin_vec_iter i = events[CLIENT_DISCONNECT].begin()
 					; i != events[CLIENT_DISCONNECT].end(); ++i)
 					(*i)->client_disconnect(min, sec, num);
+					
+				teams.erase(clients[num]);
+				players.erase(clients[num]);
+				clients.erase(num);
 			}
 		}
 		else if(cmd == "Kill:")
@@ -667,6 +654,26 @@ bool Katina::start(const str& dir)
 				for(plugin_vec_iter i = events[CTF].begin()
 					; i != events[CTF].end(); ++i)
 					(*i)->ctf(min, sec, num, col, act);
+			}
+		}
+		else if(cmd == "red:") // BUG: red:(8  blue:6) [Katina.cpp] (662)
+		{
+			// 20:44 red:4  blue:3
+			bug(cmd << "(" << params << ")");
+			//bug_var(iss.str());
+			siz r = 0;
+			siz b = 0;
+			str skip;
+			if(!(sgl(iss >> r >> std::ws, skip, ':') >> b))
+				log("Error parsing CTF_EXIT:" << params);
+			else
+			{
+				bug_var(r);
+				bug_var(skip);
+				bug_var(b);
+				for(plugin_vec_iter i = events[CTF_EXIT].begin()
+					; i != events[CTF_EXIT].end(); ++i)
+					(*i)->ctf_exit(min, sec, r, b);
 			}
 		}
 		else if(cmd == "Award:")

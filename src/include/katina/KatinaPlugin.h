@@ -65,6 +65,11 @@ public:
 	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name) {}
 	virtual bool kill(siz min, siz sec, siz num1, siz num2, siz weap) {}
 	virtual bool ctf(siz min, siz sec, siz num, siz team, siz act) {}
+	
+	/**
+	 * Final score of complete CTF game
+	 */
+	virtual bool ctf_exit(siz min, siz sec, siz r, siz b) {}
 	virtual bool award(siz min, siz sec, siz num, siz awd) {}
 	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) {}
 	virtual bool shutdown_game(siz min, siz sec) {}
@@ -111,12 +116,16 @@ extern "C" KatinaPlugin* katina_plugin_factory(Katina& katina) \
  * an interface to plugin loaders.
  */
 #define KATINA_PLUGIN_INFO(I, N, V) \
-extern "C" const char* ID; \
-const char* ID = I; \
-extern "C" const char* NAME; \
-const char* NAME = N; \
-extern "C" const char* VERSION; \
-const char* VERSION = V
+static const char* ID = I; \
+static const char* NAME = N; \
+static const char* VERSION = V
+// #define KATINA_PLUGIN_INFO(I, N, V) \
+// extern "C" const char* ID; \
+// const char* ID = I; \
+// extern "C" const char* NAME; \
+// const char* NAME = N; \
+// extern "C" const char* VERSION; \
+// const char* VERSION = V
 
 #define plog(m) log(ID << ": " << m)
 

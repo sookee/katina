@@ -42,11 +42,7 @@ private:
 	guid_int_map map_votes; // GUID -> 3
 	
 public:
-	KatinaPluginVotes(Katina& katina)
-	: KatinaPlugin(katina)
-	, active(false)
-	{
-	}
+	KatinaPluginVotes(Katina& katina);
 
 	// API
 	

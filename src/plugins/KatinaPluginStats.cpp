@@ -28,6 +28,14 @@ siz map_get(const siz_map& m, siz key)
 	return m.find(key) == m.end() ? 0 : m.at(key);
 }
 
+KatinaPluginStats::KatinaPluginStats(Katina& katina)
+: KatinaPlugin(katina)
+, active(false)
+, write(false)
+, in_game(false)
+{
+}
+
 bool KatinaPluginStats::open()
 {
 	host = katina.get("rcon.host", "localhost");

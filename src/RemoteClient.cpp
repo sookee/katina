@@ -20,9 +20,9 @@ const str irc_katina = "04K00at08i00na";
 
 void RemoteClient::set_chans(const str& chans)
 {
-	bug_func();
-	bug_var(chans);
-	bug_var(this);
+	// bug_func();
+	// bug_var(chans);
+	// bug_var(this);
 	this->chans.clear();
 	str chan;
 	siss iss(chans);
@@ -44,11 +44,11 @@ void RemoteClient::set_chans(const str& chans)
 
 bool RemoteClient::say(char f, const str& text)
 {
-	bug_func();
-	bug_var(f);
-	bug_var(text);
-	bug_var(active);
-	bug_var(this);
+	// bug_func();
+	// bug_var(f);
+	// bug_var(text);
+	// bug_var(active);
+	// bug_var(this);
 	if(!active)
 		return true; // not error
 
@@ -171,8 +171,8 @@ bool InsecureClient::configure(const str& params)
 
 bool FileClient::configure(const str& params)
 {
-	bug_func();
-	bug_var(params);
+	// bug_func();
+	// bug_var(params);
 	str chans;
 	siss iss(params);
 	if(!sgl(iss >> ofile >> ifile >> std::ws, chans))
@@ -201,8 +201,8 @@ bool FileClient::configure(const str& params)
 
 RemoteClient* RemoteClient::create(Katina& katina, const str& config)
 {
-	bug_func();
-	bug_var(config);
+	// bug_func();
+	// bug_var(config);
 	// config = <type> <params>
 	str type, params;
 	siss iss(config);

@@ -34,6 +34,7 @@ bool KatinaPluginExample::open()
 	katina.add_log_event(this, CLIENT_DISCONNECT);
 	katina.add_log_event(this, KILL);
 	katina.add_log_event(this, CTF);
+	katina.add_log_event(this, CTF_EXIT);
 	katina.add_log_event(this, AWARD);
 	katina.add_log_event(this, INIT_GAME);
 	katina.add_log_event(this, SAY);
@@ -132,7 +133,15 @@ bool KatinaPluginExample::ctf(siz min, siz sec, siz num, siz team, siz act)
 {
 	if(!active)
 		return true;
-	log("ctf(" << num << ", " << team << ", " << act<< ")");
+	log("ctf(" << num << ", " << team << ", " << act << ")");
+	return true;
+}
+
+bool KatinaPluginExample::ctf_exit(siz min, siz sec, siz r, siz b)
+{
+	if(!active)
+		return true;
+	log("ctf_exit(" << r << ", " << b << ")");
 	return true;
 }
 

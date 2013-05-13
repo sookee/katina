@@ -73,13 +73,8 @@ private:
 	std::set<siz> db_weaps; // what weapons to record
 
 public:
-	KatinaPluginStats(Katina& katina)
-	: KatinaPlugin(katina)
-	, active(false)
-	, write(false)
-	, in_game(false)
-	{}
-
+	KatinaPluginStats(Katina& katina);
+	
 	// API
 
 	const guid_stat_map& get_stats_ref() const { return stats; }

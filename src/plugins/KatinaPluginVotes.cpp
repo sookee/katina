@@ -15,6 +15,12 @@ using namespace oastats::types;
 KATINA_PLUGIN_TYPE(KatinaPluginVotes);
 KATINA_PLUGIN_INFO("katina::votes", "Katina Voting", "0.1");
 
+KatinaPluginVotes::KatinaPluginVotes(Katina& katina)
+: KatinaPlugin(katina)
+, active(false)
+{
+}
+
 bool KatinaPluginVotes::open()
 {
 	db.config(
