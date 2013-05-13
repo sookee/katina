@@ -50,6 +50,7 @@ private:
 	siz_deq q; // pos 0 = winner, 1 = opponent
 	
 	void ensure_teams();
+	void dump_queue();
 	void announce_queue();
 	bool vote_enable();
 	bool vote_disable();
@@ -83,6 +84,7 @@ public:
 //	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name);
 	virtual bool client_connect(siz min, siz sec, siz num);
 	virtual bool client_disconnect(siz min, siz sec, siz num);
+	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name);
 	virtual bool ctf(siz min, siz sec, siz num, siz team, siz act);
 	virtual bool ctf_exit(siz min, siz sec, siz r, siz b);
 	virtual bool init_game(siz min, siz sec);
