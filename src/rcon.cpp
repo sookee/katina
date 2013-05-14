@@ -48,11 +48,16 @@ bool aocom(const str& cmd, str_vec& packets, const str& host, int port
 	static milliseconds last = 0;
 	
 	milliseconds now = 0;
+	bug_var(now);
+	bug_var(last);
+	bug_var(now - last);
 	while((now = get_millitime()) - last < 1500)
 		thread_sleep_millis(now - last);
 	
 	last = now;
-
+	
+	bug_var(cmd);
+	
 	addrinfo* res;
 	if(int status = getaddrinfo(host.c_str(), to_string(port).c_str(), &hints, &res) != 0)
 	{
