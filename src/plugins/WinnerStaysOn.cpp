@@ -45,6 +45,7 @@ bool WinnerStaysOn::open()
 	
 	server.chat("^7== ^3Winner Stays On ^1v^7" + str(VERSION) + " ^7==");
 	command("set bot_enable 0");
+	command("set bot_minplayers 0");
 
 	return true;
 }
@@ -309,7 +310,7 @@ void WinnerStaysOn::close()
 {
 	unlock_teams();
 	command("set bot_enable 1");
-
+	command("set bot_minplayers 1");
 }
 
 }} // katina::plugin
