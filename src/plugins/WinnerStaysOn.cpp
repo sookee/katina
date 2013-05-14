@@ -102,36 +102,48 @@ void WinnerStaysOn::announce_queue()
 		server.chat("^2#" + to_str(pos) + " ^7" + players[clients[*i]]);
 }
 
+bool WinnerStaysOn::command(const str& cmd)
+{
+	if(!server.command(cmd))
+		if(!server.command(cmd))
+			return server.command(cmd); // two retry
+	return true;
+}
+
 bool WinnerStaysOn::vote_enable()
 {
 	server.cp("Voting on");
-	if(!server.command("set g_allowVote 1"))
-		if(!server.command("set g_allowVote 1"))
-			return server.command("set g_allowVote 1"); // two retry
-	return true;
+	return command("set g_allowVote 1");
 }
 
 bool WinnerStaysOn::vote_disable()
 {
 	server.cp("Voting off");
-	if(!server.command("set g_allowVote 0"))
-		if(!server.command("set g_allowVote 0"))
-			return server.command("set g_allowVote 0"); // two retry
-	return true;
+	return command("set g_allowVote 0");
 }
 
-// Warmup = time to vote for map to play
+bool WinnerStaysOn::lock_teams()
+{
+	command("!lock r");
+	command("!lock b");
+}
+
+bool WinnerStaysOn::unlock_teams()
+{
+	command("!unlock r");
+	command("!unlock b");
+}
 
 bool WinnerStaysOn::warmup(siz min, siz sec)
 {
 	dump_queue();
+
+	vote_enable();
 	server.chat("^7== ^3Winner Stays On ^1v^7" + str(VERSION) + " ^7==");
 	server.cp("^7== ^3Winner Stays On ^1v^7" + str(VERSION) + " ^7==");
 
-	server.command("!lock r");
-	server.command("!lock b");
+	lock_teams();
 	
-	vote_enable();	
 	ensure_teams();
 	announce_queue();
 	
@@ -162,10 +174,16 @@ bool WinnerStaysOn::client_disconnect(siz min, siz sec, siz num)
 	siz_deq_riter i = q.rbegin();
 	
 	if(i != q.rend() && *i++ == num)
+	{
+		server.chat("The defender has left, starting a new game.");
 		server.command("!restart");
+	}
 	
 	if(i != q.rend() && *i++ == num)
+	{
+		server.chat("The challenger has left, starting a new game.");
 		server.command("!restart");
+	}
 
 	while(i != q.rend())
 	{
@@ -249,12 +267,11 @@ bool WinnerStaysOn::ctf_exit(siz min, siz sec, siz r, siz b)
 bool WinnerStaysOn::init_game(siz min, siz sec)
 {
 	dump_queue();
-	server.command("!lock r");
-	server.command("!lock b");
+	lock_teams();
 
 	vote_disable();	
-	server.command("set g_doWarmup 1");
-	server.command("set g_warmup " + katina.get("wso.warmup", "30"));
+	command("set g_doWarmup 1");
+	command("set g_warmup " + katina.get("wso.warmup", "30"));
 	
 	ensure_teams();
 	announce_queue();
@@ -276,14 +293,12 @@ bool WinnerStaysOn::exit(siz min, siz sec)
 bool WinnerStaysOn::shutdown_game(siz min, siz sec)
 {
 	dump_queue();
-	dump_queue();
 	return true;
 }
 
 void WinnerStaysOn::close()
 {
-	server.command("!unlock r");
-	server.command("!unlock b");
+	unlock_teams();
 }
 
 }} // katina::plugin

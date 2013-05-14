@@ -52,8 +52,12 @@ private:
 	void ensure_teams();
 	void dump_queue();
 	void announce_queue();
+	
+	bool command(const str& cmd);
 	bool vote_enable();
 	bool vote_disable();
+	bool lock_teams();
+	bool unlock_teams();
 
 public:
 	WinnerStaysOn(Katina& katina)
