@@ -65,15 +65,15 @@ str WinnerStaysOn::get_version() const
 
 void WinnerStaysOn::ensure_teams()
 {
-	siz_deq_riter i = q.rbegin();
+	siz_deq_iter i = q.begin();
 	
-	if(i != q.rend() && teams[clients[*i]] != win_team)
+	if(i != q.end() && teams[clients[*i]] != win_team)
 		server.command("!putteam " + to_str(*i++) + " " + get_team(win_team));
 
-	if(i != q.rend() && teams[clients[*i]] != win_team)
+	if(i != q.end() && teams[clients[*i]] != win_team)
 		server.command("!putteam " + to_str(*i++) + " " + get_team(opp_team));
 
-	while(i != q.rend())
+	while(i != q.end())
 		if(teams[clients[*i]] != TEAM_S)
 			server.command("!putteam " + to_str(*i++) + " s");	
 }
@@ -85,9 +85,13 @@ void WinnerStaysOn::dump_queue()
 	
 	con("== QUEUE ============================");
 	
-	siz pos = 0;
-	for(siz_deq_iter i = q.begin(); i != q.end(); ++i, ++pos)
-		con("#" + to_str(pos) + " " + players[clients[*i]]);
+	siz_deq_iter i = q.begin();
+	if(i != q.end())
+		con("! " + players[clients[*i++]]);
+	if(i != q.end())
+		con("? " + players[clients[*i++]]);
+	for(siz pos = 1; i != q.end(); ++pos)
+		con(to_str(pos) + " " + players[clients[*i++]]);
 }
 
 void WinnerStaysOn::announce_queue()
@@ -97,9 +101,13 @@ void WinnerStaysOn::announce_queue()
 	
 	server.chat("^1== ^3QUEUE ^1============================");
 	
-	siz pos = 0;
-	for(siz_deq_iter i = q.begin(); i != q.end(); ++i, ++pos)
-		server.chat("^2#" + to_str(pos) + " ^7" + players[clients[*i]]);
+	siz_deq_iter i = q.begin();
+	if(i != q.end())
+		con("^3! " + players[clients[*i++]]);
+	if(i != q.end())
+		con("^3? " + players[clients[*i++]]);
+	for(siz pos = 1; i != q.end(); ++pos)
+		con("^3" + to_str(pos) + " ^7" + players[clients[*i++]]);
 }
 
 bool WinnerStaysOn::command(const str& cmd)
@@ -171,25 +179,25 @@ bool WinnerStaysOn::client_connect(siz min, siz sec, siz num)
 bool WinnerStaysOn::client_disconnect(siz min, siz sec, siz num)
 {
 	dump_queue();
-	siz_deq_riter i = q.rbegin();
+	siz_deq_iter i = q.begin();
 	
-	if(i != q.rend() && *i++ == num)
+	if(i != q.end() && *i++ == num)
 	{
 		server.chat("The defender has left, starting a new game.");
 		server.command("!restart");
 	}
 	
-	if(i != q.rend() && *i++ == num)
+	if(i != q.end() && *i++ == num)
 	{
 		server.chat("The challenger has left, starting a new game.");
 		server.command("!restart");
 	}
 
-	while(i != q.rend())
+	while(i != q.end())
 	{
 		if(*i++ != num)
 			continue;
-		q.erase(i.base());
+		q.erase(i);
 		ensure_teams();
 		announce_queue();
 		break;
@@ -224,35 +232,35 @@ bool WinnerStaysOn::ctf_exit(siz min, siz sec, siz r, siz b)
 	dump_queue();
 	siz team = r > b ? TEAM_R : (b > r ? TEAM_B: TEAM_S);
 	
-	siz_deq_riter i = q.rbegin();
+	siz_deq_iter i = q.begin();
 
 	if(team == TEAM_S || win_team == team)
 	{
-		if(i != q.rend())
+		if(i != q.end())
 		{
 			server.cp("^7" + players[clients[*i]] + " ^3wins!");
 			server.chat("^3The defender: ^7" + players[clients[*i]] + " ^3stays on!");
 		}
 		
-		if(++i != q.rend())
+		if(++i != q.end())
 		{
 			server.chat("^3The challenger: ^7" + players[clients[*i]] + " ^3goes to the back of the queue.");
 			siz num = *i;
-			q.erase(i.base());
+			q.erase(i);
 			q.push_back(*i);
 		}
 	}
 	else
 	{
-		if(i != q.rend())
+		if(i != q.end())
 		{
 			server.chat("^3The defender: ^7" + players[clients[*i]] + " ^3goes to the back of the queue!");
 			siz num = *i;
-			q.erase(i.base());
+			q.erase(i);
 			q.push_back(*i);
 		}
 		
-		if(++i != q.rend())
+		if(++i != q.end())
 		{
 			server.cp("^7" + players[clients[*i]] + " ^3wins!");
 			server.chat("^3The winner: ^7" + players[clients[*i]] + " ^3stays on!");
