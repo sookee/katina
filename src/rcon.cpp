@@ -52,7 +52,7 @@ bool aocom(const str& cmd, str_vec& packets, const str& host, int port
 	bug_var(last);
 	bug_var(now - last);
 	while((now = get_millitime()) - last < 1500)
-		thread_sleep_millis(now - last);
+		thread_sleep_millis(1500 + last - now);
 	
 	last = now;
 	
