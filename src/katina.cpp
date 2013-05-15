@@ -145,6 +145,7 @@ bool rconset(const str& cvar, str& val)
 		if(!std::getline(std::getline(iss, skip, ':').ignore(), sval, '^'))
 		{
 			log("ERROR: parsing rconset response: " << response);
+			log("ERROR:                     cvar: " << cvar);
 			return false;
 		}
 	}
