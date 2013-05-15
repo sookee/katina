@@ -501,11 +501,12 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	
 	stats = "^3FPH^7: ^2unknown ^3CPH^7: ^2unknown";
 	
+	//hours /= (60 * 60);
+	
 	if(hours)
 	{
-		hours /= (60 * 60);
-		fph /= hours;
-		cph /= hours;
+		fph = (fph * 60 * 60) / hours;
+		cph = (cph * 60 * 60) / hours;
 
 		bug_var(hours);
 		bug_var(fph);
