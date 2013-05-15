@@ -388,6 +388,8 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	oss << " and `game_id` in (" << subsql << ")"; 
 	
 	str sql = oss.str();
+	
+	bug_var(sql);
 
 	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
 	{
@@ -396,7 +398,14 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 		return false;
 	}
 
-	MYSQL_RES* result = mysql_store_result(&mysql);
+	MYSQL_RES* result = 0;
+	
+	if(!(result = mysql_store_result(&mysql)))
+	{
+		log("DATABASE ERROR: result; " << mysql_error(&mysql));
+		return false;
+	}		
+
 
 	MYSQL_ROW row;
 	if(!(row = mysql_fetch_row(result)))
@@ -407,6 +416,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	}
 	
 	str kills = row[0];
+	bug_var(kills);
 	mysql_free_result(result);
 	
 	oss.clear();
@@ -416,6 +426,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	oss << " and `game_id` in (" << subsql << ")"; 
 	
 	sql = oss.str();
+	bug_var(sql);
 
 	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
 	{
@@ -424,7 +435,11 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 		return false;
 	}
 
-	result = mysql_store_result(&mysql);
+	if(!(result = mysql_store_result(&mysql)))
+	{
+		log("DATABASE ERROR: result; " << mysql_error(&mysql));
+		return false;
+	}		
 
 	if(!(row = mysql_fetch_row(result)))
 	{
@@ -434,6 +449,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	}
 	
 	str caps = row[0];
+	bug_var(caps);
 	mysql_free_result(result);
 	
 	oss.clear();
@@ -443,6 +459,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	oss << " and `game_id` in (" << subsql << ")"; 
 	
 	sql = oss.str();
+	bug_var(sql);
 
 	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
 	{
@@ -451,7 +468,11 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 		return false;
 	}
 
-	result = mysql_store_result(&mysql);
+	if(!(result = mysql_store_result(&mysql)))
+	{
+		log("DATABASE ERROR: result; " << mysql_error(&mysql));
+		return false;
+	}		
 
 	if(!(row = mysql_fetch_row(result)))
 	{
@@ -461,6 +482,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	}
 	
 	str secs = row[0];
+	bug_var(secs);
 	mysql_free_result(result);
 	
 	siz hours = 0;
