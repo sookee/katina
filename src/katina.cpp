@@ -900,6 +900,7 @@ int main(const int argc, const char* argv[])
 		return -2;
 	}
 
+	server.on();
 	server.config(recs["rcon.host"], to<siz>(recs["rcon.port"]), recs["rcon.pass"]);
 	skivvy.config(recs["skivvy.host"], to<siz>(recs["skivvy.port"]));
 	db.config(recs["db.host"], to<siz>(recs["db.port"]), recs["db.user"], recs["db.pass"], recs["db.base"]);
