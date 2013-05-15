@@ -495,6 +495,10 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 		return false;
 	}
 	
+	bug_var(hours);
+	bug_var(fph);
+	bug_var(cph);
+	
 	stats = "^3FPH^7: ^2unknown ^3CPH^7: ^2unknown";
 	
 	if(hours)
@@ -502,6 +506,10 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 		hours /= (60 * 60);
 		fph /= hours;
 		cph /= hours;
+
+		bug_var(hours);
+		bug_var(fph);
+		bug_var(cph);
 
 		soss oss;
 		oss << "^3FPH^7: ^2" << fph << " ^3CPH^7: ^2" << cph;
