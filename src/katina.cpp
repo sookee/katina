@@ -1627,16 +1627,24 @@ int main(const int argc, const char* argv[])
 			{
 				str text;
 				GUID guid;
+				
+				bug("stats:");
 
 				if(!extract_name_from_text(line, guid, text))
 					continue;
 
+				bug_var(guid);
+				bug_var(text);
+
 				siz prev = 0; // count $prev month's back
 				if(!(iss >> prev))
 					prev = 0;
+				
+				bug_var(prev);
 
 				if(ka_cfg.do_db)
 				{
+					bug("getting stats");
 					db.on();
 					str stats;
 					if(db.get_ingame_stats(guid, mapname, prev, stats))
