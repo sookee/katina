@@ -376,12 +376,17 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	bug_var(emonth);
 
 	soss oss;
-	oss << "select sum(`kills`.`count`),sum(`caps`.`count`),sum(`time`.`count`) from `kills`,`caps`,`time` where `game_id` in ";
-	oss << "(select min(game_id) from game where exists(select * from time where time.game_id=game.game_id)";
-	oss << " and `map` = '" + mapname + "`";
+	oss << "select `game_id` from `game` where `map` = '" << mapname << "'";
 	oss << " and `date` >= TIMESTAMP('" << syear << '-' << (smonth < 10 ? "0":"") << smonth << '-' << "01" << "')";
-	oss << " and `date` < TIMESTAMP('" << eyear << '-' << (emonth < 10 ? "0":"") << emonth << '-' << "01" << "'))";
-
+	oss << " and `date` <  TIMESTAMP('" << eyear << '-' << (emonth < 10 ? "0":"") << emonth << '-' << "01" << "')";
+	str subsql = oss.str();
+	
+	oss.clear();
+	oss.str("");
+	oss << "select sum(`kills`.`count`) from `kills` where `kills`.`guid` = '";
+	oss << guid << "'";
+	oss << " and `game_id` in (" << subsql << ")"; 
+	
 	str sql = oss.str();
 
 	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
@@ -394,24 +399,96 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	MYSQL_RES* result = mysql_store_result(&mysql);
 
 	MYSQL_ROW row;
-	if((row = mysql_fetch_row(result)))
+	if(!(row = mysql_fetch_row(result)))
+	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
 	{
-		siz hours = 0;
-		siz fph = 0;
-		siz cph = 0;
-		siss iss(str(row[0]) + " " + str(row[1]) + " " + str(row[2])); // seconds
-		if((iss >> fph >> cph >> hours) && hours)
-		{
-			hours /= (60 * 60);
-			fph /= hours;
-			cph /= hours;
-
-			soss oss;
-			oss << "^3FPH^7: ^2" << fph << " ^3CPH^7: ^2" << cph;
-			stats = oss.str();
-		}
+		log("DATABASE ERROR: fetching row; " << mysql_error(&mysql));
+		mysql_free_result(result);
+		return false;
 	}
+	
+	str kills = row[0];
 	mysql_free_result(result);
+	
+	oss.clear();
+	oss.str("");
+	oss << "select sum(`caps`.`count`) from `caps` where `caps`.`guid` = '";
+	oss << guid << "'";
+	oss << " and `game_id` in (" << subsql << ")"; 
+	
+	sql = oss.str();
+
+	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+	{
+		log("DATABASE ERROR: Unable to get_ingame_stats; " << mysql_error(&mysql));
+		log("              : sql = " << sql);
+		return false;
+	}
+
+	result = mysql_store_result(&mysql);
+
+	if(!(row = mysql_fetch_row(result)))
+	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+	{
+		log("DATABASE ERROR: fetching row; " << mysql_error(&mysql));
+		mysql_free_result(result);
+		return false;
+	}
+	
+	str caps = row[0];
+	mysql_free_result(result);
+	
+	oss.clear();
+	oss.str("");
+	oss << "select sum(`time`.`count`) from `time` where `time`.`guid` = '";
+	oss << guid << "'";
+	oss << " and `game_id` in (" << subsql << ")"; 
+	
+	sql = oss.str();
+
+	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+	{
+		log("DATABASE ERROR: Unable to get_ingame_stats; " << mysql_error(&mysql));
+		log("              : sql = " << sql);
+		return false;
+	}
+
+	result = mysql_store_result(&mysql);
+
+	if(!(row = mysql_fetch_row(result)))
+	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+	{
+		log("DATABASE ERROR: fetching row; " << mysql_error(&mysql));
+		mysql_free_result(result);
+		return false;
+	}
+	
+	str secs = row[0];
+	mysql_free_result(result);
+	
+	siz hours = 0;
+	siz fph = 0;
+	siz cph = 0;
+	siss iss(kills + " " + caps + " " + secs); // seconds
+	if(!(iss >> fph >> cph >> hours))
+	{
+		log("DATABASE ERROR: parsing results: " << (kills + " " + caps + " " + secs));
+		return false;
+	}
+	
+	stats = "^3FPH^7: ^2unknown ^3CPH^7: ^2unknown";
+	
+	if(hours)
+	{
+		hours /= (60 * 60);
+		fph /= hours;
+		cph /= hours;
+
+		soss oss;
+		oss << "^3FPH^7: ^2" << fph << " ^3CPH^7: ^2" << cph;
+		stats = oss.str();
+	}
+
 	return true;
 }
 

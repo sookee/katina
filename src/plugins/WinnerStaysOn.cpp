@@ -146,7 +146,6 @@ bool WinnerStaysOn::unlock_teams()
 
 bool WinnerStaysOn::warmup(siz min, siz sec)
 {
-	dump_queue();
 
 	vote_enable();
 	server.chat("^7== ^3Winner Stays On ^1v^7" + str(VERSION) + " ^7==");
@@ -159,13 +158,11 @@ bool WinnerStaysOn::warmup(siz min, siz sec)
 	
 	server.cp("Please vote for your map now");
 
-	dump_queue();
 	return true;
 }
 
 bool WinnerStaysOn::client_connect(siz min, siz sec, siz num)
 {
-	dump_queue();
 	siz_deq_iter i = std::find(q.begin(), q.end(), num);
 	if(i != q.end())
 		q.erase(i);
@@ -174,44 +171,41 @@ bool WinnerStaysOn::client_connect(siz min, siz sec, siz num)
 	katina.chat_to(num, "You have been moved to the back of the queue.");
 	katina.chat_to(num, "There are " + to_str(q.size() - 1) + " people in front of you.");
 		
-	dump_queue();
 	return true;
 }
 
 bool WinnerStaysOn::client_disconnect(siz min, siz sec, siz num)
 {
-	dump_queue();
 	siz_deq_iter i = q.begin();
 	
 	if(i != q.end() && *i++ == num)
 	{
-		server.chat("The defender has left, starting a new game.");
+		server.chat("^3 The defender has left, starting a new game.");
 		server.command("!restart");
 	}
 	
 	if(i != q.end() && *i++ == num)
 	{
-		server.chat("The challenger has left, starting a new game.");
+		server.chat("^3 The challenger has left, starting a new game.");
 		server.command("!restart");
 	}
 
-	while(i != q.end())
+	for(siz pos = 1; i != q.end(); ++pos)
 	{
 		if(*i++ != num)
 			continue;
+		server.chat("^3Player ^7" + to_str(pos) + "^3: ^7" + players[clients[num]] + " ^3has left.");
 		q.erase(i);
 		ensure_teams();
 		announce_queue();
 		break;
 	}
 
-	dump_queue();
 	return true;
 }
 
 bool WinnerStaysOn::client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name)
 {
-	dump_queue();
 	siz_deq_iter i = std::find(q.begin(), q.end(), num);
 	if(i == q.end())
 	{
@@ -219,7 +213,6 @@ bool WinnerStaysOn::client_userinfo_changed(siz min, siz sec, siz num, siz team,
 		katina.chat_to(num, "You have been moved to the back of the queue.");
 		katina.chat_to(num, "There are " + to_str(q.size() - 1) + " people in front of you.");
 	}
-	dump_queue();
 	
 	return true;
 }
@@ -231,7 +224,6 @@ bool WinnerStaysOn::ctf(siz min, siz sec, siz num, siz team, siz act)
 
 bool WinnerStaysOn::ctf_exit(siz min, siz sec, siz r, siz b)
 {
-	dump_queue();
 	siz team = r > b ? TEAM_R : (b > r ? TEAM_B: TEAM_S);
 	
 	siz_deq_iter i = q.begin();
@@ -270,13 +262,11 @@ bool WinnerStaysOn::ctf_exit(siz min, siz sec, siz r, siz b)
 	}
 
 	win_team = win_team == TEAM_R ? TEAM_B : TEAM_R;
-	dump_queue();
 	return true;
 }
 
 bool WinnerStaysOn::init_game(siz min, siz sec)
 {
-	dump_queue();
 	lock_teams();
 
 	vote_disable();	
@@ -286,7 +276,6 @@ bool WinnerStaysOn::init_game(siz min, siz sec)
 	ensure_teams();
 	announce_queue();
 
-	dump_queue();
 	return true;
 }
 
@@ -302,7 +291,6 @@ bool WinnerStaysOn::exit(siz min, siz sec)
 
 bool WinnerStaysOn::shutdown_game(siz min, siz sec)
 {
-	dump_queue();
 	return true;
 }
 

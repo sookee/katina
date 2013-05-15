@@ -545,27 +545,42 @@ bool Katina::start(const str& dir)
 		
 		if(cmd == "Exit:")
 		{
+			if(events[EXIT].empty())
+				continue;
+			
 			bug(cmd << "(" << params << ")");
+
 			for(plugin_vec_iter i = events[EXIT].begin()
 				; i != events[EXIT].end(); ++i)
 				(*i)->exit(min, sec);
 		}
 		else if(cmd == "ShutdownGame:")
 		{
+			if(events[SHUTDOWN_GAME].empty())
+				continue;
+			
 			bug(cmd << "(" << params << ")");
+
 			for(plugin_vec_iter i = events[SHUTDOWN_GAME].begin()
 				; i != events[SHUTDOWN_GAME].end(); ++i)
 				(*i)->shutdown_game(min, sec);
 		}
 		else if(cmd == "Warmup:")
 		{
+			if(events[WARMUP].empty())
+				continue;
+			
 			bug(cmd << "(" << params << ")");
+
 			for(plugin_vec_iter i = events[WARMUP].begin()
 				; i != events[WARMUP].end(); ++i)
 				(*i)->warmup(min, sec);
 		}
 		else if(cmd == "ClientUserinfoChanged:")
 		{
+			if(events[CLIENT_USERINFO_CHANGED].empty())
+				continue;
+			
 			bug(cmd << "(" << params << ")");
 			
 			// 0 n\Merman\t\2\model\merman\hmodel\merman\c1\1\c2\1\hc\70\w\0\l\0\skill\ 2.00\tt\0\tl\0\id\
@@ -600,7 +615,11 @@ bool Katina::start(const str& dir)
 		}
 		else if(cmd == "ClientConnect:")
 		{
+			if(events[CLIENT_CONNECT].empty())
+				continue;
+			
 			bug(cmd << "(" << params << ")");
+
 			siz num;
 			if(!(iss >> num))
 				std::cout << "Error parsing ClientConnect: "  << params << '\n';
@@ -613,7 +632,11 @@ bool Katina::start(const str& dir)
 		}
 		else if(cmd == "ClientDisconnect:")
 		{
+			if(events[CLIENT_DISCONNECT].empty())
+				continue;
+			
 			bug(cmd << "(" << params << ")");
+
 			siz num;
 			if(!(iss >> num))
 				std::cout << "Error parsing ClientConnect: "  << params << '\n';
@@ -630,6 +653,9 @@ bool Katina::start(const str& dir)
 		}
 		else if(cmd == "Kill:")
 		{
+			if(events[KILL].empty())
+				continue;
+			
 			bug(cmd << "(" << params << ")");
 
 			siz num1, num2, weap;
@@ -644,6 +670,9 @@ bool Katina::start(const str& dir)
 		}
 		else if(cmd == "CTF:")
 		{
+			if(events[CTF].empty())
+				continue;
+			
 			bug(cmd << "(" << params << ")");
 
 			siz num, col, act;
@@ -658,6 +687,9 @@ bool Katina::start(const str& dir)
 		}
 		else if(cmd == "red:") // BUG: red:(8  blue:6) [Katina.cpp] (662)
 		{
+			if(events[CTF_EXIT].empty())
+				continue;
+			
 			// 20:44 red:4  blue:3
 			bug(cmd << "(" << params << ")");
 			//bug_var(iss.str());
@@ -678,7 +710,11 @@ bool Katina::start(const str& dir)
 		}
 		else if(cmd == "Award:")
 		{
+			if(events[AWARD].empty())
+				continue;
+			
 			bug(cmd << "(" << params << ")");
+
 			siz num, awd;
 			if(!(iss >> num >> awd))
 				log("Error parsing Award:" << params);
@@ -691,21 +727,18 @@ bool Katina::start(const str& dir)
 		}
 		else if(cmd == "InitGame:")
 		{
+			if(events[INIT_GAME].empty())
+				continue;
+			
 			bug(cmd << "(" << params << ")");
 
-			// \videoflags\0\sv_dlURL\http://sookee.dyndns.org/maps\sv_floodProtect\1\sv_maxPing\0\sv_minPing\0\sv_maxRate\25000\sv_minRate\2500\sv_hostname\^1S^2oo^3K^5ee ^3i^7CTF ^1K^7at^3i^7na ^5Testing\sv_maxclients\10\fraglimit\15\timelimit\20\sv_fps\20\sv_allowdownload\1\g_needpass\0\g_delagHitscan\1\bot_minplayers\1\g_maxGameClients\10\g_doWarmup\3\g_allowVote\1\g_voteGametypes\/4/\dmflags\0\capturelimit\8\g_voteMaxTimelimit\0\g_voteMinTimelimit\0\g_voteMaxFraglimit\0\g_voteMinFraglimit\0\elimination_roundtime\90\g_lms_mode\0\_Admin\^1S^2oo^3K^5ee\_Email\oasookee@googlemail.com\_Location\Europe, England\_Website\http://sookee.dyndns.org/oatab\version\ioq3+oa 1.36_SVN1910M linux-i386 Dec 25 2011\protocol\71\g_gametype\4\mapname\oasago2\snaps\20\g_instantgib\2\gamename\baseoa\elimflags\0\voteflags\263\g_obeliskRespawnDelay\10\g_enableDust\0\g_enableBreath\0\g_rockets\0\g_altExcellent\0\g_timestamp\2013-05-08 10:31:26
-			str key, val;
-			str_map cvars;
+			static str key, val;
+			static str_map cvars;
 			
-			//bug("--------------------------------------");
+			cvars.clear();
 			iss.ignore(); // skip initial '\\'
 			while(sgl(sgl(iss, key, '\\'), val, '\\'))
-			{
-				//bug_var(key);
-				//bug_var(val);
 				cvars[key] = val;
-			}
-			//bug("--------------------------------------");
 			
 			clients.clear();
 			players.clear();
@@ -758,7 +791,11 @@ bool Katina::start(const str& dir)
 		}
 		else if(cmd == "say:")
 		{
+			if(events[SAY].empty())
+				continue;
+			
 			bug(cmd << "(" << params << ")");
+			
 			str text;
 			GUID guid;
 
@@ -769,7 +806,11 @@ bool Katina::start(const str& dir)
 		}
 		else
 		{
+			if(events[UNKNOWN].empty())
+				continue;
+			
 			bug("UNKNOWN: " << cmd << "(" << params << ")");
+
 			for(plugin_vec_iter i = events[UNKNOWN].begin()
 				; i != events[UNKNOWN].end(); ++i)
 				(*i)->unknown(min, sec, cmd, params);
