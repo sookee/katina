@@ -400,7 +400,6 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 
 	MYSQL_ROW row;
 	if(!(row = mysql_fetch_row(result)))
-	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
 	{
 		log("DATABASE ERROR: fetching row; " << mysql_error(&mysql));
 		mysql_free_result(result);
@@ -428,7 +427,6 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	result = mysql_store_result(&mysql);
 
 	if(!(row = mysql_fetch_row(result)))
-	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
 	{
 		log("DATABASE ERROR: fetching row; " << mysql_error(&mysql));
 		mysql_free_result(result);
@@ -456,7 +454,6 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	result = mysql_store_result(&mysql);
 
 	if(!(row = mysql_fetch_row(result)))
-	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
 	{
 		log("DATABASE ERROR: fetching row; " << mysql_error(&mysql));
 		mysql_free_result(result);
