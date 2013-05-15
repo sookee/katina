@@ -415,7 +415,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 		return false;
 	}
 	
-	str kills = row[0];
+	str kills = row[0] ? row[0] : "0";
 	bug_var(kills);
 	mysql_free_result(result);
 	
@@ -448,7 +448,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 		return false;
 	}
 	
-	str caps = row[0];
+	str caps = row[0] ? row[0] : "0";
 	bug_var(caps);
 	mysql_free_result(result);
 	
@@ -481,7 +481,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 		return false;
 	}
 	
-	str secs = row[0];
+	str secs = row[0] ? row[0] : "0";
 	bug_var(secs);
 	mysql_free_result(result);
 	
