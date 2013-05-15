@@ -88,9 +88,6 @@ public:
 
 	bool command(const str& cmd, str& reply)
 	{
-		bug_func();
-		bug_var(cmd);
-		bug_var(active);
 		if(!active)
 			return true;
 		return rcon("rcon " + pass + " " + cmd, reply, host, port, 2000);
