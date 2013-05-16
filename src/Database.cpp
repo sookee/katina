@@ -605,7 +605,7 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 		return false;
 	}
 	
-	double c = row[1] ? to<double>(row[1]) : 0.0;
+	double c = row[0] ? to<double>(row[0]) : 0.0;
 	
 	mysql_free_result(result);
 	
