@@ -426,8 +426,15 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 	oss.clear();
 	oss.str("");
 	for(siz_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
-		{ oss << sep << i->first; sep = ",";}
+		if(!i->second.is_bot())
+			{ oss << sep << "'" << i->first << "'"; sep = ",";}
 	str insql = oss.str();
+	
+	guid = null_guid;
+	stats = "^3FPH^7: ^20 ^3CPH^7: ^20 ^3index^7: ^20.00";
+
+	if(insql.empty())
+		return true;
 	
 	oss.clear();
 	oss.str("");
@@ -551,17 +558,18 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 		}
 	}
 	
-	guid = null_guid;
-	stats = "^3FPH^7: ^20 ^3CPH^7: ^20 ^3index^7: ^20.00";
 	if(maxi != guids.end())
 	{
 		guid = GUID(*maxi);
-		soss oss;
-		oss << "^3FPH^7: ^2" << stat_cs[*maxi].fph << " ^3CPH^7: ^2" << stat_cs[*maxi].cph;
-		oss << std::fixed;
-		oss.precision(2);
-		oss << "^3index^7: ^2" << stat_cs[*maxi].idx;
-		stats = oss.str();
+		if(!guid.is_bot())
+		{
+			soss oss;
+			oss << "^3FPH^7: ^2" << stat_cs[*maxi].fph << " ^3CPH^7: ^2" << stat_cs[*maxi].cph;
+			oss << std::fixed;
+			oss.precision(2);
+			oss << "^3index^7: ^2" << stat_cs[*maxi].idx;
+			stats = oss.str();
+		}
 	}
 	
 	return true;

@@ -1689,8 +1689,10 @@ int main(const int argc, const char* argv[])
 					db.on();
 					str stats;
 					GUID guid;
-					if(db.get_ingame_boss(mapname, clients, guid, stats))
+					if(db.get_ingame_boss(mapname, clients, guid, stats) && guid != null_guid)
 						server.chat("^7BOSS: " + players[guid] + "^7: " + stats);
+					else
+						server.chat("^7BOSS: ^3There is no boss on this map");
 					db.off();
 				}
 			}
