@@ -539,13 +539,12 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 	
 	mysql_free_result(result);
 	
-	// -- get ration of frags to caps
+	// -- get ratio of frags to caps
 	
 	oss.clear();
 	oss.str("");
-	oss << "select sum(`kills`.`count`),sum(`caps`.`count`) from `kills`,`caps` where";
+	oss << "select sum(`kills`.`count`) from `kills` where";
 	oss << " `kills`.`game_id` in (" << subsql << ")"; 
-	oss << " or `caps`.`game_id` in (" << subsql << ")"; 
 	
 	sql = oss.str();
 	
@@ -573,10 +572,43 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 	}
 	
 	double k = row[0] ? to<double>(row[0]) : 0.0;
-	double c = row[1] ? to<double>(row[1]) : 0.0;
 
 	mysql_free_result(result);
 
+	oss.clear();
+	oss.str("");
+	oss << "select sum(`caps`.`count`) from `caps` where";
+	oss << " `caps`.`game_id` in (" << subsql << ")"; 
+	
+	sql = oss.str();
+	
+	bug_var(sql);
+
+	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+	{
+		log("DATABASE ERROR: Unable to get_ingame_boss kpc; " << mysql_error(&mysql));
+		log("              : sql = " << sql);
+		return false;
+	}
+
+	if(!(result = mysql_store_result(&mysql)))
+	{
+		log("DATABASE ERROR: result; " << mysql_error(&mysql));
+		return false;
+	}		
+
+
+	if(!(row = mysql_fetch_row(result)))
+	{
+		log("DATABASE ERROR: fetching kpc ratio; " << mysql_error(&mysql));
+		mysql_free_result(result);
+		return false;
+	}
+	
+	double c = row[1] ? to<double>(row[1]) : 0.0;
+	
+	mysql_free_result(result);
+	
 	double kpc = c > 0.001 ? (k / c) : 1.0;
 	
 	bug_var(k);
