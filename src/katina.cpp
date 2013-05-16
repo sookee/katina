@@ -1628,7 +1628,7 @@ int main(const int argc, const char* argv[])
 				str text;
 				GUID guid;
 				
-				if(cmd[0] = '?')
+				if(cmd[0] == '?')
 				{
 					server.chat("^7STATS: ^2!stats^7: ^3display a players ^7fph (^2frags^7/^2hour^7) ^2& ^7cph (^2caps^7/^2hour^7)");
 					server.chat("^7STATS: ^2!stats^7: ^3calculated for this map and since the start of this month.");
@@ -1676,7 +1676,7 @@ int main(const int argc, const char* argv[])
 			}
 */			else if(cmd == "!boss" || cmd == "?boss") // best player in this game (from current months stats)
 			{				
-				if(cmd[0] = '?')
+				if(cmd[0] == '?')
 				{
 					server.chat("^7STATS: ^2!boss^7: ^3display this map's best player and their ^2!stats ^3for this month.");
 					continue;
@@ -1690,7 +1690,7 @@ int main(const int argc, const char* argv[])
 					str stats;
 					GUID guid;
 					if(db.get_ingame_boss(mapname, clients, guid, stats))
-						server.chat("^7THE BOSS IS: " + players[guid] + "^7: " + stats);
+						server.chat("^7BOSS: " + players[guid] + "^7: " + stats);
 					db.off();
 				}
 			}
