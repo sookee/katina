@@ -650,7 +650,7 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 			oss << "^3FPH^7: ^2" << stat_cs[*maxi].fph << " ^3CPH^7: ^2" << stat_cs[*maxi].cph;
 			oss << std::fixed;
 			oss.precision(2);
-			oss << "^3index^7: ^2" << stat_cs[*maxi].idx;
+			oss << " ^3index^7: ^2" << stat_cs[*maxi].idx;
 			stats = oss.str();
 		}
 	}
@@ -685,34 +685,13 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	str sql = oss.str();
 	
 	bug_var(sql);
-
-	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
-	{
-		log("DATABASE ERROR: Unable to get_ingame_stats; " << mysql_error(&mysql));
-		log("              : sql = " << sql);
-		return false;
-	}
-
-	MYSQL_RES* result = 0;
 	
-	if(!(result = mysql_store_result(&mysql)))
-	{
-		log("DATABASE ERROR: result; " << mysql_error(&mysql));
-		return false;
-	}		
-
-
 	MYSQL_ROW row;
-	if(!(row = mysql_fetch_row(result)))
-	{
-		log("DATABASE ERROR: fetching row; " << mysql_error(&mysql));
-		mysql_free_result(result);
+	if(!query(sql, row))
 		return false;
-	}
-	
+
 	str kills = row[0] ? row[0] : "0";
 	bug_var(kills);
-	mysql_free_result(result);
 	
 	oss.clear();
 	oss.str("");
@@ -723,29 +702,11 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	sql = oss.str();
 	bug_var(sql);
 
-	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
-	{
-		log("DATABASE ERROR: Unable to get_ingame_stats; " << mysql_error(&mysql));
-		log("              : sql = " << sql);
+	if(!query(sql, row))
 		return false;
-	}
 
-	if(!(result = mysql_store_result(&mysql)))
-	{
-		log("DATABASE ERROR: result; " << mysql_error(&mysql));
-		return false;
-	}		
-
-	if(!(row = mysql_fetch_row(result)))
-	{
-		log("DATABASE ERROR: fetching row; " << mysql_error(&mysql));
-		mysql_free_result(result);
-		return false;
-	}
-	
 	str caps = row[0] ? row[0] : "0";
 	bug_var(caps);
-	mysql_free_result(result);
 	
 	oss.clear();
 	oss.str("");
@@ -756,29 +717,11 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	sql = oss.str();
 	bug_var(sql);
 
-	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
-	{
-		log("DATABASE ERROR: Unable to get_ingame_stats; " << mysql_error(&mysql));
-		log("              : sql = " << sql);
+	if(!query(sql, row))
 		return false;
-	}
-
-	if(!(result = mysql_store_result(&mysql)))
-	{
-		log("DATABASE ERROR: result; " << mysql_error(&mysql));
-		return false;
-	}		
-
-	if(!(row = mysql_fetch_row(result)))
-	{
-		log("DATABASE ERROR: fetching row; " << mysql_error(&mysql));
-		mysql_free_result(result);
-		return false;
-	}
 	
 	str secs = row[0] ? row[0] : "0";
 	bug_var(secs);
-	mysql_free_result(result);
 	
 	siz hours = 0;
 	siz fph = 0;
@@ -812,6 +755,33 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 		stats = oss.str();
 	}
 
+	return true;
+}
+
+bool Database::query(const str& sql, MYSQL_ROW& row)
+{
+	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+	{
+		log("DATABASE ERROR: " << mysql_error(&mysql));
+		log("              : sql = " << sql);
+		return false;
+	}
+
+	MYSQL_RES* result = 0;
+	if(!(result = mysql_store_result(&mysql)))
+	{
+		log("DATABASE ERROR: result: " << mysql_error(&mysql));
+		return false;
+	}		
+
+	if(!(row = mysql_fetch_row(result)))
+	{
+		log("DATABASE ERROR: row: " << mysql_error(&mysql));
+		mysql_free_result(result);
+		return false;
+	}
+	
+	mysql_free_result(result);
 	return true;
 }
 

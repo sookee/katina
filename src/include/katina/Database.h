@@ -40,6 +40,8 @@ class Database
 	str base;
 
 	MYSQL mysql;
+	
+	bool query(const str& sql, MYSQL_ROW& row);
 
 public:
 	Database();
