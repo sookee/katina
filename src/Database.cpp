@@ -10,6 +10,8 @@
 #include <mysql.h>
 
 #include <ctime>
+#include <cmath>
+
 #include <katina/log.h>
 
 namespace oastats { namespace data {
@@ -341,18 +343,16 @@ bool Database::get_preferred_name(const GUID& guid, str& name)
 	return true;
 }
 
-bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, str& stats)
+bool calc_period(siz& syear, siz& smonth, siz& eyear, siz& emonth, siz prev = 0)
 {
-	log("DATABASE: get_ingame_stats(" << guid << ", " << mapname << ", " << prev << ")");
+	if(prev > 3)
+		return false;
 
 	std::time_t now = std::time(0);
 	std::tm t = *gmtime(&now);
 
-	if(prev > 3)
-		return false;
-
-	siz syear = t.tm_year + 1900;
-	siz smonth = t.tm_mon; // 0 - 11
+	syear = t.tm_year + 1900;
+	smonth = t.tm_mon; // 0 - 11
 	if(smonth < prev)
 	{
 		smonth = smonth + 12 - prev + 1; // 1 - 12
@@ -361,9 +361,9 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	else
 		smonth = smonth - prev + 1; // 1 - 12
 
-	siz eyear = syear;
+	eyear = syear;
 
-	siz emonth = smonth + 1;
+	emonth = smonth + 1;
 	if(emonth > 12)
 	{
 		emonth = 1;
@@ -374,7 +374,211 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	bug_var(smonth);
 	bug_var(eyear);
 	bug_var(emonth);
+	
+	return true;
+}
 
+bool Database::get_ingame_champ(const str& mapname, GUID& guid, str& stats)
+{
+	return true;
+}
+
+struct stat_c
+{
+	siz kills;
+	siz caps;
+	siz secs;
+	siz fph;
+	siz cph;
+	double idx;
+	stat_c(): kills(0), caps(0), secs(0), idx(0.0) {}
+};
+
+typedef std::map<str, stat_c> stat_map; // guid -> stat_c
+typedef stat_map::iterator stat_map_iter;
+typedef stat_map::const_iterator stat_map_citer;
+	
+bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, GUID& guid, str& stats)
+{
+//	log("DATABASE: get_ingame_boss(" << guid << ", " << mapname << ", " << prev << ")");
+	siz syear = 0;
+	siz smonth = 0;
+	siz eyear = 0;
+	siz emonth = 0;
+
+	if(!calc_period(syear, smonth, eyear, emonth))
+		return false;
+	
+	stat_map stat_cs;
+	str_set guids;
+	
+	soss oss;
+	oss << "select `game_id` from `game` where `map` = '" << mapname << "'";
+	oss << " and `date` >= TIMESTAMP('" << syear << '-' << (smonth < 10 ? "0":"") << smonth << '-' << "01" << "')";
+	oss << " and `date` <  TIMESTAMP('" << eyear << '-' << (emonth < 10 ? "0":"") << emonth << '-' << "01" << "')";
+	str subsql = oss.str();
+	
+	// select distinct `guid`,sum(`kills`.`count`) from `kills`
+	// where `kills`.`guid` in ('F8247501','152299FD','E6686040')
+	// group by `guid` order by sum(`kills`.`count`) desc;
+	
+	str sep;
+	oss.clear();
+	oss.str("");
+	for(siz_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
+		{ oss << sep << i->first; sep = ",";}
+	str insql = oss.str();
+	
+	oss.clear();
+	oss.str("");
+	oss << "select distinct `guid`,sum(`kills`.`count`) from `kills` where `kills`.`guid` in (" << insql << ")";
+	oss << " and `game_id` in (" << subsql << ") group by `guid` order by sum(`kills`.`count`) desc"; 
+	
+	str sql = oss.str();
+	
+	bug_var(sql);
+
+	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+	{
+		log("DATABASE ERROR: Unable to get_ingame_boss; " << mysql_error(&mysql));
+		log("              : sql = " << sql);
+		return false;
+	}
+
+	MYSQL_RES* result = 0;
+	
+	if(!(result = mysql_store_result(&mysql)))
+	{
+		log("DATABASE ERROR: result; " << mysql_error(&mysql));
+		return false;
+	}		
+
+	MYSQL_ROW row;
+
+	while((row = mysql_fetch_row(result)))
+	{
+		if(row[0] && row[1])
+		{
+			stat_cs[row[0]].kills = to<siz>(row[1]);
+			guids.insert(row[0]);
+		}
+	}
+	
+	mysql_free_result(result);
+	
+	oss.clear();
+	oss.str("");
+	oss << "select distinct `guid`,sum(`caps`.`count`) from `kills` where `caps`.`guid` in (" << insql << ")";
+	oss << " and `game_id` in (" << subsql << ") group by `guid` order by sum(`caps`.`count`) desc"; 
+	
+	sql = oss.str();
+	
+	bug_var(sql);
+
+	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+	{
+		log("DATABASE ERROR: Unable to get_ingame_boss; " << mysql_error(&mysql));
+		log("              : sql = " << sql);
+		return false;
+	}
+
+	if(!(result = mysql_store_result(&mysql)))
+	{
+		log("DATABASE ERROR: result; " << mysql_error(&mysql));
+		return false;
+	}		
+
+	while((row = mysql_fetch_row(result)))
+	{
+		if(row[0] && row[1])
+		{
+			stat_cs[row[0]].caps = to<siz>(row[1]);
+			guids.insert(row[0]);
+		}
+	}
+	
+	mysql_free_result(result);
+	
+	oss.clear();
+	oss.str("");
+	oss << "select distinct `guid`,sum(`time`.`count`) from `time` where `time`.`guid` in (" << insql << ")";
+	oss << " and `game_id` in (" << subsql << ") group by `guid` order by sum(`time`.`count`) desc"; 
+	
+	sql = oss.str();
+	
+	bug_var(sql);
+
+	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+	{
+		log("DATABASE ERROR: Unable to get_ingame_boss; " << mysql_error(&mysql));
+		log("              : sql = " << sql);
+		return false;
+	}
+
+	if(!(result = mysql_store_result(&mysql)))
+	{
+		log("DATABASE ERROR: result; " << mysql_error(&mysql));
+		return false;
+	}		
+
+	while((row = mysql_fetch_row(result)))
+	{
+		if(row[0] && row[1])
+		{
+			stat_cs[row[0]].secs = to<siz>(row[1]);
+			guids.insert(row[0]);
+		}
+	}
+	
+	mysql_free_result(result);
+	
+	str_set_iter maxi = guids.end();
+	double maxv = 0.0;
+	
+	for(str_set_iter g = guids.begin(); g != guids.end(); ++g)
+	{
+		if(stat_cs[*g].secs)
+		{
+			stat_cs[*g].fph = stat_cs[*g].kills * 60 * 60 / stat_cs[*g].secs;
+			stat_cs[*g].cph = stat_cs[*g].caps * 60 * 60 / stat_cs[*g].secs;
+			stat_cs[*g].idx = std::sqrt(std::pow(stat_cs[*g].fph, 2)
+				+ std::pow(stat_cs[*g].cph, 2));
+			if(stat_cs[*g].idx > maxv)
+			{
+				maxv = stat_cs[*g].idx;
+				maxi = g;
+			}
+		}
+	}
+	
+	guid = null_guid;
+	stats = "^3FPH^7: ^20 ^3CPH^7: ^20 ^3index^7: ^20.00";
+	if(maxi != guids.end())
+	{
+		guid = GUID(*maxi);
+		soss oss;
+		oss << "^3FPH^7: ^2" << stat_cs[*maxi].fph << " ^3CPH^7: ^2" << stat_cs[*maxi].cph;
+		oss << std::fixed;
+		oss.precision(2);
+		oss << "^3index^7: ^2" << stat_cs[*maxi].idx;
+		stats = oss.str();
+	}
+	
+	return true;
+}
+
+bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, str& stats)
+{
+	log("DATABASE: get_ingame_stats(" << guid << ", " << mapname << ", " << prev << ")");
+
+	siz syear = 0;
+	siz smonth = 0;
+	siz eyear = 0;
+	siz emonth = 0;
+
+	if(!calc_period(syear, smonth, eyear, emonth, prev))
+		return false;
+	
 	soss oss;
 	oss << "select `game_id` from `game` where `map` = '" << mapname << "'";
 	oss << " and `date` >= TIMESTAMP('" << syear << '-' << (smonth < 10 ? "0":"") << smonth << '-' << "01" << "')";
@@ -499,7 +703,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	bug_var(fph);
 	bug_var(cph);
 	
-	stats = "^3FPH^7: ^2unknown ^3CPH^7: ^2unknown";
+	stats = "^3FPH^7: ^20 ^3CPH^7: ^20";
 	
 	//hours /= (60 * 60);
 	

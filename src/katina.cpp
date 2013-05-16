@@ -1549,7 +1549,7 @@ int main(const int argc, const char* argv[])
 			siz pos;
 			if((pos = line.find_last_of(':')) == str::npos)
 				continue;
-			if((pos = line.find('!', pos)) == str::npos)
+			if((pos = line.find_first_of("!?", pos)) == str::npos)
 				continue;
 
 			siss iss(line.substr(pos));
@@ -1623,10 +1623,17 @@ int main(const int argc, const char* argv[])
 					db.off();
 				}
 			}
-			else if(cmd == "!stats")
+			else if(cmd == "!stats" || cmd == "?stats")
 			{
 				str text;
 				GUID guid;
+				
+				if(cmd[0] = '?')
+				{
+					server.chat("^7STATS: ^2!stats^7: ^3display a players ^7fph (^2frags^7/^2hour^7) ^2& ^7cph (^2caps^7/^2hour^7)");
+					server.chat("^7STATS: ^2!stats^7: ^3calculated for this map and since the start of this month.");
+					continue;
+				}
 				
 				bug("stats:");
 
@@ -1649,6 +1656,41 @@ int main(const int argc, const char* argv[])
 					str stats;
 					if(db.get_ingame_stats(guid, mapname, prev, stats))
 						server.chat("^7STATS: " + players[guid] + "^7: " + stats);
+					db.off();
+				}
+			}
+/*			else if(cmd == "!champ") // last month's champion
+			{				
+				bug("champ:");
+
+				if(ka_cfg.do_db)
+				{
+					bug("getting champ");
+					db.on();
+					str stats;
+					GUID guid;
+					//if(db.get_ingame_champ(mapname, guid, stats))
+					//	server.chat("^7LAST MONTH'S CHAMPION: " + players[guid] + "^7: " + stats);
+					db.off();
+				}
+			}
+*/			else if(cmd == "!boss" || cmd == "?boss") // best player in this game (from current months stats)
+			{				
+				if(cmd[0] = '?')
+				{
+					server.chat("^7STATS: ^2!boss^7: ^3display this map's best player and their ^2!stats ^3for this month.");
+					continue;
+				}
+				
+				bug("boss:");
+				if(ka_cfg.do_db)
+				{
+					bug("getting boss");
+					db.on();
+					str stats;
+					GUID guid;
+					if(db.get_ingame_boss(mapname, clients, guid, stats))
+						server.chat("^7THE BOSS IS: " + players[guid] + "^7: " + stats);
 					db.off();
 				}
 			}
