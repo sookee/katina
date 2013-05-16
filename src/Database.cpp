@@ -447,7 +447,7 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 
 	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
 	{
-		log("DATABASE ERROR: Unable to get_ingame_boss; " << mysql_error(&mysql));
+		log("DATABASE ERROR: Unable to get_ingame_boss kills; " << mysql_error(&mysql));
 		log("              : sql = " << sql);
 		return false;
 	}
@@ -484,7 +484,7 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 
 	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
 	{
-		log("DATABASE ERROR: Unable to get_ingame_boss; " << mysql_error(&mysql));
+		log("DATABASE ERROR: Unable to get_ingame_boss caps; " << mysql_error(&mysql));
 		log("              : sql = " << sql);
 		return false;
 	}
@@ -517,7 +517,7 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 
 	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
 	{
-		log("DATABASE ERROR: Unable to get_ingame_boss; " << mysql_error(&mysql));
+		log("DATABASE ERROR: Unable to get_ingame_boss time; " << mysql_error(&mysql));
 		log("              : sql = " << sql);
 		return false;
 	}
@@ -539,6 +539,52 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 	
 	mysql_free_result(result);
 	
+	// -- get ration of frags to caps
+	
+	oss.clear();
+	oss.str("");
+	oss << "select sum(`kills`.`count`),sum(`caps`.`count`) from `kills`,`caps` where";
+	oss << " `kills`.`game_id` in (" << subsql << ")"; 
+	oss << " or `caps`.`game_id` in (" << subsql << ")"; 
+	
+	sql = oss.str();
+	
+	bug_var(sql);
+
+	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+	{
+		log("DATABASE ERROR: Unable to get_ingame_boss kpc; " << mysql_error(&mysql));
+		log("              : sql = " << sql);
+		return false;
+	}
+
+	if(!(result = mysql_store_result(&mysql)))
+	{
+		log("DATABASE ERROR: result; " << mysql_error(&mysql));
+		return false;
+	}		
+
+
+	if(!(row = mysql_fetch_row(result)))
+	{
+		log("DATABASE ERROR: fetching kpc ratio; " << mysql_error(&mysql));
+		mysql_free_result(result);
+		return false;
+	}
+	
+	double k = row[0] ? to<double>(row[0]) : 0.0;
+	double c = row[1] ? to<double>(row[1]) : 0.0;
+
+	mysql_free_result(result);
+
+	double kpc = c > 0.001 ? (k / c) : 1.0;
+	
+	bug_var(k);
+	bug_var(c);
+	bug_var(kpc);
+	
+	// --
+	
 	str_set_iter maxi = guids.end();
 	double maxv = 0.0;
 	
@@ -549,7 +595,7 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 			stat_cs[*g].fph = stat_cs[*g].kills * 60 * 60 / stat_cs[*g].secs;
 			stat_cs[*g].cph = stat_cs[*g].caps * 60 * 60 / stat_cs[*g].secs;
 			stat_cs[*g].idx = std::sqrt(std::pow(stat_cs[*g].fph, 2)
-				+ std::pow(stat_cs[*g].cph, 2));
+				+ std::pow(stat_cs[*g].cph * kpc, 2));
 			if(stat_cs[*g].idx > maxv)
 			{
 				maxv = stat_cs[*g].idx;
