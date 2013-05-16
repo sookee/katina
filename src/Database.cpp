@@ -468,7 +468,7 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 	
 	oss.clear();
 	oss.str("");
-	oss << "select distinct `guid`,sum(`caps`.`count`) from `kills` where `caps`.`guid` in (" << insql << ")";
+	oss << "select distinct `guid`,sum(`caps`.`count`) from `caps` where `caps`.`guid` in (" << insql << ")";
 	oss << " and `game_id` in (" << subsql << ") group by `guid` order by sum(`caps`.`count`) desc"; 
 	
 	sql = oss.str();
