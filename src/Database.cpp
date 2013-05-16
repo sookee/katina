@@ -427,7 +427,7 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 	oss.str("");
 	for(siz_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
 		if(!i->second.is_bot())
-			{ oss << sep << "'" << i->first << "'"; sep = ",";}
+			{ oss << sep << "'" << i->second << "'"; sep = ",";}
 	str insql = oss.str();
 	
 	guid = null_guid;
@@ -538,6 +538,11 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 	}
 	
 	mysql_free_result(result);
+	
+	if(guids.empty())
+	{
+		return true;
+	}
 	
 	// -- get ratio of frags to caps
 	
