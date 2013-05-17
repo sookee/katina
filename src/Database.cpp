@@ -258,6 +258,57 @@ bool Database::add_ovo(game_id id, const GUID& guid1, const GUID& guid2, siz cou
 	return insert(sql);
 }
 
+
+bool Database::add_weapon_usage(game_id id, const GUID& guid, siz weap, siz shots)
+{
+	log("DATABASE: add_weapon_usage(" << id << ", " << guid << ", " << weap << ", " << shots << ")");
+	bug("Database::add_weapon_usage");
+
+	soss oss;
+	oss << "insert into `weapon_usage` (`game_id`,`guid`,`weap`,`shots`) values ('"
+		<< id << "','" << guid << "','" << weap << "','" << shots << "')";
+
+	str sql = oss.str();
+
+	return insert(sql);
+}
+
+bool Database::add_mod_damage(game_id id, const GUID& guid, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv)
+{
+	log("DATABASE: add_mod_damage(" << id << ", " << guid << ", " << mod << ", " << hits << ", " << damage << ", " << hitsRecv << ", " << damageRecv << ")");
+	bug("Database::add_mod_damage");
+
+	soss oss;
+	oss << "insert into `damage` (`game_id`,`guid`,`mod`,`hits`,`dmgDone`,`hitsRecv`,`dmgRecv`) values ('"
+		<< id << "','" << guid << "','" << mod << "','" << hits << "','" << damage << "','" << hitsRecv << "','" << damageRecv << "')";
+
+	str sql = oss.str();
+
+	return insert(sql);
+}
+
+bool Database::add_playerstats(game_id id, const GUID& guid,
+	siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
+	siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
+	siz healthPickedUp, siz armorPickedUp)
+{
+	bug("Database::add_playerstats");
+	log("DATABASE: add_playerstats(" << id << ", " << guid << ", " << fragsFace << ", " << fragsBack << ", " << fraggedInFace << ", " << fraggedInBack
+		<< ", " << spawnKills << ", " << spawnKillsRecv << ", " << pushes << ", " << pushesRecv
+		<< ", " << healthPickedUp << ", " << armorPickedUp << ")");
+
+	soss oss;
+	oss << "insert into `playerstats` (`game_id`,`guid`,`fragsFace`,`fragsBack`,`fraggedInFace`,`fraggedInBack`,`spawnKillsDone`,`spawnKillsRecv`,`pushesDone`,`pushesRecv`,`healthPickedUp`,`armorPickedUp`) "
+	    << "values ('" << id << "','" << guid << "','" << fragsFace << "','" << fragsBack << "','" << fraggedInFace << "','" << fraggedInBack
+		<< "','" << spawnKills << "','" << spawnKillsRecv << "','" << pushes << "','" << pushesRecv << "','" << healthPickedUp << "','" << armorPickedUp << "')";
+
+	str sql = oss.str();
+
+	return insert(sql);
+}
+
+
+
 bool Database::read_map_votes(const str& mapname, guid_int_map& map_votes)
 {
 	log("DATABASE: read_recs()");

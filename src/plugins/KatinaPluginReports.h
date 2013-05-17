@@ -72,11 +72,12 @@ private:
 
 	enum
 	{
-		RSC_TIME = 0b00000001
-		, RSC_FPH = 0b00000010 // frags/hour
-		, RSC_CPH = 0b00000100 // flags/hour
-		, RSC_KPD = 0b00001000 // kills/deaths
-		, RSC_CPD = 0b00010000 // caps/deaths
+		RSC_TIME     = 0b00000001
+		, RSC_FPH    = 0b00000010 // frags/hour
+		, RSC_CPH    = 0b00000100 // flags/hour
+		, RSC_KPD    = 0b00001000 // kills/deaths
+		, RSC_CPD    = 0b00010000 // caps/deaths
+		, RSC_RGACC  = 0b00100000 // railgun accuracy
 	};
 
 	// cvars

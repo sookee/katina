@@ -145,6 +145,13 @@ public:
 	row_count add_vote(const str& type, const str& item, const GUID& guid, int count);
 
 	bool add_ovo(game_id id, const GUID& guid1, const GUID& guid2, siz count);
+	
+	bool add_weapon_usage(game_id id, const GUID& guid, siz weap, siz shots);
+	bool add_mod_damage(game_id id, const GUID& guid, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv);
+	bool add_playerstats(game_id id, const GUID& guid,
+		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
+		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
+		siz healthPickedUp, siz armorPickedUp);
 
 	bool read_map_votes(const str& mapname, guid_int_map& map_votes);
 

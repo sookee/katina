@@ -170,16 +170,17 @@ bool KatinaPluginReports::open()
 	
 	client.chat('*', "^3Stats Reporting System v^7" + get_version() + " - ^1ONLINE");
 
-	katina.add_var_event(this, "report.active", active, false);
-	katina.add_var_event(this, "report.flags", do_flags, false);
-	katina.add_var_event(this, "report.flags.hud", do_flags_hud, false);
-	katina.add_var_event(this, "report.chats", do_chats, false);
-	katina.add_var_event(this, "report.kills", do_kills, false);
-	katina.add_var_event(this, "report.infos", do_infos, false);
-	katina.add_var_event(this, "report.stats", do_stats, false);
-	katina.add_var_event(this, "report.stats.cols", stats_cols, 0U);
-	katina.add_var_event(this, "report.spam.kill", spamkill, false);
-	katina.add_var_event(this, "report.spam.limit", spam_limit, 2U);
+	katina.add_var_event(this, "example_active", active, false);
+	katina.add_var_event(this, "report_active", active, false);
+	katina.add_var_event(this, "report_flags", do_flags, false);
+	katina.add_var_event(this, "report_flags_hud", do_flags_hud, false);
+	katina.add_var_event(this, "report_chats", do_chats, false);
+	katina.add_var_event(this, "report_kills", do_kills, false);
+	katina.add_var_event(this, "report_infos", do_infos, false);
+	katina.add_var_event(this, "report_stats", do_stats, false);
+	katina.add_var_event(this, "report_stats_cols", stats_cols, 0U);
+	katina.add_var_event(this, "report_spamkill", spamkill, false);
+	katina.add_var_event(this, "report_spam_limit", spam_limit, 2U);
 
 	katina.add_log_event(this, EXIT);
 	//katina.add_log_event(this, SHUTDOWN_GAME);
@@ -191,7 +192,6 @@ bool KatinaPluginReports::open()
 	katina.add_log_event(this, CTF);
 	//katina.add_log_event(this, AWARD);
 	katina.add_log_event(this, INIT_GAME);
-	katina.add_log_event(this, SAY);
 
 	return true;
 }
@@ -291,6 +291,8 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 			{ oss << sep << "^3fpd  "; sep = "^2|"; }
 		if(stats_cols & RSC_TIME)
 			{ oss << sep << "^3cpd  "; sep = "^2|"; }
+		if(stats_cols & RSC_RGACC)
+			{ oss << sep << "^3rg acc  "; sep = "^2|"; }
 		client.chat('s', oss.str());
 	
 		for(guid_stat_citer p = stats->stats.begin(); p != stats->stats.end(); ++p)
@@ -304,7 +306,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 			con("\t gaunt: " << map_get(p->second.awards, AW_GAUNTLET));
 			con("\t  time: " << p->second.logged_time << 's');
 			// TODO: modify this to add AW options as well as insta
-	
+
 			siz c = map_get(p->second.flags, FL_CAPTURED);
 	
 			siz k = 0;
@@ -328,9 +330,9 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 				if(d == 0)
 				{
 					if(k)
-						kd = "perf ";
+						kd = "perf";
 					if(c)
-						cd = "perf  ";
+						cd = "perf";
 				}
 				if(h == 0)
 				{
@@ -402,6 +404,30 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 				{
 					col = "^7" + cd;
 					set_width(col, 5, 2);
+					oss << sep << col;
+					sep = "^2|";
+				}
+				if(stats_cols & RSC_RGACC)
+				{
+					// Calculate railgun accuracy
+					siz shots = map_get(p->second.weapon_usage, WP_RAILGUN);
+					siz hits  = 0;
+					moddmg_map_citer it = p->second.mod_damage.find(MOD_RAILGUN);
+					if(it != p->second.mod_damage.end())
+						hits = it->second.hits;
+						
+					// Pushes also count as hits
+					hits += p->second.pushes;
+						
+					str acc = "";
+					if(shots > 0)
+					{
+						double a = ((double) hits / shots) * 100.0;
+						acc = to_string(a, 2);
+					}
+				
+					col = "^7" + acc + "%";
+					set_width(col, 8, 2);
 					oss << sep << col;
 					sep = "^2|";
 				}
