@@ -448,7 +448,7 @@ bool Katina::start(const str& dir)
 
 	prefix = get("rcon.cvar.prefix");
 	if(!prefix.empty())
-		prefix += "_";
+		prefix += ".";
 	pthread_create(&cvarevts_thread, 0, &cvarpoll, (void*) this);
 	
 	std::ios::openmode mode = std::ios::in|std::ios::ate;
@@ -647,7 +647,7 @@ bool Katina::start(const str& dir)
 					(*i)->client_disconnect(min, sec, num);
 					
 				teams.erase(clients[num]);
-				players.erase(clients[num]);
+				//players.erase(clients[num]);
 				clients.erase(num);
 			}
 		}

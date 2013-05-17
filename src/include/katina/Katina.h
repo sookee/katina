@@ -222,12 +222,24 @@ public:
 	bool chat_to(const GUID& guid, const str& text);
 	bool chat_to(const str& name, const str& text);
 
+	/**
+	 * Set a variable to be auto-updated from a cvar. The variable is set to a supplied
+	 * default value if a default value can not be found in the config file.
+	 * The key searched for in the config file is "plugin." + name where name is the
+	 * supplied parameter.
+	 * @param plugin pointer to the calling plugin
+	 * @param name variable name. A configurable prefi is added to this name for the cvar lookup
+	 * and the prefix "plugin." is added to this name for the config file lookup.
+	 * @param var the actual variable to be updated
+	 * @param dflt the default value to use if none can be found in the config file.
+	 */
 	template<typename T>
-	void add_var_event(class KatinaPlugin* plugin, const str& name, T& var)
+	void add_var_event(class KatinaPlugin* plugin, const str& name, T& var, const T& dflt = T())
 	{
+		var = get("plugin." + name, dflt);
 		cvars[plugin][name] = new cvar_t<T>(var);
 	}
-	//void add_var_event(class KatinaPlugin* plugin, const str& name, const str& value);
+
 	void add_log_event(class KatinaPlugin* plugin, event_t e)
 	{
 		events[e].push_back(plugin);

@@ -170,17 +170,16 @@ bool KatinaPluginReports::open()
 	
 	client.chat('*', "^3Stats Reporting System v^7" + get_version() + " - ^1ONLINE");
 
-	katina.add_var_event(this, "example_active", active);
-	katina.add_var_event(this, "report_active", active);
-	katina.add_var_event(this, "report_flags", do_flags);
-	katina.add_var_event(this, "report_flags_hud", do_flags_hud);
-	katina.add_var_event(this, "report_chats", do_chats);
-	katina.add_var_event(this, "report_kills", do_kills);
-	katina.add_var_event(this, "report_infos", do_infos);
-	katina.add_var_event(this, "report_stats", do_stats);
-	katina.add_var_event(this, "report_stats_cols", stats_cols);
-	katina.add_var_event(this, "report_spamkill", spamkill);
-	katina.add_var_event(this, "report_spam_limit", spam_limit);
+	katina.add_var_event(this, "report.active", active, false);
+	katina.add_var_event(this, "report.flags", do_flags, false);
+	katina.add_var_event(this, "report.flags.hud", do_flags_hud, false);
+	katina.add_var_event(this, "report.chats", do_chats, false);
+	katina.add_var_event(this, "report.kills", do_kills, false);
+	katina.add_var_event(this, "report.infos", do_infos, false);
+	katina.add_var_event(this, "report.stats", do_stats, false);
+	katina.add_var_event(this, "report.stats.cols", stats_cols, 0U);
+	katina.add_var_event(this, "report.spam.kill", spamkill, false);
+	katina.add_var_event(this, "report.spam.limit", spam_limit, 2U);
 
 	katina.add_log_event(this, EXIT);
 	//katina.add_log_event(this, SHUTDOWN_GAME);
@@ -193,17 +192,6 @@ bool KatinaPluginReports::open()
 	//katina.add_log_event(this, AWARD);
 	katina.add_log_event(this, INIT_GAME);
 	katina.add_log_event(this, SAY);
-
-	active = katina.get("plugin.reports.active", false);
-	do_flags = katina.get("plugin.reports.flags", false);
-	do_flags_hud = katina.get("plugin.reports.flags_hud", false);
-	do_chats = katina.get("plugin.reports.chats", false);
-	do_kills = katina.get("plugin.reports.kills", false);
-	do_infos = katina.get("plugin.reports.infos", false);
-	do_stats = katina.get("plugin.reports.stats", false);
-	stats_cols = katina.get("plugin.reports.stats_cols", 0); // 31 = full
-	spamkill = katina.get("plugin.reports.spamkill", false);
-	spam_limit = katina.get("plugin.reports.spam_limit", 2);
 
 	return true;
 }

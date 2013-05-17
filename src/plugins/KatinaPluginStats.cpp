@@ -53,8 +53,8 @@ bool KatinaPluginStats::open()
 		return false;
 	}
 	
-	katina.add_var_event(this, "stats_active", active);
-	katina.add_var_event(this, "stats_write", write);
+	katina.add_var_event(this, "stats.active", active, false);
+	katina.add_var_event(this, "stats.write", write, false);
 	
 	katina.add_log_event(this, EXIT);
 	katina.add_log_event(this, SHUTDOWN_GAME);
@@ -117,7 +117,7 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 		// TODO: insert game stats here
 		for(guid_stat_citer p = stats.begin(); p != stats.end(); ++p)
 		{
-			const str& player = katina.players.at(p->first);
+			//const str& player = katina.players.at(p->first);
 
 			siz count;
 			for(std::set<siz>::iterator weap = db_weaps.begin(); weap != db_weaps.end(); ++weap)
