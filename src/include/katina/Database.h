@@ -49,21 +49,21 @@ class Database
 protected:
 	
 	/**
-	 * Persorm sql statement.
+	 * Perform sql statement.
 	 * @param sql The sql statement.
 	 * @return true on success else false
 	 */
 	bool query(const str& sql);
 
 	/**
-	 * Persorm an "insert" sql statement.
+	 * Perform an "insert" sql statement.
 	 * @param sql The "insert" sql statement.
 	 * @return true on success else false
 	 */
 	bool insert(const str& sql) { return query(sql); }
 	
 	/**
-	 * Persorm an "insert" sql statement.
+	 * Perform an "insert" sql statement.
 	 * @param sql The "insert" sql statement.
 	 * @param insert_id is set to the auto increment id (if any)
 	 * using mysql_insert_id().
@@ -72,14 +72,14 @@ protected:
 	bool insert(const str& sql, my_ulonglong& insert_id);
 	
 	/**
-	 * Persorm an "update" sql statement.
+	 * Perform an "update" sql statement.
 	 * @param sql The "update" sql statement.
 	 * @return true on success else false
 	 */
 	bool update(const str& sql) { return query(sql); }
 		
 	/**
-	 * Persorm an "update" or "on duplicate key update" sql statement.
+	 * Perform an "update" or "on duplicate key update" sql statement.
 	 * @param sql The "update" or "on duplicate key update" sql statement.
 	 * @param update_count is set to the number of rows updated
 	 * using mysql_affected_rows(). If the query is an "on duplicate key update"
@@ -89,7 +89,7 @@ protected:
 	bool update(const str& sql, my_ulonglong& update_count);
 
 	/**
-	 * Persorm an "select" sql statement.
+	 * Perform an "select" sql statement.
 	 * @param sql The "select" sql statement.
 	 * @param rows is a std::vector of std::string std::vectors
 	 * containing the returned table in the form rows[row][column].

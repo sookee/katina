@@ -152,7 +152,7 @@ game_id Database::add_game(const str& host, const str& port, const str& mapname)
 		+ host + "'),'" + port + "','" + safe_mapname + "')";
 
 	game_id id;
-	if(!update(sql, id))
+	if(!insert(sql, id))
 		return bad_id;
 
 	return id;

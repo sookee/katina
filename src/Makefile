@@ -33,7 +33,11 @@ KATINA_VOTES_FLAGS = -O0 -g3 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread -Iinclude
 KATINA_VOTES_LIBS = $(MYSQL_LIBS) -lrt -pthread
 KATINA_VOTES_OBJS = katina-votes.o
 
-PROGRAMS = katina katina-1 katina-irc katina-votes
+KATINA_GUID_FIX_FLAGS = -D DEBUG -O0 -g3 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread -Iinclude
+KATINA_GUID_FIX_LIBS = $(MYSQL_LIBS) -lrt -pthread -ldl -L. -lkatina
+KATINA_GUID_FIX_OBJS = katina-guid-fix.o Database.o
+
+PROGRAMS = katina katina-1 katina-irc katina-votes katina-guid-fix
 
 all: $(LIBRARIES) $(PROGRAMS)
 
@@ -81,6 +85,15 @@ katina-votes: $(KATINA_VOTES_OBJS)
 	
 katina-votes.o: katina-votes.cpp $(INCLUDES)
 	$(CXX) -c $(KATINA_VOTES_FLAGS) -o $@ $<
+
+katina-guid-fix: $(KATINA_GUID_FIX_OBJS)
+	@echo
+	@echo Compiling $@ 
+	$(CXX) -o $@ $(KATINA_GUID_FIX_OBJS) $(KATINA_GUID_FIX_LIBS)
+	@echo
+	
+katina-guid-fix.o: katina-guid-fix.cpp $(INCLUDES)
+	$(CXX) -c $(KATINA_GUID_FIX_FLAGS) -o $@ $<
 
 %.o: %.cpp include/katina/%.h
 	@echo -n "AUTO: "
