@@ -53,8 +53,8 @@ bool KatinaPluginStats::open()
 		return false;
 	}
 	
-	katina.add_var_event(this, "stats_active", active, false);
-	katina.add_var_event(this, "stats_write", write, false);
+	katina.add_var_event(this, "stats.active", active, false);
+	katina.add_var_event(this, "stats.write", write, false);
 	
 	katina.add_log_event(this, EXIT);
 	katina.add_log_event(this, SHUTDOWN_GAME);

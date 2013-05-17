@@ -170,17 +170,16 @@ bool KatinaPluginReports::open()
 	
 	client.chat('*', "^3Stats Reporting System v^7" + get_version() + " - ^1ONLINE");
 
-	katina.add_var_event(this, "example_active", active, false);
-	katina.add_var_event(this, "report_active", active, false);
-	katina.add_var_event(this, "report_flags", do_flags, false);
-	katina.add_var_event(this, "report_flags_hud", do_flags_hud, false);
-	katina.add_var_event(this, "report_chats", do_chats, false);
-	katina.add_var_event(this, "report_kills", do_kills, false);
-	katina.add_var_event(this, "report_infos", do_infos, false);
-	katina.add_var_event(this, "report_stats", do_stats, false);
-	katina.add_var_event(this, "report_stats_cols", stats_cols, 0U);
-	katina.add_var_event(this, "report_spamkill", spamkill, false);
-	katina.add_var_event(this, "report_spam_limit", spam_limit, 2U);
+	katina.add_var_event(this, "report.active", active, false);
+	katina.add_var_event(this, "report.flags", do_flags, false);
+	katina.add_var_event(this, "report.flags.hud", do_flags_hud, false);
+	katina.add_var_event(this, "report.chats", do_chats, false);
+	katina.add_var_event(this, "report.kills", do_kills, false);
+	katina.add_var_event(this, "report.infos", do_infos, false);
+	katina.add_var_event(this, "report.stats", do_stats, false);
+	katina.add_var_event(this, "report.stats.cols", stats_cols, 0U);
+	katina.add_var_event(this, "report.spam.kill", spamkill, false);
+	katina.add_var_event(this, "report.spam.limit", spam_limit, 2U); 
 
 	katina.add_log_event(this, EXIT);
 	//katina.add_log_event(this, SHUTDOWN_GAME);
@@ -192,6 +191,7 @@ bool KatinaPluginReports::open()
 	katina.add_log_event(this, CTF);
 	//katina.add_log_event(this, AWARD);
 	katina.add_log_event(this, INIT_GAME);
+	katina.add_log_event(this, SAY); 
 
 	return true;
 }
