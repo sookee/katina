@@ -668,6 +668,61 @@ bool Katina::start(const str& dir)
 					(*i)->kill(min, sec, num1, num2, weap);
 			}
 		}
+		else if(cmd == "WeaponUsage:")
+		{
+			bug(cmd << "(" << params << ")");
+		
+			// Weapon Usage Update
+			// WeaponUsage: <client#> <weapon#> <#shotsFired>
+			siz num, weap, shots;
+			
+			if(iss >> num >> weap >> shots)
+			{
+				for(plugin_vec_iter i = events[WEAPON_USAGE].begin(); i != events[WEAPON_USAGE].end(); ++i)
+					(*i)->weapon_usage(min, sec, num, weap, shots);
+			}
+			else
+				std::cout << "Error parsing WeaponUsage" << '\n';
+		}
+		else if(cmd == "MODDamage:")
+		{
+			bug(cmd << "(" << params << ")");
+		
+			// MOD (Means of Death = Damage Type) Damage Update
+			// MODDamage: <client#> <mod#> <#hits> <damageDone> <#hitsRecv> <damageRecv>
+			siz num, mod, hits, dmg, hitsRecv, dmgRecv;
+			if(iss >> num >> mod >> hits >> dmg >> hitsRecv >> dmgRecv)
+			{
+				for(plugin_vec_iter i = events[MOD_DAMAGE].begin(); i != events[MOD_DAMAGE].end(); ++i)
+					(*i)->mod_damage(min, sec, num, mod, hits, dmg, hitsRecv, dmgRecv);
+			}
+			else
+				std::cout << "Error parsing MODDamage" << '\n';
+		}
+		else if(cmd == "PlayerStats:")
+		{
+			bug(cmd << "(" << params << ")");
+		
+			// Player Stats Update
+			// PlayerStats: <client#>
+			// 			    <fragsFace> <fragsBack> <fraggedInFace> <fraggedInBack>
+			// 			    <spawnKillsDone> <spanwKillsRecv>
+			// 			    <pushesDone> <pushesRecv>
+			// 			    <healthPickedUp> <armorPickedUp>
+			siz num, fragsFace, fragsBack, fraggedFace, fraggedBack, spawnKills, spawnKillsRecv, pushes, pushesRecv, health, armor;
+			if(iss >> num >> fragsFace >> fragsBack >> fraggedFace >> fraggedBack >> spawnKills >> spawnKillsRecv >> pushes >> pushesRecv >> health >> armor)
+			{
+				for(plugin_vec_iter i = events[PLAYER_STATS].begin(); i != events[PLAYER_STATS].end(); ++i)
+				{
+					(*i)->player_stats(min, sec, num,
+						fragsFace, fragsBack, fraggedFace, fraggedBack,
+						spawnKills, spawnKillsRecv, pushes, pushesRecv,
+						health, armor);
+				}
+			}
+			else
+				std::cout << "Error parsing PlayerStats" << '\n';
+		}
 		else if(cmd == "CTF:")
 		{
 			if(events[CTF].empty())
