@@ -158,7 +158,7 @@ bool InsecureClient::configure(const str& params)
 	// 192.168.0.50:7334 #chan1(*) #chan2(*)
 	str chans;
 	siss iss(params);
-	if(!(sgl(iss, host, ':') >> port))
+	if(!sgl(sgl(iss, host, ':') >> port >> std::ws, chans))
 	{
 		log("Bad parameters: " << params);
 		return false;

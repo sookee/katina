@@ -2,6 +2,8 @@
 
 Mod: database should not contain flags scored against only bots
 Mod: fix GUIDs in database.
+Mod: stop counting caps when only bots
+Mod: stop counting time when only bots
 
 1v1-winner stays
 
