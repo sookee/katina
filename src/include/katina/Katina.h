@@ -58,6 +58,9 @@ enum event_t
 	, AWARD
 	, INIT_GAME
 	, SAY
+	, WEAPON_USAGE
+	, MOD_DAMAGE
+	, PLAYER_STATS
 	, UNKNOWN		
 };
 
