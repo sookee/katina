@@ -64,13 +64,80 @@ bool Database::escape(const str& from, str& to)
 	to.assign(buff, mysql_real_escape_string(&mysql, buff, from.c_str(), from.size()));
 	return true;
 }
+
+bool Database::query(const str& sql)
+{
+	if(!active)
+		return false;
+
+	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+	{
+		log("DATABASE ERROR: " << mysql_error(&mysql));
+		log("              : sql = " << sql);
+		return false;
+	}
+	
+	return true;
+}
+
+bool Database::insert(const str& sql, my_ulonglong& insert_id)
+{
+	if(!insert(sql))
+		return false;
+	
+	insert_id = mysql_insert_id(&mysql);
+	
+	return true;
+}
+
+bool Database::update(const str& sql, my_ulonglong& update_count)
+{
+	if(!update(sql))
+		return false;
+	
+	update_count = mysql_affected_rows(&mysql);
+	
+	return true;
+}
+
+bool Database::select(const str& sql, str_vec_vec& rows, siz fields)
+{
+	if(!query(sql))
+		return false;
+
+	MYSQL_RES* result = 0;
+	if(!(result = mysql_store_result(&mysql)))
+	{
+		log("DATABASE ERROR: result: " << mysql_error(&mysql));
+		return false;
+	}		
+
+	if(fields == 0)
+		fields = fields = mysql_num_fields(result);
+	
+	if(fields != mysql_num_fields(result))
+		log("DATABASE: WARNING: parameter fields different from table");
+
+	rows.clear();
+	
+	MYSQL_ROW row;
+	while((row = mysql_fetch_row(result)))
+	{
+		str_vec v(fields);
+		for(siz f = 0; f < fields; ++f)
+			if(row[f])
+				v[f] = row[f];
+		rows.push_back(v);
+	}
+	
+	mysql_free_result(result);
+	return true;
+}
+
 //   game: game_id host port date map
 
 game_id Database::add_game(const str& host, const str& port, const str& mapname)
 {
-	if(!active)
-		return null_id; // inactive
-
 	log("DATABASE: add_game(" << host << ", " << port << ", " << mapname << ")");
 
 	str safe_mapname;
@@ -84,14 +151,11 @@ game_id Database::add_game(const str& host, const str& port, const str& mapname)
 		" (`host`, `port`, `map`) values (INET_ATON('"
 		+ host + "'),'" + port + "','" + safe_mapname + "')";
 
-	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
-	{
-		log("DATABASE ERROR: Unable to add_mame; " << mysql_error(&mysql));
-		log("              : sql = " << sql);
+	game_id id;
+	if(!update(sql, id))
 		return bad_id;
-	}
 
-	return mysql_insert_id(&mysql);
+	return id;
 }
 
 /**
@@ -105,9 +169,6 @@ game_id Database::add_game(const str& host, const str& port, const str& mapname)
  */
 bool Database::add_weaps(game_id id, const str& table, const GUID& guid, siz weap, siz count)
 {
-	if(!active)
-		return true; // not error
-
 	log("DATABASE: add_weaps(" << id << ", " << table << ", " << guid << ", " << weap << ", " << count << ")");
 
 	soss oss;
@@ -116,21 +177,11 @@ bool Database::add_weaps(game_id id, const str& table, const GUID& guid, siz wea
 
 	str sql = oss.str();
 
-	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
-	{
-		log("DATABASE ERROR: Unable to add_weaps; " << mysql_error(&mysql));
-		log("              : sql = " << sql);
-		return false;
-	}
-
-	return true;
+	return insert(sql);
 }
 
 bool Database::add_caps(game_id id, const GUID& guid, siz count)
 {
-	if(!active)
-		return true; // not error
-
 	log("DATABASE: add_caps(" << id << ", " << guid << ", " << count << ")");
 
 	soss oss;
@@ -139,21 +190,11 @@ bool Database::add_caps(game_id id, const GUID& guid, siz count)
 
 	str sql = oss.str();
 
-	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
-	{
-		log("DATABASE ERROR: Unable to add_caps; " << mysql_error(&mysql));
-		log("              : sql = " << sql);
-		return false;
-	}
-
-	return true;
+	return insert(sql);
 }
 
 bool Database::add_time(game_id id, const GUID& guid, siz count)
 {
-	if(!active)
-		return true; // not error
-
 	log("DATABASE: add_time(" << id << ", " << guid << ", " << count << ")");
 
 	soss oss;
@@ -162,21 +203,11 @@ bool Database::add_time(game_id id, const GUID& guid, siz count)
 
 	str sql = oss.str();
 
-	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
-	{
-		log("DATABASE ERROR: Unable to add_time; " << mysql_error(&mysql));
-		log("              : sql = " << sql);
-		return false;
-	}
-
-	return true;
+	return insert(sql);
 }
 
 bool Database::add_player(const GUID& guid, const str& name)
 {
-	if(!active)
-		return true; // not error
-
 	log("DATABASE: add_player(" << guid << ", " << name << ")");
 
 	str safe_name;
@@ -192,21 +223,11 @@ bool Database::add_player(const GUID& guid, const str& name)
 
 	str sql = oss.str();
 
-	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
-	{
-		log("DATABASE ERROR: Unable to add_player; " << mysql_error(&mysql));
-		log("              : sql = " << sql);
-		return false;
-	}
-
-	return true;
+	return insert(sql);
 }
 
 row_count Database::add_vote(const str& type, const str& item, const GUID& guid, int count)
 {
-	if(!active)
-		return true; // not error
-
 	log("DATABASE: add_vote(" << type << ", " << item << ", " << guid << ", " << count << ")");
 
 	soss oss;
@@ -215,22 +236,17 @@ row_count Database::add_vote(const str& type, const str& item, const GUID& guid,
 		<< " on duplicate key update `count` = '" << count << "'";
 
 	str sql = oss.str();
+	
+	my_ulonglong update_count = 0;
+	
+	if(!update(sql, update_count))
+		return 0;
 
-	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
-	{
-		log("DATABASE ERROR: Unable to add_vote; " << mysql_error(&mysql));
-		log("              : sql = " << sql);
-		return 0; // error
-	}
-
-	return mysql_affected_rows(&mysql);
+	return update_count;
 }
 
 bool Database::add_ovo(game_id id, const GUID& guid1, const GUID& guid2, siz count)
 {
-	if(!active)
-		return true; // not error
-
 	log("DATABASE: add_ovo(" << id << ", " << guid1 << ", " << guid2 << ", " << count << ")");
 
 	soss oss;
@@ -239,21 +255,11 @@ bool Database::add_ovo(game_id id, const GUID& guid1, const GUID& guid2, siz cou
 
 	str sql = oss.str();
 
-	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
-	{
-		log("DATABASE ERROR: Unable to add_ovo; " << mysql_error(&mysql));
-		log("              : sql = " << sql);
-		return false;
-	}
-
-	return true;
+	return insert(sql);
 }
 
 bool Database::read_map_votes(const str& mapname, guid_int_map& map_votes)
 {
-	if(!active)
-		return true; // not error
-
 	log("DATABASE: read_recs()");
 
 	str safe_mapname;
@@ -268,38 +274,26 @@ bool Database::read_map_votes(const str& mapname, guid_int_map& map_votes)
 
 	str sql = oss.str();
 
-	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
-	{
-		log("DATABASE ERROR: Unable to read_recs; " << mysql_error(&mysql));
-		log("              : sql = " << sql);
+	str_vec_vec rows;
+	if(!select(sql, rows, 2))
 		return false;
-	}
 
-	MYSQL_RES* result = mysql_store_result(&mysql);
-
-	MYSQL_ROW row;
-	while((row = mysql_fetch_row(result)))
+	for(siz i = 0; i < rows.size(); ++i)
 	{
-		log("DATABASE: restoring vote: " << row[0] << ": " << row[1]);
-		map_votes[GUID(row[0])] = to<int>(row[1]);
+		log("DATABASE: restoring vote: " << rows[i][0] << ": " << rows[i][1]);
+		map_votes[GUID(rows[i][0])] = to<int>(rows[i][1]);
 	}
-	mysql_free_result(result);
+
 	return true;
 }
 
 bool Database::set_preferred_name(const GUID& guid, const str& name)
 {
-	if(!active)
-		return true; // not error
-
 	log("DATABASE: set_preferred_name(" << guid << ", " << name << ")");
 
 	str safe_name;
 	if(!escape(name, safe_name))
-	{
-		log("DATABASE: ERROR: failed to escape: " << name);
 		return bad_id;
-	}
 
 	soss oss;
 	oss << "insert into `user` (`guid`,`name`) values ('"
@@ -307,15 +301,9 @@ bool Database::set_preferred_name(const GUID& guid, const str& name)
 
 	str sql = oss.str();
 
-	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
-	{
-		log("DATABASE ERROR: Unable to set_preferred_name; " << mysql_error(&mysql));
-		log("              : sql = " << sql);
-		return false;
-	}
-
-	return true;
+	return insert(sql);
 }
+
 bool Database::get_preferred_name(const GUID& guid, str& name)
 {
 	log("DATABASE: get_preferred_name(" << guid << ", " << name << ")");
@@ -325,21 +313,15 @@ bool Database::get_preferred_name(const GUID& guid, str& name)
 
 	str sql = oss.str();
 
-	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
-	{
-		log("DATABASE ERROR: Unable to get_preferred_name; " << mysql_error(&mysql));
-		log("              : sql = " << sql);
+	str_vec_vec rows;
+	if(!select(sql, rows, 1))
 		return false;
-	}
 
-	MYSQL_RES* result = mysql_store_result(&mysql);
+	if(rows.empty())
+		return false;
 
-	MYSQL_ROW row;
-	if((row = mysql_fetch_row(result)))
-	{
-		name = row[0];
-	}
-	mysql_free_result(result);
+	name = rows[0][0];
+
 	return true;
 }
 
@@ -400,7 +382,7 @@ typedef stat_map::const_iterator stat_map_citer;
 	
 bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, GUID& guid, str& stats)
 {
-//	log("DATABASE: get_ingame_boss(" << guid << ", " << mapname << ", " << prev << ")");
+	log("DATABASE: get_ingame_boss(" << mapname << ", " << clients.size() << ")");
 	siz syear = 0;
 	siz smonth = 0;
 	siz eyear = 0;
@@ -445,33 +427,18 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 	
 	bug_var(sql);
 
-	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
-	{
-		log("DATABASE ERROR: Unable to get_ingame_boss kills; " << mysql_error(&mysql));
-		log("              : sql = " << sql);
-		return false;
-	}
-
-	MYSQL_RES* result = 0;
+	str_vec_vec rows;
 	
-	if(!(result = mysql_store_result(&mysql)))
-	{
-		log("DATABASE ERROR: result; " << mysql_error(&mysql));
+	if(!select(sql, rows, 2))
 		return false;
-	}		
 
-	MYSQL_ROW row;
-
-	while((row = mysql_fetch_row(result)))
+	for(siz i = 0; i < rows.size(); ++i)
 	{
-		if(row[0] && row[1])
-		{
-			stat_cs[row[0]].kills = to<siz>(row[1]);
-			guids.insert(row[0]);
-		}
+		if(rows[i][0].empty() || rows[i][1].empty())
+			continue;
+		stat_cs[rows[i][0]].kills = to<siz>(rows[i][1]);
+		guids.insert(rows[i][0]);
 	}
-	
-	mysql_free_result(result);
 	
 	oss.clear();
 	oss.str("");
@@ -482,29 +449,16 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 	
 	bug_var(sql);
 
-	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
-	{
-		log("DATABASE ERROR: Unable to get_ingame_boss caps; " << mysql_error(&mysql));
-		log("              : sql = " << sql);
+	if(!select(sql, rows, 2))
 		return false;
-	}
 
-	if(!(result = mysql_store_result(&mysql)))
+	for(siz i = 0; i < rows.size(); ++i)
 	{
-		log("DATABASE ERROR: result; " << mysql_error(&mysql));
-		return false;
-	}		
-
-	while((row = mysql_fetch_row(result)))
-	{
-		if(row[0] && row[1])
-		{
-			stat_cs[row[0]].caps = to<siz>(row[1]);
-			guids.insert(row[0]);
-		}
+		if(rows[i][0].empty() || rows[i][1].empty())
+			continue;
+		stat_cs[rows[i][0]].caps = to<siz>(rows[i][1]);
+		guids.insert(rows[i][0]);
 	}
-	
-	mysql_free_result(result);
 	
 	oss.clear();
 	oss.str("");
@@ -515,34 +469,19 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 	
 	bug_var(sql);
 
-	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
-	{
-		log("DATABASE ERROR: Unable to get_ingame_boss time; " << mysql_error(&mysql));
-		log("              : sql = " << sql);
+	if(!select(sql, rows, 2))
 		return false;
-	}
 
-	if(!(result = mysql_store_result(&mysql)))
+	for(siz i = 0; i < rows.size(); ++i)
 	{
-		log("DATABASE ERROR: result; " << mysql_error(&mysql));
-		return false;
-	}		
-
-	while((row = mysql_fetch_row(result)))
-	{
-		if(row[0] && row[1])
-		{
-			stat_cs[row[0]].secs = to<siz>(row[1]);
-			guids.insert(row[0]);
-		}
+		if(rows[i][0].empty() || rows[i][1].empty())
+			continue;
+		stat_cs[rows[i][0]].secs = to<siz>(rows[i][1]);
+		guids.insert(rows[i][0]);
 	}
-	
-	mysql_free_result(result);
 	
 	if(guids.empty())
-	{
 		return true;
-	}
 	
 	// -- get ratio of frags to caps
 	
@@ -555,31 +494,14 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 	
 	bug_var(sql);
 
-	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
-	{
-		log("DATABASE ERROR: Unable to get_ingame_boss kpc; " << mysql_error(&mysql));
-		log("              : sql = " << sql);
+	if(!select(sql, rows, 1))
 		return false;
-	}
 
-	if(!(result = mysql_store_result(&mysql)))
-	{
-		log("DATABASE ERROR: result; " << mysql_error(&mysql));
-		return false;
-	}		
-
-
-	if(!(row = mysql_fetch_row(result)))
-	{
-		log("DATABASE ERROR: fetching kpc ratio; " << mysql_error(&mysql));
-		mysql_free_result(result);
-		return false;
-	}
+	double k = 0.0;
 	
-	double k = row[0] ? to<double>(row[0]) : 0.0;
-
-	mysql_free_result(result);
-
+	if(!rows.empty() && !rows[0].empty())
+		k = to<double>(rows[0][0]);
+	
 	oss.clear();
 	oss.str("");
 	oss << "select sum(`caps`.`count`) from `caps` where";
@@ -589,30 +511,13 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 	
 	bug_var(sql);
 
-	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
-	{
-		log("DATABASE ERROR: Unable to get_ingame_boss kpc; " << mysql_error(&mysql));
-		log("              : sql = " << sql);
+	if(!select(sql, rows, 1))
 		return false;
-	}
 
-	if(!(result = mysql_store_result(&mysql)))
-	{
-		log("DATABASE ERROR: result; " << mysql_error(&mysql));
-		return false;
-	}		
-
-
-	if(!(row = mysql_fetch_row(result)))
-	{
-		log("DATABASE ERROR: fetching kpc ratio; " << mysql_error(&mysql));
-		mysql_free_result(result);
-		return false;
-	}
+	double c = 0.0;
 	
-	double c = row[0] ? to<double>(row[0]) : 0.0;
-	
-	mysql_free_result(result);
+	if(!rows.empty() && !rows[0].empty())
+		c = to<double>(rows[0][0]);
 	
 	double kpc = c > 0.001 ? (k / c) : 1.0;
 	
@@ -685,12 +590,13 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	str sql = oss.str();
 	
 	bug_var(sql);
-	
-	MYSQL_ROW row;
-	if(!query(sql, row))
-		return false;
 
-	str kills = row[0] ? row[0] : "0";
+	str_vec_vec rows;
+	
+	if(!select(sql, rows, 1))
+		return false;
+		
+	str kills = rows.empty() || rows[0][0].empty() ? "0" : rows[0][0];
 	bug_var(kills);
 	
 	oss.clear();
@@ -702,10 +608,10 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	sql = oss.str();
 	bug_var(sql);
 
-	if(!query(sql, row))
+	if(!select(sql, rows, 1))
 		return false;
-
-	str caps = row[0] ? row[0] : "0";
+		
+	str caps = rows.empty() || rows[0][0].empty() ? "0" : rows[0][0];
 	bug_var(caps);
 	
 	oss.clear();
@@ -717,26 +623,27 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	sql = oss.str();
 	bug_var(sql);
 
-	if(!query(sql, row))
+	if(!select(sql, rows, 1))
 		return false;
-	
-	str secs = row[0] ? row[0] : "0";
+		
+	str secs = rows.empty() || rows[0][0].empty() ? "0" : rows[0][0];
 	bug_var(secs);
 	
 	siz hours = 0;
 	siz fph = 0;
 	siz cph = 0;
-	siss iss(kills + " " + caps + " " + secs); // seconds
+	siss iss(kills + " " + caps + " " + secs);
+	
 	if(!(iss >> fph >> cph >> hours))
 	{
 		log("DATABASE ERROR: parsing results: " << (kills + " " + caps + " " + secs));
 		return false;
 	}
-	
+
 	bug_var(hours);
 	bug_var(fph);
 	bug_var(cph);
-	
+
 	stats = "^3FPH^7: ^20 ^3CPH^7: ^20";
 	
 	//hours /= (60 * 60);
@@ -755,33 +662,6 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 		stats = oss.str();
 	}
 
-	return true;
-}
-
-bool Database::query(const str& sql, MYSQL_ROW& row)
-{
-	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
-	{
-		log("DATABASE ERROR: " << mysql_error(&mysql));
-		log("              : sql = " << sql);
-		return false;
-	}
-
-	MYSQL_RES* result = 0;
-	if(!(result = mysql_store_result(&mysql)))
-	{
-		log("DATABASE ERROR: result: " << mysql_error(&mysql));
-		return false;
-	}		
-
-	if(!(row = mysql_fetch_row(result)))
-	{
-		log("DATABASE ERROR: row: " << mysql_error(&mysql));
-		mysql_free_result(result);
-		return false;
-	}
-	
-	mysql_free_result(result);
 	return true;
 }
 

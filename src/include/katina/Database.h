@@ -29,6 +29,11 @@ typedef my_ulonglong row_count;
 extern const game_id bad_id;
 extern const game_id null_id;
 
+typedef std::vector<str_vec> str_vec_vec;
+
+// TODO: Make this a superclass and have
+// each plugin inherit its own class from it
+
 class Database
 {
 	bool active;
@@ -41,11 +46,60 @@ class Database
 
 	MYSQL mysql;
 	
-	bool query(const str& sql, MYSQL_ROW& row);
+protected:
+	
+	/**
+	 * Persorm sql statement.
+	 * @param sql The sql statement.
+	 * @return true on success else false
+	 */
+	bool query(const str& sql);
+
+	/**
+	 * Persorm an "insert" sql statement.
+	 * @param sql The "insert" sql statement.
+	 * @return true on success else false
+	 */
+	bool insert(const str& sql) { return query(sql); }
+	
+	/**
+	 * Persorm an "insert" sql statement.
+	 * @param sql The "insert" sql statement.
+	 * @param insert_id is set to the auto increment id (if any)
+	 * using mysql_insert_id().
+	 * @return true on success else false
+	 */
+	bool insert(const str& sql, my_ulonglong& insert_id);
+	
+	/**
+	 * Persorm an "update" sql statement.
+	 * @param sql The "update" sql statement.
+	 * @return true on success else false
+	 */
+	bool update(const str& sql) { return query(sql); }
+		
+	/**
+	 * Persorm an "update" or "on duplicate key update" sql statement.
+	 * @param sql The "update" or "on duplicate key update" sql statement.
+	 * @param update_count is set to the number of rows updated
+	 * using mysql_affected_rows(). If the query is an "on duplicate key update"
+	 * then update_count will contain: 0 = error, 1 = inserted, 2 = updated
+	 * @return true on success else false
+	 */
+	bool update(const str& sql, my_ulonglong& update_count);
+
+	/**
+	 * Persorm an "select" sql statement.
+	 * @param sql The "select" sql statement.
+	 * @param rows is a std::vector of std::string std::vectors
+	 * containing the returned table in the form rows[row][column].
+	 * @return true on success else false
+	 */
+	bool select(const str& sql, str_vec_vec& rows, siz fields = 0);
 
 public:
 	Database();
-	~Database();
+	virtual ~Database();
 
 	void config(const str& host, siz port, const str& user, const str& pass, const str& base)
 	{
@@ -60,16 +114,7 @@ public:
 
 	void off();
 
-	// == DATABASE ==
-	//
-	//  kills: game_id guid weap count
-	// deaths: game_id guid weap count
-	//   caps: game_id guid count
-	//   time: game_id guid count // seconds in game (player not spec)
-
 	bool escape(const str& from, str& to);
-
-	//   game: game_id host port date map
 
 	game_id add_game(const str& host, const str& port, const str& mapname);
 

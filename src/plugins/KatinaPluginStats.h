@@ -50,6 +50,11 @@ typedef std::pair<const GUID, stats> guid_stat_pair;
 typedef std::map<GUID, stats>::iterator guid_stat_iter;
 typedef std::map<GUID, stats>::const_iterator guid_stat_citer;
 
+//class Database
+//: public oastats::data::Database
+//{
+//};
+
 class KatinaPluginStats
 : public KatinaPlugin
 {
