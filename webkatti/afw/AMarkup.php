@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright © 2013 Aequiternus@gmail.com
+ * Copyright © 2013 Krylosov Maksim <Aequiternus@gmail.com>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -25,7 +25,7 @@ class AMarkup
 
 
 
-    function __construct($linkMaxLength = 50, $headingDec = 0, $allowable = "=*#!-&|'")
+    function __construct($linkMaxLength = 50, $headingDec = 0, $allowable = '=*#!-&|`')
     {
         $this->linkMaxLength = $linkMaxLength;
         $this->headingDec = $headingDec;
@@ -49,7 +49,7 @@ class AMarkup
         foreach ($lines as $line)
         {
             $this->line = $line;
-            if ($this->current == "'")
+            if ($this->current == "`")
             {
                 $this->precode();
             }
@@ -70,7 +70,7 @@ class AMarkup
                         case '-': $this->descr(); break;
                         case '&': $this->blockquote(); break;
                         case '|': $this->table(); break;
-                        case "'": $this->precode(); break;
+                        case '`': $this->precode(); break;
                         default : $this->plaintext(); break;
                     }
                 }
@@ -99,33 +99,33 @@ class AMarkup
 
 
     private function replace()
-	{
-		$this->line = preg_replace([
-                '`([^\s(-])&quot;`',
-                '`&quot;([^\s)])`',
-                '`(\s|&nbsp;)--?-?(\s)`',
-                '`---`',
-                '`--`',
-                '`&lt;&lt;`',
-                '`&gt;&gt;`',
-                '`\(c\)`i',
-                '/`([^`]+?)`/',
-                '`\[\#(\w+)\s+([^]]+)\]`',
-                '`(\S+)\(([^\)]+)\)`',
-            ], [
-                '$1»',
-                '«$1',
-                '&nbsp;—$2',
-                '—',
-                '–',
-                '«',
-                '»',
-                '©',
-                '<code>$1</code>',
-                '<a href="#$1">$2</a>',
-                '<abbr title="$2">$1</abbr>',
-            ], $this->line);
-	}
+    {
+        $this->line = preg_replace([
+            '`([^\s(-])&quot;`',
+            '`&quot;([^\s)])`',
+            '`(\s|&nbsp;)--?-?(\s)`',
+            '`---`',
+            '`--`',
+            '`&lt;&lt;`',
+            '`&gt;&gt;`',
+            '`\(c\)`i',
+            '/`([^`]+?)`/',
+            '`\[(\#|/|\./)(\w+)\s+([^]]+)\]`',
+            '`(\S+)\(([^\)]+)\)`',
+        ], [
+            '$1»',
+            '«$1',
+            ' —$2',
+            '—',
+            '–',
+            '«',
+            '»',
+            '©',
+            '<code>$1</code>',
+            '<a href="$1$2">$3</a>',
+            '<abbr title="$2">$1</abbr>',
+        ], $this->line);
+    }
 
 
 
@@ -346,11 +346,11 @@ class AMarkup
 
     private function precode()
     {
-        if ($this->line == "'''")
+        if ($this->line == '```')
         {
-            if ($this->current != "'")
+            if ($this->current != '`')
             {
-                $this->current = "'";
+                $this->current = '`';
                 $this->line = ' <pre><code>';
             }
             else

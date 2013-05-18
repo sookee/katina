@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright © 2013 Aequiternus@gmail.com
+ * Copyright © 2013 Krylosov Maksim <Aequiternus@gmail.com>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -20,15 +20,15 @@ class Submit extends Element
 
 
 
-	function __construct($label = null, $name = null)
-	{
-		parent::__construct($label);
+    function __construct($label = null, $name = null)
+    {
+        parent::__construct($label);
 
         if (!isset($name))
         {
-            $name = '__submit'.++self::$i;
+            $name = '__submit' . ++self::$i;
         }
         $this->name = $name;
-	}
+    }
 
 }

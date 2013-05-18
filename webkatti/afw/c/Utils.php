@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright © 2013 Aequiternus@gmail.com
+ * Copyright © 2013 Krylosov Maksim <Aequiternus@gmail.com>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -19,22 +19,22 @@ class Utils
     {
         $params = $model->getField($fieldImage)->fileParams()->export();
 
-		$max_i = null;
-		$max_w = 0;
-		foreach ($params as $i=>$p)
-		{
-			if (empty($p[\afw\File::IMAGE_WIDTH]) || empty($p[\afw\File::IMAGE_HEIGHT]))
-			{
-				$max_i = $i;
-				break;
-			}
+        $max_i = null;
+        $max_w = 0;
+        foreach ($params as $i => $p)
+        {
+            if (empty($p[\afw\File::IMAGE_WIDTH]) || empty($p[\afw\File::IMAGE_HEIGHT]))
+            {
+                $max_i = $i;
+                break;
+            }
 
-			if ($p[\afw\File::IMAGE_WIDTH] > $max_w)
-			{
-				$max_w = $p[\afw\File::IMAGE_WIDTH];
-				$max_i = $i;
-			}
-		}
+            if ($p[\afw\File::IMAGE_WIDTH] > $max_w)
+            {
+                $max_w = $p[\afw\File::IMAGE_WIDTH];
+                $max_i = $i;
+            }
+        }
         unset($params[$max_i]);
 
         $r = $model->db()

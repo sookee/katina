@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright © 2013 Aequiternus@gmail.com
+ * Copyright © 2013 Krylosov Maksim <Aequiternus@gmail.com>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -19,8 +19,8 @@ abstract class ParserModel extends ParserList
      * @var m\Model
      */
     public $model;
-    public $ekey = 'eid';
-    public $skey = 'sid';
+    public $ekey = 'eid'; # external primary key
+    public $skey = 'sid'; # source identifier
     public $oldKey = 'old';
     public $updateFiles = true;
     public $exceptions = [];
@@ -81,7 +81,7 @@ abstract class ParserModel extends ParserList
             $old = $this->model->db()
                 ->key($this->item[$this->ekey], $this->ekey)
                 ->key($this->item[$this->skey], $this->skey)
-                ->first();
+                ->one();
 
             if (!empty($old))
             {
@@ -102,9 +102,9 @@ abstract class ParserModel extends ParserList
             $this->clearFiles();
             $this->countParsed++;
         }
-        catch (\afw\m\ModelFilterException $e)
+        catch (m\ModelFilterException $e)
         {
-            foreach ($e->getExceptions() as $exception);
+            foreach ($e->getExceptions() as $exception)
             {
                 $this->exceptions[$this->url][] = $exception;
             }

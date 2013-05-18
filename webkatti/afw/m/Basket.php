@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright © 2013 Aequiternus@gmail.com
+ * Copyright © 2013 Krylosov Maksim <Aequiternus@gmail.com>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -17,30 +17,30 @@ use afw\Session;
 class Basket
 {
 
-	const SESSION_DATA      = 'afw\m\Basket::data';
+    const SESSION_DATA = 'afw\m\Basket::data';
 
-	public $funcCost;
-	public $fieldAmount     = 'amount';
-	public $fieldPrice      = 'price';
-    public $fieldOptions    = 'options';
-    public $fieldChoice     = 'choice';
-    public $fieldChoiceKey  = '__choice';
+    public $funcCost;
+    public $fieldAmount = 'amount';
+    public $fieldPrice = 'price';
+    public $fieldOptions = 'options';
+    public $fieldChoice = 'choice';
+    public $fieldChoiceKey = '__choice';
 
-	/**
-	 * @var Model
-	 */
-	protected $model;
-	protected $data;
+    /**
+     * @var Model
+     */
+    protected $model;
+    protected $data;
 
 
 
-	function __construct(Model $itemModel, $funcCost = null)
-	{
-		$this->model = $itemModel;
-		$this->funcCost = $funcCost ? : function($items, $fieldAmount, $fieldPrice, $fieldOptions, $fieldChoice)
+    function __construct(Model $itemModel, $funcCost = null)
+    {
+        $this->model = $itemModel;
+        $this->funcCost = $funcCost ? : function($items, $fieldAmount, $fieldPrice, $fieldOptions, $fieldChoice)
         {
-			$cost = 0;
-			foreach ($items as $item)
+            $cost = 0;
+            foreach ($items as $item)
             {
                 $price = $item[$fieldPrice];
                 if (!empty($item[$fieldChoice]))
@@ -51,11 +51,11 @@ class Basket
                         $price += @$options[$name][$option];
                     }
                 }
-				$cost += $price * $item[$fieldAmount];
+                $cost += $price * $item[$fieldAmount];
             }
-			return $cost;
-		};
-	}
+            return $cost;
+        };
+    }
 
 
 
@@ -66,7 +66,7 @@ class Basket
         {
             $_SESSION[self::SESSION_DATA] = [];
         }
-        $this->data =& $_SESSION[self::SESSION_DATA];
+        $this->data = & $_SESSION[self::SESSION_DATA];
     }
 
 
@@ -89,14 +89,14 @@ class Basket
 
 
 
-	function add($id = null, $amount = null, $options = null)
-	{
-		$id = $id ? : @$_POST[$this->model->pkey];
-		$amount = $amount ? : (int)@$_POST[$this->fieldAmount] ? : 1;
+    function add($id = null, $amount = null, $options = null)
+    {
+        $id = $id ? : @$_POST[$this->model->pkey];
+        $amount = $amount ? : (int)@$_POST[$this->fieldAmount] ? : 1;
         list($optionsKey, $o) = $this->prepareOptions($options ? : @$_POST[$this->fieldChoice]);
-		if (empty($id))
+        if (empty($id))
         {
-			return;
+            return;
         }
 
         Session::start();
@@ -116,18 +116,18 @@ class Basket
         }
 
         Session::commit();
-	}
+    }
 
 
 
-	function set($id = null, $amount = null, $options = null)
-	{
-		$id = $id ? : @$_POST[$this->model->pkey];
-		$amount = $amount ? : (int)@$_POST[$this->fieldAmount];
+    function set($id = null, $amount = null, $options = null)
+    {
+        $id = $id ? : @$_POST[$this->model->pkey];
+        $amount = $amount ? : (int)@$_POST[$this->fieldAmount];
         list($optionsKey, $o) = $this->prepareOptions($options ? : @$_POST[$this->fieldChoice]);
-		if (empty($id))
+        if (empty($id))
         {
-			return;
+            return;
         }
 
         Session::start();
@@ -150,12 +150,12 @@ class Basket
         }
 
         Session::commit();
-	}
+    }
 
 
 
-	function setItems(array $items)
-	{
+    function setItems(array $items)
+    {
         Session::start();
         $this->initData();
 
@@ -168,54 +168,54 @@ class Basket
         }
 
         Session::commit();
-	}
+    }
 
 
 
-	function remove($id = null, $options = null)
-	{
-		$id = $id ? : @$_POST[$this->model->pkey];
+    function remove($id = null, $options = null)
+    {
+        $id = $id ? : @$_POST[$this->model->pkey];
         list($optionsKey, $options) = $this->prepareOptions($options ? : @$_POST[$this->fieldChoice]);
-		if (empty($id))
+        if (empty($id))
         {
-			return;
+            return;
         }
 
         Session::start();
         $this->initData();
 
-		unset($this->data[$id][$optionsKey]);
+        unset($this->data[$id][$optionsKey]);
 
         Session::commit();
-	}
+    }
 
 
 
-	function clear()
-	{
+    function clear()
+    {
         Session::start();
         $this->initData();
 
-		$this->data = [];
+        $this->data = [];
 
         Session::commit();
-	}
+    }
 
 
 
-	function getList(&$cost = null, &$amount = null)
-	{
+    function getList(&$cost = null, &$amount = null)
+    {
         $this->initData();
-		if (empty($this->data))
+        if (empty($this->data))
         {
-			return [];
+            return [];
         }
 
         $items = [];
         $buf = $this->model->db()
             ->key(array_keys($this->data))
             ->all();
-		foreach ($buf as $row)
+        foreach ($buf as $row)
         {
             $items[$row[$this->model->pkey]] = $row;
         }
@@ -231,12 +231,12 @@ class Basket
                 $row[$this->fieldAmount] = $a;
                 $row[$this->fieldChoice] = $o;
                 $row[$this->fieldChoiceKey] = $optionsKey;
-                $r []= $row;
+                $r [] = $row;
                 $amount += $a;
             }
         }
 
-		$cost = call_user_func(
+        $cost = call_user_func(
             $this->funcCost,
             $r,
             $this->fieldAmount,
@@ -245,7 +245,7 @@ class Basket
             $this->fieldChoice
         );
 
-		return $r;
-	}
+        return $r;
+    }
 
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright © 2013 Aequiternus@gmail.com
+ * Copyright © 2013 Krylosov Maksim <Aequiternus@gmail.com>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -15,270 +15,271 @@ namespace afw\m;
 class Statistics extends Model
 {
 
-	/**
-	 * @var Statistics[]
-	 */
-	protected static $instances = [];
-	protected static $instancesCount = 0;
-	protected $instanceId;
+    /**
+     * @var Statistics[]
+     */
+    protected static $instances = [];
+    protected static $instancesCount = 0;
+    protected $instanceId;
 
-	public $dkey = 'd';
-	public $period = 'Y-m-d';
-	public $multiplier = 1;
-	/**
-	 * @var \afw\APDO
-	 */
-	protected $db;
-	protected $table;
-	protected $params = [];
-	protected $counters = [];
-	protected $filters = [];
-	protected $isNew;
-	protected $incremented = false;
+    public $dkey = 'd';
+    public $period = 'Y-m-d';
+    public $multiplier = 1;
 
-
-
-	function __construct(\afw\APDO $db, $table, $defaultCounter = 'all_count')
-	{
-		$this->db = $db;
-		$this->table = $table;
-		$this->addCounter($defaultCounter);
-
-		$this->instanceId = self::$instancesCount++;
-		self::$instances[$this->instanceId] = $this;
-	}
+    /**
+     * @var \afw\APDO
+     */
+    protected $db;
+    protected $table;
+    protected $params = [];
+    protected $counters = [];
+    protected $filters = [];
+    protected $isNew;
+    protected $incremented = false;
 
 
 
-	static function flush()
-	{
-		foreach (self::$instances as $instance)
-		{
-			if (!$instance->incremented)
-			{
-				$instance->inc();
-			}
-		}
-	}
+    function __construct(\afw\APDO $db, $table, $defaultCounter = 'all_count')
+    {
+        $this->db = $db;
+        $this->table = $table;
+        $this->addCounter($defaultCounter);
+
+        $this->instanceId = self::$instancesCount++;
+        self::$instances[$this->instanceId] = $this;
+    }
 
 
 
-	/**
-	 * @param callback|bool $filter
-	 * @return StatisticsFilter
-	 */
-	static function filter($filter)
-	{
-		if (!is_callable($filter))
-		{
-			$filter = function() use ($filter)
-			{
-				return (bool)$filter;
-			};
-		}
-		return new StatisticsFilter($filter);
-	}
+    static function flush()
+    {
+        foreach (self::$instances as $instance)
+        {
+            if (!$instance->incremented)
+            {
+                $instance->inc();
+            }
+        }
+    }
 
 
 
-	/**
-	 * @return StatisticsFilter
-	 */
-	static function unique(self $statistics)
-	{
-		return new StatisticsFilter(function() use ($statistics)
-		{
-			return $statistics->isNew();
-		});
-	}
+    /**
+     * @param callback|bool $filter
+     * @return StatisticsFilter
+     */
+    static function filter($filter)
+    {
+        if (!is_callable($filter))
+        {
+            $filter = function() use ($filter)
+            {
+                return (bool)$filter;
+            };
+        }
+        return new StatisticsFilter($filter);
+    }
 
 
 
-	function setParam($name, $value)
-	{
-		$this->params[$name] = $value;
-		return $this;
-	}
+    /**
+     * @return StatisticsFilter
+     */
+    static function unique(self $statistics)
+    {
+        return new StatisticsFilter(function() use ($statistics)
+        {
+            return $statistics->isNew();
+        });
+    }
 
 
 
-	function linkParam($name, &$value)
-	{
-		$this->params[$name] =& $value;
-		return $this;
-	}
+    function setParam($name, $value)
+    {
+        $this->params[$name] = $value;
+        return $this;
+    }
 
 
 
-	function addCounter($name, StatisticsFilter $filter = null)
-	{
-		$this->counters[$name] = null;
-
-		$args = func_get_args();
-		$args_num = func_num_args();
-		for ($i = 1; $i < $args_num; $i++)
-		{
-			$this->filters[$name] []= $args[$i];
-		}
-
-		return $this;
-	}
+    function linkParam($name, &$value)
+    {
+        $this->params[$name] = & $value;
+        return $this;
+    }
 
 
 
-	function incCounter($name, $times = 1)
-	{
-		$this->counters[$name] += $times * $this->multiplier;
-	}
+    function addCounter($name, StatisticsFilter $filter = null)
+    {
+        $this->counters[$name] = null;
+
+        $args = func_get_args();
+        $args_num = func_num_args();
+        for ($i = 1; $i < $args_num; $i++)
+        {
+            $this->filters[$name] [] = $args[$i];
+        }
+
+        return $this;
+    }
 
 
 
-	/**
-	 * @return APDO
-	 */
-	function db()
-	{
-		return parent::db()
-			->addOrderBy($this->dkey, true);
-	}
+    function incCounter($name, $times = 1)
+    {
+        $this->counters[$name] += $times * $this->multiplier;
+    }
 
 
 
-	function get($params = null, $null = null)
-	{
-		return parent::get($params);
-	}
+    /**
+     * @return APDO
+     */
+    function db()
+    {
+        return parent::db()
+            ->addOrderBy($this->dkey, true);
+    }
 
 
 
-	function tryGet($params = null, $null = null)
-	{
-		if (!isset($params))
-		{
-			$params = $this->params;
-		}
-		foreach ($params as $name=>$value)
-		{
-			$this->db->key($value, $name);
-		}
-		return parent::tryGet(date($this->period), $this->dkey);
-	}
+    function get($params = null, $null = null)
+    {
+        return parent::get($params);
+    }
 
 
 
-	function exists($params = null)
-	{
-		$this->db->fields('1');
-		$r = $this->get($params);
-		return !empty($r);
-	}
+    function tryGet($params = null, $null = null)
+    {
+        if (!isset($params))
+        {
+            $params = $this->params;
+        }
+        foreach ($params as $name => $value)
+        {
+            $this->db->key($value, $name);
+        }
+        return parent::tryGet(date($this->period), $this->dkey);
+    }
 
 
 
-	function isNew()
-	{
-		if (!isset($this->isNew))
-		{
-			$this->isNew = !$this->exists();
-		}
-		return $this->isNew;
-	}
+    function exists($params = null)
+    {
+        $this->db->fields('1');
+        $r = $this->get($params);
+        return !empty($r);
+    }
 
 
 
-	function inc()
-	{
-		$this->incremented = true;
-		$this->incUndefinedCounters();
-
-		$args = [];
-		$update_values = '';
-		$insert_names = '';
-		$insert_values = '';
-		foreach ($this->counters as $name=>$value)
-		{
-			if ($value > 0)
-			{
-				$update_values .= ",$name=$name+?";
-				$args []= $value;
-				$insert_names .= ','.$name;
-				$insert_values .= ',?';
-			}
-		}
-
-		$conditions = 'WHERE '.$this->dkey.'=?';
-		$args []= date($this->period);
-		$insert_names .= ','.$this->dkey;
-		$insert_values .= ',?';
-
-		foreach ($this->params as $name=>$value)
-		{
-			$conditions .= " AND $name=?";
-			$args []= $value;
-			$insert_names .= ','.$name;
-			$insert_values .= ',?';
-		}
-
-		if (empty($update_values))
-		{
-			return;
-		}
-		$update_values[0] = ' ';
-
-		if (!$this->isNew)
-		{
-			$this->db->execute("UPDATE $this->table SET $update_values $conditions", $args);
-			if (isset($this->isNew))
-			{
-				return;
-			}
-			$this->isNew = $this->db->lastRowCount() == 0;
-			if (!$this->isNew)
-			{
-				return;
-			}
-		}
-
-		$insert_names[0] = ' ';
-		$insert_values[0] = ' ';
-		$this->db->execute("INSERT INTO $this->table ($insert_names) VALUES ($insert_values)", $args);
-
-		return;
-	}
+    function isNew()
+    {
+        if (!isset($this->isNew))
+        {
+            $this->isNew = !$this->exists();
+        }
+        return $this->isNew;
+    }
 
 
 
-	protected function incUndefinedCounters()
-	{
-		foreach ($this->counters as $name=>$value)
-		{
-			if (!isset($value))
-			{
-				if (!$this->checkFilters($name))
-				{
-					continue;
-				}
-				$this->incCounter($name);
-			}
-		}
-	}
+    function inc()
+    {
+        $this->incremented = true;
+        $this->incUndefinedCounters();
+
+        $args = [];
+        $update_values = '';
+        $insert_names = '';
+        $insert_values = '';
+        foreach ($this->counters as $name => $value)
+        {
+            if ($value > 0)
+            {
+                $update_values .= ",$name=$name+?";
+                $args [] = $value;
+                $insert_names .= ',' . $name;
+                $insert_values .= ',?';
+            }
+        }
+
+        $conditions = 'WHERE ' . $this->dkey . '=?';
+        $args [] = date($this->period);
+        $insert_names .= ',' . $this->dkey;
+        $insert_values .= ',?';
+
+        foreach ($this->params as $name => $value)
+        {
+            $conditions .= " AND $name=?";
+            $args [] = $value;
+            $insert_names .= ',' . $name;
+            $insert_values .= ',?';
+        }
+
+        if (empty($update_values))
+        {
+            return;
+        }
+        $update_values[0] = ' ';
+
+        if (!$this->isNew)
+        {
+            $this->db->execute("UPDATE $this->table SET $update_values $conditions", $args);
+            if (isset($this->isNew))
+            {
+                return;
+            }
+            $this->isNew = $this->db->lastRowCount() == 0;
+            if (!$this->isNew)
+            {
+                return;
+            }
+        }
+
+        $insert_names[0] = ' ';
+        $insert_values[0] = ' ';
+        $this->db->execute("INSERT INTO $this->table ($insert_names) VALUES ($insert_values)", $args);
+
+        return;
+    }
 
 
 
-	protected function checkFilters($name)
-	{
-		if (isset($this->filters[$name]))
-		{
-			foreach ($this->filters[$name] as $filter)
-			{
-				if ($filter instanceof StatisticsFilter && !$filter->check())
-				{
-					return false;
-				}
-			}
-		}
-		return true;
-	}
+    protected function incUndefinedCounters()
+    {
+        foreach ($this->counters as $name => $value)
+        {
+            if (!isset($value))
+            {
+                if (!$this->checkFilters($name))
+                {
+                    continue;
+                }
+                $this->incCounter($name);
+            }
+        }
+    }
+
+
+
+    protected function checkFilters($name)
+    {
+        if (isset($this->filters[$name]))
+        {
+            foreach ($this->filters[$name] as $filter)
+            {
+                if ($filter instanceof StatisticsFilter && !$filter->check())
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 
 }
 
@@ -287,24 +288,26 @@ class Statistics extends Model
 class StatisticsFilter
 {
 
-	protected $callback;
-	protected $result;
-
-	function __construct($callback)
-	{
-		$this->callback = $callback;
-	}
+    protected $callback;
+    protected $result;
 
 
 
-	function check()
-	{
-		if (!isset($this->result))
-		{
-			$callback = $this->callback;
-			return $this->result = $callback();
-		}
-		return $this->result;
-	}
+    function __construct($callback)
+    {
+        $this->callback = $callback;
+    }
+
+
+
+    function check()
+    {
+        if (!isset($this->result))
+        {
+            $callback = $this->callback;
+            return $this->result = $callback();
+        }
+        return $this->result;
+    }
 
 }
