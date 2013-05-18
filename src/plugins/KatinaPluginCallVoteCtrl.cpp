@@ -45,6 +45,12 @@ void handler(int sig, siginfo_t* si, void* uc)
 	else
 		plugin->vote_enable();
 	signal(sig, SIG_IGN);
+	
+	sa.sa_flags = SA_SIGINFO;
+	sa.sa_sigaction = handler;
+	sigemptyset(&sa.sa_mask);
+	if(sigaction(SIG, &sa, 0))
+		log("ERROR: failed to set signal handler");
 }
 
 KatinaPluginCallVoteCtrl::KatinaPluginCallVoteCtrl(Katina& katina)
@@ -70,7 +76,7 @@ bool KatinaPluginCallVoteCtrl::open()
 	sa.sa_flags = SA_SIGINFO;
 	sa.sa_sigaction = handler;
 	sigemptyset(&sa.sa_mask);
-	if(sigaction(SIG, &sa, NULL) == -1)
+	if(sigaction(SIG, &sa, 0))
 	{
 		plog("FATAL: failed to set signal handler");
 		return false;
