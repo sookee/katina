@@ -20,7 +20,7 @@ class PlayerStats extends \afw\c\Controller
 
     function __construct($kills, $caps, $deaths, $time, $minDeaths = 1, $minTime = 10)
     {
-        $this->setTemplate(__CLASS__);
+        $this->setView(__CLASS__);
         $this->kills        = $kills;
         $this->caps         = $caps;
         $this->deaths       = $deaths;

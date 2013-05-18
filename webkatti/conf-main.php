@@ -48,7 +48,7 @@ class Storage extends afw\InstanceFactory
     {
         return !Config::cache ? null : self::instance(__FUNCTION__, function(&$cache)
         {
-            $cache = new afw\AAPC($_SERVER['HTTP_HOST'] . Config::cachePrefix, Config::cacheTtl);
+            $cache = new afw\AAPC($_SERVER['HTTP_HOST'] . '.' . Config::cachePrefix, Config::cacheTtl);
         });
     }
 

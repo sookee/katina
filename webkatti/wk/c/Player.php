@@ -13,7 +13,7 @@ class Player
     static function get($guid)
     {
         $c = new Layout();
-        $c->setTemplate(__METHOD__);
+        $c->setView(__METHOD__);
 
         $c->name = M::user()->getNameByGuid($guid, $c->registered);
 

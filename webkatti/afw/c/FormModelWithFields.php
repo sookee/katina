@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright © 2013 Aequiternus@gmail.com
+ * Copyright © 2013 Krylosov Maksim <Aequiternus@gmail.com>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -15,39 +15,39 @@ namespace afw\c;
 class FormModelWithFields extends Form
 {
 
-	/**
-	 * @var \afw\m\ModelWithFields
-	 */
-	public $model;
+    /**
+     * @var \afw\m\ModelWithFields
+     */
+    public $model;
 
 
 
-	function __construct($completeMessage, \afw\m\ModelWithFields $model)
-	{
-		parent::__construct($completeMessage);
+    function __construct($completeMessage, \afw\m\ModelWithFields $model)
+    {
+        parent::__construct($completeMessage);
 
-		$this->model = $model;
-	}
+        $this->model = $model;
+    }
 
 
 
-	function pushFields($names = null)
-	{
-		if (!isset($names) || $names === true)
-		{
-			foreach ($this->model->fields as $field)
-			{
-				$controller = $field->getFormField();
-				if (isset($controller))
-				{
-					$this->push($controller);
-				}
-			}
-		}
-		else
-		{
-			foreach ((array)$names as $i => $v)
-			{
+    function pushFields($names = null)
+    {
+        if (!isset($names) || $names === true)
+        {
+            foreach ($this->model->fields as $field)
+            {
+                $controller = $field->getFormField();
+                if (isset($controller))
+                {
+                    $this->push($controller);
+                }
+            }
+        }
+        else
+        {
+            foreach ((array)$names as $i => $v)
+            {
                 if (is_int($i))
                 {
                     $controller = $this->model->getField($v)->getFormField();
@@ -56,46 +56,46 @@ class FormModelWithFields extends Form
                 {
                     $controller = Form\Element::value($v, $i);
                 }
-				if (isset($controller))
-				{
-					$this->push($controller);
-				}
-			}
-		}
-	}
+                if (isset($controller))
+                {
+                    $this->push($controller);
+                }
+            }
+        }
+    }
 
 
 
-	function push(Controller $controller)
-	{
-		if ($controller instanceof Form\FieldFile && !isset($controller->src))
+    function push(Controller $controller)
+    {
+        if ($controller instanceof Form\FieldFile && !isset($controller->src))
         {
             $controller->src = $this->model->dest($controller->name, 0);
-		}
-		parent::push($controller);
-	}
+        }
+        parent::push($controller);
+    }
 
 
 
-	function run($callback)
-	{
-		if (!empty($_POST))
-		{
-			try
-			{
-				$callback();
-				$this->complete();
-			}
-			catch (\afw\m\ModelFilterException $e)
-			{
-				$this->setExceptions($e->getExceptions());
-			}
-			catch (\Exception $e)
-			{
-				$this->fail($e->getMessage());
-			}
-		}
-	}
+    function run($callback)
+    {
+        if (!empty($_POST))
+        {
+            try
+            {
+                $callback();
+                $this->complete();
+            }
+            catch (\afw\m\ModelFilterException $e)
+            {
+                $this->setExceptions($e->getExceptions());
+            }
+            catch (\Exception $e)
+            {
+                $this->fail($e->getMessage());
+            }
+        }
+    }
 
 
 

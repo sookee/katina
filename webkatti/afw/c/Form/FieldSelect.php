@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright © 2013 Aequiternus@gmail.com
+ * Copyright © 2013 Krylosov Maksim <Aequiternus@gmail.com>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -15,30 +15,32 @@ namespace afw\c\Form;
 class FieldSelect extends Field
 {
 
-	public $options;
+    public $options;
     public $padding;
 
 
 
-	function __construct($label = null, $name = null, $options = null, $padding = ' &middot;&nbsp; ')
-	{
-		parent::__construct($label, $name);
-		$this->options = $options;
+    function __construct($label = null, $name = null, $options = null, $padding = ' ·  ')
+    {
+        parent::__construct($label, $name);
+        $this->options = $options;
         $this->padding = $padding;
-	}
+    }
 
 
 
-	function render()
-	{
-		if (isset($this->options) && is_callable($this->options))
-		{
-			$options = $this->options;
-			$this->options = $options();
-		}
-		$this->options = (array)$this->options;
-		parent::render();
-	}
+    function render()
+    {
+        if (isset($this->options) && is_callable($this->options))
+        {
+            $options = $this->options;
+            $this->options = $options();
+        }
+        $this->options = (array)$this->options;
+        parent::render();
+    }
+
+
 
     function renderOption($i, $v, $deep = 0)
     {
@@ -56,7 +58,7 @@ class FieldSelect extends Field
         {
             echo '<option value="', htmlspecialchars($i), '"',
                 (string)$i == (string)$this->value ? ' selected="selected"' : ''
-                ,'>',
+                , '>',
                 str_repeat($this->padding, $deep),
                 $v, '</option>';
         }

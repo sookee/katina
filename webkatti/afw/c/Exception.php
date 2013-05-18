@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright © 2013 Aequiternus@gmail.com
+ * Copyright © 2013 Krylosov Maksim <Aequiternus@gmail.com>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -17,53 +17,49 @@ use afw\HttpException;
 class Exception extends Controller
 {
 
-	/**
-	 * @var \Exception
-	 */
-	public $exception;
-	public $title;
-	public $title403 = '403 Forbidden';
-	public $title404 = '404 Not Found';
-	public $title500 = '500 Internal Server Error';
+    /**
+     * @var \Exception
+     */
+    public $exception;
+    public $title;
 
 
 
+    function __construct(\Exception $exception)
+    {
+        parent::__construct();
 
-	function __construct(\Exception $exception)
-	{
-		parent::__construct();
+        $this->setView(__CLASS__);
+        $this->exception = $exception;
 
-		$this->setTemplate(__CLASS__);
-		$this->exception = $exception;
-
-		if ($exception instanceof HttpException)
-		{
-			switch ($exception->getCode())
-			{
-				case 403:
-					$this->title = $this->title403;
-					break;
-				case 404:
-					$this->title = $this->title404;
-					break;
-			}
-		}
-		if (empty($this->title))
-		{
-			header(HttpException::HEADER_500);
-			$this->title = $this->title500;
-		}
-	}
-
+        if ($exception instanceof HttpException)
+        {
+            switch ($exception->getCode())
+            {
+                case 403:
+                    $this->title = _('403 Forbidden');
+                    break;
+                case 404:
+                    $this->title = _('404 Not Found');
+                    break;
+            }
+        }
+        if (empty($this->title))
+        {
+            header(HttpException::HEADER_500);
+            $this->title = _('500 Internal Server Error');
+        }
+    }
 
 
-	function wrap(Controller $controller)
-	{
-		if ($controller instanceof Layout)
-		{
-			$controller->addTitle($this->title);
-		}
-		return parent::wrap($controller);
-	}
+
+    function wrap(Controller $controller)
+    {
+        if ($controller instanceof Layout)
+        {
+            $controller->addTitle($this->title);
+        }
+        return parent::wrap($controller);
+    }
 
 }
