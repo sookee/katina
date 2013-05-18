@@ -175,9 +175,9 @@ bool KatinaPluginReports::open()
 	katina.add_var_event(this, "report.kills", do_kills, false);
 	katina.add_var_event(this, "report.infos", do_infos, false);
 	katina.add_var_event(this, "report.stats", do_stats, false);
-	katina.add_var_event(this, "report.stats.cols", stats_cols, 0U);
+	katina.add_var_event(this, "report.stats.cols", stats_cols, (siz) 0);
 	katina.add_var_event(this, "report.spam.kill", spamkill, false);
-	katina.add_var_event(this, "report.spam.limit", spam_limit, 2U); 
+	katina.add_var_event(this, "report.spam.limit", spam_limit, (siz) 2); 
 
 	katina.add_log_event(this, EXIT);
 	//katina.add_log_event(this, SHUTDOWN_GAME);
