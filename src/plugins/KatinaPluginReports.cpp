@@ -11,7 +11,7 @@
 #include <katina/log.h>
 #include <katina/codes.h>
 
-
+#include <dlfcn.h>
 #include <gcrypt.h>
 
 namespace katina { namespace plugin {
@@ -140,11 +140,9 @@ KatinaPluginReports::KatinaPluginReports(Katina& katina)
 
 bool KatinaPluginReports::open()
 {
-	//if((stats = dynamic_cast<KatinaPluginStats*>(katina.get_plugin("katina::stats", "0.0"))))
 	if(katina.get_plugin("katina::stats", "0.0", stats))
 		plog("Found: " << stats->get_name());
 		
-	//if((votes = dynamic_cast<KatinaPluginVotes*>(katina.get_plugin("katina::votes", "0.0"))))
 	if(katina.get_plugin("katina::votes", "0.0", votes))
 		plog("Found: " << votes->get_name());
 
@@ -290,7 +288,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 		if(stats_cols & RSC_TIME)
 			{ oss << sep << "^3fpd  "; sep = "^2|"; }
 		if(stats_cols & RSC_TIME)
-			{ oss << sep << "^3cpd  "; sep = "^2|"; }
+			{ oss << sep << "^3cpd   "; sep = "^2|"; }
 		if(stats_cols & RSC_RGACC)
 			{ oss << sep << "^3rg acc  "; sep = "^2|"; }
 		client.chat('s', oss.str());
@@ -448,11 +446,35 @@ bool KatinaPluginReports::kill(siz min, siz sec, siz num1, siz num2, siz weap)
 	if(!do_kills)
 		return true;
 	
+	str hud;
+	str nums_team = get_nums_team(num1);
+	
+	if(do_flags && do_flags_hud)
+	{
+		hud = get_hud(min, sec, hud_flag);
+	}
+	
 	if(weap != MOD_SUICIDE && katina.clients.find(num1) != katina.clients.end() && katina.clients.find(num2) != katina.clients.end())
-		client.chat('k', "^7" + katina.players[katina.clients[num1]] + " ^4killed ^7" + katina.players[katina.clients[num2]]
-			+ " ^4with a ^7" + weapons[weap]);
+		client.raw_chat('k', hud + oa_to_IRC(nums_team + "^7" + katina.players[katina.clients[num1]] + " ^4killed ^7" + katina.players[katina.clients[num2]]
+			+ " ^4with a ^7" + weapons[weap]));
 
 	return true;
+}
+
+str KatinaPluginReports::get_nums_team(siz num)
+{
+	return get_nums_team(katina.clients[num]);
+}
+
+str KatinaPluginReports::get_nums_team(const GUID& guid)
+{
+	if(katina.teams[guid] == TEAM_R)
+		return "^7[^1R^7]";
+	else if(katina.teams[guid] == TEAM_B)
+		return "^7[^4B^7]";
+	else if(katina.teams[guid] == TEAM_S)
+		return "^7[^3S^7]";
+	return "^7[^2U^7]";
 }
 
 bool KatinaPluginReports::ctf(siz min, siz sec, siz num, siz team, siz act)
@@ -463,17 +485,7 @@ bool KatinaPluginReports::ctf(siz min, siz sec, siz num, siz team, siz act)
 	siz pcol = team - 1; // make 0-1 for array index
 	siz ncol = pcol ? 0 : 1;
 
-	str nums_team = "^7[^2U^7]"; // unknown team
-	str nums_nteam = "^7[^2U^7]"; // unknown team
-
-	if(katina.teams[katina.clients[num]] == TEAM_R)
-		nums_team = "^7[^1R^7]";
-	else if(katina.teams[katina.clients[num]] == TEAM_B)
-		nums_team = "^7[^4B^7]";
-	if(katina.teams[katina.clients[num]] == TEAM_B)
-		nums_nteam = "^7[^1R^7]";
-	else if(katina.teams[katina.clients[num]] == TEAM_R)
-		nums_nteam = "^7[^4B^7]";
+	str nums_team = get_nums_team(num);
 
 	str hud;
 
@@ -567,8 +579,16 @@ bool KatinaPluginReports::say(siz min, siz sec, const GUID& guid, const str& tex
 {
 	if(do_chats)
 	{
+		str hud;
+		str nums_team = get_nums_team(guid);
+		
+		if(do_flags && do_flags_hud)
+		{
+			hud = get_hud(min, sec, hud_flag);
+		}
+	
 		if(!spamkill || ++spam[text] < spam_limit)
-			client.chat('c', "^7say: " + katina.players[guid] + " ^2" + text);
+			client.raw_chat('c', hud + oa_to_IRC(nums_team + "^7say: " + katina.players[guid] + " ^2" + text));
 	}
 
 	return true;

@@ -9,23 +9,27 @@ CXXFLAGS = -fPIC -D DEBUG -O0 -g3 -I../include
 
 PLUGIN_STATS_INCLUDES = -I..
 
-PLUGIN_EXAMPLE_FLAGS = -D DEBUG -O0 -g3 -Wl,-E -shared -pthread
+#DL_EXPORT = -Wl,-E
+DL_EXPORT =
+
+
+PLUGIN_EXAMPLE_FLAGS = -D DEBUG -O0 -g3 $(DL_EXPORT) -shared -pthread
 PLUGIN_EXAMPLE_LIBS = -pthread -L.. -lkatina
 PLUGIN_EXAMPLE_OBJS = KatinaPluginExample.o
 
-PLUGIN_STATS_FLAGS = -D DEBUG -O0 -g3 -Wl,-E -shared -pthread
+PLUGIN_STATS_FLAGS = -D DEBUG -O0 -g3 $(DL_EXPORT) -shared -pthread
 PLUGIN_STATS_LIBS = -pthread -L.. -lkatina
 PLUGIN_STATS_OBJS = KatinaPluginStats.o ../Database.o
 
-PLUGIN_REPORTS_FLAGS = -D DEBUG -O0 -g3 -Wl,-E -shared -pthread
+PLUGIN_REPORTS_FLAGS = -D DEBUG -O0 -g3 $(DL_EXPORT) -shared -pthread
 PLUGIN_REPORTS_LIBS = -pthread -L.. -lkatina
 PLUGIN_REPORTS_OBJS = KatinaPluginReports.o
 
-PLUGIN_VOTES_FLAGS = -D DEBUG -O0 -g3 -Wl,-E -shared -pthread
+PLUGIN_VOTES_FLAGS = -D DEBUG -O0 -g3 $(DL_EXPORT) -shared -pthread
 PLUGIN_VOTES_LIBS = -pthread -L.. -lkatina
 PLUGIN_VOTES_OBJS = KatinaPluginVotes.o ../Database.o
 
-PLUGIN_WSO_FLAGS = -D DEBUG -O0 -g3 -Wl,-E -shared -pthread
+PLUGIN_WSO_FLAGS = -D DEBUG -O0 -g3 $(DL_EXPORT) -shared -pthread
 PLUGIN_WSO_LIBS = -pthread -L.. -lkatina
 PLUGIN_WSO_OBJS = WinnerStaysOn.o
 

@@ -2,7 +2,7 @@
 
 class Config
 {
-    const dbHost        = '176.56.235.126';
+    const dbHost        = '95.47.119.63';
     const dbName        = 'oadb';
     const dbUser        = 'oadb';
     const dbPass        = null;

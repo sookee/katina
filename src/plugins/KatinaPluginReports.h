@@ -114,6 +114,9 @@ private:
 			{ cols += sep + "CPD"; sep = " "; }
 		return cols;
 	}
+	
+	str get_nums_team(siz num);
+	str get_nums_team(const GUID& guid);
 
 public:
 	KatinaPluginReports(Katina& katina);
