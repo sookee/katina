@@ -63,6 +63,9 @@ str KatinaPluginVotes::get_version() const
 
 void KatinaPluginVotes::get_votes(siz& love, siz& hate)
 {
+	love = 0;
+	hate = 0;
+
 	for(guid_int_map_iter i = map_votes.begin(); i != map_votes.end(); ++i)
 	{
 		if(i->second > 0)
