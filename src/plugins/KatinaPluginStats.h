@@ -100,6 +100,12 @@ public:
 	guid_stat_map stats; // GUID -> <stat>
 
 private:
+	str& mapname;
+	siz_guid_map& clients; // slot -> GUID
+	guid_str_map& players; // GUID -> name
+	guid_siz_map& teams; // GUID -> 'R' | 'B'
+	RCon& server;
+
 	Database db;
 
 	str host;
@@ -146,6 +152,7 @@ public:
 		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
 		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
 		siz healthPickedUp, siz armorPickedUp);
+	virtual bool say(siz min, siz sec, const GUID& guid, const str& text);
 
 	virtual void close();
 };

@@ -622,7 +622,7 @@ bool Katina::start(const str& dir)
 
 			siz num;
 			if(!(iss >> num))
-				std::cout << "Error parsing ClientConnect: "  << params << '\n';
+				log("Error parsing ClientConnect: "  << params);
 			else
 			{
 				for(plugin_vec_iter i = events[CLIENT_CONNECT].begin()

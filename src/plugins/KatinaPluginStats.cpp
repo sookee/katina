@@ -30,6 +30,11 @@ siz map_get(const siz_map& m, siz key)
 
 KatinaPluginStats::KatinaPluginStats(Katina& katina)
 : KatinaPlugin(katina)
+, mapname(katina.mapname)
+, clients(katina.clients)
+, players(katina.players)
+, teams(katina.teams)
+, server(katina.server)
 , active(true)
 , write(true)
 , in_game(false)
@@ -360,6 +365,90 @@ bool KatinaPluginStats::player_stats(siz min, siz sec, siz num,
 	return true;
 }
 
+bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
+{
+	if(!active)
+		return true;
+	
+	str cmd;
+	siss iss(text);
+	
+	if(!(iss >> cmd))
+		return true;
+	
+	if(cmd == "!register")
+	{
+		str text;
+		GUID guid;
+
+		if(write && players[guid] != "UnnamedPlayer" && players[guid] != "RenamedPlayer")
+		{
+			db.on();
+			if(db.set_preferred_name(guid, players[guid]))
+				server.chat("^7" + players[guid] + "^7: ^3Your preferred name has been registered.");
+			db.off();
+		}
+	}
+	else if(cmd == "!stats" || cmd == "?stats")
+	{
+		str text;
+		GUID guid;
+		
+		if(cmd[0] == '?')
+		{
+			server.chat("^7STATS: ^2!stats^7: ^3display a players ^7fph (^2frags^7/^2hour^7) ^2& ^7cph (^2caps^7/^2hour^7)");
+			server.chat("^7STATS: ^2!stats^7: ^3calculated for this map and since the start of this month.");
+			return true;
+		}
+		
+		siz prev = 0; // count $prev month's back
+		if(!(iss >> prev))
+			prev = 0;
+		
+		bug_var(prev);
+
+		bug("getting stats");
+		db.on();
+		str stats;
+		if(db.get_ingame_stats(guid, mapname, prev, stats))
+			server.chat("^7STATS: " + players[guid] + "^7: " + stats);
+		db.off();
+	}
+/*	else if(cmd == "!champ") // last month's champion
+	{				
+		bug("champ:");
+
+		if(ka_cfg.do_db)
+		{
+			bug("getting champ");
+			db.on();
+			str stats;
+			GUID guid;
+			//if(db.get_ingame_champ(mapname, guid, stats))
+			//	server.chat("^7LAST MONTH'S CHAMPION: " + players[guid] + "^7: " + stats);
+			db.off();
+		}
+	}
+*/	else if(cmd == "!boss" || cmd == "?boss") // best player in this game (from current months stats)
+	{				
+		if(cmd[0] == '?')
+		{
+			server.chat("^7STATS: ^2!boss^7: ^3display this map's best player and their ^2!stats ^3for this month.");
+			return true;
+		}
+		
+		bug("getting boss");
+		db.on();
+		str stats;
+		GUID guid;
+		if(db.get_ingame_boss(mapname, clients, guid, stats) && guid != null_guid)
+			server.chat("^7BOSS: " + players[guid] + "^7: " + stats);
+		else
+			server.chat("^7BOSS: ^3There is no boss on this map");
+		db.off();
+	}
+	return true;
+}
 
 void KatinaPluginStats::close()
 {
