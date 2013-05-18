@@ -39,6 +39,7 @@ static KatinaPluginCallVoteCtrl* plugin = 0;
 
 void handler(int sig, siginfo_t* si, void* uc)
 {
+	log("INFO: Signal handler invoked");
 	if(!plugin)
 		log("ERROR: votectrl plugin not set");
 	else
@@ -144,12 +145,16 @@ bool KatinaPluginCallVoteCtrl::init_game(siz min, siz sec, const str_map& cvars)
 	
 	/* Start the timer */
 	
+	bug_var(wait);
+	
 	its.it_value.tv_sec = wait;
 	its.it_value.tv_nsec = 0;
 	its.it_interval.tv_sec = 0;
 	its.it_interval.tv_nsec = 0;
 	
-	if(timer_settime(timerid, 0, &its, NULL) == -1)
+	if(timer_settime(timerid, 0, &its, NULL) != -1)
+		log("CALLVOTE CONTROL: TIMED: " << wait << " secs");
+	else
 	{
 		plog("ERROR: setting timer, renabling voting");
 		vote_enable();
