@@ -130,13 +130,6 @@ extern "C" KatinaPlugin* katina_plugin_factory(Katina& katina) \
 static const char* ID = I; \
 static const char* NAME = N; \
 static const char* VERSION = V
-// #define KATINA_PLUGIN_INFO(I, N, V) \
-// extern "C" const char* ID; \
-// const char* ID = I; \
-// extern "C" const char* NAME; \
-// const char* NAME = N; \
-// extern "C" const char* VERSION; \
-// const char* VERSION = V
 
 #define plog(m) log(ID << ": " << m)
 

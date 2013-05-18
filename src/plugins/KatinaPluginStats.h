@@ -111,14 +111,14 @@ private:
 	
 	bool in_game;
 
-	std::set<siz> db_weaps; // what weapons to record
+	std::set<siz> db_weaps; // which weapons to record
 
 public:
 	KatinaPluginStats(Katina& katina);
 	
 	// API
 
-	const guid_stat_map& get_stats_ref() const { return stats; }
+	//const guid_stat_map& get_stats_ref() const { return stats; }
 
 	// INTERFACE: KatinaPlugin
 

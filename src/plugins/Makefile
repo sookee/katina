@@ -33,12 +33,17 @@ PLUGIN_WSO_FLAGS = -D DEBUG -O0 -g3 $(DL_EXPORT) -shared -pthread
 PLUGIN_WSO_LIBS = -pthread -L.. -lkatina
 PLUGIN_WSO_OBJS = WinnerStaysOn.o
 
+PLUGIN_VOTECTRL_FLAGS = -D DEBUG -O0 -g3 $(DL_EXPORT) -shared -pthread
+PLUGIN_VOTECTRL_LIBS = -pthread -L.. -lkatina
+PLUGIN_VOTECTRL_OBJS = KatinaPluginCallVoteCtrl.o
+
 PLUGINS = \
 	katina-plugin-example.so \
 	katina-plugin-stats.so \
 	katina-plugin-votes.so \
 	katina-plugin-reports.so \
-	katina-plugin-wso.so
+	katina-plugin-wso.so \
+	katina-plugin-votectrl.so
 
 all: $(PLUGINS)
 
@@ -56,6 +61,9 @@ katina-plugin-reports.so: $(PLUGIN_REPORTS_OBJS)
 
 katina-plugin-wso.so: $(PLUGIN_WSO_OBJS)
 	$(CXX) $(PLUGIN_WSO_FLAGS) -o $@ $(PLUGIN_WSO_OBJS) $(PLUGIN_WSO_LIBS)
+
+katina-plugin-votectrl.so: $(PLUGIN_VOTECTRL_OBJS)
+	$(CXX) $(PLUGIN_VOTECTRL_FLAGS) -o $@ $(PLUGIN_VOTECTRL_OBJS) $(PLUGIN_VOTECTRL_LIBS)
 
 %.o: %.cpp %.h
 	$(CXX) $(CXXFLAGS) $(MYSQL_INCL) -c -o $@ $<
