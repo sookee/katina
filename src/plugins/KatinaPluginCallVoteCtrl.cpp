@@ -91,9 +91,16 @@ bool KatinaPluginCallVoteCtrl::open()
 	sev.sigev_notify = SIGEV_SIGNAL;
 	sev.sigev_signo = SIG;
 	sev.sigev_value.sival_ptr = &timerid;
-	if (timer_create(CLOCKID, &sev, &timerid) == -1)
+	
+	if(timer_create(CLOCKID, &sev, &timerid) == -1)
 	{
 		plog("FATAL: failed to create timer");
+		return false;
+	}
+	
+	if(sigprocmask(SIG_UNBLOCK, &mask, NULL) == -1)
+	{
+		plog("FATAL: failed to unmask signal");
 		return false;
 	}
 	
