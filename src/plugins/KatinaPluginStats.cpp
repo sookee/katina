@@ -74,6 +74,7 @@ bool KatinaPluginStats::open()
 	katina.add_log_event(this, WEAPON_USAGE);
 	katina.add_log_event(this, MOD_DAMAGE);
 	katina.add_log_event(this, PLAYER_STATS);
+	katina.add_log_event(this, SAY);
 	
 	return true;
 }

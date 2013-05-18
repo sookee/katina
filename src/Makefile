@@ -15,7 +15,7 @@ LIBKATINA_LIBS = -lrt -pthread -ldl $(LIBGCRYPT_LIBS)
 LIBKATINA_OBJS = rcon.o RemoteClient.o irc.o GUID.o Katina.o PKI.o
 #LIBKATINA_OBJS = rcon.o irc.o GUID.o Katina.o PKI.o
 
-LIBRARIES = libkatina.so.0.0.0
+LIBRARIES = libkatina.so
 
 KATINA_FLAGS = -D DEBUG -O0 -g3 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread -Iinclude
 KATINA_LIBS = $(MYSQL_LIBS) -lrt -pthread
@@ -39,7 +39,7 @@ KATINA_GUID_FIX_OBJS = katina-guid-fix.o Database.o
 
 PROGRAMS = katina katina-1 katina-irc katina-votes katina-guid-fix
 
-all: $(LIBRARIES) $(PROGRAMS)
+all: $(addsuffix .0.0.0, $(LIBRARIES)) $(PROGRAMS)
 
 libkatina.so.0.0.0: $(LIBKATINA_OBJS)
 	@echo
@@ -99,10 +99,20 @@ katina-guid-fix.o: katina-guid-fix.cpp $(INCLUDES)
 	@echo -n "AUTO: "
 	$(CXX) -fPIC $(CXXFLAGS) $(MYSQL_INCL) -c -o $@ $<
 	
-install: $(PROGRAMS)
+install: $(PROGRAMS) $(LIBRARIES) 
 	mkdir -p $(HOME)/bin
-	for program in $(PROGRAMS); \
-	    do cp $$program $(HOME)/bin; \
+	@for program in $(PROGRAMS); \
+	do \
+		cp $$program $(HOME)/bin; \
+	done
+	mkdir -p $(HOME)/lib
+	@for library in $(LIBRARIES); \
+	do \
+		cp $$library.0.0.0 $(HOME)/lib; \
+		cd $(HOME)/lib; \
+		ln -f -s $$library.0.0.0 $$library.0.0; \
+		ln -f -s $$library.0.0 $$library.0; \
+		ln -f -s $$library.0 $$library; \
 	done
 
 clean:

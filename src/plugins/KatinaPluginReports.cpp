@@ -479,9 +479,6 @@ str KatinaPluginReports::get_nums_team(const GUID& guid)
 
 bool KatinaPluginReports::ctf(siz min, siz sec, siz num, siz team, siz act)
 {
-	if(!do_flags)
-		return true;
-		
 	siz pcol = team - 1; // make 0-1 for array index
 	siz ncol = pcol ? 0 : 1;
 
@@ -496,49 +493,56 @@ bool KatinaPluginReports::ctf(siz min, siz sec, siz num, siz team, siz act)
 			siz caps = map_get(stats->stats[katina.clients[num]].flags, FL_CAPTURED);
 			str msg = katina.players[katina.clients[num]]
 				+ "^3 has ^7" + to_string(caps) + "^3 flag" + (caps==1?"":"s") + "!";
+			
 			katina.server.cp(msg);
-			if(do_flags_hud)
+			
+			if(do_flags && do_flags_hud)
 			{
 				hud_flag[pcol] = HUD_FLAG_CAP;
 				hud = get_hud(min, sec, hud_flag);
 			}
-			client.raw_chat('f', hud + oa_to_IRC(nums_team + " " + msg));
+			if(do_flags)
+				client.raw_chat('f', hud + oa_to_IRC(nums_team + " " + msg));
 		}
-		if(do_flags_hud)
+		if(do_flags && do_flags_hud)
 		{
 			hud_flag[pcol] = HUD_FLAG_NONE;
 			hud = get_hud(min, sec, hud_flag);
 		}
-		client.raw_chat('f', hud + oa_to_IRC("^7[ ] ^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED])));
+		if(do_flags)
+			client.raw_chat('f', hud + oa_to_IRC("^7[ ] ^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED])));
 	}
 	else if(act == FL_TAKEN)
 	{
-		if(do_flags_hud)
+		if(do_flags && do_flags_hud)
 		{
 			hud_flag[pcol] = HUD_FLAG_P;
 			hud = get_hud(min, sec, hud_flag);
 		}
-		client.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + katina.players[katina.clients[num]] + "^3 has taken the " + flag[pcol] + " ^3flag!"));
+		if(do_flags)
+			client.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + katina.players[katina.clients[num]] + "^3 has taken the " + flag[pcol] + " ^3flag!"));
 	}
 	else if(act == FL_DROPPED)
 	{
-		if(do_flags_hud)
+		if(do_flags && do_flags_hud)
 		{
 			hud_flag[ncol] = HUD_FLAG_DIE;
 			hud = get_hud(min, sec, hud_flag);
 			hud_flag[ncol] = HUD_FLAG_NONE;
 		}
-		client.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + katina.players[katina.clients[num]] + "^3 has killed the " + flag[ncol] + " ^3flag carrier!"));
+		if(do_flags)
+			client.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + katina.players[katina.clients[num]] + "^3 has killed the " + flag[ncol] + " ^3flag carrier!"));
 	}
 	else if(act == FL_RETURNED)
 	{
-		if(do_flags_hud)
+		if(do_flags && do_flags_hud)
 		{
 			hud_flag[pcol] = HUD_FLAG_RETURN;
 			hud = get_hud(min, sec, hud_flag);
 			hud_flag[pcol] = HUD_FLAG_NONE;
 		}
-		client.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + katina.players[katina.clients[num]] + "^3 has returned the " + flag[pcol] + " ^3flag!"));
+		if(do_flags)
+			client.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + katina.players[katina.clients[num]] + "^3 has returned the " + flag[pcol] + " ^3flag!"));
 	}
 
 	return true;
