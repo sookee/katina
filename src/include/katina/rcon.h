@@ -32,9 +32,11 @@ http://www.gnu.org/licenses/gpl-2.0.html
 '-----------------------------------------------------------------*/
 
 #include "types.h"
+#include "log.h"
 
 namespace oastats { namespace net {
 
+using namespace oastats::log;
 using namespace oastats::types;
 
 #define TIMEOUT 1000

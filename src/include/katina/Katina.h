@@ -54,9 +54,13 @@ enum event_t
 	, CLIENT_DISCONNECT
 	, KILL
 	, CTF
+	, CTF_EXIT
 	, AWARD
 	, INIT_GAME
 	, SAY
+	, WEAPON_USAGE
+	, MOD_DAMAGE
+	, PLAYER_STATS
 	, UNKNOWN		
 };
 
@@ -126,6 +130,11 @@ typedef std::map<KatinaPlugin*, cvar_map> cvar_map_map;
 typedef cvar_map_map::iterator cvar_map_map_iter;
 typedef cvar_map_map::const_iterator cvar_map_map_citer;
 
+enum
+{
+	LOG_NONE, LOG_NORMAL, LOG_VERBOSE
+};
+
 class Katina
 {
 	friend void* cvarpoll(void* vp);
@@ -134,6 +143,7 @@ class Katina
 private:
 	bool done;
 	bool active;
+	siz logmode;
 
 	typedef std::map<str, str_vec> property_map;
 	typedef std::pair<const str, str_vec> property_map_pair;
@@ -176,6 +186,12 @@ public:
 	guid_siz_map teams; // GUID -> 'R' | 'B'
 
 	KatinaPlugin* get_plugin(const str& id, const str& version);
+	
+	template<typename Plugin>
+	bool get_plugin(const str& id, const str& version, Plugin*& plugin)
+	{
+		return (plugin = dynamic_cast<Plugin*>(get_plugin(id, version)));
+	}
 
 	template<typename T>
 	T get(const str& s, const T& dflt = T())
@@ -209,12 +225,24 @@ public:
 	bool chat_to(const GUID& guid, const str& text);
 	bool chat_to(const str& name, const str& text);
 
+	/**
+	 * Set a variable to be auto-updated from a cvar. The variable is set to a supplied
+	 * default value if a default value can not be found in the config file.
+	 * The key searched for in the config file is "plugin." + name where name is the
+	 * supplied parameter.
+	 * @param plugin pointer to the calling plugin
+	 * @param name variable name. A configurable prefi is added to this name for the cvar lookup
+	 * and the prefix "plugin." is added to this name for the config file lookup.
+	 * @param var the actual variable to be updated
+	 * @param dflt the default value to use if none can be found in the config file.
+	 */
 	template<typename T>
-	void add_var_event(class KatinaPlugin* plugin, const str& name, T& var)
+	void add_var_event(class KatinaPlugin* plugin, const str& name, T& var, const T& dflt = T())
 	{
+		var = get("plugin." + name, dflt);
 		cvars[plugin][name] = new cvar_t<T>(var);
 	}
-	//void add_var_event(class KatinaPlugin* plugin, const str& name, const str& value);
+
 	void add_log_event(class KatinaPlugin* plugin, event_t e)
 	{
 		events[e].push_back(plugin);

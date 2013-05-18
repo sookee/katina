@@ -112,9 +112,15 @@ typedef std::map<GUID, str>::iterator guid_str_iter;
 typedef std::map<GUID, str>::const_iterator guid_str_citer;
 
 typedef std::map<siz, GUID> siz_guid_map;
+// deprecated
 typedef std::pair<const siz, GUID> siz_guid_pair;
 typedef std::map<siz, GUID>::iterator siz_guid_iter;
 typedef std::map<siz, GUID>::const_iterator siz_guid_citer;
+// use these
+typedef std::pair<const siz, GUID> siz_guid_map_pair;
+typedef std::map<siz, GUID>::iterator siz_guid_map_iter;
+typedef std::map<siz, GUID>::const_iterator siz_guid_map_citer;
+
 
 typedef std::map<GUID, siz> guid_siz_map;
 typedef std::pair<const GUID, siz> guid_siz_pair;

@@ -27,17 +27,53 @@ using namespace oastats::log;
 using namespace oastats::data;
 using namespace oastats::types;
 
+struct mod_damage_stats
+{
+	siz hits;
+	siz damage;
+	siz hitsRecv;
+	siz damageRecv;
+	
+	mod_damage_stats() :
+		hits(0), damage(0), hitsRecv(0), damageRecv(0)
+	{}
+};
+
+typedef std::map<siz, mod_damage_stats> moddmg_map;
+typedef moddmg_map::const_iterator moddmg_map_citer;
+
+
 struct stats
 {
 	siz_map kills;
 	siz_map deaths;
 	siz_map flags;
 	siz_map awards;
+	
+	siz_map   	weapon_usage; // shots fired
+	moddmg_map	mod_damage;   // MOD -> stats
+
+	siz fragsFace;
+	siz fragsBack;
+	siz fraggedInFace;
+	siz fraggedInBack;
+	siz spawnKills;
+	siz spawnKillsRecv;
+	siz pushes;
+	siz pushesRecv;
+	siz healthPickedUp;
+	siz armorPickedUp;
 
 	time_t joined_time;
 	siz logged_time;
 
-	stats(): kills(), deaths(), flags(), awards(), joined_time(0), logged_time(0) {}
+	stats() :
+		kills(), deaths(), flags(), awards(), weapon_usage(), mod_damage(),
+		fragsFace(0), fragsBack(0), fraggedInFace(0), fraggedInBack(0),
+		spawnKills(0), spawnKillsRecv(0), pushes(0), pushesRecv(0),
+		healthPickedUp(0), armorPickedUp(0),
+		joined_time(0), logged_time(0)
+	{}
 };
 
 typedef std::map<GUID, guid_siz_map> onevone_map;
@@ -49,6 +85,11 @@ typedef std::map<GUID, stats> guid_stat_map;
 typedef std::pair<const GUID, stats> guid_stat_pair;
 typedef std::map<GUID, stats>::iterator guid_stat_iter;
 typedef std::map<GUID, stats>::const_iterator guid_stat_citer;
+
+//class Database
+//: public oastats::data::Database
+//{
+//};
 
 class KatinaPluginStats
 : public KatinaPlugin
@@ -64,24 +105,20 @@ private:
 	str host;
 	str port;
 
+	// cvars
 	bool active;
 	bool write;
 	
 	bool in_game;
 
-	std::set<siz> db_weaps; // what weapons to record
+	std::set<siz> db_weaps; // which weapons to record
 
 public:
-	KatinaPluginStats(Katina& katina)
-	: KatinaPlugin(katina)
-	, active(false)
-	, write(false)
-	, in_game(false)
-	{}
-
+	KatinaPluginStats(Katina& katina);
+	
 	// API
 
-	const guid_stat_map& get_stats_ref() const { return stats; }
+	//const guid_stat_map& get_stats_ref() const { return stats; }
 
 	// INTERFACE: KatinaPlugin
 
@@ -100,9 +137,15 @@ public:
 	virtual bool kill(siz min, siz sec, siz num1, siz num2, siz weap);
 	virtual bool ctf(siz min, siz sec, siz num, siz team, siz act);
 	virtual bool award(siz min, siz sec, siz num, siz awd);
-	virtual bool init_game(siz min, siz sec);
+	virtual bool init_game(siz min, siz sec, const str_map& cvars);
 //	virtual bool say(siz min, siz sec, const GUID& guid, const str& text);
 //	virtual bool unknown(siz min, siz sec, const str& cmd, const str& params);
+	virtual bool weapon_usage(siz min, siz sec, siz num, siz weapon, siz shots);
+	virtual bool mod_damage(siz min, siz sec, siz num, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv);
+	virtual bool player_stats(siz min, siz sec, siz num,
+		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
+		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
+		siz healthPickedUp, siz armorPickedUp);
 
 	virtual void close();
 };

@@ -9,19 +9,41 @@ CXXFLAGS = -fPIC -D DEBUG -O0 -g3 -I../include
 
 PLUGIN_STATS_INCLUDES = -I..
 
-PLUGIN_EXAMPLE_FLAGS = -D DEBUG -O0 -g3 -Wl,-E -shared -pthread
+#DL_EXPORT = -Wl,-E
+DL_EXPORT =
+
+
+PLUGIN_EXAMPLE_FLAGS = -D DEBUG -O0 -g3 $(DL_EXPORT) -shared -pthread
 PLUGIN_EXAMPLE_LIBS = -pthread -L.. -lkatina
 PLUGIN_EXAMPLE_OBJS = KatinaPluginExample.o
 
-PLUGIN_STATS_FLAGS = -D DEBUG -O0 -g3 -Wl,-E -shared -pthread
+PLUGIN_STATS_FLAGS = -D DEBUG -O0 -g3 $(DL_EXPORT) -shared -pthread
 PLUGIN_STATS_LIBS = -pthread -L.. -lkatina
 PLUGIN_STATS_OBJS = KatinaPluginStats.o ../Database.o
 
-PLUGIN_REPORTS_FLAGS = -D DEBUG -O0 -g3 -Wl,-E -shared -pthread
+PLUGIN_REPORTS_FLAGS = -D DEBUG -O0 -g3 $(DL_EXPORT) -shared -pthread
 PLUGIN_REPORTS_LIBS = -pthread -L.. -lkatina
-PLUGIN_REPORTS_OBJS = KatinaPluginReports.o ../RemoteClient.o
+PLUGIN_REPORTS_OBJS = KatinaPluginReports.o
 
-PLUGINS = katina-plugin-example.so katina-plugin-stats.so katina-plugin-reports.so
+PLUGIN_VOTES_FLAGS = -D DEBUG -O0 -g3 $(DL_EXPORT) -shared -pthread
+PLUGIN_VOTES_LIBS = -pthread -L.. -lkatina
+PLUGIN_VOTES_OBJS = KatinaPluginVotes.o ../Database.o
+
+PLUGIN_WSO_FLAGS = -D DEBUG -O0 -g3 $(DL_EXPORT) -shared -pthread
+PLUGIN_WSO_LIBS = -pthread -L.. -lkatina
+PLUGIN_WSO_OBJS = WinnerStaysOn.o
+
+PLUGIN_VOTECTRL_FLAGS = -D DEBUG -O0 -g3 $(DL_EXPORT) -shared -pthread
+PLUGIN_VOTECTRL_LIBS = -pthread -L.. -lkatina
+PLUGIN_VOTECTRL_OBJS = KatinaPluginCallVoteCtrl.o
+
+PLUGINS = \
+	katina-plugin-example.so \
+	katina-plugin-stats.so \
+	katina-plugin-votes.so \
+	katina-plugin-reports.so \
+	katina-plugin-wso.so \
+	katina-plugin-votectrl.so
 
 all: $(PLUGINS)
 
@@ -31,8 +53,17 @@ katina-plugin-example.so: $(PLUGIN_EXAMPLE_OBJS)
 katina-plugin-stats.so: $(PLUGIN_STATS_OBJS)
 	$(CXX) $(PLUGIN_STATS_FLAGS) -o $@ $(PLUGIN_STATS_OBJS) $(PLUGIN_STATS_LIBS)
 
+katina-plugin-votes.so: $(PLUGIN_VOTES_OBJS)
+	$(CXX) $(PLUGIN_VOTES_FLAGS) -o $@ $(PLUGIN_VOTES_OBJS) $(PLUGIN_VOTES_LIBS)
+
 katina-plugin-reports.so: $(PLUGIN_REPORTS_OBJS)
 	$(CXX) $(PLUGIN_REPORTS_FLAGS) -o $@ $(PLUGIN_REPORTS_OBJS) $(PLUGIN_REPORTS_LIBS)
+
+katina-plugin-wso.so: $(PLUGIN_WSO_OBJS)
+	$(CXX) $(PLUGIN_WSO_FLAGS) -o $@ $(PLUGIN_WSO_OBJS) $(PLUGIN_WSO_LIBS)
+
+katina-plugin-votectrl.so: $(PLUGIN_VOTECTRL_OBJS)
+	$(CXX) $(PLUGIN_VOTECTRL_FLAGS) -o $@ $(PLUGIN_VOTECTRL_OBJS) $(PLUGIN_VOTECTRL_LIBS)
 
 %.o: %.cpp %.h
 	$(CXX) $(CXXFLAGS) $(MYSQL_INCL) -c -o $@ $<

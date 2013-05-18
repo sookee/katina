@@ -63,10 +63,11 @@ str get_stamp()
 struct _
 {
 	const char* n;
-	_(const char* n): n(n) { bug("---> " << n); }
-	~_() { bug("<--- " << n); }
+	const char* f;
+	_(const char* n, const char* f): n(n), f(f) { std::cout << "\n---> " << n << " [" << f << "]\n\n"; }
+	~_() { std::cout << "\n<--- " << n << " [" << f << "]\n\n"; }
 };
-#define bug_func() oastats::log::_ __(__PRETTY_FUNCTION__)
+#define bug_func() oastats::log::_ __(__PRETTY_FUNCTION__, __FILE__)
 #define con(m) do{std::cout << m << " [" << __FILE__ << "]" << " (" << __LINE__ << ")" << std::endl;}while(false)
 #define log(m) do{std::cout << oastats::log::get_stamp() << ": " << m << " [" << __FILE__ << "]" << " (" << __LINE__ << ")" << std::endl;}while(false)
 #endif

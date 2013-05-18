@@ -193,3 +193,58 @@ CREATE TABLE `time` (
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2013-04-01 20:08:50
+
+
+
+
+--
+-- Table structure for table `damage`
+--
+DROP TABLE IF EXISTS `damage`;
+CREATE TABLE `damage` (
+  `game_id` int(4) NOT NULL,
+  `guid` varchar(8) NOT NULL,
+  `mod` int(1) NOT NULL,
+  `hits` int(4) NOT NULL,
+  `dmgDone` int(4) NOT NULL,
+  `hitsRecv` int(4) NOT NULL,
+  `dmgRecv` int(4) NOT NULL,
+  PRIMARY KEY (`game_id`,`guid`,`mod`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `playerstats`
+--
+DROP TABLE IF EXISTS `playerstats`;
+CREATE TABLE `playerstats` (
+  `game_id` int(4) unsigned NOT NULL,
+  `guid` varchar(8) NOT NULL,
+  `fragsFace` int(2) unsigned NOT NULL,
+  `fragsBack` int(2) unsigned NOT NULL,
+  `fraggedInFace` int(2) unsigned NOT NULL,
+  `fraggedInBack` int(2) unsigned NOT NULL,
+  `spawnKillsDone` int(2) unsigned NOT NULL,
+  `spawnKillsRecv` int(2) unsigned NOT NULL,
+  `pushesDone` int(2) unsigned NOT NULL,
+  `pushesRecv` int(2) unsigned NOT NULL,
+  `healthPickedUp` int(4) unsigned NOT NULL,
+  `armorPickedUp` int(4) unsigned NOT NULL,
+  PRIMARY KEY (`game_id`,`guid`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `weapon_usage`
+--
+DROP TABLE IF EXISTS `weapon_usage`;
+CREATE TABLE `weapon_usage` (
+  `game_id` int(4) unsigned NOT NULL,
+  `guid` varchar(8) NOT NULL,
+  `weap` int(1) NOT NULL,
+  `shots` int(4) NOT NULL,
+  PRIMARY KEY (`game_id`,`guid`,`weap`),
+  KEY `weap` (`weap`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;

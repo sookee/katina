@@ -58,6 +58,7 @@ int main()
 	str_vec bases;
 	bases.push_back("oadb");
 	bases.push_back("oadb3");
+	bases.push_back("oadb_aw");
 
 	mysql_init(&mysql);
 

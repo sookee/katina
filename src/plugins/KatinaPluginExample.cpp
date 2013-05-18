@@ -18,7 +18,7 @@ KatinaPluginExample::KatinaPluginExample(Katina& katina)
 , clients(katina.clients)
 , players(katina.players)
 , teams(katina.teams)
-, active(false)
+, active(true)
 {
 }
 
@@ -34,6 +34,7 @@ bool KatinaPluginExample::open()
 	katina.add_log_event(this, CLIENT_DISCONNECT);
 	katina.add_log_event(this, KILL);
 	katina.add_log_event(this, CTF);
+	katina.add_log_event(this, CTF_EXIT);
 	katina.add_log_event(this, AWARD);
 	katina.add_log_event(this, INIT_GAME);
 	katina.add_log_event(this, SAY);
@@ -132,7 +133,15 @@ bool KatinaPluginExample::ctf(siz min, siz sec, siz num, siz team, siz act)
 {
 	if(!active)
 		return true;
-	log("ctf(" << num << ", " << team << ", " << act<< ")");
+	log("ctf(" << num << ", " << team << ", " << act << ")");
+	return true;
+}
+
+bool KatinaPluginExample::ctf_exit(siz min, siz sec, siz r, siz b)
+{
+	if(!active)
+		return true;
+	log("ctf_exit(" << r << ", " << b << ")");
 	return true;
 }
 
@@ -144,12 +153,14 @@ bool KatinaPluginExample::award(siz min, siz sec, siz num, siz awd)
 	return true;
 }
 
-bool KatinaPluginExample::init_game(siz min, siz sec)
+bool KatinaPluginExample::init_game(siz min, siz sec, const str_map& cvars)
 {
 	if(!active)
 		return true;
 	log("init_game()");
 	log("mapname: " << mapname);
+	for(str_map_citer i = cvars.begin(); i != cvars.end(); ++i)
+		log("cvar: " << i->first << " = " << i->second);
 	return true;
 }
 

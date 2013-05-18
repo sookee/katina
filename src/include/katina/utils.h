@@ -32,6 +32,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 '-----------------------------------------------------------------*/
 
 #include "types.h"
+#include "log.h"
 
 #include <string>
 #include <wordexp.h>
@@ -49,6 +50,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace oastats { namespace utils {
 
+using namespace oastats::log;
 using namespace oastats::types;
 
 inline
@@ -58,14 +60,16 @@ sis& sgl(sis& is, str& line, char delim = '\n')
 }
 
 inline
-str expand_env(const str& var)
+str expand_env(const str& var, int flags = 0)
 {
-	str exp;
+	str exp = var;
 	wordexp_t p;
-	wordexp(var.c_str(), &p, 0);
-	if(p.we_wordc)
-		exp = p.we_wordv[0];
-	wordfree(&p);
+	if(!wordexp(var.c_str(), &p, flags))
+	{
+		if(p.we_wordc && p.we_wordv[0])
+			exp = p.we_wordv[0];
+		wordfree(&p);
+	}
 	return exp;
 }
 

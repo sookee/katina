@@ -53,17 +53,18 @@ public:
 
 	//virtual void cvar_event(const str& name, const str& value);
 	
-	virtual bool exit(siz min, siz sec);
-	virtual bool shutdown_game(siz min, siz sec);
+	virtual bool init_game(siz min, siz sec, const str_map& cvars);
 	virtual bool warmup(siz min, siz sec);
-	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name);
 	virtual bool client_connect(siz min, siz sec, siz num);
 	virtual bool client_disconnect(siz min, siz sec, siz num);
+	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name);
 	virtual bool kill(siz min, siz sec, siz num1, siz num2, siz weap);
-	virtual bool ctf(siz min, siz sec, siz num, siz team, siz act);
 	virtual bool award(siz min, siz sec, siz num, siz awd);
-	virtual bool init_game(siz min, siz sec);
+	virtual bool ctf(siz min, siz sec, siz num, siz team, siz act);
+	virtual bool ctf_exit(siz min, siz sec, siz r, siz b);
 	virtual bool say(siz min, siz sec, const GUID& guid, const str& text);
+	virtual bool shutdown_game(siz min, siz sec);
+	virtual bool exit(siz min, siz sec);
 	virtual bool unknown(siz min, siz sec, const str& cmd, const str& params);
 
 	virtual void close();

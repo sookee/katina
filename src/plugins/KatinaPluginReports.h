@@ -12,6 +12,8 @@
 #include <utility>
 
 #include "KatinaPluginStats.h"
+#include "KatinaPluginVotes.h"
+
 #include <katina/Database.h>
 #include <katina/RemoteClient.h>
 #include <katina/GUID.h>
@@ -29,25 +31,32 @@ using namespace oastats::data;
 using namespace oastats::types;
 
 class RemoteClientList
-: public RemoteClient
+//: public RemoteClient
 {
 	std::vector<RemoteClient*> clients;
 	
 public:
-	RemoteClientList(Katina& katina): RemoteClient(katina) {}
-	~RemoteClientList()
+	RemoteClientList(Katina& katina);
+	~RemoteClientList();
+
+	void on() { for(siz i = 0; i < clients.size(); ++i) clients[i]->on(); }
+	void off() { for(siz i = 0; i < clients.size(); ++i) clients[i]->off(); }
+	
+	void add(RemoteClient* client) { if(client) { clients.push_back(client); } }
+	void clear()
 	{
 		for(siz i = 0; i < clients.size(); ++i)
+		{
+			clients[i]->off();
 			delete clients[i];
+		}
+		clients.clear();
 	}
-
-	// API
 	
-	void add(RemoteClient* client) { clients.push_back(client); }
+	bool chat(char f, const str& text) { for(siz i = 0; i < clients.size(); ++i) clients[i]->chat(f, text); return true; }
+	bool raw_chat(char f, const str& text) { for(siz i = 0; i < clients.size(); ++i) clients[i]->raw_chat(f, text); return true; }
 	
-	// RemoteClient Interface
-
-	virtual bool send(const str& cmd, str& res);
+	bool send(const str& cmd, str& res);
 };
 
 class KatinaPluginReports
@@ -57,17 +66,21 @@ public:
 
 private:
 	KatinaPluginStats* stats;
-	RemoteClientList* client;
+	KatinaPluginVotes* votes;
+	
+	RemoteClientList client;
 
 	enum
 	{
-		RSC_TIME = 0b00000001
-		, RSC_FPH = 0b00000010 // frags/hour
-		, RSC_CPH = 0b00000100 // flags/hour
-		, RSC_KPD = 0b00001000 // kills/deaths
-		, RSC_CPD = 0b00010000 // caps/deaths
+		RSC_TIME     = 0b00000001
+		, RSC_FPH    = 0b00000010 // frags/hour
+		, RSC_CPH    = 0b00000100 // flags/hour
+		, RSC_KPD    = 0b00001000 // kills/deaths
+		, RSC_CPD    = 0b00010000 // caps/deaths
+		, RSC_RGACC  = 0b00100000 // railgun accuracy
 	};
 
+	// cvars
 	bool active;
 	bool do_flags;
 	bool do_flags_hud;
@@ -101,24 +114,12 @@ private:
 			{ cols += sep + "CPD"; sep = " "; }
 		return cols;
 	}
+	
+	str get_nums_team(siz num);
+	str get_nums_team(const GUID& guid);
 
 public:
-	KatinaPluginReports(Katina& katina)
-	: KatinaPlugin(katina)
-	, stats(0)
-	, client(0)
-	, active(false)
-	, do_flags(false)
-	, do_flags_hud(false)
-	, do_chats(false)
-	, do_kills(false)
-	, do_infos(false)
-	, do_stats(false)
-	, stats_cols(0)
-	, spamkill(false)
-	, spam_limit(2)
-	{
-	}
+	KatinaPluginReports(Katina& katina);
 
 	// INTERFACE: KatinaPlugin
 
@@ -128,16 +129,16 @@ public:
 	virtual str get_name() const;
 	virtual str get_version() const;
 
-	virtual bool init_game(siz min, siz sec);
-	virtual bool warmup(siz min, siz sec);
-	virtual bool client_connect(siz min, siz sec, siz num);
-	virtual bool client_disconnect(siz min, siz sec, siz num);
-	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name);
+	virtual bool init_game(siz min, siz sec, const str_map& cvars);
+	//virtual bool warmup(siz min, siz sec);
+	//virtual bool client_connect(siz min, siz sec, siz num);
+	//virtual bool client_disconnect(siz min, siz sec, siz num);
+	//virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name);
 	virtual bool kill(siz min, siz sec, siz num1, siz num2, siz weap);
 	virtual bool ctf(siz min, siz sec, siz num, siz team, siz act);
-	virtual bool award(siz min, siz sec, siz num, siz awd);
+	//virtual bool award(siz min, siz sec, siz num, siz awd);
 	virtual bool say(siz min, siz sec, const GUID& guid, const str& text);
-	virtual bool shutdown_game(siz min, siz sec);
+	//virtual bool shutdown_game(siz min, siz sec);
 	virtual bool exit(siz min, siz sec);
 //	virtual bool unknown(siz min, siz sec, const str& cmd, const str& params);
 

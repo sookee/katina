@@ -33,16 +33,31 @@ private:
 	siz_guid_map& clients; // slot -> GUID
 	guid_str_map& players; // GUID -> name
 	guid_siz_map& teams; // GUID -> 'R' | 'B'
+	RCon& server;
 	
 	typedef siz slot;
-	typedef std::deque<slot> slot_deq;
-	typedef slot_deq::iteratr slot_deq_iter;
-	typedef slot_deq::const_iteratr slot_deq_citer;
+	typedef std::deque<siz> siz_deq;
+	typedef siz_deq::iterator siz_deq_iter;
+	typedef siz_deq::const_iterator siz_deq_citer;
+	typedef siz_deq::reverse_iterator siz_deq_riter;
+	typedef siz_deq::const_reverse_iterator siz_deq_criter;
 	
-	KatinaPluginStats* stats;
+	//KatinaPluginStats* stats;
 	
-	slot winner;
-	slot_deq q;
+	siz win_team;
+	siz opp_team;
+	
+	siz_deq q; // pos 0 = winner, 1 = opponent
+	
+	void ensure_teams();
+	void dump_queue();
+	void announce_queue();
+	
+	bool command(const str& cmd);
+	bool vote_enable();
+	bool vote_disable();
+	bool lock_teams();
+	bool unlock_teams();
 
 public:
 	WinnerStaysOn(Katina& katina)
@@ -51,7 +66,12 @@ public:
 	, clients(katina.clients)
 	, players(katina.players)
 	, teams(katina.teams)
+	, server(katina.server)
+	, win_team(1)
+	, opp_team(2)
 	{
+//		caps[0] = 0;
+//		caps[1] = 0;
 	}
 
 	// INTERFACE: KatinaPlugin
@@ -65,15 +85,14 @@ public:
 	virtual bool exit(siz min, siz sec);
 	virtual bool shutdown_game(siz min, siz sec);
 	virtual bool warmup(siz min, siz sec);
-	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name);
+//	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name);
 	virtual bool client_connect(siz min, siz sec, siz num);
 	virtual bool client_disconnect(siz min, siz sec, siz num);
-	virtual bool kill(siz min, siz sec, siz num1, siz num2, siz weap);
+	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name);
 	virtual bool ctf(siz min, siz sec, siz num, siz team, siz act);
-	virtual bool award(siz min, siz sec, siz num, siz awd);
+	virtual bool ctf_exit(siz min, siz sec, siz r, siz b);
 	virtual bool init_game(siz min, siz sec);
 	virtual bool say(siz min, siz sec, const GUID& guid, const str& text);
-	virtual bool unknown(siz min, siz sec, const str& cmd, const str& params);
 
 	virtual void close();
 };

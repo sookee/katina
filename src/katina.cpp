@@ -87,7 +87,7 @@ using namespace oastats::string;
 using namespace oastats::net;
 using namespace oastats::time;
 
-const std::string version = "0.5.6";
+const std::string version = "0.5.7";
 const std::string tag = "dev";
 
 inline std::istream& sgl(std::istream& is, str& line, char delim = '\n')
@@ -145,6 +145,7 @@ bool rconset(const str& cvar, str& val)
 		if(!std::getline(std::getline(iss, skip, ':').ignore(), sval, '^'))
 		{
 			log("ERROR: parsing rconset response: " << response);
+			log("ERROR:                     cvar: " << cvar);
 			return false;
 		}
 	}
@@ -418,16 +419,16 @@ void report_stats(const guid_stat_map& stats, const guid_str_map& players)
 			siz rkh = 0;
 			siz rch = 0;
 			str kd, cd, kh, ch;
-			if(!d | !h)
+			if(d == 0 || h == 0)
 			{
-				if(!d)
+				if(d == 0)
 				{
 					if(k)
 						kd = "perf ";
 					if(c)
 						cd = "perf  ";
 				}
-				if(!h)
+				if(h == 0)
 				{
 					if(k)
 						kh = "inf";
@@ -888,9 +889,7 @@ int main(const int argc, const char* argv[])
 	log("Records loaded: " << recs.size());
 
 	sifs ifs;
-	if(argc > 1)
-		ifs.open(argv[1], std::ios::ate);
-	else if(!recs["logfile"].empty())
+	if(!recs["logfile"].empty())
 		ifs.open(expand_env(recs["logfile"]).c_str(), std::ios::ate);
 
 	sis& is = ifs.is_open() ? ifs : std::cin;
@@ -901,6 +900,7 @@ int main(const int argc, const char* argv[])
 		return -2;
 	}
 
+	server.on();
 	server.config(recs["rcon.host"], to<siz>(recs["rcon.port"]), recs["rcon.pass"]);
 	skivvy.config(recs["skivvy.host"], to<siz>(recs["skivvy.port"]));
 	db.config(recs["db.host"], to<siz>(recs["db.port"]), recs["db.user"], recs["db.pass"], recs["db.base"]);
@@ -1549,7 +1549,7 @@ int main(const int argc, const char* argv[])
 			siz pos;
 			if((pos = line.find_last_of(':')) == str::npos)
 				continue;
-			if((pos = line.find('!', pos)) == str::npos)
+			if((pos = line.find_first_of("!?", pos)) == str::npos)
 				continue;
 
 			siss iss(line.substr(pos));
@@ -1623,24 +1623,76 @@ int main(const int argc, const char* argv[])
 					db.off();
 				}
 			}
-			else if(cmd == "!stats")
+			else if(cmd == "!stats" || cmd == "?stats")
 			{
 				str text;
 				GUID guid;
+				
+				if(cmd[0] == '?')
+				{
+					server.chat("^7STATS: ^2!stats^7: ^3display a players ^7fph (^2frags^7/^2hour^7) ^2& ^7cph (^2caps^7/^2hour^7)");
+					server.chat("^7STATS: ^2!stats^7: ^3calculated for this map and since the start of this month.");
+					continue;
+				}
+				
+				bug("stats:");
 
 				if(!extract_name_from_text(line, guid, text))
 					continue;
 
+				bug_var(guid);
+				bug_var(text);
+
 				siz prev = 0; // count $prev month's back
 				if(!(iss >> prev))
 					prev = 0;
+				
+				bug_var(prev);
 
 				if(ka_cfg.do_db)
 				{
+					bug("getting stats");
 					db.on();
 					str stats;
 					if(db.get_ingame_stats(guid, mapname, prev, stats))
 						server.chat("^7STATS: " + players[guid] + "^7: " + stats);
+					db.off();
+				}
+			}
+/*			else if(cmd == "!champ") // last month's champion
+			{				
+				bug("champ:");
+
+				if(ka_cfg.do_db)
+				{
+					bug("getting champ");
+					db.on();
+					str stats;
+					GUID guid;
+					//if(db.get_ingame_champ(mapname, guid, stats))
+					//	server.chat("^7LAST MONTH'S CHAMPION: " + players[guid] + "^7: " + stats);
+					db.off();
+				}
+			}
+*/			else if(cmd == "!boss" || cmd == "?boss") // best player in this game (from current months stats)
+			{				
+				if(cmd[0] == '?')
+				{
+					server.chat("^7STATS: ^2!boss^7: ^3display this map's best player and their ^2!stats ^3for this month.");
+					continue;
+				}
+				
+				bug("boss:");
+				if(ka_cfg.do_db)
+				{
+					bug("getting boss");
+					db.on();
+					str stats;
+					GUID guid;
+					if(db.get_ingame_boss(mapname, clients, guid, stats) && guid != null_guid)
+						server.chat("^7BOSS: " + players[guid] + "^7: " + stats);
+					else
+						server.chat("^7BOSS: ^3There is no boss on this map");
 					db.off();
 				}
 			}
