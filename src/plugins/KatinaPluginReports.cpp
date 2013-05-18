@@ -401,7 +401,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 				if(stats_cols & RSC_CPD)
 				{
 					col = "^7" + cd;
-					set_width(col, 5, 2);
+					set_width(col, 6, 2);
 					oss << sep << col;
 					sep = "^2|";
 				}
@@ -496,6 +496,7 @@ bool KatinaPluginReports::ctf(siz min, siz sec, siz num, siz team, siz act)
 			siz caps = map_get(stats->stats[katina.clients[num]].flags, FL_CAPTURED);
 			str msg = katina.players[katina.clients[num]]
 				+ "^3 has ^7" + to_string(caps) + "^3 flag" + (caps==1?"":"s") + "!";
+			katina.server.cp(msg);
 			if(do_flags_hud)
 			{
 				hud_flag[pcol] = HUD_FLAG_CAP;
