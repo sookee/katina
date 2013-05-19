@@ -123,7 +123,7 @@ extern "C" KatinaPlugin* katina_plugin_factory(Katina& katina) \
 } extern int _missing_semicolon_()
 
 /**
- * Plugins should define this which provides
+ * Plugins should use this macro which provides
  * an interface to plugin loaders.
  */
 #define KATINA_PLUGIN_INFO(I, N, V) \
@@ -131,6 +131,9 @@ static const char* ID = I; \
 static const char* NAME = N; \
 static const char* VERSION = V
 
+/**
+ * Please use plog() rather than log() in your plugins
+ */
 #define plog(m) log(ID << ": " << m)
 
 } // oastats

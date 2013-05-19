@@ -117,6 +117,8 @@ private:
 	
 	bool in_game;
 	bool have_bots; // are any bots playing?
+	siz human_players_r; // number of human players on red team
+	siz human_players_b; // number of human players on blue team
 
 	std::set<siz> db_weaps; // which weapons to record
 

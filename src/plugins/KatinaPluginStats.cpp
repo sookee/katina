@@ -39,6 +39,8 @@ KatinaPluginStats::KatinaPluginStats(Katina& katina)
 , write(true)
 , in_game(false)
 , have_bots(false)
+, human_players_r(0)
+, human_players_b(0)
 {
 }
 
@@ -200,21 +202,30 @@ bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, siz num, siz t
 
 	std::time_t now = std::time(0);
 
+	// if we have been recording time for this player, accumulate it
 	if(stats[katina.clients[num]].joined_time)
 		stats[katina.clients[num]].logged_time += now - stats[katina.clients[num]].joined_time;
 
-	if(katina.teams[katina.clients[num]] == TEAM_R || katina.teams[katina.clients[num]] == TEAM_B)
-		stats[katina.clients[num]].joined_time = now;
-	else
-		stats[katina.clients[num]].joined_time = 0;
+	// stop recording time for this player
+	stats[katina.clients[num]].joined_time = 0;
 	
 	bool had_bots = have_bots;
+	bool human_players_nr_or_nb = !human_players_r || !human_players_b;
+
 	have_bots = false;
+	human_players_r = 0;
+	human_players_b = 0;
 	
 	for(guid_siz_map_citer ci = teams.begin(); ci != teams.end(); ++ci)
+	{
 		if(ci->first.is_bot())
-			{ have_bots = true; break; }
-
+			have_bots = true;
+		else if(ci->second == TEAM_R)
+			++human_players_r;
+		else if(ci->second == TEAM_B)
+			++human_players_b;
+	}
+	
 	if(have_bots != had_bots)
 	{
 		if(have_bots)
@@ -222,7 +233,25 @@ bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, siz num, siz t
 		else
 			plog("INFO: there are no bots, stats will now be recorded.");
 	}
-					
+
+	if(have_bots)
+		return true;
+	
+	if(human_players_nr_or_nb != (!human_players_r || !human_players_b))
+	{
+		if(!human_players_r || !human_players_b)
+			plog("INFO: One team has no players, stats will not be recorded.");
+		else
+			plog("INFO: Both teams have players, stats will now be recorded.");
+	}
+	
+	if(!human_players_r || !human_players_b)
+		return true;
+	
+	// start recording time for this player (if no bots and not speccing and humans on both teams)
+	if(katina.teams[katina.clients[num]] == TEAM_R || katina.teams[katina.clients[num]] == TEAM_B)
+		stats[katina.clients[num]].joined_time = now;
+		
 	return true;
 }
 bool KatinaPluginStats::client_connect(siz min, siz sec, siz num)
@@ -256,6 +285,8 @@ bool KatinaPluginStats::kill(siz min, siz sec, siz num1, siz num2, siz weap)
 		return true;
 	if(have_bots)
 		return true;
+	if(!human_players_r || !human_players_b)
+		return true;
 
 	if(katina.clients.find(num1) != katina.clients.end() && katina.clients.find(num2) != katina.clients.end())
 	{
@@ -283,6 +314,8 @@ bool KatinaPluginStats::ctf(siz min, siz sec, siz num, siz team, siz act)
 		return true;
 	if(have_bots)
 		return true;
+	if(!human_players_r || !human_players_b)
+		return true;
 
 	if(!katina.clients[num].is_bot())
 		++stats[katina.clients[num]].flags[act];
@@ -297,6 +330,8 @@ bool KatinaPluginStats::award(siz min, siz sec, siz num, siz awd)
 	if(!active)
 		return true;
 	if(have_bots)
+		return true;
+	if(!human_players_r || !human_players_b)
 		return true;
 
 	++stats[katina.clients[num]].awards[awd];
@@ -323,13 +358,15 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 
 bool KatinaPluginStats::weapon_usage(siz min, siz sec, siz num, siz weapon, siz shots)
 {
-	bug("KatinaPluginStats::weapon_usage");
+	//bug("KatinaPluginStats::weapon_usage");
 
 	if(!in_game)
 		return true;
 	if(!active)
 		return true;
 	if(have_bots)
+		return true;
+	if(!human_players_r || !human_players_b)
 		return true;
 
 	if(!katina.clients[num].is_bot())
@@ -340,13 +377,15 @@ bool KatinaPluginStats::weapon_usage(siz min, siz sec, siz num, siz weapon, siz 
 
 bool KatinaPluginStats::mod_damage(siz min, siz sec, siz num, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv)
 {
-	bug("KatinaPluginStats::mod_damage");
+	//bug("KatinaPluginStats::mod_damage");
 
 	if(!in_game)
 		return true;
 	if(!active)
 		return true;
 	if(have_bots)
+		return true;
+	if(!human_players_r || !human_players_b)
 		return true;
 
 	if(!katina.clients[num].is_bot())
@@ -366,13 +405,15 @@ bool KatinaPluginStats::player_stats(siz min, siz sec, siz num,
 	siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
 	siz healthPickedUp, siz armorPickedUp)
 {
-	bug("KatinaPluginStats::player_stats");
+	//bug("KatinaPluginStats::player_stats");
 
 	if(!in_game)
 		return true;
 	if(!active)
 		return true;
 	if(have_bots)
+		return true;
+	if(!human_players_r || !human_players_b)
 		return true;
 
 	if(!katina.clients[num].is_bot())
