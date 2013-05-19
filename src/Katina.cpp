@@ -34,7 +34,9 @@ using namespace oastats::string;
 
 const str version = "1.0";
 const str tag = "dev";
- 
+
+str Katina::get_version() { return version + tag; }
+
 void* cvarpoll(void* vp)
 {
 	Katina& katina = *reinterpret_cast<Katina*>(vp);

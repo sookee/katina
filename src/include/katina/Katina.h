@@ -180,6 +180,8 @@ public:
 	guid_str_map players; // GUID -> name
 	guid_siz_map teams; // GUID -> 'R' | 'B'
 	siz logmode;
+	
+	str get_version();
 
 	KatinaPlugin* get_plugin(const str& id, const str& version);
 	
