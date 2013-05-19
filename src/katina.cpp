@@ -293,7 +293,7 @@ void report_clients(const siz_guid_map& clients)
 
 void report_players(const guid_str_map& players)
 {
-	for(guid_str_citer i = players.begin(); i != players.end(); ++i)
+	for(guid_str_map_citer i = players.begin(); i != players.end(); ++i)
 		con("player: " << i->first << ", " << i->second);
 }
 
@@ -773,7 +773,7 @@ void* set_teams(void* td_vp)
 
 GUID guid_from_name(const str& name)
 {
-	for(guid_str_iter i = players.begin(); i != players.end(); ++i)
+	for(guid_str_map_iter i = players.begin(); i != players.end(); ++i)
 		if(i->second == name)
 			return i->first;
 	return null_guid;
@@ -1171,7 +1171,7 @@ int main(const int argc, const char* argv[])
 								db.off();
 							}
 
-							guid_str_iter i = std::find_if(users.begin(), users.end(), mapped_eq<guid_str_map>(name));
+							guid_str_map_iter i = std::find_if(users.begin(), users.end(), mapped_eq<guid_str_map>(name));
 							if(i != users.end() && i->first != clients[num])
 							{
 								server.chat("The name " + name + " is registered to another user.");
@@ -1223,7 +1223,7 @@ int main(const int argc, const char* argv[])
 
 				if(ka_cfg.protect_names)
 				{
-					guid_str_iter i = users.find(clients[num]);
+					guid_str_map_iter i = users.find(clients[num]);
 					if(i != users.end())
 						users.erase(i);
 				}

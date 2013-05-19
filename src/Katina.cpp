@@ -141,7 +141,7 @@ bool Katina::rconset(const str& cvar, str& val)
 
 GUID Katina::guid_from_name(const str& name)
 {
-	for(guid_str_iter i = players.begin(); i != players.end(); ++i)
+	for(guid_str_map_iter i = players.begin(); i != players.end(); ++i)
 		if(i->second == name)
 			return i->first;
 	return null_guid;

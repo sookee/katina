@@ -107,9 +107,9 @@ sis& operator>>(sis& is, GUID& guid)
 }
 
 typedef std::map<GUID, str> guid_str_map;
-typedef std::pair<const GUID, str> guid_str_pair;
-typedef std::map<GUID, str>::iterator guid_str_iter;
-typedef std::map<GUID, str>::const_iterator guid_str_citer;
+typedef guid_str_map::value_type guid_str_map_pair;
+typedef guid_str_map::iterator guid_str_map_iter;
+typedef guid_str_map::const_iterator guid_str_map_citer;
 
 typedef std::map<siz, GUID> siz_guid_map;
 typedef siz_guid_map::value_type siz_guid_map_pair;

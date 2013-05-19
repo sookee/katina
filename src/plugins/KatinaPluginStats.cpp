@@ -121,15 +121,12 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 	if(write)
 		db.on();
 	
-	game_id id = db.add_game(host, port, katina.mapname);
+	game_id id = db.add_game(host, port, mapname);
 
 	if(id != null_id && id != bad_id)
 	{
-		// TODO: insert game stats here
 		for(guid_stat_citer p = stats.begin(); p != stats.end(); ++p)
 		{
-			//const str& player = katina.players.at(p->first);
-
 			siz count;
 			for(std::set<siz>::iterator weap = db_weaps.begin(); weap != db_weaps.end(); ++weap)
 			{
@@ -165,7 +162,7 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 				db.add_ovo(id, o->first, p->first, p->second);
 	}
 
-	for(guid_str_map::iterator player = katina.players.begin(); player != katina.players.end(); ++player)
+	for(guid_str_map_citer player = players.begin(); player != players.end(); ++player)
 		if(!player->first.is_bot())
 			db.add_player(player->first, player->second);
 
@@ -194,7 +191,9 @@ bool KatinaPluginStats::warmup(siz min, siz sec)
 
 bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name)
 {
-	// bug("in_game: " << in_game);
+	bug("KatinaPluginStats::client_userinfo_changed: [" <<  guid << "] " << name);
+	bug_var(in_game);
+	bug_var(active);
 	if(!in_game)
 		return true;
 	if(!active)
@@ -203,11 +202,11 @@ bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, siz num, siz t
 	std::time_t now = std::time(0);
 
 	// if we have been recording time for this player, accumulate it
-	if(stats[katina.clients[num]].joined_time)
-		stats[katina.clients[num]].logged_time += now - stats[katina.clients[num]].joined_time;
+	if(stats[clients[num]].joined_time)
+		stats[clients[num]].logged_time += now - stats[clients[num]].joined_time;
 
 	// stop recording time for this player
-	stats[katina.clients[num]].joined_time = 0;
+	stats[clients[num]].joined_time = 0; // stall
 	
 	bool had_bots = have_bots;
 	bool human_players_nr_or_nb = !human_players_r || !human_players_b;
@@ -248,9 +247,20 @@ bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, siz num, siz t
 	if(!human_players_r || !human_players_b)
 		return true;
 	
+	// restart any stalled clients waiting for players to join/bots to leave
+	for(siz_guid_map_citer ci = clients.begin(); ci != clients.end(); ++ci)
+	{
+		if(teams[ci->second] == TEAM_R || teams[ci->second] == TEAM_B)
+		{
+			if(stats[ci->second].joined_time)
+				stats[ci->second].logged_time += now - stats[ci->second].joined_time;
+			stats[ci->second].joined_time = now;
+		}
+	}
+	
 	// start recording time for this player (if no bots and not speccing and humans on both teams)
-	if(katina.teams[katina.clients[num]] == TEAM_R || katina.teams[katina.clients[num]] == TEAM_B)
-		stats[katina.clients[num]].joined_time = now;
+	//if(katina.teams[katina.clients[num]] == TEAM_R || katina.teams[katina.clients[num]] == TEAM_B)
+	//	stats[katina.clients[num]].joined_time = now;
 		
 	return true;
 }
@@ -270,9 +280,9 @@ bool KatinaPluginStats::client_disconnect(siz min, siz sec, siz num)
 
 	std::time_t now = std::time(0);
 
-	if(stats[katina.clients[num]].joined_time)
-		stats[katina.clients[num]].logged_time += now - stats[katina.clients[num]].joined_time;
-	stats[katina.clients[num]].joined_time = 0;
+	if(stats[clients[num]].joined_time)
+		stats[clients[num]].logged_time += now - stats[clients[num]].joined_time;
+	stats[clients[num]].joined_time = 0;
 
 	return true;
 }
@@ -288,18 +298,18 @@ bool KatinaPluginStats::kill(siz min, siz sec, siz num1, siz num2, siz weap)
 	if(!human_players_r || !human_players_b)
 		return true;
 
-	if(katina.clients.find(num1) != katina.clients.end() && katina.clients.find(num2) != katina.clients.end())
+	if(clients.find(num1) != clients.end() && clients.find(num2) != clients.end())
 	{
-		if(num1 == 1022 && !katina.clients[num2].is_bot()) // no killer
-			++stats[katina.clients[num2]].deaths[weap];
-		else if(!katina.clients[num1].is_bot() && !katina.clients[num2].is_bot())
+		if(num1 == 1022 && !clients[num2].is_bot()) // no killer
+			++stats[clients[num2]].deaths[weap];
+		else if(!clients[num1].is_bot() && !clients[num2].is_bot())
 		{
 			if(num1 != num2)
 			{
-				++stats[katina.clients[num1]].kills[weap];
-				++onevone[katina.clients[num1]][katina.clients[num2]];
+				++stats[clients[num1]].kills[weap];
+				++onevone[clients[num1]][clients[num2]];
 			}
-			++stats[katina.clients[num2]].deaths[weap];
+			++stats[clients[num2]].deaths[weap];
 		}
 	}
 
@@ -317,8 +327,8 @@ bool KatinaPluginStats::ctf(siz min, siz sec, siz num, siz team, siz act)
 	if(!human_players_r || !human_players_b)
 		return true;
 
-	if(!katina.clients[num].is_bot())
-		++stats[katina.clients[num]].flags[act];
+	if(!clients[num].is_bot())
+		++stats[clients[num]].flags[act];
 
 	return true;
 }
@@ -334,7 +344,7 @@ bool KatinaPluginStats::award(siz min, siz sec, siz num, siz awd)
 	if(!human_players_r || !human_players_b)
 		return true;
 
-	++stats[katina.clients[num]].awards[awd];
+	++stats[clients[num]].awards[awd];
 
 	return true;
 }
@@ -369,8 +379,8 @@ bool KatinaPluginStats::weapon_usage(siz min, siz sec, siz num, siz weapon, siz 
 	if(!human_players_r || !human_players_b)
 		return true;
 
-	if(!katina.clients[num].is_bot())
-		stats[katina.clients[num]].weapon_usage[weapon] += shots;
+	if(!clients[num].is_bot())
+		stats[clients[num]].weapon_usage[weapon] += shots;
 		
 	return true;
 }
@@ -388,9 +398,9 @@ bool KatinaPluginStats::mod_damage(siz min, siz sec, siz num, siz mod, siz hits,
 	if(!human_players_r || !human_players_b)
 		return true;
 
-	if(!katina.clients[num].is_bot())
+	if(!clients[num].is_bot())
 	{
-		mod_damage_stats& moddmg = stats[katina.clients[num]].mod_damage[mod];
+		mod_damage_stats& moddmg = stats[clients[num]].mod_damage[mod];
 		moddmg.hits       += hits;
 		moddmg.damage     += damage;
 		moddmg.hitsRecv   += hitsRecv;
@@ -416,9 +426,9 @@ bool KatinaPluginStats::player_stats(siz min, siz sec, siz num,
 	if(!human_players_r || !human_players_b)
 		return true;
 
-	if(!katina.clients[num].is_bot())
+	if(!clients[num].is_bot())
 	{
-		struct stats& s = stats[katina.clients[num]];
+		struct stats& s = stats[clients[num]];
 		s.fragsFace      += fragsFace;
 		s.fragsBack      += fragsBack;
 		s.fraggedInFace  += fraggedInFace;
