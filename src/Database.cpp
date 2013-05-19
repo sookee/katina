@@ -576,7 +576,7 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 	bug_var(c);
 	bug_var(kpc);
 	
-	// --
+	// -- index: sqrt(pow(fph, 2) + pow(cph * kpc, 2)) * acc
 	
 	str_set_iter maxi = guids.end();
 	double maxv = 0.0;
@@ -608,6 +608,7 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 			oss.precision(2);
 			oss << " ^3index^7: ^2" << stat_cs[*maxi].idx;
 			stats = oss.str();
+			bug_var(stats);
 		}
 	}
 	
@@ -626,91 +627,122 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	if(!calc_period(syear, smonth, eyear, emonth, prev))
 		return false;
 	
-	soss oss;
-	oss << "select `game_id` from `game` where `map` = '" << mapname << "'";
-	oss << " and `date` >= TIMESTAMP('" << syear << '-' << (smonth < 10 ? "0":"") << smonth << '-' << "01" << "')";
-	oss << " and `date` <  TIMESTAMP('" << eyear << '-' << (emonth < 10 ? "0":"") << emonth << '-' << "01" << "')";
-	str subsql = oss.str();
+	soss sql;
+	sql << "select `game_id` from `game` where `map` = '" << mapname << "'";
+	sql << " and `date` >= TIMESTAMP('" << syear << '-' << (smonth < 10 ? "0":"") << smonth << '-' << "01" << "')";
+	sql << " and `date` <  TIMESTAMP('" << eyear << '-' << (emonth < 10 ? "0":"") << emonth << '-' << "01" << "')";
+	str subsql = sql.str();
 	
-	oss.clear();
-	oss.str("");
-	oss << "select sum(`kills`.`count`) from `kills` where `kills`.`guid` = '";
-	oss << guid << "'";
-	oss << " and `game_id` in (" << subsql << ")"; 
+	// kills
 	
-	str sql = oss.str();
+	sql.clear();
+	sql.str("");
+	sql << "select sum(`kills`.`count`) from `kills` where `kills`.`guid` = '";
+	sql << guid << "'";
+	sql << " and `game_id` in (" << subsql << ")"; 
 	
-	bug_var(sql);
+	bug_var(sql.str());
 
 	str_vec_vec rows;
 	
-	if(!select(sql, rows, 1))
+	if(!select(sql.str(), rows, 1))
 		return false;
 		
 	str kills = rows.empty() || rows[0][0].empty() ? "0" : rows[0][0];
 	bug_var(kills);
 	
-	oss.clear();
-	oss.str("");
-	oss << "select sum(`caps`.`count`) from `caps` where `caps`.`guid` = '";
-	oss << guid << "'";
-	oss << " and `game_id` in (" << subsql << ")"; 
+	// shots
 	
-	sql = oss.str();
-	bug_var(sql);
+	sql.clear();
+	sql.str("");
+	sql << "select sum(`weapon_usage`.`shots`) from `weapon_usage` where `weapon_usage`.`guid` = '";
+	sql << guid << "'";
+	sql << " and `game_id` in (" << subsql << ")"; 
+	
+	bug_var(sql.str());
 
-	if(!select(sql, rows, 1))
+	if(!select(sql.str(), rows, 1))
+		return false;
+		
+	str shots = rows.empty() || rows[0][0].empty() ? "0" : rows[0][0];
+	bug_var(shots);
+	
+	// caps
+	
+	sql.clear();
+	sql.str("");
+	sql << "select sum(`caps`.`count`) from `caps` where `caps`.`guid` = '";
+	sql << guid << "'";
+	sql << " and `game_id` in (" << subsql << ")"; 
+	
+	bug_var(sql.str());
+
+	if(!select(sql.str(), rows, 1))
 		return false;
 		
 	str caps = rows.empty() || rows[0][0].empty() ? "0" : rows[0][0];
 	bug_var(caps);
 	
-	oss.clear();
-	oss.str("");
-	oss << "select sum(`time`.`count`) from `time` where `time`.`guid` = '";
-	oss << guid << "'";
-	oss << " and `game_id` in (" << subsql << ")"; 
+	// secs
 	
-	sql = oss.str();
-	bug_var(sql);
+	sql.clear();
+	sql.str("");
+	sql << "select sum(`time`.`count`) from `time` where `time`.`guid` = '";
+	sql << guid << "'";
+	sql << " and `game_id` in (" << subsql << ")"; 
+	
+	bug_var(sql.str());
 
-	if(!select(sql, rows, 1))
+	if(!select(sql.str(), rows, 1))
 		return false;
 		
 	str secs = rows.empty() || rows[0][0].empty() ? "0" : rows[0][0];
 	bug_var(secs);
 	
-	siz hours = 0;
+	siz sec = 0;
 	siz fph = 0;
 	siz cph = 0;
-	siss iss(kills + " " + caps + " " + secs);
+	double acc = 0.0;
 	
-	if(!(iss >> fph >> cph >> hours))
+	siss iss(kills + ' ' + shots + ' ' + caps + ' ' + secs);
+	
+	if(!(iss >> fph >> acc >> cph >> sec))
 	{
-		log("DATABASE ERROR: parsing results: " << (kills + " " + caps + " " + secs));
+		log("DATABASE ERROR: parsing results: " << (kills + ' ' + shots + ' ' + caps + ' ' + secs));
 		return false;
 	}
 
-	bug_var(hours);
+	bug_var(sec);
 	bug_var(fph);
 	bug_var(cph);
+	bug_var(acc);
 
-	stats = "^3FPH^7: ^20 ^3CPH^7: ^20";
+	stats = "^3FPH^7: ^20 ^3CPH^7: ^20 ^3ACC^7: ^20.00%";
 	
 	//hours /= (60 * 60);
+	if(acc > 0.0001)
+		acc = (fph * 100) / acc;
+	else
+		acc = 0.0;
 	
-	if(hours)
+	if(sec)
 	{
-		fph = (fph * 60 * 60) / hours;
-		cph = (cph * 60 * 60) / hours;
+		fph = (fph * 60 * 60) / sec;
+		cph = (cph * 60 * 60) / sec;
 
-		bug_var(hours);
+		bug_var(sec);
 		bug_var(fph);
 		bug_var(cph);
+		bug_var(acc);
 
 		soss oss;
-		oss << "^3FPH^7: ^2" << fph << " ^3CPH^7: ^2" << cph;
+		oss << std::fixed;
+		oss.precision(2);
+		// TODO: add acc next month because shots have not been recorded for all this month.
+		//oss << "^3FPH^7: ^2" << fph << " ^3CPH^7: ^2" << cph << " ^ACC^7: ^2" << acc << '%';
+		oss << "^3FPH^7: ^2" << fph << " ^3CPH^7: ^2" << cph << " ^ACC^7: ^2-soon-";
 		stats = oss.str();
+		bug_var(stats);
 	}
 
 	return true;

@@ -74,6 +74,8 @@
   0:29 Challenge: 0 1 1: Client 0 got award 1
   0:29 Challenge: 3 2 1: Client 3 got award 2
   0:34 Kill: 0 5 10: ^5A^6lien ^5S^6urf ^5G^6irl killed ^1Lord ^2Zeus by MOD_RAILGUN
+  0:34 say: ^5A^6lien ^5S^6urf ^5G^6irl: !stats
+  0:34 say: ^5A^6lien ^5S^6urf ^5G^6irl: !boss
   0:34 PlayerScore: 0 2: ^5A^6lien ^5S^6urf ^5G^6irl now has 2 points
   0:34 Challenge: 0 215 1: Client 0 got award 215
   0:34 Challenge: 0 1 1: Client 0 got award 1

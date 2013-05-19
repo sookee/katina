@@ -219,7 +219,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 			++i;
 	}
 	
-	if(do_flags && stats)
+	if(stats)
 	{
 		typedef std::multimap<siz, GUID> siz_guid_mmap;
 		typedef siz_guid_mmap::reverse_iterator siz_guid_mmap_ritr;
@@ -252,7 +252,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 			katina.server.chat(results[i]);
 		katina.server.chat("^5" + str(max - 12, '-'));
 	
-		if(do_infos)
+		if(do_flags)
 		{
 			client.chat('i', "^5== ^6RESULTS ^5== ^7"
 				+ to_string(flags[FL_BLUE]) + " ^1RED ^7"
