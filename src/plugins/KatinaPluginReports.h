@@ -99,6 +99,8 @@ private:
 
 	str old_mapname;
 
+	str_vec notspam; // spam exceptions
+
 	str get_stats_cols() const
 	{
 		str cols, sep;

@@ -156,9 +156,7 @@ bool KatinaPluginCallVoteCtrl::init_game(siz min, siz sec, const str_map& cvars)
 	if(!active)
 		return true;
 	
-	/* Start the timer */
-	
-	bug_var(wait);
+	// Start the timer
 	
 	its.it_value.tv_sec = wait;
 	its.it_value.tv_nsec = 0;

@@ -20,47 +20,33 @@ const str irc_katina = "04K00at08i00na";
 
 void RemoteClient::set_chans(const str& chans)
 {
-	// bug_func();
-	// bug_var(chans);
-	// bug_var(this);
 	this->chans.clear();
 	str chan;
 	siss iss(chans);
 	while(iss >> chan) // #channel(flags)
 	{
-		bug("chan: " << chan);
 		str flags;
 		siss iss(chan);
 		std::getline(iss, chan, '(');
 		if(std::getline(iss, flags, ')'))
-		{
-			// config flags c = chats f = flags k = kills
-			bug_var(this->chans.size());
 			set_flags(chan, flags);
-			bug_var(this->chans.size());
-		}
 	}
 }
 
 bool RemoteClient::say(char f, const str& text)
 {
-	// bug_func();
-	// bug_var(f);
-	// bug_var(text);
-	// bug_var(active);
-	// bug_var(this);
 	if(!active)
 		return true; // not error
 
 	str res;
 	bool good = true;
 
-	bug_var(chans.size());
+//	bug_var(chans.size());
 	for(chan_map_iter chan = chans.begin(); chan != chans.end(); ++chan)
 	{
-		bug_var(chan->first);
-		for(std::set<char>::iterator i = chan->second.begin(); i != chan->second.end(); ++i)
-			bug_var(*i);
+//		bug_var(chan->first);
+//		for(std::set<char>::iterator i = chan->second.begin(); i != chan->second.end(); ++i)
+//			bug_var(*i);
 		if(f == '*' || chan->second.count('*') || chan->second.count(f))
 			good = good && send("/say " + chan->first + " [" + irc_katina + "] " + text, res);
 	}
@@ -85,7 +71,7 @@ bool PKIClient::configure(const str& params)
 		log("FATAL: PKIClient requires public key");
 		return false;
 	}
-	
+
 	siz pos;
 	while((pos = key.find_first_of("\n")) != str::npos)
 		key.erase(pos, 1);
@@ -171,8 +157,6 @@ bool InsecureClient::configure(const str& params)
 
 bool FileClient::configure(const str& params)
 {
-	// bug_func();
-	// bug_var(params);
 	str chans;
 	siss iss(params);
 	if(!sgl(iss >> ofile >> ifile >> std::ws, chans))
@@ -209,8 +193,6 @@ RemoteClient* RemoteClient::create(Katina& katina, const str& config)
 	
 	if(sgl(iss >> type >> std::ws, params))
 	{
-		bug_var(type); // file
-		bug_var(params); // data/irc-output.txt data/irc-input.txt #test-channel(*)
 		RemoteClient* c = 0;
 		if(type == "pki")
 			c = new PKIClient(katina);

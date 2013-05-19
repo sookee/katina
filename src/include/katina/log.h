@@ -79,6 +79,11 @@ struct _
 inline
 bool log_error(const str& m, bool status = false) { log(m); return status; }
 
+enum
+{
+	LOG_NORMAL, LOG_VERBOSE, LOG_DETAILED
+};
+
 }} // oastats::log
 
 #endif /* _OASTATS_LOG_H_ */

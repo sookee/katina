@@ -5,6 +5,8 @@
  * Created on May 1, 2013, 6:23 PM
  */
 
+#undef DEBUG
+
 #include <dlfcn.h>
 #include <cassert>
 
@@ -19,7 +21,6 @@
 #include <katina/str.h>
 #include <katina/GUID.h>
 
-#undef DEBUG
 #include <katina/log.h>
 
 namespace oastats {
@@ -33,32 +34,6 @@ using namespace oastats::string;
 
 const str version = "1.0";
 const str tag = "dev";
-
-/* void* cvarpoll(void* vp)
-{
-	Katina& katina = *reinterpret_cast<Katina*>(vp);
-	cvarevt_lst& cvarevts = katina.cvarevts;
-	cvarevt_lst_iter cvar = cvarevts.begin();
-	
-	while(!katina.done)
-	{
-		thread_sleep_millis(3000);
-
-		str value = cvar->value;
-		if(!katina.rconset(cvar->name, cvar->value))
-			katina.rconset(cvar->name, cvar->value); // one retry
-
-		if(value != cvar->value) // changed
-			cvar->plugin->cvar_event(cvar->name, cvar->value);
-		
-		pthread_mutex_lock(&katina.cvarevts_mtx);
-		if(++cvar == cvarevts.end())
-			cvar = cvarevts.begin();
-		pthread_mutex_unlock(&katina.cvarevts_mtx);
-	}
-	pthread_exit(0);
-}
- */
  
 void* cvarpoll(void* vp)
 {
@@ -115,7 +90,7 @@ void* cvarpoll(void* vp)
 Katina::Katina()
 : done(false)
 , active(true) // TODO: make this false
-, logmode(1) // 0 = none, 1 = normal, 2 = verbose
+, logmode(LOG_NORMAL) 
 {
 	pthread_mutex_init(&cvarevts_mtx, 0);
 }
@@ -125,20 +100,7 @@ Katina::~Katina()
 	done = true;
 	pthread_join(cvarevts_thread, 0);
 }
-/*
-void Katina::add_var_event(KatinaPlugin* plugin, const str& name, const str& value)
-{
-	cvarevt e;
-	e.name = name;
-	e.value = value;
-	e.plugin = plugin;
-	
-	pthread_mutex_lock(&cvarevts_mtx);
-	if(std::find(cvarevts.begin(), cvarevts.end(), e) == cvarevts.end())
-		cvarevts.push_back(e);
-	pthread_mutex_unlock(&cvarevts_mtx);
-}
-*/
+
 bool Katina::rconset(const str& cvar, str& val)
 {
 	str response;
@@ -308,9 +270,6 @@ bool Katina::reload_plugin(const str& id)
 
 KatinaPlugin* Katina::get_plugin(const str& id, const str& version)
 {
-//	bug_func();
-//	bug_var(id);
-//	bug_var(version);
 	plugin_map_iter i = plugins.find(id);
 
 	if(i == plugins.end())
@@ -318,6 +277,7 @@ KatinaPlugin* Katina::get_plugin(const str& id, const str& version)
 		log("ERROR: plugin not found: " << id);
 		return 0;
 	}
+	
 	if(i->second->get_version() < version)
 	{
 		log("ERROR: wrong version found: " << i->second->get_version() << " expected " << version);
@@ -342,55 +302,71 @@ bool Katina::chat_to(const str& name, const str& text)
 	return server.s_chat(name + "^2 " + text);
 }
 
+bool Katina::load_config(const str& dir, const str& file, property_map& props)
+{
+	str config_file = config_dir + "/" + expand_env(file);
+
+	log("CONFIG LOAD: " << config_file);
+
+	std::ifstream ifs(config_file.c_str());
+	
+	if(!ifs.is_open())
+	{
+		log("ERROR: opening config file");
+		return false;
+	}
+
+	// working variables
+	siz pos;
+	str line, key, val;
+
+	// read in config
+
+	siz no = 0;
+	while(sgl(ifs, line))
+	{
+		++no;
+
+		if((pos = line.find("//")) != str::npos)
+			line.erase(pos);
+		
+		trim(line);
+
+		if(line.empty() || line[0] == '#')
+			continue;
+		
+		siss iss(line);
+		if(!sgl(sgl(iss, key, ':') >> std::ws, val))
+		{
+			log("ERROR: parsing config file: " << file << " at: " << no);
+			log("ERROR:                    : " << line);
+			continue;
+		}
+		
+		if(logmode > LOG_NORMAL)
+			log("found: " << key << ": " << val); 
+		
+		if(key == "include")
+			load_config(dir, val, props);
+		else if(key == "logmode")
+			logmode =  to<int>(val);
+		else
+			props[key].push_back(expand_env(val, WRDE_SHOWERR|WRDE_UNDEF));
+		
+	}
+	ifs.close();
+	log("CONFIG LOAD: OK:");
+	return true;
+}
+
 bool Katina::start(const str& dir)
 {
 	config_dir = expand_env(dir);
 	
 	log("Setting config dir: " << dir);
 
-	std::ifstream ifs((config_dir + "/katina.conf").c_str());
-
-	// working variables
-	char c;
-	siz min, sec;
-	str skip, name, cmd;
-	siss iss;
-	siz pos;
-	str line, key, val;
-
-	// read in config
-
-	log("Reading config file:");
-
-	siz no = 0;
-	while(sgl(ifs, line))
-	{
-		++no;
-		//bug(no << ": line: " << line);
-		
-		if((pos = line.find("//")) != str::npos)
-			line.erase(pos);
-		
-		//bug(no << ": line: " << line);
-
-		trim(line);
-		
-		//bug(no << ": line: " << line);
-		//bug("");
-		
-		if(line.empty() || line[0] == '#')
-			continue;
-		
-		// remote.irc.client: file data/irc-output.txt data/irc-input.txt #test-channel(*)
-		siss iss(line);
-		if(sgl(sgl(iss, key, ':') >> std::ws, val))
-		{
-			//bug("expand_env(val): " << expand_env(val, WRDE_SHOWERR|WRDE_UNDEF));
-			props[key].push_back(expand_env(val, WRDE_SHOWERR|WRDE_UNDEF));
-		}
-	}
-	ifs.close();
-
+	load_config(config_dir, "katina.conf", props);
+	
 	// load pki
 
 	log("Reading keypair:");
@@ -424,10 +400,10 @@ bool Katina::start(const str& dir)
 	}
 	
 	log("Reading public keys:");
-
-	ifs.open((config_dir + "/" + pkeys_file).c_str());
+	// TOSO: ad this
+	//ifs.open((config_dir + "/" + pkeys_file).c_str());
 	//while(pki.read_public_key(, ifs)) {}
-	ifs.close();
+	//ifs.close();
 	
 	// initialize rcon
 	
@@ -460,6 +436,8 @@ bool Katina::start(const str& dir)
 
 	log("Opening logfile (" << get("run.mode") << "): " << get("logfile"));
 
+	std::ifstream ifs;
+	
 	ifs.open(get("logfile").c_str(), mode);
 
 	if(!ifs.is_open())
@@ -485,6 +463,12 @@ bool Katina::start(const str& dir)
 	client_userinfo_bug.reset();
 	
 	log("Processing:");
+
+	// working variables
+	char c;
+	siz min, sec;
+	str line, skip, name, cmd;
+	siss iss;
 
 	while(!done)
 	{

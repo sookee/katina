@@ -155,8 +155,6 @@ bool KatinaPluginReports::open()
 	{
 		log("Creating client: " << clients[i]);
 		RemoteClient* c = RemoteClient::create(katina, clients[i]);
-		bug_var(&client);
-		bug_var(c);
 		if(c)
 		{
 			c->on();
@@ -167,27 +165,23 @@ bool KatinaPluginReports::open()
 	client.on();
 	
 	client.chat('*', "^3Stats Reporting System v^7" + get_version() + " - ^1ONLINE");
+	
+	notspam = katina.get_vec("reports.notspam");
 
-	katina.add_var_event(this, "report.active", active, false);
-	katina.add_var_event(this, "report.flags", do_flags, false);
-	katina.add_var_event(this, "report.flags.hud", do_flags_hud, false);
-	katina.add_var_event(this, "report.chats", do_chats, false);
-	katina.add_var_event(this, "report.kills", do_kills, false);
-	katina.add_var_event(this, "report.infos", do_infos, false);
-	katina.add_var_event(this, "report.stats", do_stats, false);
-	katina.add_var_event(this, "report.stats.cols", stats_cols, (siz) 0);
-	katina.add_var_event(this, "report.spam.kill", spamkill, false);
-	katina.add_var_event(this, "report.spam.limit", spam_limit, (siz) 2); 
+	katina.add_var_event(this, "reports.active", active, false);
+	katina.add_var_event(this, "reports.flags", do_flags, false);
+	katina.add_var_event(this, "reports.flags.hud", do_flags_hud, false);
+	katina.add_var_event(this, "reports.chats", do_chats, false);
+	katina.add_var_event(this, "reports.kills", do_kills, false);
+	katina.add_var_event(this, "reports.infos", do_infos, false);
+	katina.add_var_event(this, "reports.stats", do_stats, false);
+	katina.add_var_event(this, "reports.stats.cols", stats_cols, (siz) 0);
+	katina.add_var_event(this, "reports.spam.kill", spamkill, false);
+	katina.add_var_event(this, "reports.spam.limit", spam_limit, (siz) 2); 
 
 	katina.add_log_event(this, EXIT);
-	//katina.add_log_event(this, SHUTDOWN_GAME);
-	//katina.add_log_event(this, WARMUP);
-	//katina.add_log_event(this, CLIENT_USERINFO_CHANGED);
-	//katina.add_log_event(this, CLIENT_CONNECT);
-	//katina.add_log_event(this, CLIENT_DISCONNECT);
 	katina.add_log_event(this, KILL);
 	katina.add_log_event(this, CTF);
-	//katina.add_log_event(this, AWARD);
 	katina.add_log_event(this, INIT_GAME);
 	katina.add_log_event(this, SAY); 
 
@@ -235,9 +229,6 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 		for(guid_stat_citer p = stats->stats.begin(); p != stats->stats.end(); ++p)
 			sorted.insert(siz_guid_pair(map_get(p->second.flags, FL_CAPTURED), p->first));
 		
-		//for(guid_siz_citer c = caps.begin(); c != caps.end(); ++c)
-		//	sorted.insert(siz_guid_pair(c->second, c->first));
-	
 		siz i = 0;
 		siz d = 1;
 		siz max = 0;
@@ -279,16 +270,6 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 		soss oss;
 		for(guid_stat_citer p = stats->stats.begin(); p != stats->stats.end(); ++p)
 		{
-			const str& player = katina.players.at(p->first);
-			con("player: " << player);
-			con("\t  caps: " << map_get(p->second.flags, FL_CAPTURED));
-			con("\t kills: " << map_get(p->second.kills, MOD_RAILGUN));
-			con("\tdeaths: " << map_get(p->second.deaths, MOD_RAILGUN));
-			con("\t  defs: " << map_get(p->second.awards, AW_DEFENCE));
-			con("\t gaunt: " << map_get(p->second.awards, AW_GAUNTLET));
-			con("\t  time: " << p->second.logged_time << 's');
-			// TODO: modify this to add AW options as well as insta
-
 			siz c = map_get(p->second.flags, FL_CAPTURED);
 	
 			siz k = 0;
@@ -414,7 +395,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 					sep = "^2|";
 				}
 	
-				oss << sep << "^7" << player;
+				oss << sep << "^7" << katina.players.at(p->first);
 				scores.insert(std::make_pair(rkh, oss.str()));
 			}
 		}
@@ -595,8 +576,8 @@ bool KatinaPluginReports::say(siz min, siz sec, const GUID& guid, const str& tex
 			hud = get_hud(min, sec, hud_flag);
 		}
 	
-		if(!spamkill || ++spam[text] < spam_limit)
-			client.raw_chat('c', hud + oa_to_IRC(nums_team + "^7say: " + katina.players[guid] + " ^2" + text));
+		if(!spamkill || ++spam[text] < spam_limit || std::find(notspam.begin(), notspam.end(), text) != notspam.end())
+			client.raw_chat('c', hud + oa_to_IRC(nums_team + " ^7" + katina.players[guid] + "^7: ^2" + text));
 	}
 
 	return true;

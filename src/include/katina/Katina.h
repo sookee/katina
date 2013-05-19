@@ -130,11 +130,6 @@ typedef std::map<KatinaPlugin*, cvar_map> cvar_map_map;
 typedef cvar_map_map::iterator cvar_map_map_iter;
 typedef cvar_map_map::const_iterator cvar_map_map_citer;
 
-enum
-{
-	LOG_NONE, LOG_NORMAL, LOG_VERBOSE
-};
-
 class Katina
 {
 	friend void* cvarpoll(void* vp);
@@ -143,7 +138,6 @@ class Katina
 private:
 	bool done;
 	bool active;
-	siz logmode;
 
 	typedef std::map<str, str_vec> property_map;
 	typedef std::pair<const str, str_vec> property_map_pair;
@@ -168,6 +162,7 @@ private:
 	
 	GUID guid_from_name(const str& name);
 	bool extract_name_from_text(const str& line, GUID& guid, str& text);
+	bool load_config(const str& dir, const str& file, property_map& props);
 	bool load_plugin(const str& file);
 	bool unload_plugin(const str& id);
 	bool reload_plugin(const str& id);
@@ -184,6 +179,7 @@ public:
 	siz_guid_map clients; // slot -> GUID
 	guid_str_map players; // GUID -> name
 	guid_siz_map teams; // GUID -> 'R' | 'B'
+	siz logmode;
 
 	KatinaPlugin* get_plugin(const str& id, const str& version);
 	
@@ -228,18 +224,15 @@ public:
 	/**
 	 * Set a variable to be auto-updated from a cvar. The variable is set to a supplied
 	 * default value if a default value can not be found in the config file.
-	 * The key searched for in the config file is "plugin." + name where name is the
-	 * supplied parameter.
 	 * @param plugin pointer to the calling plugin
-	 * @param name variable name. A configurable prefi is added to this name for the cvar lookup
-	 * and the prefix "plugin." is added to this name for the config file lookup.
+	 * @param name variable name. A configurable prefix is added to this name for the cvar lookup.
 	 * @param var the actual variable to be updated
 	 * @param dflt the default value to use if none can be found in the config file.
 	 */
 	template<typename T>
 	void add_var_event(class KatinaPlugin* plugin, const str& name, T& var, const T& dflt = T())
 	{
-		var = get("plugin." + name, dflt);
+		var = get(name, dflt);
 		cvars[plugin][name] = new cvar_t<T>(var);
 	}
 
