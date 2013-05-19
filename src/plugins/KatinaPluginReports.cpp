@@ -252,7 +252,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 			katina.server.chat(results[i]);
 		katina.server.chat("^5" + str(max - 12, '-'));
 	
-		if(do_flags)
+		if(do_infos)
 		{
 			client.chat('i', "^5== ^6RESULTS ^5== ^7"
 				+ to_string(flags[FL_BLUE]) + " ^1RED ^7"
