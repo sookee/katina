@@ -151,7 +151,19 @@ class FileClient
 	str ifile;
 	std::ofstream ofs;
 	std::ifstream ifs;
-
+	
+	str IRC_to_plain(const str& s)
+	{
+		return s;
+		str p;
+		for(siz i = 0; i < s.size(); ++i)
+			if(std::isprint(s[i]))
+				p += s[i];
+			else
+				i += 2;
+		return p;
+	}
+	
 public:
 	FileClient(Katina& katina): RemoteClient(katina) {}
 
@@ -161,13 +173,10 @@ public:
 
 	virtual bool send(const str& cmd, str& res)
 	{
-		// bug_func();
-		// bug_var(cmd);
-		// bug_var(active);
 		if(!active)
 			return true;
 
-		ofs << cmd << std::endl;
+		ofs << IRC_to_plain(cmd) << std::endl;
 		return std::getline(ifs, res);
 	}
 };

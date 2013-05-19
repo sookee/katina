@@ -379,9 +379,6 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 	
 	if(cmd == "!register")
 	{
-		str text;
-		GUID guid;
-
 		if(write && players[guid] != "UnnamedPlayer" && players[guid] != "RenamedPlayer")
 		{
 			db.on();
@@ -392,9 +389,6 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 	}
 	else if(cmd == "!stats" || cmd == "?stats")
 	{
-		str text;
-		GUID guid;
-		
 		if(cmd[0] == '?')
 		{
 			server.chat("^7STATS: ^2!stats^7: ^3display a players ^7fph (^2frags^7/^2hour^7) ^2& ^7cph (^2caps^7/^2hour^7)");

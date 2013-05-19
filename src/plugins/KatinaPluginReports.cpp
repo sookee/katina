@@ -277,22 +277,6 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 		std::multimap<double, str> scores;
 	
 		soss oss;
-		oss.str("");
-		str sep;
-		if(stats_cols & RSC_TIME)
-			{ oss << sep << "^3time "; sep = "^2|"; }
-		if(stats_cols & RSC_FPH)
-			{ oss << sep << "^3fph"; sep = "^2|"; }
-		if(stats_cols & RSC_TIME)
-			{ oss << sep << "^3cph"; sep = "^2|"; }
-		if(stats_cols & RSC_TIME)
-			{ oss << sep << "^3fpd  "; sep = "^2|"; }
-		if(stats_cols & RSC_TIME)
-			{ oss << sep << "^3cpd   "; sep = "^2|"; }
-		if(stats_cols & RSC_RGACC)
-			{ oss << sep << "^3rg acc  "; sep = "^2|"; }
-		client.chat('s', oss.str());
-	
 		for(guid_stat_citer p = stats->stats.begin(); p != stats->stats.end(); ++p)
 		{
 			const str& player = katina.players.at(p->first);
@@ -425,7 +409,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 					}
 				
 					col = "^7" + acc + "%";
-					set_width(col, 8, 2);
+					set_width(col, 7, 2);
 					oss << sep << col;
 					sep = "^2|";
 				}
@@ -433,6 +417,25 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 				oss << sep << "^7" << player;
 				scores.insert(std::make_pair(rkh, oss.str()));
 			}
+		}
+		if(!scores.empty())
+		{
+			oss.str("");
+			str sep;
+			if(stats_cols & RSC_TIME)
+				{ oss << sep << "^3time "; sep = "^2|"; }
+			if(stats_cols & RSC_FPH)
+				{ oss << sep << "^3fph"; sep = "^2|"; }
+			if(stats_cols & RSC_TIME)
+				{ oss << sep << "^3cph"; sep = "^2|"; }
+			if(stats_cols & RSC_TIME)
+				{ oss << sep << "^3fpd  "; sep = "^2|"; }
+			if(stats_cols & RSC_TIME)
+				{ oss << sep << "^3cpd   "; sep = "^2|"; }
+			if(stats_cols & RSC_RGACC)
+				{ oss << sep << "^3rg acc "; sep = "^2|"; }
+			oss << sep;
+			client.chat('s', oss.str());
 		}
 		for(std::multimap<double, str>::reverse_iterator r = scores.rbegin(); r != scores.rend(); ++r)
 			client.chat('s', r->second);
