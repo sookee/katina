@@ -112,20 +112,14 @@ typedef std::map<GUID, str>::iterator guid_str_iter;
 typedef std::map<GUID, str>::const_iterator guid_str_citer;
 
 typedef std::map<siz, GUID> siz_guid_map;
-// deprecated
-typedef std::pair<const siz, GUID> siz_guid_pair;
-typedef std::map<siz, GUID>::iterator siz_guid_iter;
-typedef std::map<siz, GUID>::const_iterator siz_guid_citer;
-// use these
-typedef std::pair<const siz, GUID> siz_guid_map_pair;
-typedef std::map<siz, GUID>::iterator siz_guid_map_iter;
-typedef std::map<siz, GUID>::const_iterator siz_guid_map_citer;
-
+typedef siz_guid_map::value_type siz_guid_map_pair;
+typedef siz_guid_map::iterator siz_guid_map_iter;
+typedef siz_guid_map::const_iterator siz_guid_map_citer;
 
 typedef std::map<GUID, siz> guid_siz_map;
-typedef std::pair<const GUID, siz> guid_siz_pair;
-typedef std::map<GUID, siz>::iterator guid_siz_iter;
-typedef std::map<GUID, siz>::const_iterator guid_siz_citer;
+typedef guid_siz_map::value_type guid_siz_map_pair;
+typedef guid_siz_map::iterator guid_siz_map_iter;
+typedef guid_siz_map::const_iterator guid_siz_map_citer;
 
 typedef std::multimap<siz, str> siz_str_mmap;
 typedef siz_str_mmap::reverse_iterator siz_str_mmap_ritr;

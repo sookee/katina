@@ -287,7 +287,7 @@ const str flag[2] = {"^1RED", "^4BLUE"};
 
 void report_clients(const siz_guid_map& clients)
 {
-	for(siz_guid_citer i = clients.begin(); i != clients.end(); ++i)
+	for(siz_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
 		con("slot: " << i->first << ", " << i->second);
 }
 
@@ -304,8 +304,8 @@ typedef siz_guid_mmap::reverse_iterator siz_guid_mmap_ritr;
 void report_caps(const guid_siz_map& caps, const guid_str_map& players, siz flags[2])
 {
 	siz_guid_mmap sorted;
-	for(guid_siz_citer c = caps.begin(); c != caps.end(); ++c)
-		sorted.insert(siz_guid_pair(c->second, c->first));
+	for(guid_siz_map_citer c = caps.begin(); c != caps.end(); ++c)
+		sorted.insert(siz_guid_map_pair(c->second, c->first));
 
 	siz i = 0;
 	siz d = 1;
@@ -1079,7 +1079,7 @@ int main(const int argc, const char* argv[])
 							}
 
 							for(onevone_citer o = onevone.begin(); o != onevone.end(); ++o)
-								for(guid_siz_citer p = o->second.begin(); p != o->second.end(); ++p)
+								for(guid_siz_map_citer p = o->second.begin(); p != o->second.end(); ++p)
 									db.add_ovo(id, o->first, p->first, p->second);
 						}
 

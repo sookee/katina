@@ -116,6 +116,7 @@ private:
 	bool write;
 	
 	bool in_game;
+	bool have_bots; // are any bots playing?
 
 	std::set<siz> db_weaps; // which weapons to record
 

@@ -740,7 +740,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 		oss.precision(2);
 		// TODO: add acc next month because shots have not been recorded for all this month.
 		//oss << "^3FPH^7: ^2" << fph << " ^3CPH^7: ^2" << cph << " ^ACC^7: ^2" << acc << '%';
-		oss << "^3FPH^7: ^2" << fph << " ^3CPH^7: ^2" << cph << " ^ACC^7: ^2-soon-";
+		oss << "^3FPH^7: ^2" << fph << " ^3CPH^7: ^2" << cph << " ^ACC^7: ^2 soon";
 		stats = oss.str();
 		bug_var(stats);
 	}

@@ -227,7 +227,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 		siz_guid_mmap sorted;
 		
 		for(guid_stat_citer p = stats->stats.begin(); p != stats->stats.end(); ++p)
-			sorted.insert(siz_guid_pair(map_get(p->second.flags, FL_CAPTURED), p->first));
+			sorted.insert(siz_guid_map_pair(map_get(p->second.flags, FL_CAPTURED), p->first));
 		
 		siz i = 0;
 		siz d = 1;
