@@ -236,6 +236,8 @@ public:
 	{
 		var = get(name, dflt);
 		cvars[plugin][name] = new cvar_t<T>(var);
+		if(logmode > LOG_NORMAL)
+			log("CVAR: " << plugin->get_id() << ": " << name << " = " << var);  
 	}
 
 	void add_log_event(class KatinaPlugin* plugin, event_t e)

@@ -35,7 +35,7 @@ using namespace oastats::string;
 const str version = "1.0";
 const str tag = "dev";
 
-str Katina::get_version() { return version + tag; }
+str Katina::get_version() { return version + "-" + tag; }
 
 void* cvarpoll(void* vp)
 {
@@ -346,7 +346,7 @@ bool Katina::load_config(const str& dir, const str& file, property_map& props)
 		}
 		
 		if(logmode > LOG_NORMAL)
-			log("found: " << key << ": " << val); 
+			log("CONF: " << key << ": " << val); 
 		
 		if(key == "include")
 			load_config(dir, val, props);

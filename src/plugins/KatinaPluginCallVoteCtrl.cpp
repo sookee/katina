@@ -64,8 +64,8 @@ KatinaPluginCallVoteCtrl::KatinaPluginCallVoteCtrl(Katina& katina)
 
 bool KatinaPluginCallVoteCtrl::open()
 {
-	katina.add_var_event(this, "votectrl.active", active, false);
-	katina.add_var_event(this, "votectrl.wait", wait, std::time_t(15));
+	katina.add_var_event(this, "callvotectrl.active", active, false);
+	katina.add_var_event(this, "callvotectrl.wait", wait, std::time_t(15));
 
 	katina.add_log_event(this, INIT_GAME);
 	katina.add_log_event(this, EXIT);

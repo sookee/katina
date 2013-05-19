@@ -4,7 +4,90 @@ katina-manual.txt
      Author: SooKee
      
 
-cvars:
+# -- katina v1.0 --     
+
+# cvars:
+
+katina::stats: stats.active
+katina::stats: stats.write
+
+katina::votes: votes.active
+
+katina::reports: reports.active
+katina::reports: reports.flags
+katina::reports: reports.flags.hud
+katina::reports: reports.chats
+katina::reports: reports.kills
+katina::reports: reports.infos
+katina::reports: reports.stats
+katina::reports: reports.stats.cols
+katina::reports: reports.spam.kill
+katina::reports: reports.spam.limit
+
+katina::callvotectrl: callvotectrl.active
+katina::callvotectrl: callvotectrl.wait
+
+# config options:
+
+run.mode:
+logfile:
+
+db.base:
+db.host:
+db.pass:
+db.port:
+db.user:
+
+plugin:
+
+pki.keypair:
+pki.pkeys:
+
+rcon.delay:
+rcon.host:
+rcon.pass:
+rcon.port:
+
+remote.irc.client:
+
+# katina::callvotectrl
+
+callvotectrl.active:
+callvotectrl.wait:
+
+# katina::reports
+
+i = infos (maps, results)
+c = chats
+f = flags
+k = kills
+s = stats (k/d c/d)
+
+reports.active:
+reports.chats:
+reports.flags:
+reports.flags.hud:
+reports.infos:
+reports.kills:
+reports.notspam:
+reports.notspam:
+reports.notspam:
+reports.notspam:
+reports.spam.kill:
+reports.spam.limit:
+reports.stats.cols:
+reports.stats:
+
+# katina::stats
+
+stats.active:
+stats.write:
+
+# katina::votes
+
+votes.active:
+
+# ------------------------------
 
 katina_active (1 | 0)
 
@@ -177,4 +260,5 @@ foreach game_id as id
 	select guid, count from kills where game_id == id
 
   
+
 
