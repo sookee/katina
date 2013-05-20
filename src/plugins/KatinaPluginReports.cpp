@@ -205,7 +205,7 @@ str KatinaPluginReports::get_version() const
 
 bool KatinaPluginReports::exit(siz min, siz sec)
 {
-	client.chat('*', "^3Game Over");
+//	client.chat('*', "^3Game Over");
 
 	// erase non spam marked messages
 	for(str_siz_map_iter i = spam.begin(); i != spam.end();)
@@ -561,7 +561,7 @@ bool KatinaPluginReports::init_game(siz min, siz sec, const str_map& cvars)
 			vote = oss.str();
 		}
 		
-		client.chat('i', ".");
+		//client.chat('i', ".");
 		client.chat('i', "^3== Playing Map: ^7" + katina.mapname + "^3 ==" + vote);
 
 		old_mapname = katina.mapname;
