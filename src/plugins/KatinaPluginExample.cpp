@@ -24,7 +24,7 @@ KatinaPluginExample::KatinaPluginExample(Katina& katina)
 
 bool KatinaPluginExample::open()
 {
-	katina.add_var_event(this, "example_active", active);
+	katina.add_var_event(this, "example.active", active);
 	//katina.add_var_event(this, "flag", "0");
 	katina.add_log_event(this, EXIT);
 	katina.add_log_event(this, SHUTDOWN_GAME);
@@ -35,6 +35,7 @@ bool KatinaPluginExample::open()
 	katina.add_log_event(this, KILL);
 	katina.add_log_event(this, CTF);
 	katina.add_log_event(this, CTF_EXIT);
+	katina.add_log_event(this, SCORE_EXIT);
 	katina.add_log_event(this, AWARD);
 	katina.add_log_event(this, INIT_GAME);
 	katina.add_log_event(this, SAY);
@@ -143,6 +144,14 @@ bool KatinaPluginExample::ctf_exit(siz min, siz sec, siz r, siz b)
 		return true;
 	log("ctf_exit(" << r << ", " << b << ")");
 	return true;
+}
+
+bool KatinaPluginExample::score_exit(siz min, siz sec, int score, siz ping, siz num, const str& name)
+{
+	if(!active)
+		return true;
+	log("score_exit(" << score << ", " << ping << ", " << num << ", " << name << ")");
+	return true;	
 }
 
 bool KatinaPluginExample::award(siz min, siz sec, siz num, siz awd)

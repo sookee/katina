@@ -70,6 +70,7 @@ public:
 	 * Final score of complete CTF game
 	 */
 	virtual bool ctf_exit(siz min, siz sec, siz r, siz b) {}
+	virtual bool score_exit(siz min, siz sec, int score, siz ping, siz num, const str& name) {}
 	virtual bool award(siz min, siz sec, siz num, siz awd) {}
 	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) {}
 	virtual bool shutdown_game(siz min, siz sec) {}

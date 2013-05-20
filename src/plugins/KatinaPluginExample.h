@@ -62,6 +62,7 @@ public:
 	virtual bool award(siz min, siz sec, siz num, siz awd);
 	virtual bool ctf(siz min, siz sec, siz num, siz team, siz act);
 	virtual bool ctf_exit(siz min, siz sec, siz r, siz b);
+	virtual bool score_exit(siz min, siz sec, int score, siz ping, siz num, const str& name);
 	virtual bool say(siz min, siz sec, const GUID& guid, const str& text);
 	virtual bool shutdown_game(siz min, siz sec);
 	virtual bool exit(siz min, siz sec);

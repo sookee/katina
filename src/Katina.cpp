@@ -755,6 +755,34 @@ bool Katina::start(const str& dir)
 					(*i)->ctf_exit(min, sec, r, b);
 			}
 		}
+		else if(cmd == "score:") // 
+		{
+			bug(cmd << "(" << params << ")");
+			int score = 0;
+			siz ping = 0;
+			siz num = 0;
+			str name;
+			// 18:38 score: 200  ping: 7  client: 0 ^5A^6lien ^5S^6urf ^5G^6irl
+			// 18:38 score: 196  ping: 65  client: 5 ^1Lord ^2Zeus
+			// 18:38 score: 121  ping: 200  client: 1 (drunk)Mosey
+			// 18:38 score: 115  ping: 351  client: 2 Wark
+			// 18:38 score: 102  ping: 315  client: 3 Next map
+			// 18:38 score: 89  ping: 235  client: 4 ^1S^3amus ^1A^3ran
+			// 18:38 score: 30  ping: 228  client: 6 ^1LE^0O^4HX
+			// 18:38 score: 6  ping: 50  client: 7 Cyber_Ape
+			if(!sgl(iss >> score >> skip >> ping >> skip >> num >> std::ws, name))
+				log("Error parsing SCORE_EXIT:" << params);
+			else
+			{
+				bug_var(score);
+				bug_var(ping);
+				bug_var(num);
+				bug_var(name);
+				for(plugin_vec_iter i = events[SCORE_EXIT].begin()
+					; i != events[SCORE_EXIT].end(); ++i)
+					(*i)->score_exit(min, sec, score, ping, num, name);
+			}
+ 		}
 		else if(cmd == "Award:")
 		{
 			if(events[AWARD].empty())

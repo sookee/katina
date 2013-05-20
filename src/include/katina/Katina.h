@@ -55,6 +55,7 @@ enum event_t
 	, KILL
 	, CTF
 	, CTF_EXIT
+	, SCORE_EXIT
 	, AWARD
 	, INIT_GAME
 	, SAY
