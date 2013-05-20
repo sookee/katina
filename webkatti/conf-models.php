@@ -190,5 +190,69 @@ class M extends \afw\InstanceFactory
             $m->addReference(M::game(), 'times', 'game', 'game_id');
         });
     }
+    
+    
+    /**
+     * @return wk\m\Action
+     */
+    static function damage()
+    {
+        return self::instance(__FUNCTION__, function(&$m)
+        {
+            $m = new wk\m\Action(Storage::main(), 'damage');
+            $m->pkey = ['game_id', 'guid', 'mod'];
+            $m->setCache(Storage::cache());
 
+            $m->addField('hits');
+            $m->addField('dmgDone');
+            $m->addField('hitsRecv');
+            $m->addField('dmgRecv');
+        });
+    }
+    
+    
+    /**
+     * @return wk\m\Action
+     */
+    static function playerstats()
+    {
+        return self::instance(__FUNCTION__, function(&$m)
+        {
+            $m = new wk\m\Action(Storage::main(), 'playerstats');
+            $m->pkey = ['game_id', 'guid'];
+            $m->setCache(Storage::cache());
+
+            $m->addField('fragsFace');
+            $m->addField('fragsBack');
+            $m->addField('fraggedInFace');
+            $m->addField('fraggedInBack');
+            $m->addField('spawnKillsDone');
+            $m->addField('spawnKillsRecv');
+            $m->addField('pushesDone');
+            $m->addField('pushesRecv');
+            $m->addField('healthPickedUp');
+            $m->addField('armorPickedUp');
+            $m->addField('holyShitFrags');
+            $m->addField('holyShitFragged');
+            $m->addField('carrierFrags');
+            $m->addField('carrierFragsRecv');
+        });
+    }
+
+    
+    /**
+     * @return wk\m\Action
+     */
+    static function weapon_usage()
+    {
+        return self::instance(__FUNCTION__, function(&$m)
+        {
+            $m = new wk\m\Action(Storage::main(), 'weapon_usage');
+            $m->pkey = ['game_id', 'guid'];
+            $m->setCache(Storage::cache());
+
+            $m->addField('weap');
+            $m->addField('shots');
+        });
+    }
 }

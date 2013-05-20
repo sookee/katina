@@ -195,11 +195,10 @@ CREATE TABLE `time` (
 -- Dump completed on 2013-04-01 20:08:50
 
 
-
-
 --
 -- Table structure for table `damage`
 --
+
 DROP TABLE IF EXISTS `damage`;
 CREATE TABLE `damage` (
   `game_id` int(4) NOT NULL,
@@ -210,13 +209,12 @@ CREATE TABLE `damage` (
   `hitsRecv` int(4) NOT NULL,
   `dmgRecv` int(4) NOT NULL,
   PRIMARY KEY (`game_id`,`guid`,`mod`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Table structure for table `playerstats`
 --
+
 DROP TABLE IF EXISTS `playerstats`;
 CREATE TABLE `playerstats` (
   `game_id` int(4) unsigned NOT NULL,
@@ -231,20 +229,22 @@ CREATE TABLE `playerstats` (
   `pushesRecv` int(2) unsigned NOT NULL,
   `healthPickedUp` int(4) unsigned NOT NULL,
   `armorPickedUp` int(4) unsigned NOT NULL,
+  `holyShitFrags` int(2) unsigned NOT NULL,
+  `holyShitFragged` int(2) unsigned NOT NULL,
+  `carrierFrags` int(2) unsigned NOT NULL,
+  `carrierFragsRecv` int(2) unsigned NOT NULL,
   PRIMARY KEY (`game_id`,`guid`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Table structure for table `weapon_usage`
 --
+
 DROP TABLE IF EXISTS `weapon_usage`;
 CREATE TABLE `weapon_usage` (
   `game_id` int(4) unsigned NOT NULL,
   `guid` varchar(8) NOT NULL,
   `weap` int(1) NOT NULL,
   `shots` int(4) NOT NULL,
-  PRIMARY KEY (`game_id`,`guid`,`weap`),
-  KEY `weap` (`weap`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY (`game_id`,`guid`,`weap`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;

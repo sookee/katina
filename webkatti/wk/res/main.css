@@ -67,11 +67,17 @@ table, td, th
 thead tr
 {
     border-radius: 1ex 1ex 0 0;
+    font-weight: bold;
 }
 
 tbody td
 {
     padding: 0 1ex;
+}
+
+tfoot td
+{
+    font-weight: bold;
 }
 
 body > header
@@ -179,4 +185,34 @@ th.headerSortDown
 {
     background-color: #404040;
     border-radius: 1ex;
+}
+
+
+/*
+ * Styles for player stats
+ */
+ 
+.psGood
+{
+    color: #00ff00;
+}
+
+.psBad
+{
+    color: #ff0000;
+}
+
+.psShots
+{
+    color: #ffff00;
+}
+
+.psDone
+{
+    color: #00ffff;
+}
+
+.psRecv
+{
+    color: #ff00ff;
 }

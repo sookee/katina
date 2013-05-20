@@ -63,6 +63,11 @@ struct stats
 	siz pushesRecv;
 	siz healthPickedUp;
 	siz armorPickedUp;
+	siz holyShitFrags;
+	siz holyShitFragged;
+	
+	siz carrierFrags;
+	siz carrierFragsRecv;
 
 	time_t joined_time;
 	siz logged_time;
@@ -71,7 +76,8 @@ struct stats
 		kills(), deaths(), flags(), awards(), weapon_usage(), mod_damage(),
 		fragsFace(0), fragsBack(0), fraggedInFace(0), fraggedInBack(0),
 		spawnKills(0), spawnKillsRecv(0), pushes(0), pushesRecv(0),
-		healthPickedUp(0), armorPickedUp(0),
+		healthPickedUp(0), armorPickedUp(0), holyShitFrags(0), holyShitFragged(0),
+		carrierFrags(0), carrierFragsRecv(0),
 		joined_time(0), logged_time(0)
 	{}
 };
@@ -119,6 +125,10 @@ private:
 	bool have_bots; // are any bots playing?
 	siz human_players_r; // number of human players on red team
 	siz human_players_b; // number of human players on blue team
+	
+	// Current flag carriers (slot number, -1 if nobody carries the flag)
+	int carrierBlue;
+	int carrierRed;
 
 	std::set<siz> db_weaps; // which weapons to record
 	guid_str_map names; // keep track of all players involed in the game
@@ -161,7 +171,7 @@ public:
 	virtual bool player_stats(siz min, siz sec, siz num,
 		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
 		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
-		siz healthPickedUp, siz armorPickedUp);
+		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged);
 	virtual bool say(siz min, siz sec, const GUID& guid, const str& text);
 
 	virtual void close();

@@ -288,16 +288,22 @@ bool Database::add_mod_damage(game_id id, const GUID& guid, siz mod, siz hits, s
 bool Database::add_playerstats(game_id id, const GUID& guid,
 	siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
 	siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
-	siz healthPickedUp, siz armorPickedUp)
+	siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,
+	siz carrierFrags, siz carrierFragsRecv)
 {
 	log("DATABASE: add_playerstats(" << id << ", " << guid << ", " << fragsFace << ", " << fragsBack << ", " << fraggedInFace << ", " << fraggedInBack
 		<< ", " << spawnKills << ", " << spawnKillsRecv << ", " << pushes << ", " << pushesRecv
-		<< ", " << healthPickedUp << ", " << armorPickedUp << ")");
+		<< ", " << healthPickedUp << ", " << armorPickedUp << ", " << holyShitFrags << ", " << holyShitFragged
+		<< ", " << carrierFrags << ", " << carrierFragsRecv << ")");
+
 
 	soss oss;
-	oss << "insert into `playerstats` (`game_id`,`guid`,`fragsFace`,`fragsBack`,`fraggedInFace`,`fraggedInBack`,`spawnKillsDone`,`spawnKillsRecv`,`pushesDone`,`pushesRecv`,`healthPickedUp`,`armorPickedUp`) "
+	oss << "insert into `playerstats` ("
+	    << "`game_id`,`guid`,`fragsFace`,`fragsBack`,`fraggedInFace`,`fraggedInBack`,`spawnKillsDone`,`spawnKillsRecv`,"
+	    << "`pushesDone`,`pushesRecv`,`healthPickedUp`,`armorPickedUp`,`holyShitFrags`,`holyShitFragged`,`carrierFrags`,`carrierFragsRecv`) "
 	    << "values ('" << id << "','" << guid << "','" << fragsFace << "','" << fragsBack << "','" << fraggedInFace << "','" << fraggedInBack
-		<< "','" << spawnKills << "','" << spawnKillsRecv << "','" << pushes << "','" << pushesRecv << "','" << healthPickedUp << "','" << armorPickedUp << "')";
+		<< "','" << spawnKills << "','" << spawnKillsRecv << "','" << pushes << "','" << pushesRecv << "','" << healthPickedUp << "','" << armorPickedUp
+		<< "','" << holyShitFrags << "','" << holyShitFragged << "','" << carrierFrags << "','" << carrierFragsRecv << "')";
 
 	str sql = oss.str();
 
