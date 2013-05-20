@@ -121,6 +121,8 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 	if(write)
 		db.on();
 	
+	// TODO: dont add game if no recorded time
+	
 	game_id id = db.add_game(host, port, mapname);
 
 	if(id != null_id && id != bad_id)

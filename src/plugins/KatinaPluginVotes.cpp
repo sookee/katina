@@ -41,8 +41,6 @@ bool KatinaPluginVotes::open()
 	katina.add_log_event(this, INIT_GAME);
 	katina.add_log_event(this, SAY);
 
-	active = katina.get("plugin.votes.active", false);
-
 	return true;
 }
 
