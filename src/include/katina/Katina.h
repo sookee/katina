@@ -171,6 +171,8 @@ public:
 	Katina();
 	~Katina();
 
+	// API
+	
 	PKI pki;
 	RCon server;
 
@@ -180,6 +182,7 @@ public:
 	guid_str_map players; // GUID -> name
 	guid_siz_map teams; // GUID -> 'R' | 'B'
 	siz logmode;
+	std::time_t now;
 	
 	str get_version();
 

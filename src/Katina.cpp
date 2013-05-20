@@ -93,6 +93,7 @@ Katina::Katina()
 : done(false)
 , active(true) // TODO: make this false
 , logmode(LOG_NORMAL) 
+, now(std::time(0))
 {
 	pthread_mutex_init(&cvarevts_mtx, 0);
 }
@@ -528,6 +529,11 @@ bool Katina::start(const str& dir)
 		iss.str(params);
 		
 		lock_guard lock(cvarevts_mtx);
+		
+		if(rerun)
+			++now;
+		else
+			now = std::time(0);
 		
 		if(cmd == "Exit:")
 		{

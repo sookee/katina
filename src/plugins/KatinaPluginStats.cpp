@@ -111,9 +111,9 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 	{
 		if(i->second.joined_time);
 		{
-			std::time_t now = std::time(0);
+			//std::time_t now = std::time(0);
 			if(i->second.joined_time)
-				i->second.logged_time += now - i->second.joined_time;
+				i->second.logged_time += katina.now - i->second.joined_time;
 			i->second.joined_time = 0;
 		}
 	}
@@ -189,25 +189,52 @@ bool KatinaPluginStats::warmup(siz min, siz sec)
 	return true;
 }
 
-bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name)
+void KatinaPluginStats::stall_client(siz num)
 {
-	bug("KatinaPluginStats::client_userinfo_changed: [" <<  guid << "] " << name);
-	bug_var(in_game);
-	bug_var(active);
-	if(!in_game)
-		return true;
-	if(!active)
-		return true;
-
-	std::time_t now = std::time(0);
-
-	// if we have been recording time for this player, accumulate it
-	if(stats[clients[num]].joined_time)
-		stats[clients[num]].logged_time += now - stats[clients[num]].joined_time;
-
-	// stop recording time for this player
-	stats[clients[num]].joined_time = 0; // stall
+	if(!stats[clients[num]].joined_time)
+		return;
 	
+	// if we have been recording time for this player, accumulate it
+	stats[clients[num]].logged_time += katina.now - stats[clients[num]].joined_time;
+	
+	plog("\t\t" << players[clients[num]] << ": LT: " << stats[clients[num]].logged_time);
+	
+	// stop recording time for this player
+	stats[clients[num]].joined_time = 0;
+}
+
+void KatinaPluginStats::unstall_client(siz num)
+{
+	if(stats[clients[num]].joined_time)
+		return;
+	if(teams[clients[num]] != TEAM_R && teams[clients[num]] != TEAM_B)
+		return;
+	stats[clients[num]].joined_time = katina.now;
+	plog("\t\t" << players[clients[num]] << ": JT: " << stats[clients[num]].joined_time);
+}
+
+void KatinaPluginStats::stall_clients()
+{
+	plog("  STALL CLIENTS: " << katina.now);
+	for(siz_guid_map_citer ci = clients.begin(); ci != clients.end(); ++ci)
+	{
+		plog("\t" << players[clients[ci->first]] << ": JT: " << stats[ci->second].joined_time);
+		stall_client(ci->first);
+	}
+}
+
+void KatinaPluginStats::unstall_clients()
+{
+	plog("UNSTALL CLIENTS: " << katina.now);
+	for(siz_guid_map_citer ci = clients.begin(); ci != clients.end(); ++ci)
+	{
+		plog("\t" << players[clients[ci->first]] << ": JT: " << stats[ci->second].joined_time);
+		unstall_client(ci->first);
+	}
+}
+
+void KatinaPluginStats::check_bots_and_players(std::time_t now, siz num)
+{
 	bool had_bots = have_bots;
 	bool human_players_nr_or_nb = !human_players_r || !human_players_b;
 
@@ -217,6 +244,8 @@ bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, siz num, siz t
 	
 	for(guid_siz_map_citer ci = teams.begin(); ci != teams.end(); ++ci)
 	{
+		if(num != siz(-1) && ci->first == num)
+			continue;
 		if(ci->first.is_bot())
 			have_bots = true;
 		else if(ci->second == TEAM_R)
@@ -225,64 +254,110 @@ bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, siz num, siz t
 			++human_players_b;
 	}
 	
+	bug_var(have_bots);
+	bug_var(human_players_r);
+	bug_var(human_players_b);
+	
+	bool stall = false;
+	bool unstall = false;
+	
 	if(have_bots != had_bots)
 	{
 		if(have_bots)
+		{
+			stall = true;
 			plog("INFO: bots are playing, stats will not be recorded.");
+		}
 		else
+		{
+			unstall = true;
 			plog("INFO: there are no bots, stats will now be recorded.");
+		}
 	}
 
-	if(have_bots)
-		return true;
-	
-	if(human_players_nr_or_nb != (!human_players_r || !human_players_b))
+	if(!have_bots && human_players_nr_or_nb != (!human_players_r || !human_players_b))
 	{
 		if(!human_players_r || !human_players_b)
+		{
+			stall = true;
 			plog("INFO: One team has no players, stats will not be recorded.");
+		}
 		else
+		{
+			unstall = true;
 			plog("INFO: Both teams have players, stats will now be recorded.");
+		}
 	}
+	
+	bug_var(stall);
+	bug_var(unstall);
+	
+	if(stall)
+		stall_clients();
+	else if(unstall)
+		unstall_clients();
+}
+
+bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name)
+{
+	bug("KatinaPluginStats::client_userinfo_changed: [" <<  guid << "] " << name << " now: " << katina.now);
+	bug("in_game: " << in_game);
+	std::cout << std::endl;
+	if(!in_game)
+		return true;
+	if(!active)
+		return true;
+
+	// if we have been recording time for this player, accumulate it
+//	if(stats[clients[num]].joined_time)
+//		stats[clients[num]].logged_time += katina.now - stats[clients[num]].joined_time;
+
+	// stop recording time for this player
+//	stats[clients[num]].joined_time = 0; // stall
+	
+	stall_client(num);
+	
+	check_bots_and_players(katina.now);
+	
+	if(have_bots)
+		return true;
 	
 	if(!human_players_r || !human_players_b)
 		return true;
 	
-	// restart any stalled clients waiting for players to join/bots to leave
-	for(siz_guid_map_citer ci = clients.begin(); ci != clients.end(); ++ci)
-	{
-		if(teams[ci->second] == TEAM_R || teams[ci->second] == TEAM_B)
-		{
-			if(stats[ci->second].joined_time)
-				stats[ci->second].logged_time += now - stats[ci->second].joined_time;
-			stats[ci->second].joined_time = now;
-		}
-	}
-	
 	// start recording time for this player (if no bots and not speccing and humans on both teams)
-	//if(katina.teams[katina.clients[num]] == TEAM_R || katina.teams[katina.clients[num]] == TEAM_B)
-	//	stats[katina.clients[num]].joined_time = now;
+//	if(teams[clients[num]] == TEAM_R || teams[clients[num]] == TEAM_B)
+//		stats[clients[num]].joined_time = katina.now;
+	
+	unstall_client(num);
 		
 	return true;
 }
+
 bool KatinaPluginStats::client_connect(siz min, siz sec, siz num)
 {
 	if(!active)
 		return true;
 	// bug("in_game: " << in_game);
 }
+
 bool KatinaPluginStats::client_disconnect(siz min, siz sec, siz num)
 {
-	// bug("in_game: " << in_game);
+	bug("KatinaPluginStats::client_disconnect: [" <<  clients[num] << "] " << players[clients[num]] << " now: " << katina.now);
+	bug("in_game: " << in_game);
+	std::cout << std::endl;
 	if(!in_game)
 		return true;
 	if(!active)
 		return true;
 
-	std::time_t now = std::time(0);
+	//std::time_t now = std::time(0);
 
 	if(stats[clients[num]].joined_time)
-		stats[clients[num]].logged_time += now - stats[clients[num]].joined_time;
+		stats[clients[num]].logged_time += katina.now - stats[clients[num]].joined_time;
 	stats[clients[num]].joined_time = 0;
+
+	check_bots_and_players(katina.now, num);
 
 	return true;
 }

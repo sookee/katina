@@ -121,6 +121,12 @@ private:
 	siz human_players_b; // number of human players on blue team
 
 	std::set<siz> db_weaps; // which weapons to record
+	
+	void stall_client(siz num);
+	void unstall_client(siz num);
+	void stall_clients();
+	void unstall_clients();
+	void check_bots_and_players(std::time_t now, siz num = siz(-1));
 
 public:
 	KatinaPluginStats(Katina& katina);
