@@ -120,8 +120,6 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 		logged_time += p->second.logged_time;
 	}
 	
-	// TODO: dont add game if no recorded time
-	
 	if(logged_time)
 	{
 		if(write)
