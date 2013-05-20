@@ -107,69 +107,73 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 		return true;
 
 	// in game timing
-	for(guid_stat_iter i = stats.begin(); i != stats.end(); ++i)
+	std::time_t logged_time = 0;
+	for(guid_stat_iter p = stats.begin(); p != stats.end(); ++p)
 	{
-		if(i->second.joined_time);
+		if(p->second.joined_time);
 		{
 			//std::time_t now = std::time(0);
-			if(i->second.joined_time)
-				i->second.logged_time += katina.now - i->second.joined_time;
-			i->second.joined_time = 0;
+			if(p->second.joined_time)
+				p->second.logged_time += katina.now - p->second.joined_time;
+			p->second.joined_time = 0;
 		}
+		logged_time += p->second.logged_time;
 	}
-	
-	if(write)
-		db.on();
 	
 	// TODO: dont add game if no recorded time
 	
-	game_id id = db.add_game(host, port, mapname);
-
-	if(id != null_id && id != bad_id)
+	if(logged_time)
 	{
-		for(guid_stat_citer p = stats.begin(); p != stats.end(); ++p)
+		if(write)
+			db.on();
+	
+		game_id id = db.add_game(host, port, mapname);
+	
+		if(id != null_id && id != bad_id)
 		{
-			siz count;
-			for(std::set<siz>::iterator weap = db_weaps.begin(); weap != db_weaps.end(); ++weap)
+			for(guid_stat_citer p = stats.begin(); p != stats.end(); ++p)
 			{
-				if((count = map_get(p->second.kills, *weap)))
-					db.add_weaps(id, "kills", p->first, *weap, count);
-				if((count = map_get(p->second.deaths, *weap)))
-					db.add_weaps(id, "deaths", p->first, *weap, count);
-			}
-			
-			if((count = map_get(p->second.flags, FL_CAPTURED)))
-				db.add_caps(id, p->first, count);
+				siz count;
+				for(std::set<siz>::iterator weap = db_weaps.begin(); weap != db_weaps.end(); ++weap)
+				{
+					if((count = map_get(p->second.kills, *weap)))
+						db.add_weaps(id, "kills", p->first, *weap, count);
+					if((count = map_get(p->second.deaths, *weap)))
+						db.add_weaps(id, "deaths", p->first, *weap, count);
+				}
 				
-			if(!p->first.is_bot())
-			{
-				if((count = p->second.logged_time))
-					db.add_time(id, p->first, count);
-
-				for(siz_map_citer wu = p->second.weapon_usage.begin(); wu != p->second.weapon_usage.end(); ++wu)
-					db.add_weapon_usage(id, p->first, wu->first, wu->second);
-
-				for(moddmg_map_citer md = p->second.mod_damage.begin(); md != p->second.mod_damage.end(); ++md)
-					db.add_mod_damage(id, p->first, md->first, md->second.hits, md->second.damage, md->second.hitsRecv, md->second.damageRecv);
-
-				db.add_playerstats(id, p->first,
-					p->second.fragsFace, p->second.fragsBack, p->second.fraggedInFace, p->second.fraggedInBack,
-					p->second.spawnKills, p->second.spawnKillsRecv, p->second.pushes, p->second.pushesRecv,
-					p->second.healthPickedUp, p->second.armorPickedUp);
-			}		
+				if((count = map_get(p->second.flags, FL_CAPTURED)))
+					db.add_caps(id, p->first, count);
+					
+				if(!p->first.is_bot())
+				{
+					if((count = p->second.logged_time))
+						db.add_time(id, p->first, count);
+	
+					for(siz_map_citer wu = p->second.weapon_usage.begin(); wu != p->second.weapon_usage.end(); ++wu)
+						db.add_weapon_usage(id, p->first, wu->first, wu->second);
+	
+					for(moddmg_map_citer md = p->second.mod_damage.begin(); md != p->second.mod_damage.end(); ++md)
+						db.add_mod_damage(id, p->first, md->first, md->second.hits, md->second.damage, md->second.hitsRecv, md->second.damageRecv);
+	
+					db.add_playerstats(id, p->first,
+						p->second.fragsFace, p->second.fragsBack, p->second.fraggedInFace, p->second.fraggedInBack,
+						p->second.spawnKills, p->second.spawnKillsRecv, p->second.pushes, p->second.pushesRecv,
+						p->second.healthPickedUp, p->second.armorPickedUp);
+				}		
+			}
+	
+			for(onevone_citer o = onevone.begin(); o != onevone.end(); ++o)
+				for(guid_siz_map_citer p = o->second.begin(); p != o->second.end(); ++p)
+					db.add_ovo(id, o->first, p->first, p->second);
 		}
-
-		for(onevone_citer o = onevone.begin(); o != onevone.end(); ++o)
-			for(guid_siz_map_citer p = o->second.begin(); p != o->second.end(); ++p)
-				db.add_ovo(id, o->first, p->first, p->second);
+	
+		for(guid_str_map_citer player = players.begin(); player != players.end(); ++player)
+			if(!player->first.is_bot())
+				db.add_player(player->first, player->second);
+	
+		db.off();
 	}
-
-	for(guid_str_map_citer player = players.begin(); player != players.end(); ++player)
-		if(!player->first.is_bot())
-			db.add_player(player->first, player->second);
-
-	db.off();
-
 	return true;
 }
 
