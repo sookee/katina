@@ -713,7 +713,7 @@ bool Katina::start(const str& dir)
 				}
 			}
 			else
-				std::cout << "Error parsing PlayerStats" << '\n';
+				log("Error parsing PlayerStats: " << params);
 		}
 		else if(cmd == "CTF:")
 		{

@@ -401,7 +401,10 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 					sep = "^2|";
 				}
 	
-				oss << sep << "^7" << katina.players.at(p->first);
+				str name = "unknown";
+				if(katina.players.find(p->first) != katina.players.end())
+					name = katina.players.at(p->first);
+				oss << sep << "^7" << name;
 				scores.insert(std::make_pair(rkh, oss.str()));
 			}
 		}
@@ -562,7 +565,7 @@ bool KatinaPluginReports::init_game(siz min, siz sec, const str_map& cvars)
 		}
 		
 		//client.chat('i', ".");
-		client.chat('i', "^3== Playing Map: ^7" + katina.mapname + "^3 ==" + vote);
+		client.chat('i', "^3=== Playing Map: ^7" + katina.mapname + "^3 ==" + vote);
 
 		old_mapname = katina.mapname;
 	}
