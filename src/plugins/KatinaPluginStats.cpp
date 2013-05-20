@@ -166,7 +166,10 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 					db.add_ovo(id, o->first, p->first, p->second);
 		}
 	
-		for(guid_str_map_citer player = players.begin(); player != players.end(); ++player)
+//		for(guid_str_map_citer player = players.begin(); player != players.end(); ++player)
+//			if(!player->first.is_bot())
+//				db.add_player(player->first, player->second);
+		for(guid_str_map_citer player = names.begin(); player != names.end(); ++player)
 			if(!player->first.is_bot())
 				db.add_player(player->first, player->second);
 	
@@ -307,6 +310,9 @@ bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, siz num, siz t
 	bug("KatinaPluginStats::client_userinfo_changed: [" <<  guid << "] " << name << " now: " << katina.now);
 	bug("in_game: " << in_game);
 	std::cout << std::endl;
+	
+	names[guid] = name;
+	
 	if(!in_game)
 		return true;
 	if(!active)

@@ -121,6 +121,7 @@ private:
 	siz human_players_b; // number of human players on blue team
 
 	std::set<siz> db_weaps; // which weapons to record
+	guid_str_map names; // keep track of all players involed in the game
 	
 	void stall_client(siz num);
 	void unstall_client(siz num);
