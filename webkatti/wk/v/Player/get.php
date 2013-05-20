@@ -33,7 +33,6 @@
 <?php if (!$this->games->isEmpty()): ?>
     <h4>Numbers</h4>
     
-
     <div style="display: inline-block; width: 33%;">
         <table>
             <tbody>
