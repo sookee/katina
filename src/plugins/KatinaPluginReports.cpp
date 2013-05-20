@@ -248,19 +248,24 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 				max = oss.str().size();
 		}
 	
-		katina.server.chat("^5== ^6RESULTS ^5" + str(max - 23, '='));
-		for(siz i = 0; i < results.size(); ++i)
-			katina.server.chat(results[i]);
-		katina.server.chat("^5" + str(max - 12, '-'));
-	
-		if(do_infos)
+		if(!results.empty())
 		{
-			client.chat('i', "^5== ^6RESULTS ^5== ^7"
-				+ to_string(flags[FL_BLUE]) + " ^1RED ^7"
-				+ to_string(flags[FL_RED]) + " ^4BLUE ^3 ==");
+			if(max < 23)
+				max = 23;
+			katina.server.chat("^5== ^6RESULTS ^5" + str(max - 23, '='));
 			for(siz i = 0; i < results.size(); ++i)
-				client.chat('f', results[i]);
-			client.chat('i', "^5" + str(max - 12, '-'));
+				katina.server.chat(results[i]);
+			katina.server.chat("^5" + str(max - 12, '-'));
+	
+			if(do_infos)
+			{
+				client.chat('i', "^5== ^6RESULTS ^5== ^7"
+					+ to_string(flags[FL_BLUE]) + " ^1RED ^7"
+					+ to_string(flags[FL_RED]) + " ^4BLUE ^3 ==");
+				for(siz i = 0; i < results.size(); ++i)
+					client.chat('f', results[i]);
+				client.chat('i', "^5" + str(max - 12, '-'));
+			}
 		}
 	}
 	
