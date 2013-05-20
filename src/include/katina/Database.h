@@ -151,7 +151,8 @@ public:
 	bool add_playerstats(game_id id, const GUID& guid,
 		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
 		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
-		siz healthPickedUp, siz armorPickedUp);
+		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,
+		siz carrierFrags, siz carrierFragsRecv);
 
 	bool read_map_votes(const str& mapname, guid_int_map& map_votes);
 

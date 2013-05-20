@@ -157,7 +157,8 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 					db.add_playerstats(id, p->first,
 						p->second.fragsFace, p->second.fragsBack, p->second.fraggedInFace, p->second.fraggedInBack,
 						p->second.spawnKills, p->second.spawnKillsRecv, p->second.pushes, p->second.pushesRecv,
-						p->second.healthPickedUp, p->second.armorPickedUp);
+						p->second.healthPickedUp, p->second.armorPickedUp, p->second.holyShitFrags, p->second.holyShitFragged,
+						p->second.carrierFrags, p->second.carrierFragsRecv);
 				}		
 			}
 	
@@ -385,16 +386,27 @@ bool KatinaPluginStats::kill(siz min, siz sec, siz num1, siz num2, siz weap)
 
 	if(clients.find(num1) != clients.end() && clients.find(num2) != clients.end())
 	{
-		if(num1 == 1022 && !clients[num2].is_bot()) // no killer
-			++stats[clients[num2]].deaths[weap];
-		else if(!clients[num1].is_bot() && !clients[num2].is_bot())
+		// Target is human
+		if(!clients[num2].is_bot())
 		{
-			if(num1 != num2)
+			if(num1 == 1022) // no killer
+				++stats[clients[num2]].deaths[weap];
+			else if(!clients[num1].is_bot())
 			{
-				++stats[clients[num1]].kills[weap];
-				++onevone[clients[num1]][clients[num2]];
+				if(num1 != num2)
+				{
+					++stats[clients[num1]].kills[weap];
+					++onevone[clients[num1]][clients[num2]];
+					
+					// Target was a flag carrier
+					if(num2 == carrierRed || num2 == carrierBlue)
+					{
+						++stats[clients[num1]].carrierFrags;
+						++stats[clients[num2]].carrierFragsRecv;
+					}
+				}
+				++stats[clients[num2]].deaths[weap];
 			}
-			++stats[clients[num2]].deaths[weap];
 		}
 	}
 
@@ -405,6 +417,13 @@ bool KatinaPluginStats::ctf(siz min, siz sec, siz num, siz team, siz act)
 	// bug("in_game: " << in_game);
 	if(!in_game)
 		return true;
+		
+	// Remember who is carrying the flag
+	if(team == TEAM_R)
+		carrierRed = act == 0 ? num : -1;
+	else if(team == TEAM_B)
+		carrierBlue = act == 0 ? num : -1;
+		
 	if(!active)
 		return true;
 	if(have_bots)
@@ -453,8 +472,6 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 
 bool KatinaPluginStats::weapon_usage(siz min, siz sec, siz num, siz weapon, siz shots)
 {
-	//bug("KatinaPluginStats::weapon_usage");
-
 	if(!in_game)
 		return true;
 	if(!active)
@@ -472,8 +489,6 @@ bool KatinaPluginStats::weapon_usage(siz min, siz sec, siz num, siz weapon, siz 
 
 bool KatinaPluginStats::mod_damage(siz min, siz sec, siz num, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv)
 {
-	//bug("KatinaPluginStats::mod_damage");
-
 	if(!in_game)
 		return true;
 	if(!active)
@@ -498,10 +513,8 @@ bool KatinaPluginStats::mod_damage(siz min, siz sec, siz num, siz mod, siz hits,
 bool KatinaPluginStats::player_stats(siz min, siz sec, siz num,
 	siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
 	siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
-	siz healthPickedUp, siz armorPickedUp)
+	siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged)
 {
-	//bug("KatinaPluginStats::player_stats");
-
 	if(!in_game)
 		return true;
 	if(!active)
@@ -514,16 +527,18 @@ bool KatinaPluginStats::player_stats(siz min, siz sec, siz num,
 	if(!clients[num].is_bot())
 	{
 		struct stats& s = stats[clients[num]];
-		s.fragsFace      += fragsFace;
-		s.fragsBack      += fragsBack;
-		s.fraggedInFace  += fraggedInFace;
-		s.fraggedInBack  += fraggedInBack;
-		s.spawnKills     += spawnKills;
-		s.spawnKillsRecv += spawnKillsRecv;
-		s.pushes         += pushes;
-		s.pushesRecv     += pushesRecv;
-		s.healthPickedUp += healthPickedUp;
-		s.armorPickedUp  += armorPickedUp;
+		s.fragsFace        += fragsFace;
+		s.fragsBack        += fragsBack;
+		s.fraggedInFace    += fraggedInFace;
+		s.fraggedInBack    += fraggedInBack;
+		s.spawnKills       += spawnKills;
+		s.spawnKillsRecv   += spawnKillsRecv;
+		s.pushes           += pushes;
+		s.pushesRecv       += pushesRecv;
+		s.healthPickedUp   += healthPickedUp;
+		s.armorPickedUp    += armorPickedUp;
+		s.holyShitFrags    += holyShitFrags;
+		s.holyShitFragged  += holyShitFragged;
 	}
 	
 	return true;

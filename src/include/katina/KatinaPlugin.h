@@ -85,7 +85,7 @@ public:
 	virtual bool player_stats(siz min, siz sec, siz num,
 		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
 		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
-		siz healthPickedUp, siz armorPickedUp) {}
+		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged) {}
 	 
 	 
 	/**

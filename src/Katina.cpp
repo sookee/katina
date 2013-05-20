@@ -701,15 +701,18 @@ bool Katina::start(const str& dir)
 			// 			    <spawnKillsDone> <spanwKillsRecv>
 			// 			    <pushesDone> <pushesRecv>
 			// 			    <healthPickedUp> <armorPickedUp>
-			siz num, fragsFace, fragsBack, fraggedFace, fraggedBack, spawnKills, spawnKillsRecv, pushes, pushesRecv, health, armor;
-			if(iss >> num >> fragsFace >> fragsBack >> fraggedFace >> fraggedBack >> spawnKills >> spawnKillsRecv >> pushes >> pushesRecv >> health >> armor)
+			//				<holyShitFrags> <holyShitFragged>
+			siz num, fragsFace, fragsBack, fraggedFace, fraggedBack, spawnKills, spawnKillsRecv;
+			siz pushes, pushesRecv, health, armor, holyShitFrags, holyShitFragged;
+			if(iss >> num >> fragsFace >> fragsBack >> fraggedFace >> fraggedBack >> spawnKills >> spawnKillsRecv
+			       >> pushes >> pushesRecv >> health >> armor >> holyShitFrags >> holyShitFragged)
 			{
 				for(plugin_vec_iter i = events[PLAYER_STATS].begin(); i != events[PLAYER_STATS].end(); ++i)
 				{
 					(*i)->player_stats(min, sec, num,
 						fragsFace, fragsBack, fraggedFace, fraggedBack,
 						spawnKills, spawnKillsRecv, pushes, pushesRecv,
-						health, armor);
+						health, armor, holyShitFrags, holyShitFragged);
 				}
 			}
 			else
