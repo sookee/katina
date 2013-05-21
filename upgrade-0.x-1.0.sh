@@ -18,17 +18,6 @@ update_db()
 }
 
 read -d '' SQL << 'EOF'
-ALTER TABLE `awards` ADD PRIMARY KEY ( `game_id` , `guid` , `type` );
-ALTER TABLE `caps` ADD PRIMARY KEY ( `game_id` , `guid` );
-ALTER TABLE `deaths` ADD PRIMARY KEY ( `game_id` , `guid`, `weap` );
-ALTER TABLE `kills` ADD PRIMARY KEY ( `game_id` , `guid`, `weap` );
-ALTER TABLE `ovo` ADD PRIMARY KEY ( `game_id` , `guid1`, `guid2` );
-ALTER TABLE `time` ADD PRIMARY KEY ( `game_id` , `guid` );
-EOF
-
-update_db $MYSQL $SQL "keys"
-
-read -d '' SQL << 'EOF'
 ALTER TABLE `playerstats`
 ADD `holyShitFrags` int(2) unsigned NOT NULL,
 ADD `holyShitFragged` int(2) unsigned NOT NULL,
