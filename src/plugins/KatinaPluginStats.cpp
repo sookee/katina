@@ -41,6 +41,8 @@ KatinaPluginStats::KatinaPluginStats(Katina& katina)
 , have_bots(false)
 , human_players_r(0)
 , human_players_b(0)
+, carrierBlue(-1)
+, carrierRed(-1)
 {
 }
 
@@ -99,13 +101,13 @@ str KatinaPluginStats::get_version() const
 
 bool KatinaPluginStats::exit(siz min, siz sec)
 {
-	// bug("in_game: " << in_game);
+	//bug("in_game: " << in_game);
 	if(!in_game)
 		return true;
 	in_game = false;
 	if(!active)
 		return true;
-
+		
 	// in game timing
 	std::time_t logged_time = 0;
 	for(guid_stat_iter p = stats.begin(); p != stats.end(); ++p)
@@ -113,8 +115,7 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 		if(p->second.joined_time);
 		{
 			//std::time_t now = std::time(0);
-			if(p->second.joined_time)
-				p->second.logged_time += katina.now - p->second.joined_time;
+			p->second.logged_time += katina.now - p->second.joined_time;
 			p->second.joined_time = 0;
 		}
 		logged_time += p->second.logged_time;

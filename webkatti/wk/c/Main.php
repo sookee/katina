@@ -145,6 +145,18 @@ class Main
             $time = M::time()->countByGuid()
                 ->key($gameIds, 'game_id')
                 ->allK();
+            
+            $shots = M::weapon_usage()->db()
+                ->fields('guid, sum(shots) as shots')
+                ->groupBy('guid')
+                ->key($gameIds, 'game_id')
+                ->allK();
+
+            $hits = M::damage()->db()
+                ->fields('guid, sum(hits) as hits')
+                ->groupBy('guid')
+                ->key($gameIds, 'game_id')
+                ->allK();
         }
         else
         {
@@ -152,6 +164,8 @@ class Main
             $caps = [];
             $deaths = [];
             $time = [];
+            $shots = [];
+            $hits = [];
         }
 
         $c->players = new PlayerStats(
@@ -159,6 +173,8 @@ class Main
             $caps,
             $deaths,
             $time,
+            $shots,
+            $hits,
             M::settings()->get('min_deaths_game_main'),
             M::settings()->get('min_time_game_main')
         );
