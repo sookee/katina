@@ -312,7 +312,8 @@ bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, siz num, siz t
 	bug("in_game: " << in_game);
 	std::cout << std::endl;
 	
-	names[guid] = name;
+	if(!guid.is_bot())
+		names[guid] = name;
 	
 	if(!in_game)
 		return true;

@@ -43,8 +43,9 @@ public:
 			this->data[i] = data[i];
 	}
 
-	GUID(const GUID& guid): data(SIZE, '0'), bot(false)
+	GUID(const GUID& guid): data(SIZE, '0'), bot(guid.bot)
 	{
+		bot = guid.bot;
 		for(siz i = 0; i < SIZE; ++i)
 			this->data[i] = guid.data[i];
 	}

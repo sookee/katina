@@ -1,16 +1,32 @@
 #!/bin/bash
 
-source upgrade-utils.sh
+#source upgrade-utils.sh
+
+execute_sql()
+{
+	echo $2 | $1
+}
 
 update_db()
 {
-	if [[ echo $2 | $1 ]]; then
+	if [[ execute_sql $1 $2 ]]; then
 		echo Database updated
 	else
 		echo Error updating database
 		exit 1
 	fi
 }
+
+read -d '' SQL << 'EOF'
+ALTER TABLE `awards` ADD PRIMARY KEY ( `game_id` , `guid` , `type` );
+ALTER TABLE `caps` ADD PRIMARY KEY ( `game_id` , `guid` );
+ALTER TABLE `deaths` ADD PRIMARY KEY ( `game_id` , `guid`, `weap` );
+ALTER TABLE `kills` ADD PRIMARY KEY ( `game_id` , `guid`, `weap` );
+ALTER TABLE `ovo` ADD PRIMARY KEY ( `game_id` , `guid1`, `guid2` );
+ALTER TABLE `time` ADD PRIMARY KEY ( `game_id` , `guid` );
+EOF
+
+update_db $MYSQL $SQL "keys"
 
 read -d '' SQL << 'EOF'
 ALTER TABLE `playerstats`
