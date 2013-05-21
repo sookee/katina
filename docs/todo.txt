@@ -1,7 +1,12 @@
 
 /: 0a3c92a2f9f716547b9a82afcecef101665671a1
 /: 4292d8aeca9c1ca5765a12d08ff9bff7bcb331b1
-?: d3085213f13f5944642ca0dce6bf5c1c71c774f2
+/: d3085213f13f5944642ca0dce6bf5c1c71c774f2
+/: 634c5340125acde78198ab03a3e3655019646aee
+/: b1b4e08947af9da646eaacf0ca1a49ed8f44ed6e
+?: 410737229a1fa88fed26dd587cea8665f828fc3d
+/: 8ec69e2eca34555ae5ee9e68ef7d9f4b79be1715
+x: 51f7eeb1897d3cc4576335793f0565210adb6f80
 
 
 Mod: database should not contain flags scored against only bots
@@ -16,7 +21,6 @@ Mod: stop counting time when only bots
 team stats - red verses blue
 
 [year|*][month|*][map|*][guid|*][game_id|*]
-
 
 {year:
 	Year

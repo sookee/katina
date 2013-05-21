@@ -89,6 +89,8 @@ votes.active:
 
 # ------------------------------
 
+#### BELLOW HERE EVERYTHING IS DEPRECATED #####
+
 katina_active (1 | 0)
 
 katina_skivvy_active (1 | 0)

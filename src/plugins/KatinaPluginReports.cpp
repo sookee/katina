@@ -227,29 +227,34 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 		siz_guid_mmap sorted;
 		
 		for(guid_stat_citer p = stats->stats.begin(); p != stats->stats.end(); ++p)
-			if(siz count = map_get(p->second.flags, FL_CAPTURED))
+		{
+			siz count = map_get(p->second.flags, FL_CAPTURED);
+			if(count)
+			{
 				sorted.insert(siz_guid_map_pair(count, p->first));
-		
-		siz i = 0;
-		siz d = 1;
-		siz max = 0;
-		siz f = 0; // flags
-		str_vec results;
-		std::ostringstream oss;
-		for(siz_guid_mmap_ritr ri = sorted.rbegin(); ri != sorted.rend(); ++ri)
-		{
-			++i;
-			if(f != ri->first)
-				{ d = i; f = ri->first; }
-			oss.str("");
-			oss << "^3#" << d << " ^7" << katina.players.at(ri->second) << " ^3capped ^7" << ri->first << "^3 flags.";
-			results.push_back(oss.str());
-			if(oss.str().size() > max)
-				max = oss.str().size();
+			}
 		}
-	
-		if(!results.empty())
+		
+		if(!sorted.empty())
 		{
+			siz i = 0;
+			siz d = 1;
+			siz max = 0;
+			siz f = 0; // flags
+			str_vec results;
+			std::ostringstream oss;
+			for(siz_guid_mmap_ritr ri = sorted.rbegin(); ri != sorted.rend(); ++ri)
+			{
+				++i;
+				if(f != ri->first)
+					{ d = i; f = ri->first; }
+				oss.str("");
+				oss << "^3#" << d << " ^7" << katina.players.at(ri->second) << " ^3capped ^7" << ri->first << "^3 flags.";
+				results.push_back(oss.str());
+				if(oss.str().size() > max)
+					max = oss.str().size();
+			}
+		
 			if(max < 23)
 				max = 23;
 			katina.server.chat("^5== ^6RESULTS ^5" + str(max - 23, '='));
