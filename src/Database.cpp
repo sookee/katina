@@ -314,7 +314,7 @@ bool Database::add_playerstats(game_id id, const GUID& guid,
 
 bool Database::read_map_votes(const str& mapname, guid_int_map& map_votes)
 {
-	log("DATABASE: read_recs()");
+	log("DATABASE: read_map_votes()");
 
 	str safe_mapname;
 	if(!escape(mapname, safe_mapname))

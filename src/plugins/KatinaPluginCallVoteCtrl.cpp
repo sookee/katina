@@ -59,6 +59,7 @@ KatinaPluginCallVoteCtrl::KatinaPluginCallVoteCtrl(Katina& katina)
 , active(false)
 , wait(0)
 , restart_vote(0)
+, votes_disabled(false)
 {
 }
 
@@ -138,16 +139,20 @@ bool KatinaPluginCallVoteCtrl::command(const str& cmd)
 
 bool KatinaPluginCallVoteCtrl::vote_enable()
 {
+	if(!votes_disabled)
+		return true;
 	plog("CALLVOTE CONTROL: ON");
 	server.cp("Voting on");
-	return command("set g_allowVote 1");
+	return (votes_disabled = !command("set g_allowVote 1"));
 }
 
 bool KatinaPluginCallVoteCtrl::vote_disable()
 {
+	if(votes_disabled)
+		return true;
 	plog("CALLVOTE CONTROL: OFF");
 	server.cp("Voting off");
-	return command("set g_allowVote 0");
+	return (votes_disabled = command("set g_allowVote 0"));
 }
 
 

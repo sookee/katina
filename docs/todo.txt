@@ -1,4 +1,8 @@
 
+/: 0a3c92a2f9f716547b9a82afcecef101665671a1
+/: 4292d8aeca9c1ca5765a12d08ff9bff7bcb331b1
+?: d3085213f13f5944642ca0dce6bf5c1c71c774f2
+
 
 Mod: database should not contain flags scored against only bots
 Mod: fix GUIDs in database.

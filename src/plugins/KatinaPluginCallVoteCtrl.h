@@ -33,6 +33,7 @@ private:
 	bool active;
 	time_t wait;
 	time_t restart_vote;
+	bool votes_disabled;
 	
 	bool command(const str& cmd);
 	bool vote_enable();
