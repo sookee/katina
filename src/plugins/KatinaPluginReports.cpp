@@ -247,7 +247,8 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 				if(f != ri->first)
 					{ d = i; f = ri->first; }
 				oss.str("");
-				oss << "^3#" << d << " ^7" << katina.players.at(ri->second) << " ^3capped ^7" << ri->first << "^3 flags.";
+				oss << "^3#" << d << " ^7" << katina.players[ri->second] << " ^3capped ^7" << ri->first << "^3 flags.";
+				// oss << "^3#" << d << " ^7" << katina.players.at(ri->second) << " ^3capped ^7" << ri->first << "^3 flags.";
 				results.push_back(oss.str());
 				if(oss.str().size() > max)
 					max = oss.str().size();
@@ -406,7 +407,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 	
 				str name = "unknown";
 				if(katina.players.find(p->first) != katina.players.end())
-					name = katina.players.at(p->first);
+					name = katina.players[p->first];
 				oss << sep << "^7" << name;
 				scores.insert(std::make_pair(rkh, oss.str()));
 			}
