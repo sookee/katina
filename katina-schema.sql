@@ -248,3 +248,16 @@ CREATE TABLE `weapon_usage` (
   `shots` int(4) NOT NULL,
   PRIMARY KEY (`game_id`,`guid`,`weap`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- Table structure for table `weapon_usage`
+--
+
+DROP TABLE IF EXISTS `version`;
+CREATE TABLE `version` (
+  `maj` int unsigned NOT NULL,
+  `min` int(2) ZEROFILL NOT NULL,
+  PRIMARY KEY (`maj`,`min`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+

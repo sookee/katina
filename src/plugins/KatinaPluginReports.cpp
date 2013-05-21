@@ -568,7 +568,8 @@ bool KatinaPluginReports::init_game(siz min, siz sec, const str_map& cvars)
 		}
 		
 		//client.chat('i', ".");
-		client.chat('i', "^3=== Playing Map: ^7" + katina.mapname + "^3 ==" + vote);
+//		client.chat('i', "^3=== Playing Map: ^7" + katina.mapname + "^3 ==" + vote);
+		client.chat('i', "^3===" + vote + " ^4map: ^7" + katina.mapname + " ^3==");
 
 		old_mapname = katina.mapname;
 	}
