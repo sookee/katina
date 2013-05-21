@@ -23,26 +23,27 @@ class GUID
 
 public:
 	const static siz SIZE = 8;
+	bool bot;
 
-	GUID(): data(SIZE, '0')
+	GUID(): data(SIZE, '0'), bot(false)
 	{
 		for(siz i = 0; i < SIZE; ++i)
 			this->data[i] = '0';
 	}
 
-	GUID(const char data[SIZE]): data(SIZE, '0')
+	GUID(const char data[SIZE]): data(SIZE, '0'), bot(false)
 	{
 		for(siz i = 0; i < SIZE; ++i)
 			this->data[i] = data[i];
 	}
 
-	GUID(const str& data): data(SIZE, '0')
+	GUID(const str& data): data(SIZE, '0'), bot(false)
 	{
 		for(siz i = 0; i < SIZE && i < data.size(); ++i)
 			this->data[i] = data[i];
 	}
 
-	GUID(const GUID& guid): data(SIZE, '0')
+	GUID(const GUID& guid): data(SIZE, '0'), bot(false)
 	{
 		for(siz i = 0; i < SIZE; ++i)
 			this->data[i] = guid.data[i];
@@ -50,6 +51,7 @@ public:
 
 	const GUID& operator=(const GUID& guid)
 	{
+		bot = guid.bot;
 		for(siz i = 0; i < SIZE; ++i)
 			this->data[i] = guid.data[i];
 		return *this;
@@ -87,7 +89,8 @@ public:
 		return i;
 	}
 
-	bool is_bot() const { return data < "00001000"; }
+	//bool is_bot() const { return data < "00001000"; }
+	bool is_bot() const { return bot; }
 };
 
 inline
@@ -144,7 +147,9 @@ inline GUID bot_guid(siz num)
 	if(id.size() < GUID::SIZE)
 		id = str(GUID::SIZE - id.size(), '0') + id;
 
-	return GUID(id.c_str());
+	GUID guid(id.c_str());
+	guid.bot = true;
+	return guid;
 }
 
 } // oastats

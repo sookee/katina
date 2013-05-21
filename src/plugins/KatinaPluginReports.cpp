@@ -205,18 +205,16 @@ str KatinaPluginReports::get_version() const
 
 bool KatinaPluginReports::exit(siz min, siz sec)
 {
-//	client.chat('*', "^3Game Over");
-
 	// erase non spam marked messages
 	for(str_siz_map_iter i = spam.begin(); i != spam.end();)
 	{
-		if(i->second < spam_limit)
+		if(!(i->second < spam_limit))
+			++i;
+		else
 		{
 			spam.erase(i->first);
 			i = spam.begin();
 		}
-		else
-			++i;
 	}
 	
 	if(stats)
