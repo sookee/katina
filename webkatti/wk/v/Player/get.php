@@ -1,4 +1,4 @@
-<h3>Last month's stats for player</h3>
+<h3>Recent stats for player</h3>
 <h2>
     <?= wk\Utils::colorecho($this->name) ?>
     <?php if ($this->registered): ?>
@@ -7,6 +7,7 @@
         </span>
     <?php endif ?>
 </h2>
+Period: <?= $this->beginDate ?> - now<br /><br />
 
 <?php if (M::supervisor()->isAuthed()): ?>
     <h4>Names</h4>
@@ -33,24 +34,25 @@
 <?php if (!$this->games->isEmpty()): ?>
     <h4>Numbers</h4>
     
+
     <div style="display: inline-block; width: 33%;">
         <table>
             <tbody>
                 <tr>
                     <td>Flag carriers fragged:</td>
-                    <td>?</td>
+                    <td class="psShots"><?= number_format(@$this->stats['carrierFrags']) ?></td>
                 </tr>
                 <tr>
                     <td>Deaths as flag carrier:</td>
-                    <td>?</td>
+                    <td class="psShots"><?= number_format(@$this->stats['carrierFragsRecv']) ?></td>
                 </tr>
                 <tr>
                     <td>Spawnkills done:</td>
-                    <td><?= number_format(@$this->stats['spawnKillsDone']) ?></td>
+                    <td class="psShots"><?= number_format(@$this->stats['spawnKillsDone']) ?></td>
                 </tr>
                 <tr>
                     <td>Spawnkills taken:</td>
-                    <td><?= number_format(@$this->stats['spawnKillsRecv']) ?></td>
+                    <td class="psShots"><?= number_format(@$this->stats['spawnKillsRecv']) ?></td>
                 </tr>
             </tbody>
         </table>
@@ -61,19 +63,19 @@
             <tbody>
                 <tr>
                     <td>Holy-Shit frags:</td>
-                    <td>?</td>
+                    <td class="psShots"><?= number_format(@$this->stats['holyShitFrags']) ?></td>
                 </tr>
                 <tr>
                     <td>Holy-Shit deaths:</td>
-                    <td>?</td>
+                    <td class="psShots"><?= number_format(@$this->stats['holyShitFragged']) ?></td>
                 </tr>
                 <tr>
                     <td>Railgun pushes done:</td>
-                    <td><?= number_format(@$this->stats['pushesDone']) ?></td>
+                    <td class="psShots"><?= number_format(@$this->stats['pushesDone']) ?></td>
                 </tr>
                 <tr>
                     <td>Railgun pushes taken:</td>
-                    <td><?= number_format(@$this->stats['pushesRecv']) ?></td>
+                    <td class="psShots"><?= number_format(@$this->stats['pushesRecv']) ?></td>
                 </tr>
             </tbody>
         </table>
@@ -84,11 +86,11 @@
             <tbody>
                 <tr>
                     <td>Health picked up:</td>
-                    <td><?= number_format(@$this->stats['healthPickedUp']) ?></td>
+                    <td class="psShots"><?= number_format(@$this->stats['healthPickedUp']) ?></td>
                 </tr>
                 <tr>
                     <td>Armor picked up:</td>
-                    <td><?= number_format(@$this->stats['armorPickedUp']) ?></td>
+                    <td class="psShots"><?= number_format(@$this->stats['armorPickedUp']) ?></td>
                 </tr>
                 <tr>
                     <td>&nbsp;</td>
@@ -107,16 +109,16 @@
         <h4>Weapons</h4>
         <table>
             <thead>
-                <th>Weapon</th>
-                <th>Frags</th>
-                <th>Deaths</th>
-                <th>Shots</th>
-                <th>Hits</th>
-                <th>Dmg Done</th>
-                <th>Hits Taken</th>
-                <th>Dmg Taken</th>
-                <th>Dmg Ratio</th>
-                <th>Accuracy</th>
+                <th title="Type of Weapon/Damage">Weapon</th>
+                <th title="Frags done with Weapon">Frags</th>
+                <th title="Deaths by Weapon">Deaths</th>
+                <th title="Shots with Weapon">Shots</th>
+                <th title="Hits with Weapon">Hits</th>
+                <th title="Damage done with Weapon">Dmg Done</th>
+                <th title="Hits taken from Weapon">Hits Taken</th>
+                <th title="Damage taken from Weapon">Dmg Taken</th>
+                <th title="Damage done/taken Ratio">Dmg Ratio</th>
+                <th title="Weapon Accuracy (hits/shots)">Accuracy</th>
             </thead>
             <tbody>
                 <?php foreach ($this->weapons as $weap => $weapon): ?>
@@ -157,8 +159,9 @@
             <thead>
                 <tr>
                     <th>Player</th>
+                    <th>Games</th>
                     <th>Frags</th>
-                    <th>Respawns</th>
+                    <th>Deaths</th>
                     <th>F / R %</th>
                 </tr>
             </thead>
@@ -166,6 +169,7 @@
                 <?php foreach ($this->ovos as $guid => $ovo): ?>
                     <tr>
                         <td><a href="<?= wk\c\Link::player($guid) ?>"><?= wk\Utils::colorecho($ovo['name']) ?></a></td>
+                        <td class="psShots"><?= $ovo['games'] ?></td>
                         <td class="psGood"><?= $ovo['kills'] ?></td>
                         <td class="psBad"><?= $ovo['deaths'] ?></td>
                         <td class="<?= $ovo['kd']<100 ? 'psBad' : 'psGood' ?>"><?= $ovo['kd'] ?> %</td>

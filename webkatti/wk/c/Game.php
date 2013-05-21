@@ -3,7 +3,7 @@
 namespace wk\c;
 
 use M;
-
+use Storage;
 
 
 class Game
@@ -31,15 +31,19 @@ class Game
             $time = time();
         }
         $c->date = date('Y-m-d', $time);
-
+        
+        // List all games of the selected day and count the players using the tables kills & deaths
         $c->games = self::_list(
-            M::game()->db()
-                ->where('`date` between ? and ?', [
+            Storage::main()->select(
+                'select distinct game.*, count(distinct `guid`) AS numPlayers
+                from `game` natural join (select * from kills UNION select * from deaths) as kd
+                where `date` between ? and ?
+                group by `game_id`
+                order by game_id desc',
+                [
                     $c->date . ' 00:00:00',
                     $c->date . ' 23:59:59'
                 ])
-                ->orderBy('game_id desc')
-                ->all()
         );
 
         $c->addTitle('Games');
@@ -72,14 +76,28 @@ class Game
         $time = M::time()->countByGuid()
             ->key($id, 'game_id')
             ->allK();
+        
+        $shots = M::weapon_usage()->db()
+            ->fields('guid, sum(shots) as shots')
+            ->where('game_id=?', $id)
+            ->groupBy('guid')
+            ->allK();
+        
+        $hits = M::damage()->db()
+            ->fields('guid, sum(hits) as hits')
+            ->where('game_id=?', $id)
+            ->groupBy('guid')
+            ->allK();
 
         $c->players = new PlayerStats(
             $kills,
             $caps,
             $deaths,
             $time,
-            M::settings()->get('min_deaths_game'),
-            M::settings()->get('min_time_game')
+            $shots,
+            $hits,
+            0, // List all players, 
+            0  // even those below the death- and time-threshold
         );
 
         return $c;

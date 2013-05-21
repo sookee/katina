@@ -26,7 +26,8 @@ CREATE TABLE `awards` (
   `game_id` int(4) unsigned NOT NULL,
   `guid` varchar(8) NOT NULL,
   `type` int(1) unsigned NOT NULL,
-  `count` int(2) unsigned NOT NULL DEFAULT '0'
+  `count` int(2) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`game_id`,`guid`,`type`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -40,7 +41,8 @@ DROP TABLE IF EXISTS `caps`;
 CREATE TABLE `caps` (
   `game_id` int(4) unsigned NOT NULL,
   `guid` varchar(8) NOT NULL,
-  `count` int(2) unsigned NOT NULL DEFAULT '0'
+  `count` int(2) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`game_id`,`guid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -55,7 +57,8 @@ CREATE TABLE `deaths` (
   `game_id` int(4) unsigned NOT NULL,
   `guid` varchar(8) NOT NULL,
   `weap` int(1) unsigned NOT NULL,
-  `count` int(2) unsigned NOT NULL DEFAULT '0'
+  `count` int(2) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`game_id`,`guid`,`weap`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -87,12 +90,13 @@ CREATE TABLE `kills` (
   `game_id` int(4) unsigned NOT NULL,
   `guid` varchar(8) NOT NULL,
   `weap` int(1) unsigned NOT NULL,
-  `count` int(2) unsigned NOT NULL DEFAULT '0'
+  `count` int(2) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`game_id`,`guid`,`weap`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `kills`
+-- Table structure for table `ovo`
 --
 
 DROP TABLE IF EXISTS `ovo`;
@@ -102,7 +106,8 @@ CREATE TABLE `ovo` (
   `game_id` int(4) unsigned NOT NULL,
   `guid1` varchar(8) NOT NULL,
   `guid2` varchar(8) NOT NULL,
-  `count` int(2) unsigned NOT NULL DEFAULT '0'
+  `count` int(2) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`game_id`,`guid1`,`guid2`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -179,7 +184,8 @@ DROP TABLE IF EXISTS `time`;
 CREATE TABLE `time` (
   `game_id` int(4) unsigned NOT NULL,
   `guid` varchar(8) NOT NULL,
-  `count` int(4) unsigned NOT NULL COMMENT '// seconds in game'
+  `count` int(4) unsigned NOT NULL COMMENT '// seconds in game',
+  PRIMARY KEY (`game_id`,`guid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -250,7 +256,7 @@ CREATE TABLE `weapon_usage` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- Table structure for table `weapon_usage`
+-- Table structure for table `version`
 --
 
 DROP TABLE IF EXISTS `version`;

@@ -34,6 +34,18 @@ EOF
 
 update_db $MYSQL $SQL "version"
 
+read -d '' SQL << 'EOF'
+ALTER TABLE `awards` ADD PRIMARY KEY ( `game_id` , `guid` , `type` );
+ALTER TABLE `caps` ADD PRIMARY KEY ( `game_id` , `guid` );
+ALTER TABLE `deaths` ADD PRIMARY KEY ( `game_id` , `guid`, `weap` );
+ALTER TABLE `kills` ADD PRIMARY KEY ( `game_id` , `guid`, `weap` );
+ALTER TABLE `ovo` ADD PRIMARY KEY ( `game_id` , `guid1`, `guid2` );
+ALTER TABLE `time` ADD PRIMARY KEY ( `game_id` , `guid` );
+EOF
+
+update_db $MYSQL $SQL "pkeys"
+
+
 exit 1
 
 

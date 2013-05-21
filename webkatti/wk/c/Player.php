@@ -22,10 +22,12 @@ class Player
             ->addOrderBy('date', true)
             ->all();
 
-        $games = Storage::main()
-            ->select('select distinct game.*
-                from game natural join kills
-                where guid=? and date > now() - interval 1 month
+        // List all games of the selected player and count the players using the tables kills & deaths
+        $games = Storage::main()->select(
+                'select distinct game.*, count(distinct `guid`) AS numPlayers
+                from game natural join (select * from kills UNION select * from deaths) as kd
+                where date > now() - interval 1 month
+                group by game_id HAVING SUM(IF(`guid` = ?, 1, 0))>1
                 order by game_id desc', $guid);
 
         $gameIds = '';
@@ -33,6 +35,8 @@ class Player
         {
             $gameIds .= $game['game_id'] . ',';
         }
+        
+        $c->beginDate = end($games)['date'];
 
         $c->games = Game::_list($games);
 
@@ -46,7 +50,7 @@ class Player
              */
 
             $r = M::ovo()->db()
-                ->fields('guid1, guid2, sum(count) as count')
+                ->fields('guid1, guid2, sum(count) as count, count(1) as numGames')
                 ->where("game_id in ($gameIds) and (guid1=? or guid2=?)", [$guid, $guid])
                 ->groupBy('guid1, guid2')
                 ->having('count > ?', M::settings()->get('min_deaths_ovo'))
@@ -57,10 +61,12 @@ class Player
                 if ($row['guid1'] == $guid)
                 {
                     $ovos[$row['guid2']]['kills'] = $row['count'];
+                    $ovos[$row['guid2']]['games'] = $row['numGames'];
                 }
                 else
                 {
                     $ovos[$row['guid1']]['deaths'] = $row['count'];
+                    $ovos[$row['guid1']]['games'] = $row['numGames'];
                 }
             }
 
@@ -150,7 +156,7 @@ class Player
             // Shot count
             $r = M::weapon_usage()->db()
                 ->fields('weap, sum(shots) as shots')
-                ->where("guid=?", $guid)
+                ->where("game_id in ($gameIds) and guid=?", $guid)
                 ->groupBy('weap')
                 ->allK();
             
@@ -166,7 +172,7 @@ class Player
             // Damage
             $r = M::damage()->db()
                 ->fields('`mod`, sum(hits) as hits, sum(dmgDone) as dmgDone, sum(hitsRecv) as hitsRecv, sum(dmgRecv) as dmgRecv')
-                ->where("guid=?", $guid)
+                ->where("game_id in ($gameIds) and guid=?", $guid)
                 ->groupBy('`mod`')
                 ->all();
             
@@ -187,7 +193,7 @@ class Player
                 $c->weaponsTotal['dmgRecv']  += $row['dmgRecv'];
             }
             
-            foreach($c->weapons as $w)
+            foreach($c->weapons as &$w)
             {
                 $w['dmgDonePercent'] = @(@$w['dmgDone'] / $c->weaponsTotal['dmgDone']);
                 $w['dmgRecvPercent'] = @(@$w['dmgRecv'] / $c->weaponsTotal['dmgRecv']);
@@ -202,10 +208,10 @@ class Player
              */
             $c->stats = M::playerstats()->db()
                 ->fields('sum(spawnKillsDone) as spawnKillsDone, sum(spawnKillsRecv) as spawnKillsRecv, sum(pushesDone) as pushesDone, '
-                       . 'sum(pushesRecv) as pushesRecv, sum(healthPickedUp) as healthPickedUp, sum(armorPickedUp) as armorPickedUp')
-                       //. 'sum(holyShitFrags) as holyShitFrags, sum(holyShitFragged) as holyShitFragged, '
-                       //. 'sum(carrierFrags) as carrierFrags, sum(carrierFragsRecv) as carrierFragsRecv')
-                ->where("guid=?", $guid)
+                       . 'sum(pushesRecv) as pushesRecv, sum(healthPickedUp) as healthPickedUp, sum(armorPickedUp) as armorPickedUp, '
+                       . 'sum(holyShitFrags) as holyShitFrags, sum(holyShitFragged) as holyShitFragged, '
+                       . 'sum(carrierFrags) as carrierFrags, sum(carrierFragsRecv) as carrierFragsRecv')
+                ->where("game_id in ($gameIds) and guid=?", $guid)
                 ->one();
         }
 
