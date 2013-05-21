@@ -104,6 +104,7 @@ public:
 
 	onevone_map onevone; // GUID -> GUID -> <count> //
 	guid_stat_map stats; // GUID -> <stat>
+	guid_str_map names; // keep track of all players involed in the game
 
 private:
 	str& mapname;
@@ -131,7 +132,6 @@ private:
 	int carrierRed;
 
 	std::set<siz> db_weaps; // which weapons to record
-	guid_str_map names; // keep track of all players involed in the game
 	
 	void stall_client(siz num);
 	void unstall_client(siz num);

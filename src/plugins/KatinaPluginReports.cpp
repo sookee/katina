@@ -406,8 +406,8 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 				}
 	
 				str name = "unknown";
-				if(katina.players.find(p->first) != katina.players.end())
-					name = katina.players[p->first];
+				if(stats->names.find(p->first) != stats->names.end())
+					name = stats->names[p->first];
 				oss << sep << "^7" << name;
 				scores.insert(std::make_pair(rkh, oss.str()));
 			}

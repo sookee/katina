@@ -457,13 +457,13 @@ bool KatinaPluginStats::award(siz min, siz sec, siz num, siz awd)
 
 bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 {
-	// bug("in_game: " << in_game);
+	stats.clear();
+	onevone.clear();
+
 	if(in_game)
 		return true;
 	in_game = true;
 
-	stats.clear();
-	onevone.clear();
 
 	if(!active)
 		return true;
