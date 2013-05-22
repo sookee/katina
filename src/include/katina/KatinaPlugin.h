@@ -61,6 +61,7 @@ public:
 	virtual bool init_game(siz min, siz sec, const str_map& cvars) {}
 	virtual bool warmup(siz min, siz sec) {}
 	virtual bool client_connect(siz min, siz sec, siz num) {}
+	virtual bool client_begin(siz min, siz sec, siz num) {}
 	virtual bool client_disconnect(siz min, siz sec, siz num) {}
 	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name) {}
 	virtual bool kill(siz min, siz sec, siz num1, siz num2, siz weap) {}

@@ -69,6 +69,10 @@ typedef std::set<str> str_set;
 typedef str_set::iterator str_set_iter;
 typedef str_set::const_iterator str_set_citer;
 
+typedef std::set<siz> siz_set;
+typedef siz_set::iterator siz_set_iter;
+typedef siz_set::const_iterator siz_set_citer;
+
 typedef std::multiset<str> str_mset;
 
 // maps

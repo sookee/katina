@@ -622,6 +622,23 @@ bool Katina::start(const str& dir)
 					(*i)->client_connect(min, sec, num);
 			}
 		}
+		else if(cmd == "ClientBegin:") // 0:04 ClientBegin: 4
+		{
+			if(events[CLIENT_BEGIN].empty())
+				continue;
+			
+			bug(cmd << "(" << params << ")");
+
+			siz num;
+			if(!(iss >> num))
+				log("Error parsing ClientBegin: "  << params);
+			else
+			{
+				for(plugin_vec_iter i = events[CLIENT_BEGIN].begin()
+					; i != events[CLIENT_BEGIN].end(); ++i)
+					(*i)->client_begin(min, sec, num);
+			}
+		}
 		else if(cmd == "ClientDisconnect:")
 		{
 			if(events[CLIENT_DISCONNECT].empty())

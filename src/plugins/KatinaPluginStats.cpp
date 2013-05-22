@@ -65,6 +65,7 @@ bool KatinaPluginStats::open()
 	
 	katina.add_var_event(this, "stats.active", active, false);
 	katina.add_var_event(this, "stats.write", write, false);
+	katina.add_var_event<siz_set>(this, "stats.weaps", db_weaps);
 	
 	katina.add_log_event(this, EXIT);
 	katina.add_log_event(this, SHUTDOWN_GAME);
