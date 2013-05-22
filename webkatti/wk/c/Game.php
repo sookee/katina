@@ -21,17 +21,31 @@ class Game
         $c = new Layout();
         $c->setView(__METHOD__);
 
-        $time = strtotime(@$_GET['date']);
-        if (empty($time))
+
+        $c->dateFrom = strtotime(@$_GET['from']);
+        if (empty($c->dateFrom))
         {
-            if (!empty($_GET['date']))
+            if (!empty($_GET['from']))
             {
                 $c->error = 'Wrong value';
             }
-            $time = time();
+            $c->dateFrom = time() - 60 * 60 * 24 * 30;
         }
-        $c->date = date('Y-m-d', $time);
-        
+        $c->dateFrom = date('Y-m-d', $c->dateFrom);
+
+
+        $c->dateTo = strtotime(@$_GET['to']);
+        if (empty($c->dateTo))
+        {
+            if (!empty($_GET['to']))
+            {
+                $c->error = 'Wrong value';
+            }
+            $c->dateTo = time();
+        }
+        $c->dateTo = date('Y-m-d', $c->dateTo);
+
+
         // List all games of the selected day and count the players using the tables kills & deaths
         $c->games = self::_list(
             Storage::main()->select(
@@ -41,13 +55,12 @@ class Game
                 group by `game_id`
                 order by game_id desc',
                 [
-                    $c->date . ' 00:00:00',
-                    $c->date . ' 23:59:59'
+                    $c->dateFrom,
+                    $c->dateTo
                 ])
         );
 
         $c->addTitle('Games');
-        $c->addTitle(\afw\Utils::datef('d.m.Y', $c->date));
 
         return $c;
     }
@@ -64,6 +77,7 @@ class Game
         $kills = M::kill()->countByGuid()
             ->key($id, 'game_id')
             ->allK();
+        echo "kills: " . count($kills);
 
         $caps = M::cap()->countByGuid()
             ->key($id, 'game_id')

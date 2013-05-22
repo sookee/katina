@@ -155,11 +155,17 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 					for(moddmg_map_citer md = p->second.mod_damage.begin(); md != p->second.mod_damage.end(); ++md)
 						db.add_mod_damage(id, p->first, md->first, md->second.hits, md->second.damage, md->second.hitsRecv, md->second.damageRecv);
 	
-					db.add_playerstats(id, p->first,
-						p->second.fragsFace, p->second.fragsBack, p->second.fraggedInFace, p->second.fraggedInBack,
-						p->second.spawnKills, p->second.spawnKillsRecv, p->second.pushes, p->second.pushesRecv,
-						p->second.healthPickedUp, p->second.armorPickedUp, p->second.holyShitFrags, p->second.holyShitFragged,
-						p->second.carrierFrags, p->second.carrierFragsRecv);
+					if(p->second.fragsFace | p->second.fragsBack | p->second.fraggedInFace | p->second.fraggedInBack |
+						p->second.spawnKills | p->second.spawnKillsRecv | p->second.pushes | p->second.pushesRecv |
+						p->second.healthPickedUp | p->second.armorPickedUp | p->second.holyShitFrags | p->second.holyShitFragged |
+						p->second.carrierFrags | p->second.carrierFragsRecv)
+					{
+						db.add_playerstats(id, p->first,
+							p->second.fragsFace, p->second.fragsBack, p->second.fraggedInFace, p->second.fraggedInBack,
+							p->second.spawnKills, p->second.spawnKillsRecv, p->second.pushes, p->second.pushesRecv,
+							p->second.healthPickedUp, p->second.armorPickedUp, p->second.holyShitFrags, p->second.holyShitFragged,
+							p->second.carrierFrags, p->second.carrierFragsRecv);
+					}
 				}		
 			}
 	

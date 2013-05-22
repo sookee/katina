@@ -52,7 +52,6 @@ class PlayerStats extends \afw\c\Controller
                     'shots'     => (int)@$this->shots[$guid]    ? : '',
                     'hits'      => (int)@$this->hits[$guid]     ? : '',
                 ];
-
             }
         }
 
