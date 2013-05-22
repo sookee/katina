@@ -164,6 +164,7 @@ class Main
             $deaths = [];
             $time = [];
             $shots = [];
+			$hits = [];
         }
 
         $c->players = new PlayerStats(

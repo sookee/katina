@@ -81,7 +81,7 @@ class PlayerStats extends \afw\c\Controller
 
             foreach ($this->players as &$player)
             {
-                $player['kd']   = $player['kd'] ? number_format($player['kd']  * 100) . ' <small>%</small>' : '';
+                $player['kd']   = $player['kd'] ? number_format($player['kd']  * 100) . ' %' : '';
                 $player['cd']   = round($player['cd']  * 100) ? : '';
                 $player['kcd']  = round($player['kcd'] * 100) ? : '';
                 $player['kct']  = round($player['kct']      ) ? : '';
@@ -91,7 +91,7 @@ class PlayerStats extends \afw\c\Controller
                 $player['tk']   = sprintf('%.1f', $player['tk']) ? : '';
                 $player['ct']   = round($player['ct']) ? : '';
                 
-                $player['acc']  = $player['acc'] ? number_format($player['acc'] * 100, 1) . ' <small>%</small>' : '';
+                $player['acc']  = $player['acc'] ? number_format($player['acc'] * 100, 1) . ' %' : '';
             }
             unset($player);
         }
