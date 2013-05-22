@@ -77,7 +77,6 @@ class Game
         $kills = M::kill()->countByGuid()
             ->key($id, 'game_id')
             ->allK();
-        echo "kills: " . count($kills);
 
         $caps = M::cap()->countByGuid()
             ->key($id, 'game_id')
