@@ -1479,8 +1479,8 @@ int main(const int argc, const char* argv[])
 				stats.clear();
 				teams.clear();
 
-				dasher[FL_RED] = null_guid;;
-				dasher[FL_BLUE] = null_guid;;
+				dasher[FL_RED] = null_guid;
+				dasher[FL_BLUE] = null_guid;
 				dashing[FL_RED] = true;
 				dashing[FL_BLUE] = true;
 

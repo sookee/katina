@@ -505,22 +505,25 @@ bool Katina::start(const str& dir)
 				log("ERROR: parsing logfile command: " << line);
 				continue;
 			}
-			siz pos;
-			if((pos = line.find("\\id\\")) == str::npos)
+			log("WARN: possible ClientUserinfoChanged bug");
+			if(line.find("\\id\\") == str::npos)
 			{
 				log("ERROR: parsing logfile command: " << line);
+				client_userinfo_bug.reset();
 				continue;
 			}
 			else
 			{
-				log("ALERT: ClientUserinfoChanged bug detected");
+				log("INFO: ClientUserinfoChanged bug detected");
 				cmd = "ClientUserinfoChanged";
 				iss.clear();
 				iss.str(client_userinfo_bug.params + line);
-				log("ALERT: params: " << client_userinfo_bug.params << line);
+				log("INFO: params: " << client_userinfo_bug.params << line);
 			}
 		}
 		
+		client_userinfo_bug.reset();
+
 		if(!cmd.find("----"))
 			continue;
 
@@ -529,8 +532,6 @@ bool Katina::start(const str& dir)
 		str params;
 		
 		sgl(iss, params); // not all commands have params
-
-		client_userinfo_bug.reset();
 
 		iss.clear();
 		iss.str(params);

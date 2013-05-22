@@ -96,6 +96,7 @@ private:
 	siz spam_limit;
 
 	siz flags[2];
+	guid_siz_map caps; // GUID -> <count>
 
 	str old_mapname;
 

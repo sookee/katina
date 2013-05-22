@@ -5,7 +5,11 @@ Mod: fix GUIDs in database {1.0}
 Add: make test-harness {1.0}
 Fix: finish PKI key loading (Katina) {1.0}
 Fix: finish PKI remote client {1.0}
-Add: incorporate silent chats (aka wing's mod) { 1.0}
+Add: incorporate silent chats (aka wing's mod) {1.0}
+Mod: make each table update in the stats plugin optional {1.0}
+Mod: finish katina-irc client incl PKI interface {1.0}
+Fix: == RESULTS == 0 RED 0 BLUE  == <= flags always zero
+Fix: == RESULTS == 0 RED 0 BLUE  == <= different colored "=="
 
 == v 1.5 ==
 
