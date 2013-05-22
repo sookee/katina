@@ -99,8 +99,7 @@ class Main
         $c->setView(__METHOD__);
 
         $db = M::game()->db()
-            ->fields('game_id, game_id')
-            ->where('game_id > 1214');
+            ->fields('game_id, game_id');
 
         $c->dateFrom = strtotime(@$_GET['from']);
         if (empty($c->dateFrom))
@@ -165,7 +164,6 @@ class Main
             $deaths = [];
             $time = [];
             $shots = [];
-            $hits = [];
         }
 
         $c->players = new PlayerStats(
