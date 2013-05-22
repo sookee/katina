@@ -131,7 +131,7 @@ private:
 	int carrierBlue;
 	int carrierRed;
 
-	std::set<siz> db_weaps; // which weapons to record
+	siz_set db_weaps; // which weapons to record
 	
 	void stall_client(siz num);
 	void unstall_client(siz num);

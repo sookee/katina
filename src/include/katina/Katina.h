@@ -46,22 +46,23 @@ typedef std::list<cvarevt>::iterator cvarevt_lst_iter;
 
 enum event_t
 {
-	EXIT
-	, SHUTDOWN_GAME
+	INIT_GAME
 	, WARMUP
-	, CLIENT_USERINFO_CHANGED
 	, CLIENT_CONNECT
+	, CLIENT_BEGIN
 	, CLIENT_DISCONNECT
+	, CLIENT_USERINFO_CHANGED
 	, KILL
 	, CTF
 	, CTF_EXIT
 	, SCORE_EXIT
 	, AWARD
-	, INIT_GAME
-	, SAY
 	, WEAPON_USAGE
 	, MOD_DAMAGE
 	, PLAYER_STATS
+	, SAY
+	, SHUTDOWN_GAME
+	, EXIT
 	, UNKNOWN		
 };
 
@@ -130,6 +131,24 @@ typedef cvar_map::const_iterator cvar_map_citer;
 typedef std::map<KatinaPlugin*, cvar_map> cvar_map_map;
 typedef cvar_map_map::iterator cvar_map_map_iter;
 typedef cvar_map_map::const_iterator cvar_map_map_citer;
+
+inline
+std::istream& operator>>(std::istream& is, siz_set& s)
+{
+	siz v;
+	while(is >> v)
+		s.insert(v);
+	return is;
+}
+
+inline
+std::ostream& operator<<(std::ostream& os, const siz_set& s)
+{
+	str sep;
+	for(siz_set_citer i = s.begin(); i != s.end(); ++i)
+		{ os << sep << *i; sep = " "; }
+	return os;
+}
 
 class Katina
 {
