@@ -207,6 +207,7 @@ bool KatinaPluginReports::init_game(siz min, siz sec, const str_map& cvars)
 {
 	flags[FL_RED] = 0;
 	flags[FL_BLUE] = 0;
+	caps.clear();
 
 	if(do_infos && katina.mapname != old_mapname)
 	{
