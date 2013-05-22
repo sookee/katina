@@ -64,10 +64,10 @@ bool KatinaPluginExample::init_game(siz min, siz sec, const str_map& cvars)
 {
 	if(!active)
 		return true;
-	log("init_game()");
-	log("mapname: " << mapname);
+	plog("init_game()");
+	plog("mapname: " << mapname);
 	for(str_map_citer i = cvars.begin(); i != cvars.end(); ++i)
-		log("cvar: " << i->first << " = " << i->second);
+		plog("cvar: " << i->first << " = " << i->second);
 	return true;
 }
 
@@ -75,7 +75,7 @@ bool KatinaPluginExample::warmup(siz min, siz sec)
 {
 	if(!active)
 		return true;
-	log("warmup()");
+	plog("warmup()");
 	return true;
 }
 
@@ -83,7 +83,7 @@ bool KatinaPluginExample::client_connect(siz min, siz sec, siz num)
 {
 	if(!active)
 		return true;
-	log("client_connect(" << num << ")");
+	plog("client_connect(" << num << ")");
 	return true;
 }
 
@@ -91,7 +91,7 @@ bool KatinaPluginExample::client_begin(siz min, siz sec, siz num)
 {
 	if(!active)
 		return true;
-	log("client_begin(" << num << ")");
+	plog("client_begin(" << num << ")");
 	katina.server.chat("BEGIN: " + players[clients[num]]);
 	return true;
 }
@@ -100,7 +100,7 @@ bool KatinaPluginExample::client_disconnect(siz min, siz sec, siz num)
 {
 	if(!active)
 		return true;
-	log("client_disconnect(" << num << ")");
+	plog("client_disconnect(" << num << ")");
 	return true;
 }
 
@@ -108,9 +108,9 @@ bool KatinaPluginExample::client_userinfo_changed(siz min, siz sec, siz num, siz
 {
 	if(!active)
 		return true;
-	log("client_userinfo_changed(" << num << ", " << team << ", " << guid << ", " << name << ")");
-	log("clients[" << num << "]         : " << clients[num]);
-	log("players[clients[" << num << "]]: " << players[clients[num]]);
+	plog("client_userinfo_changed(" << num << ", " << team << ", " << guid << ", " << name << ")");
+	plog("clients[" << num << "]         : " << clients[num]);
+	plog("players[clients[" << num << "]]: " << players[clients[num]]);
 	return true;
 }
 
@@ -118,7 +118,7 @@ bool KatinaPluginExample::kill(siz min, siz sec, siz num1, siz num2, siz weap)
 {
 	if(!active)
 		return true;
-	log("kill(" << num1 << ", " << num2 << ", " << weap << ")");
+	plog("kill(" << num1 << ", " << num2 << ", " << weap << ")");
 	return true;
 }
 
@@ -126,7 +126,7 @@ bool KatinaPluginExample::ctf(siz min, siz sec, siz num, siz team, siz act)
 {
 	if(!active)
 		return true;
-	log("ctf(" << num << ", " << team << ", " << act << ")");
+	plog("ctf(" << num << ", " << team << ", " << act << ")");
 	return true;
 }
 
@@ -134,7 +134,7 @@ bool KatinaPluginExample::ctf_exit(siz min, siz sec, siz r, siz b)
 {
 	if(!active)
 		return true;
-	log("ctf_exit(" << r << ", " << b << ")");
+	plog("ctf_exit(" << r << ", " << b << ")");
 	return true;
 }
 
@@ -142,7 +142,7 @@ bool KatinaPluginExample::score_exit(siz min, siz sec, int score, siz ping, siz 
 {
 	if(!active)
 		return true;
-	log("score_exit(" << score << ", " << ping << ", " << num << ", " << name << ")");
+	plog("score_exit(" << score << ", " << ping << ", " << num << ", " << name << ")");
 	return true;	
 }
 
@@ -150,7 +150,7 @@ bool KatinaPluginExample::award(siz min, siz sec, siz num, siz awd)
 {
 	if(!active)
 		return true;
-	log("award(" << num << ", " << awd << ")");
+	plog("award(" << num << ", " << awd << ")");
 	return true;
 }
 
@@ -158,7 +158,7 @@ bool KatinaPluginExample::say(siz min, siz sec, const GUID& guid, const str& tex
 {
 	if(!active)
 		return true;
-	log("say(" << guid << ", " << text << ")");
+	plog("say(" << guid << ", " << text << ")");
 	str s = text;
 	std::reverse(s.begin(), s.end());
 	katina.chat_to(guid, s);
@@ -169,7 +169,7 @@ bool KatinaPluginExample::shutdown_game(siz min, siz sec)
 {
 	if(!active)
 		return true;
-	log("shutdown_game()");
+	plog("shutdown_game()");
 	return true;
 }
 
@@ -177,7 +177,7 @@ bool KatinaPluginExample::exit(siz min, siz sec)
 {
 	if(!active)
 		return true;
-	log("exit()");
+	plog("exit()");
 	return true;
 }
 

@@ -473,6 +473,8 @@ bool Katina::start(const str& dir)
 	str line, skip, name, cmd;
 	siss iss;
 
+	now = get("run.time", std::time_t(-1));
+		
 	while(!done)
 	{
 		if(!std::getline(is, line) || is.eof())

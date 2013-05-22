@@ -113,9 +113,8 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 	std::time_t logged_time = 0;
 	for(guid_stat_iter p = stats.begin(); p != stats.end(); ++p)
 	{
-		if(p->second.joined_time);
+		if(p->second.joined_time)
 		{
-			//std::time_t now = std::time(0);
 			p->second.logged_time += katina.now - p->second.joined_time;
 			p->second.joined_time = 0;
 		}
@@ -365,11 +364,10 @@ bool KatinaPluginStats::client_disconnect(siz min, siz sec, siz num)
 	if(!active)
 		return true;
 
-	//std::time_t now = std::time(0);
-
-	if(stats[clients[num]].joined_time)
-		stats[clients[num]].logged_time += katina.now - stats[clients[num]].joined_time;
-	stats[clients[num]].joined_time = 0;
+	stall_client(num);
+	//if(stats[clients[num]].joined_time)
+	//	stats[clients[num]].logged_time += katina.now - stats[clients[num]].joined_time;
+	//stats[clients[num]].joined_time = 0;
 
 	check_bots_and_players(katina.now, num);
 
