@@ -1,57 +1,15 @@
 
-/: 0a3c92a2f9f716547b9a82afcecef101665671a1
-/: 4292d8aeca9c1ca5765a12d08ff9bff7bcb331b1
-/: d3085213f13f5944642ca0dce6bf5c1c71c774f2
-/: 634c5340125acde78198ab03a3e3655019646aee
-/: b1b4e08947af9da646eaacf0ca1a49ed8f44ed6e
-?: 410737229a1fa88fed26dd587cea8665f828fc3d
-/: 8ec69e2eca34555ae5ee9e68ef7d9f4b79be1715
-x: 51f7eeb1897d3cc4576335793f0565210adb6f80
+== v 1.0 ==
+
+Mod: fix GUIDs in database {1.0}
+Add: make test-harness {1.0}
+Fix: finish PKI key loading (Katina) {1.0}
+Fix: finish PKI remote client {1.0}
+Add: incorporate silent chats (aka wing's mod) { 1.0}
+
+== v 1.5 ==
+
+Fix: finish REST API {1.5}
 
 
-Mod: database should not contain flags scored against only bots
-Mod: fix GUIDs in database.
-Mod: stop counting caps when only bots
-Mod: stop counting time when only bots
-
-1v1-winner stays
-
-
-
-team stats - red verses blue
-
-[year|*][month|*][map|*][guid|*][game_id|*]
-
-{year:
-	Year
-	{month:
-		Month|The whole year|The year to date ?(to date)
-		{map:
-			Mapname|All Maps
-			{guid:
-				Player|All Players
-				{game_id:
-					FPH, CPH, FPH * CPH, F/D, C/D%, F/D * C/D%
-
-					? when: TIMESTAMP(year-month)
-					? when: mapname = ''
-					? 
-				}
-			}
-		}
-	}
-}
-
-
-
-## PKI comms
-
-c: request(pkey)
-s: respond(signed(encrypt(pkey, token1))) // accept connection
-
-c: report(signed(token1))
-s: respond(signed(encrypt(pkey, token2)))
-
-c: ping(signed(token2))
-s: respond(signed(encrypt(pkey, token3)))
 

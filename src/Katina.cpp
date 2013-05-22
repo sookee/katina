@@ -477,6 +477,7 @@ bool Katina::start(const str& dir)
 		
 	while(!done)
 	{
+		bug("loop:");
 		if(!std::getline(is, line) || is.eof())
 		{
 			if(rerun)
@@ -486,6 +487,8 @@ bool Katina::start(const str& dir)
 			is.seekg(gpos);
 			continue;
 		}
+		
+		bug_var(line);
 
 		gpos = is.tellg();
 
@@ -494,37 +497,39 @@ bool Katina::start(const str& dir)
 
 		iss.clear();
 		iss.str(line);
-
-		str params;
-		if(!sgl(sgl(iss >> min >> c >> sec >> std::ws, cmd, ':') >> std::ws, params))
+		
+		if(!(sgl(iss >> min >> c >> sec >> std::ws, cmd, ':') >> std::ws))
 		{
-			if(client_userinfo_bug)
+			if(!client_userinfo_bug)
 			{
-				log("WANING: possible ClientUserinfoChanged bug");
-				// \c2\ \hc\100\w\0\l\0\tt\0\tl\0\id\041BD1732752BCC408FAF45616A8F64B
-				siz pos;
-				if((pos = line.find("\\id\\")) == str::npos)
-				{
-					log("ERROR: parsing logfile: " << line);
-					continue;
-				}
-				else
-				{
-					log("ALERT: ClientUserinfoChanged bug detected");
-					// 2 n\^1S^2oo^3K^5ee\t\3\mo
-					cmd = "ClientUserinfoChanged";
-					params = client_userinfo_bug.params + line;
-					log("     : cmd   : " << cmd);
-					log("     : params: " << params);
-				}
-			}			
+				log("ERROR: parsing logfile command: " << line);
+				continue;
+			}
+			siz pos;
+			if((pos = line.find("\\id\\")) == str::npos)
+			{
+				log("ERROR: parsing logfile command: " << line);
+				continue;
+			}
+			else
+			{
+				log("ALERT: ClientUserinfoChanged bug detected");
+				cmd = "ClientUserinfoChanged";
+				iss.clear();
+				iss.str(client_userinfo_bug.params + line);
+				log("ALERT: params: " << client_userinfo_bug.params << line);
+			}
 		}
 		
+		if(!cmd.find("----"))
+			continue;
+
 		cmd += ":";
+
+		str params;
 		
-//		bug_var(cmd);
-//		bug_var(params);
-		
+		sgl(iss, params); // not all commands have params
+
 		client_userinfo_bug.reset();
 
 		iss.clear();
