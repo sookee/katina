@@ -29,7 +29,7 @@ class Game
             {
                 $c->error = 'Wrong value';
             }
-            $c->dateFrom = time() - 60 * 60 * 24 * 30;
+            $c->dateFrom = time() - 60 * 60 * 24 * 7;
         }
         $c->dateFrom = date('Y-m-d', $c->dateFrom);
 
@@ -50,7 +50,7 @@ class Game
         $c->games = self::_list(
             Storage::main()->select(
                 'select distinct game.*, count(distinct `guid`) AS numPlayers
-                from `game` natural join (select * from kills UNION select * from deaths) as kd
+                from `game` natural join deaths
                 where `date` between ? and ?
                 group by `game_id`
                 order by game_id desc',

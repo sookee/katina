@@ -91,7 +91,7 @@ class PlayerStats extends \afw\c\Controller
                 $player['tk']   = sprintf('%.1f', $player['tk']) ? : '';
                 $player['ct']   = round($player['ct']) ? : '';
                 
-                $player['acc']  = $player['acc'] ? number_format($player['acc'] * 100, 1) . ' %' : '';
+                $player['acc']  = $player['acc'] ? number_format($player['acc'] * 100) . ' %' : '';
             }
             unset($player);
         }
