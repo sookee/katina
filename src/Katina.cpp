@@ -118,22 +118,20 @@ bool Katina::rconset(const str& cvar, str& val)
 	// -> "<var>" is:"<val>^7", the default
 	// -> "katina_skivvy_chans" is:"#katina-test(c) #katina(c)^7" default:"#katina-test(c)^7"
 
-	str sval;
-
 	trim(response);
 	
 	if(response.empty())
 		return false;
 	
-	if(response.find("unknown command:"))
+	if(!response.find("unknown command:"))
+		return false;
+
+	str sval, skip;
+	siss iss(response);
+	if(!std::getline(std::getline(iss, skip, ':').ignore(), sval, '^'))
 	{
-		str skip;
-		siss iss(response);
-		if(!std::getline(std::getline(iss, skip, ':').ignore(), sval, '^'))
-		{
-			log("ERROR: parsing rconset response: " << response);
-			return false;
-		}
+		log("ERROR: parsing rconset response: " << response);
+		return false;
 	}
 
 	val = sval;
