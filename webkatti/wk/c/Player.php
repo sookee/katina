@@ -25,7 +25,7 @@ class Player
         // List all games of the selected player and count the players using the tables kills & deaths
         $games = Storage::main()->select(
                 'select distinct game.*, count(distinct `guid`) AS numPlayers
-                from game natural join (select * from kills UNION select * from deaths) as kd
+                from game natural join deaths
                 where date > now() - interval 1 month
                 group by game_id HAVING SUM(IF(`guid` = ?, 1, 0))>1
                 order by game_id desc', $guid);
@@ -44,11 +44,9 @@ class Player
         {
             $gameIds = substr($gameIds, 0, -1);
 
-
             /**
              * Opponents
              */
-
             $r = M::ovo()->db()
                 ->fields('guid1, guid2, sum(count) as count, count(1) as numGames')
                 ->where("game_id in ($gameIds) and (guid1=? or guid2=?)", [$guid, $guid])
@@ -61,12 +59,16 @@ class Player
                 if ($row['guid1'] == $guid)
                 {
                     $ovos[$row['guid2']]['kills'] = $row['count'];
-                    $ovos[$row['guid2']]['games'] = $row['numGames'];
+                    
+                    if($row['numGames'] > @$ovos[$row['guid2']]['games'])
+                        $ovos[$row['guid2']]['games'] = $row['numGames'];
                 }
                 else
                 {
                     $ovos[$row['guid1']]['deaths'] = $row['count'];
-                    $ovos[$row['guid1']]['games'] = $row['numGames'];
+                    
+                    if($row['numGames'] > @$ovos[$row['guid1']]['games'])
+                        $ovos[$row['guid1']]['games'] = $row['numGames'];
                 }
             }
 

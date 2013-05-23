@@ -188,31 +188,42 @@ th.headerSortDown
 }
 
 
-/*
- * Styles for player stats
- */
- 
-.psGood
+.col25
 {
-    color: #00ff00;
+    float: left;
+    width: 25%;
 }
 
-.psBad
+.col33
 {
-    color: #ff0000;
+    float: left;
+    width: 33.33%;
 }
 
-.psShots
+.col50
 {
-    color: #ffff00;
+    float: left;
+    width: 50%;
 }
 
-.psDone
+.col66
 {
-    color: #00ffff;
+    float: left;
+    width: 66.66%;
 }
 
-.psRecv
+.coll
 {
-    color: #ff00ff;
+    padding-right: 1.5em;
+}
+
+.colr
+{
+    padding-left: 1.5em;
+}
+
+.colc
+{
+    padding-left: 0.75em;
+    padding-right: 0.75em;
 }
