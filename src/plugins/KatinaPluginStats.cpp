@@ -464,6 +464,7 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 {
 	stats.clear();
 	onevone.clear();
+	names.clear();
 
 	if(in_game)
 		return true;
