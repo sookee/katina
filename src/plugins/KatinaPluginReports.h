@@ -69,6 +69,8 @@ private:
 	KatinaPluginVotes* votes;
 	
 	RemoteClientList client;
+	
+	// %time %fph %cph %kpd %cpd %acc(RG|RL|LG)
 
 	enum
 	{
@@ -88,7 +90,8 @@ private:
 	bool do_kills;
 	bool do_infos;
 	bool do_stats;
-	siz stats_cols;
+	str stats_cols;
+	str stats_sort; // sort column
 	bool spamkill;
 	str chans;
 
@@ -101,7 +104,7 @@ private:
 	str old_mapname;
 
 	str_vec notspam; // spam exceptions
-
+/*
 	str get_stats_cols() const
 	{
 		str cols, sep;
@@ -117,7 +120,7 @@ private:
 			{ cols += sep + "CPD"; sep = " "; }
 		return cols;
 	}
-	
+*/
 	str get_nums_team(siz num);
 	str get_nums_team(const GUID& guid);
 

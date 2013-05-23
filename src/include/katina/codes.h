@@ -71,7 +71,6 @@ enum // MEANS OF DEATH
 	, MOD_MAXVALUE
 };
 
-
 enum // WEAPONS
 {
 	WP_NONE,

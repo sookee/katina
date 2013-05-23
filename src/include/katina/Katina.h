@@ -109,9 +109,10 @@ class cvar_t<str>
 : public cvar
 {
 	str& s;
-	cvar_t(str& s): s(s) {}
 	
 public:
+	cvar_t(str& s): s(s) {}
+
 	virtual bool get(str& s) const
 	{
 		s = this->s;

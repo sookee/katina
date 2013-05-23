@@ -10,6 +10,7 @@
 #include <katina/types.h>
 #include <katina/log.h>
 #include <katina/codes.h>
+#include <katina/utils.h>
 
 #include <dlfcn.h>
 #include <gcrypt.h>
@@ -19,6 +20,7 @@ namespace katina { namespace plugin {
 using namespace oastats::log;
 using namespace oastats::data;
 using namespace oastats::types;
+using namespace oastats::utils;
 
 KATINA_PLUGIN_TYPE(KatinaPluginReports);
 KATINA_PLUGIN_INFO("katina::reports", "Katina Reports", "0.1");
@@ -132,7 +134,7 @@ KatinaPluginReports::KatinaPluginReports(Katina& katina)
 , do_kills(false)
 , do_infos(false)
 , do_stats(false)
-, stats_cols(0)
+//, stats_cols(0)
 , spamkill(false)
 , spam_limit(2)
 {
@@ -175,7 +177,8 @@ bool KatinaPluginReports::open()
 	katina.add_var_event(this, "reports.kills", do_kills, false);
 	katina.add_var_event(this, "reports.infos", do_infos, false);
 	katina.add_var_event(this, "reports.stats", do_stats, false);
-	katina.add_var_event(this, "reports.stats.cols", stats_cols, (siz) 0);
+	katina.add_var_event(this, "reports.stats.cols", stats_cols);
+	katina.add_var_event(this, "reports.stats.sort", stats_sort);
 	katina.add_var_event(this, "reports.spam.kill", spamkill, false);
 	katina.add_var_event(this, "reports.spam.limit", spam_limit, (siz) 2); 
 
@@ -358,6 +361,79 @@ bool KatinaPluginReports::say(siz min, siz sec, const GUID& guid, const str& tex
 	return true;
 }
 
+str get_acc(const stats& stats, siz weapon = siz(-1))//, siz mod)
+{
+	static siz_map weap_to_mod;
+	if(weap_to_mod.empty())
+	{
+		weap_to_mod[WP_GAUNTLET] = MOD_GAUNTLET;
+		weap_to_mod[WP_MACHINEGUN] = MOD_MACHINEGUN;
+		weap_to_mod[WP_SHOTGUN] = MOD_SHOTGUN;
+		weap_to_mod[WP_GRENADE_LAUNCHER] = MOD_GRENADE;
+		weap_to_mod[WP_ROCKET_LAUNCHER] = MOD_ROCKET;
+		weap_to_mod[WP_LIGHTNING] = MOD_LIGHTNING;
+		weap_to_mod[WP_RAILGUN] = MOD_RAILGUN;
+		weap_to_mod[WP_PLASMAGUN] = MOD_PLASMA;
+		weap_to_mod[WP_BFG] = MOD_BFG;
+		weap_to_mod[WP_GRAPPLING_HOOK] = MOD_GRAPPLE;
+		weap_to_mod[WP_NAILGUN] = MOD_NAIL;
+		weap_to_mod[WP_PROX_LAUNCHER] = MOD_PROXIMITY_MINE;
+		weap_to_mod[WP_CHAINGUN] = MOD_CHAINGUN;
+	}
+	
+	siz ws = WP_GAUNTLET;
+	siz we = WP_CHAINGUN;
+
+	if(weapon != siz(-1))
+		ws = we = weapon;
+	
+	siz shots = 0;
+	siz hits  = 0;
+	
+	for(siz w = ws; w <= we; ++w)
+	{
+		shots += map_get(stats.weapon_usage, w);
+		moddmg_map_citer it = stats.mod_damage.find(weap_to_mod[w]);
+		if(it != stats.mod_damage.end())
+			hits += it->second.hits;
+	}
+		
+	// Pushes also count as hits
+	hits += stats.pushes;
+		
+	str acc = "";
+	if(shots > 0)
+	{
+		double a = ((double) hits / shots) * 100.0;
+		acc = to_string(a, 2);
+	}
+	return acc;
+}
+
+siz weapon_to_siz(const str& weapon)
+{
+	// GA|MG|SG|GL|RL|LG|RG|PG|BG|GH|NG|PL|CG
+	static str_siz_map m;
+	if(m.empty())
+	{
+		m[""] = WP_NONE;
+		m["GA"] = WP_GAUNTLET;
+		m["MG"] = WP_MACHINEGUN;
+		m["SG"] = WP_SHOTGUN;
+		m["GL"] = WP_GRENADE_LAUNCHER;
+		m["RL"] = WP_ROCKET_LAUNCHER;
+		m["LG"] = WP_LIGHTNING;
+		m["RG"] = WP_RAILGUN;
+		m["PG"] = WP_PLASMAGUN;
+		m["BG"] = WP_BFG;
+		m["GH"] = WP_GRAPPLING_HOOK;
+		m["NG"] = WP_NAILGUN;
+		m["PL"] = WP_PROX_LAUNCHER;
+		m["CG"] = WP_CHAINGUN;
+	}
+	return m[weapon];
+}
+
 bool KatinaPluginReports::exit(siz min, siz sec)
 {
 	// erase non spam marked messages
@@ -425,163 +501,198 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 	
 	if(do_stats && stats)
 	{
-		std::multimap<double, str> scores;
+		std::multimap<str, str> scores;
 	
 		soss oss;
 		for(guid_stat_citer p = stats->stats.begin(); p != stats->stats.end(); ++p)
 		{
-			siz c = map_get(p->second.flags, FL_CAPTURED);
-	
-			siz k = 0;
-			for(siz i = 0; i < MOD_MAXVALUE; ++i)
-				k += map_get(p->second.kills, i);
-	
-			siz d = 0;
-			for(siz i = 0; i < MOD_MAXVALUE; ++i)
-				d += map_get(p->second.deaths, i);
-	
-			siz h = p->second.logged_time;
+			// %time %fph %cph %fpd %cpd %acc(GA|MG|SG|GL|RL|LG|RG|PG|BG|GH|NG|PL|CG) %name
+			// GA MG SG GL RL LG RG PG BG GH NG PL CG
 
-			double rkd = 0.0;
-			double rcd = 0.0;
-			siz rkh = 0;
-			siz rch = 0;
-			str kd, cd, kh, ch;
-			
-			if(d == 0 || h == 0)
+			if(!p->second.logged_time)
+				continue;
+			str sort; // sort column
+			str sort_value; 
+			str col;
+			siss iss(stats_cols);
+			str sep;
+			oss.clear();
+			oss.str("");
+			while(iss >> col)
 			{
-				if(d == 0)
+				if(col == "%time")
 				{
-					if(k)
-						kd = "perf";
-					if(c)
-						cd = "perf";
-				}
-				if(h == 0)
-				{
-					if(k)
-						kh = "inf";
-					if(c)
-						ch = "inf";
-				}
-			}
-			else
-			{
-				rkd = double(k) / d;
-				rcd = double(c * 100) / d;
-				rkh = k * 60 * 60 / h;
-				rch = c * 60 * 60 / h;
-	
-				kd = to_string(rkd, 5);
-				cd = to_string(rcd, 6);
-				kh = to_string(rkh, 3);
-				ch = to_string(rch, 2);
-			}
-			if(k || c || d)
-			{
-				str mins, secs;
-				siz m = p->second.logged_time / 60;
-				siz s = p->second.logged_time % 60;
-				oss.str("");
-				oss << m;
-				mins = oss.str();
-				oss.str("");
-				oss << s;
-				secs = oss.str();
-				if(mins.size() < 2)
-					mins = str(2 - mins.size(), ' ') + mins;
-				if(secs.size() < 2)
-					secs = str(2 - secs.size(), '0') + secs;
-	
-				oss.str("");
-				str sep, col;
-				if(stats_cols & RSC_TIME)
-				{
-					col = "^7" + mins + "^3:^7" + secs;
-					set_width(col, 5, 6);
-					oss << sep << col;
+					siz min = p->second.logged_time / 60;
+					siz sec = p->second.logged_time % 60;
+					str mins = to_string(min);
+					str secs = to_string(sec);
+					if(mins.size() < 2)
+						mins = str(2 - mins.size(), ' ') + mins;
+					if(secs.size() < 2)
+						secs = str(2 - secs.size(), '0') + secs;
+					str s = "^7" + mins + "^3:^7" + secs;
+					set_width(s, 5, 6);
+					oss << sep << s;
 					sep = "^2|";
+					if(col == stats_sort)
+						sort_value = s;
 				}
-				if(stats_cols & RSC_FPH)
+				else if(col == "%fph")
 				{
-					col = "^7" + kh;
-					set_width(col, 3, 2);
-					oss << sep << col;
-					sep = "^2|";
-				}
-				if(stats_cols & RSC_CPH)
-				{
-					col = "^7" + ch;
-					set_width(col, 3, 2);
-					oss << sep << col;
-					sep = "^2|";
-				}
-				if(stats_cols & RSC_KPD)
-				{
-					col = "^7" + kd;
-					set_width(col, 5, 2);
-					oss << sep << col;
-					sep = "^2|";
-				}
-				if(stats_cols & RSC_CPD)
-				{
-					col = "^7" + cd;
-					set_width(col, 6, 2);
-					oss << sep << col;
-					sep = "^2|";
-				}
-				if(stats_cols & RSC_RGACC)
-				{
-					// Calculate railgun accuracy
-					siz shots = map_get(p->second.weapon_usage, WP_RAILGUN);
-					siz hits  = 0;
-					moddmg_map_citer it = p->second.mod_damage.find(MOD_RAILGUN);
-					if(it != p->second.mod_damage.end())
-						hits = it->second.hits;
-						
-					// Pushes also count as hits
-					hits += p->second.pushes;
-						
-					str acc = "";
-					if(shots > 0)
+					siz f = 0;
+					for(siz i = 0; i < MOD_MAXVALUE; ++i)
+						f += map_get(p->second.kills, i);
+					siz h = p->second.logged_time;
+					
+					str fph;
+					if(h)
 					{
-						double a = ((double) hits / shots) * 100.0;
-						acc = to_string(a, 2);
+						siz fh = (f * 60 * 60) / h;
+						fph = to_string(fh, 3);
 					}
-				
-					col = "^7" + acc + "%";
-					set_width(col, 7, 2);
-					oss << sep << col;
+					
+					str s = "^7" + fph;
+					set_width(s, 3, 2);
+					oss << sep << s;
 					sep = "^2|";
+					if(col == stats_sort)
+						sort_value = s;
 				}
-	
-				str name = "unknown";
-				if(stats->names.find(p->first) != stats->names.end())
-					name = stats->names[p->first];
-				oss << sep << "^7" << name;
-				scores.insert(std::make_pair(rkh, oss.str()));
+				else if(col == "%cph")
+				{
+					siz c = map_get(p->second.flags, FL_CAPTURED);
+					siz h = p->second.logged_time;
+					
+					str cph;
+					if(h)
+					{
+						siz ch = (c * 60 * 60) / h;
+						cph = to_string(ch, 2);
+					}
+					
+					str s = "^7" + cph;
+					set_width(s, 3, 2);
+					oss << sep << s;
+					sep = "^2|";
+					if(col == stats_sort)
+						sort_value = s;
+				}
+				else if(col == "%fpd")
+				{
+					siz f = 0;
+					for(siz i = 0; i < MOD_MAXVALUE; ++i)
+						f += map_get(p->second.kills, i);
+					siz d = 0;
+					for(siz i = 0; i < MOD_MAXVALUE; ++i)
+						d += map_get(p->second.deaths, i);
+					
+					str fpd;
+					if(d)
+					{
+						double fd = double(f) / d;
+						fpd = to_string(fd, 5);
+					}
+					
+					str s = "^7" + fpd;
+					set_width(s, 5, 2);
+					oss << sep << s;
+					sep = "^2|";
+					if(col == stats_sort)
+						sort_value = s;
+				}
+				else if(col == "%cpd")
+				{
+					siz c = map_get(p->second.flags, FL_CAPTURED);
+					siz d = 0;
+					for(siz i = 0; i < MOD_MAXVALUE; ++i)
+						d += map_get(p->second.deaths, i);
+					
+					str cpd;
+					if(d)
+					{
+						double cd = double(c * 100) / d;
+						cpd = to_string(cd, 6);
+					}
+					
+					str s = "^7" + cpd;
+					set_width(s, 6, 2);
+					oss << sep << s;
+					sep = "^2|";
+					if(col == stats_sort)
+						sort_value = s;
+				}
+				else if(!col.find("%acc"))
+				{
+					siz w = siz(-1);
+					str weapon;
+					str skip;
+					siss iss(col);
+					if(sgl(sgl(iss, skip, '('), weapon, ')'))
+						w = weapon_to_siz(weapon);
+					else
+						w = siz(-1); // all weaps
+					
+					str acc = get_acc(p->second, w);
+					str s = "^7" + acc + "%";
+					set_width(s, 7, 2);
+					oss << sep << s;
+					sep = "^2|";
+					if(col == stats_sort)
+						sort_value = s;
+				}
+				else if(col == "%name")
+				{
+					str name = "unknown";
+					if(stats->names.find(p->first) != stats->names.end())
+						name = stats->names[p->first];
+					oss << sep << "^7" << name;
+					if(col == stats_sort)
+						sort_value = name; // todo strip this of control codes
+				}
 			}
+
+			scores.insert(std::make_pair(sort_value, oss.str()));
 		}
 		if(!scores.empty())
 		{
-			oss.str("");
 			str sep;
-			if(stats_cols & RSC_TIME)
-				{ oss << sep << "^3time "; sep = "^2|"; }
-			if(stats_cols & RSC_FPH)
-				{ oss << sep << "^3fph"; sep = "^2|"; }
-			if(stats_cols & RSC_TIME)
-				{ oss << sep << "^3cph"; sep = "^2|"; }
-			if(stats_cols & RSC_TIME)
-				{ oss << sep << "^3fpd  "; sep = "^2|"; }
-			if(stats_cols & RSC_TIME)
-				{ oss << sep << "^3cpd   "; sep = "^2|"; }
-			if(stats_cols & RSC_RGACC)
-				{ oss << sep << "^3rg acc "; sep = "^2|"; }
+			oss.clear();
+			oss.str("");
+			str col;
+			siss iss(stats_cols);
+			while(iss >> col)
+			{
+				// ] time |fph|cph|fpd  |cpd   |rg acc |
+				// ] 13:52|298|  8| 1.68|  4.88| 50.74%|*SoS*THOR
+				// ] 14:54|253| 16| 1.37|  8.70| 46.32%|Alien Surf Girl
+				// ] 14:54|177| 16| 0.79|  7.14| 32.88%|z
+				// ]  5:24|122|  0| 0.85|  0.00| 25.42%|soylent
+				// ] 14:54|100| 16| 0.46|  7.41| 27.27%|Evil|Kaeskopf*
+				// ]  0:52| 69|  0| 0.33|  0.00| 22.22%|DarkQuiller				sep.clear();
+				if(col == "%time")
+					{ oss << sep << "^3time "; sep = "^2|"; }
+				else if(col == "%fph")
+					{ oss << sep << "^3fph"; sep = "^2|"; }
+				else if(col == "%cph")
+					{ oss << sep << "^3cph"; sep = "^2|"; }
+				else if(col == "%fpd")
+					{ oss << sep << "^3fpd  "; sep = "^2|"; }
+				else if(col == "%cpd")
+					{ oss << sep << "^3cpd   "; sep = "^2|"; }
+				else if(!col.find("%acc"))
+				{
+					str weapon = "all";
+					str skip;
+					siss iss(col);
+					if(!sgl(sgl(iss, skip, '('), weapon, ')'))
+						weapon = "all";
+					oss << sep << "^3" << weapon << " acc%"; sep = "^2|";
+				}
+			}
 			oss << sep;
 			client.chat('s', oss.str());
 		}
-		for(std::multimap<double, str>::reverse_iterator r = scores.rbegin(); r != scores.rend(); ++r)
+		for(std::multimap<str, str>::reverse_iterator r = scores.rbegin(); r != scores.rend(); ++r)
 			client.chat('s', r->second);
 	}
 
