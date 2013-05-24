@@ -507,8 +507,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 		soss oss;
 		for(guid_stat_citer p = stats->stats.begin(); p != stats->stats.end(); ++p)
 		{
-			// %time %fph %cph %fpd %cpd %acc(GA|MG|SG|GL|RL|LG|RG|PG|BG|GH|NG|PL|CG) %name
-			// GA MG SG GL RL LG RG PG BG GH NG PL CG
+			// $time $fph $cph $fpd $cpd $acc[GA|MG|SG|GL|RL|LG|RG|PG|BG|GH|NG|PL|CG] $name
 
 			if(p->first.is_bot() || !p->second.logged_time)
 				continue;
@@ -521,7 +520,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 			oss.str("");
 			while(iss >> col)
 			{
-				if(col == "%time")
+				if(col == "$time")
 				{
 					siz min = p->second.logged_time / 60;
 					siz sec = p->second.logged_time % 60;
@@ -538,7 +537,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 					if(col == stats_sort)
 						sort_value = s;
 				}
-				else if(col == "%fph")
+				else if(col == "$fph")
 				{
 					siz f = 0;
 					for(siz i = 0; i < MOD_MAXVALUE; ++i)
@@ -559,7 +558,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 					if(col == stats_sort)
 						sort_value = s;
 				}
-				else if(col == "%cph")
+				else if(col == "$cph")
 				{
 					siz c = map_get(p->second.flags, FL_CAPTURED);
 					siz h = p->second.logged_time;
@@ -578,7 +577,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 					if(col == stats_sort)
 						sort_value = s;
 				}
-				else if(col == "%fpd")
+				else if(col == "$fpd")
 				{
 					siz f = 0;
 					for(siz i = 0; i < MOD_MAXVALUE; ++i)
@@ -601,7 +600,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 					if(col == stats_sort)
 						sort_value = s;
 				}
-				else if(col == "%cpd")
+				else if(col == "$cpd")
 				{
 					siz c = map_get(p->second.flags, FL_CAPTURED);
 					siz d = 0;
@@ -622,13 +621,13 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 					if(col == stats_sort)
 						sort_value = s;
 				}
-				else if(!col.find("%acc"))
+				else if(!col.find("$acc"))
 				{
 					siz w = siz(-1);
 					str weapon;
 					str skip;
 					siss iss(col);
-					if(sgl(sgl(iss, skip, '('), weapon, ')'))
+					if(sgl(sgl(iss, skip, '['), weapon, ']'))
 						w = weapon_to_siz(weapon);
 					else
 						w = siz(-1); // all weaps
@@ -641,7 +640,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 					if(col == stats_sort)
 						sort_value = s;
 				}
-				else if(col == "%name")
+				else if(col == "$name")
 				{
 					oss << sep << "^7" << p->second.name;// << " [" << p->first << "] " << (p->first.is_bot()?"BOT":"NOT");
 					if(col == stats_sort)
@@ -667,23 +666,23 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 				// ]  5:24|122|  0| 0.85|  0.00| 25.42%|soylent
 				// ] 14:54|100| 16| 0.46|  7.41| 27.27%|Evil|Kaeskopf*
 				// ]  0:52| 69|  0| 0.33|  0.00| 22.22%|DarkQuiller				sep.clear();
-				if(col == "%time")
+				if(col == "$time")
 					{ oss << sep << "^3time "; sep = "^2|"; }
-				else if(col == "%fph")
+				else if(col == "$fph")
 					{ oss << sep << "^3fph"; sep = "^2|"; }
-				else if(col == "%cph")
+				else if(col == "$cph")
 					{ oss << sep << "^3cph"; sep = "^2|"; }
-				else if(col == "%fpd")
+				else if(col == "$fpd")
 					{ oss << sep << "^3fpd  "; sep = "^2|"; }
-				else if(col == "%cpd")
+				else if(col == "$cpd")
 					{ oss << sep << "^3cpd   "; sep = "^2|"; }
-				else if(!col.find("%acc"))
+				else if(!col.find("$acc"))
 				{
-					str weapon = "all";
+					str weapon;
 					str skip;
 					siss iss(col);
-					if(!sgl(sgl(iss, skip, '('), weapon, ')'))
-						weapon = "all";
+					if(!sgl(sgl(iss, skip, '['), weapon, ']'))
+						weapon.clear();
 					oss << sep << "^3" << weapon << " acc%"; sep = "^2|";
 				}
 			}
