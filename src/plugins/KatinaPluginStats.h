@@ -51,7 +51,7 @@ struct stats
 	siz_map awards;
 	
 	siz_map   	weapon_usage; // shots fired
-	moddmg_map	mod_damage;   // MOD -> stats
+	moddmg_map	mod_damage;   // MOD -> mod_damage_stats
 
 	siz fragsFace;
 	siz fragsBack;

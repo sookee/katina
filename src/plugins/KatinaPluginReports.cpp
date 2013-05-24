@@ -363,6 +363,8 @@ bool KatinaPluginReports::say(siz min, siz sec, const GUID& guid, const str& tex
 
 str get_acc(const stats& stats, siz weapon = siz(-1))//, siz mod)
 {
+	bug_func();
+	bug_var(weapon);
 	static siz_map weap_to_mod;
 	if(weap_to_mod.empty())
 	{
@@ -387,6 +389,9 @@ str get_acc(const stats& stats, siz weapon = siz(-1))//, siz mod)
 	if(weapon != siz(-1))
 		ws = we = weapon;
 	
+	bug_var(ws);
+	bug_var(we);
+
 	siz shots = 0;
 	siz hits  = 0;
 	
@@ -397,9 +402,13 @@ str get_acc(const stats& stats, siz weapon = siz(-1))//, siz mod)
 		if(it != stats.mod_damage.end())
 			hits += it->second.hits;
 	}
-		
-	// Pushes also count as hits
-	hits += stats.pushes;
+
+	bug_var(shots);
+	bug_var(hits);
+	bug_var(stats.pushes);
+	
+	if(weapon == WP_RAILGUN)
+		hits += stats.pushes; // Pushes also count as hits
 		
 	str acc = "";
 	if(shots > 0)
@@ -417,6 +426,7 @@ siz weapon_to_siz(const str& weapon)
 	if(m.empty())
 	{
 		m[""] = WP_NONE;
+		m["*"] = siz(-1);
 		m["GA"] = WP_GAUNTLET;
 		m["MG"] = WP_MACHINEGUN;
 		m["SG"] = WP_SHOTGUN;
