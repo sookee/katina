@@ -655,7 +655,7 @@ bool Katina::start(const str& dir)
 					(*i)->client_disconnect(min, sec, num);
 					
 				teams.erase(clients[num]);
-				players.erase(clients[num]);
+				//players.erase(clients[num]);
 				clients.erase(num);
 			}
 		}

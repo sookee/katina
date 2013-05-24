@@ -199,9 +199,9 @@ public:
 
 	str config_dir;
 	str mapname;
-	siz_guid_map clients; // slot -> GUID
-	guid_str_map players; // GUID -> name
-	guid_siz_map teams; // GUID -> 'R' | 'B'
+	siz_guid_map clients; // slot -> GUID // cleared when players disconnect and on game_begin()
+	guid_str_map players; // GUID -> name  // cleard before game_begin()
+	guid_siz_map teams; // GUID -> 'R' | 'B' // cleared when players disconnect and on game_begin()
 	str_map cvars;
 	siz logmode;
 	std::time_t now;

@@ -71,6 +71,8 @@ struct stats
 
 	time_t joined_time;
 	siz logged_time;
+	
+	str name;
 
 	stats() :
 		kills(), deaths(), flags(), awards(), weapon_usage(), mod_damage(),
@@ -104,7 +106,7 @@ public:
 
 	onevone_map onevone; // GUID -> GUID -> <count> //
 	guid_stat_map stats; // GUID -> <stat>
-	guid_str_map names; // keep track of all players involed in the game
+	//guid_str_map names; // keep track of all players involed in the game
 
 private:
 	str& mapname;

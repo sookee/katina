@@ -146,6 +146,8 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 					
 				if(!p->first.is_bot())
 				{
+					db.add_player(p->first, p->second.name);
+					
 					if((count = p->second.logged_time))
 						db.add_time(id, p->first, count);
 	
@@ -177,9 +179,9 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 //		for(guid_str_map_citer player = players.begin(); player != players.end(); ++player)
 //			if(!player->first.is_bot())
 //				db.add_player(player->first, player->second);
-		for(guid_str_map_citer player = names.begin(); player != names.end(); ++player)
-			if(!player->first.is_bot())
-				db.add_player(player->first, player->second);
+//		for(guid_str_map_citer player = names.begin(); player != names.end(); ++player)
+//			if(!player->first.is_bot())
+//				db.add_player(player->first, player->second);
 	
 		db.off();
 	}
@@ -280,7 +282,8 @@ bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, siz num, siz t
 	std::cout << std::endl;
 	
 	if(!guid.is_bot())
-		names[guid] = name;
+		stats[guid].name = name;
+		//names[guid] = name;
 	
 	if(!in_game)
 		return true;
@@ -413,7 +416,7 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 {
 	stats.clear();
 	onevone.clear();
-	names.clear();
+	//names.clear();
 
 	if(in_game)
 		return true;

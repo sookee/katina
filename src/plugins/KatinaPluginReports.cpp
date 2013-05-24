@@ -642,12 +642,9 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 				}
 				else if(col == "%name")
 				{
-					str name = "unknown";
-					if(stats->names.find(p->first) != stats->names.end())
-						name = stats->names[p->first];
-					oss << sep << "^7" << name;
+					oss << sep << "^7" << p->second.name;
 					if(col == stats_sort)
-						sort_value = name; // todo strip this of control codes
+						sort_value = p->second.name; // todo strip this of control codes
 				}
 			}
 
