@@ -293,13 +293,6 @@ bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, siz num, siz t
 	if(!active)
 		return true;
 
-	// if we have been recording time for this player, accumulate it
-//	if(stats[clients[num]].joined_time)
-//		stats[clients[num]].logged_time += katina.now - stats[clients[num]].joined_time;
-
-	// stop recording time for this player
-//	stats[clients[num]].joined_time = 0; // stall
-	
 	stall_client(num);
 	
 	check_bots_and_players(katina.now);
@@ -309,10 +302,6 @@ bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, siz num, siz t
 	
 	if(!human_players_r || !human_players_b)
 		return true;
-	
-	// start recording time for this player (if no bots and not speccing and humans on both teams)
-//	if(teams[clients[num]] == TEAM_R || teams[clients[num]] == TEAM_B)
-//		stats[clients[num]].joined_time = katina.now;
 	
 	unstall_client(num);
 		
