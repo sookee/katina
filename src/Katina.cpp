@@ -597,8 +597,8 @@ bool Katina::start(const str& dir)
 						guid = to<GUID>(id.substr(24));
 	
 					clients[num] = guid;
-					teams[clients[num]] = team; // 1 = red, 2 = blue, 3 = spec
-					players[clients[num]] = name;
+					teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
+					players[guid] = name;
 	
 					if(events[CLIENT_USERINFO_CHANGED].empty())
 						continue;

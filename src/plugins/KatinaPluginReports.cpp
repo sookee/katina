@@ -474,6 +474,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 					{ d = i; f = ri->first; }
 				oss.str("");
 				oss << "^3#" << d << " ^7" << katina.players[ri->second] << " ^3capped ^7" << ri->first << "^3 flags.";
+				//oss << "^3#" << d << " ^7" << names[ri->second] << " ^3capped ^7" << ri->first << "^3 flags.";
 				// oss << "^3#" << d << " ^7" << katina.players.at(ri->second) << " ^3capped ^7" << ri->first << "^3 flags.";
 				results.push_back(oss.str());
 				if(oss.str().size() > max)
@@ -509,7 +510,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 			// %time %fph %cph %fpd %cpd %acc(GA|MG|SG|GL|RL|LG|RG|PG|BG|GH|NG|PL|CG) %name
 			// GA MG SG GL RL LG RG PG BG GH NG PL CG
 
-			if(!p->second.logged_time)
+			if(p->first.is_bot() || !p->second.logged_time)
 				continue;
 			str sort; // sort column
 			str sort_value; 
@@ -642,7 +643,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 				}
 				else if(col == "%name")
 				{
-					oss << sep << "^7" << p->second.name;
+					oss << sep << "^7" << p->second.name;// << " [" << p->first << "] " << (p->first.is_bot()?"BOT":"NOT");
 					if(col == stats_sort)
 						sort_value = p->second.name; // todo strip this of control codes
 				}
