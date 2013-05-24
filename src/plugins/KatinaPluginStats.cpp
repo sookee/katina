@@ -272,44 +272,10 @@ void KatinaPluginStats::check_bots_and_players(std::time_t now, siz num)
 	bug_var(have_bots);
 	bug_var(human_players_r);
 	bug_var(human_players_b);
-	
-	bool stall = false;
-	bool unstall = false;
-	
-	if(have_bots != had_bots)
-	{
-		if(have_bots)
-		{
-			stall = true;
-			plog("INFO: bots are playing, stats will not be recorded.");
-		}
-		else
-		{
-			unstall = true;
-			plog("INFO: there are no bots, stats will now be recorded.");
-		}
-	}
 
-	if(!have_bots && human_players_nr_or_nb != (!human_players_r || !human_players_b))
-	{
-		if(!human_players_r || !human_players_b)
-		{
-			stall = true;
-			plog("INFO: One team has no players, stats will not be recorded.");
-		}
-		else
-		{
-			unstall = true;
-			plog("INFO: Both teams have players, stats will now be recorded.");
-		}
-	}
-	
-	bug_var(stall);
-	bug_var(unstall);
-	
-	if(stall)
+	if(have_bots || !human_players_r || !human_players_b)
 		stall_clients();
-	else if(unstall)
+	else
 		unstall_clients();
 }
 
