@@ -232,20 +232,14 @@ void KatinaPluginStats::stall_clients()
 {
 	plog("  STALL CLIENTS: " << katina.now);
 	for(siz_guid_map_citer ci = clients.begin(); ci != clients.end(); ++ci)
-	{
-		plog("\t" << players[clients[ci->first]] << ": JT: " << stats[ci->second].joined_time);
 		stall_client(ci->first);
-	}
 }
 
 void KatinaPluginStats::unstall_clients()
 {
 	plog("UNSTALL CLIENTS: " << katina.now);
 	for(siz_guid_map_citer ci = clients.begin(); ci != clients.end(); ++ci)
-	{
-		plog("\t" << players[clients[ci->first]] << ": JT: " << stats[ci->second].joined_time);
 		unstall_client(ci->first);
-	}
 }
 
 void KatinaPluginStats::check_bots_and_players(std::time_t now, siz num)
