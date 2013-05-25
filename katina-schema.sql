@@ -214,6 +214,7 @@ CREATE TABLE `damage` (
   `dmgDone` int(4) NOT NULL,
   `hitsRecv` int(4) NOT NULL,
   `dmgRecv` int(4) NOT NULL,
+  `weightedHits` float NOT NULL,
   PRIMARY KEY (`game_id`,`guid`,`mod`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 

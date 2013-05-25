@@ -155,7 +155,7 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 						db.add_weapon_usage(id, p->first, wu->first, wu->second);
 	
 					for(moddmg_map_citer md = p->second.mod_damage.begin(); md != p->second.mod_damage.end(); ++md)
-						db.add_mod_damage(id, p->first, md->first, md->second.hits, md->second.damage, md->second.hitsRecv, md->second.damageRecv);
+						db.add_mod_damage(id, p->first, md->first, md->second.hits, md->second.damage, md->second.hitsRecv, md->second.damageRecv, md->second.weightedHits);
 	
 					if(p->second.fragsFace | p->second.fragsBack | p->second.fraggedInFace | p->second.fraggedInBack |
 						p->second.spawnKills | p->second.spawnKillsRecv | p->second.pushes | p->second.pushesRecv |
@@ -451,7 +451,7 @@ bool KatinaPluginStats::weapon_usage(siz min, siz sec, siz num, siz weapon, siz 
 	return true;
 }
 
-bool KatinaPluginStats::mod_damage(siz min, siz sec, siz num, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv)
+bool KatinaPluginStats::mod_damage(siz min, siz sec, siz num, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv, float weightedHits)
 {
 	if(!in_game)
 		return true;
@@ -465,10 +465,11 @@ bool KatinaPluginStats::mod_damage(siz min, siz sec, siz num, siz mod, siz hits,
 	if(!clients[num].is_bot())
 	{
 		mod_damage_stats& moddmg = stats[clients[num]].mod_damage[mod];
-		moddmg.hits       += hits;
-		moddmg.damage     += damage;
-		moddmg.hitsRecv   += hitsRecv;
-		moddmg.damageRecv += damageRecv;
+		moddmg.hits         += hits;
+		moddmg.damage       += damage;
+		moddmg.hitsRecv     += hitsRecv;
+		moddmg.damageRecv   += damageRecv;
+		moddmg.weightedHits += weightedHits;
 	}
 	
 	return true;

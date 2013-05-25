@@ -33,9 +33,10 @@ struct mod_damage_stats
 	siz damage;
 	siz hitsRecv;
 	siz damageRecv;
+	float weightedHits;
 	
 	mod_damage_stats() :
-		hits(0), damage(0), hitsRecv(0), damageRecv(0)
+		hits(0), damage(0), hitsRecv(0), damageRecv(0), weightedHits(0.0f)
 	{}
 };
 
@@ -169,7 +170,7 @@ public:
 //	virtual bool say(siz min, siz sec, const GUID& guid, const str& text);
 //	virtual bool unknown(siz min, siz sec, const str& cmd, const str& params);
 	virtual bool weapon_usage(siz min, siz sec, siz num, siz weapon, siz shots);
-	virtual bool mod_damage(siz min, siz sec, siz num, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv);
+	virtual bool mod_damage(siz min, siz sec, siz num, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv, float weightedHits);
 	virtual bool player_stats(siz min, siz sec, siz num,
 		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
 		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,

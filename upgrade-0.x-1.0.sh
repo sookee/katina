@@ -50,6 +50,12 @@ EOF
 
 update_db $MYSQL $SQL "pkeys"
 
+read -d '' SQL << 'EOF'
+ALTER TABLE `damage` ADD `weightedHits` FLOAT NOT NULL 
+EOF
+
+update_db $MYSQL $SQL "weightedHits column"
+
 
 exit 1
 

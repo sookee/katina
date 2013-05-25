@@ -696,12 +696,13 @@ bool Katina::start(const str& dir)
 			bug(cmd << "(" << params << ")");
 		
 			// MOD (Means of Death = Damage Type) Damage Update
-			// MODDamage: <client#> <mod#> <#hits> <damageDone> <#hitsRecv> <damageRecv>
+			// MODDamage: <client#> <mod#> <#hits> <damageDone> <#hitsRecv> <damageRecv> <weightedHits>
 			siz num, mod, hits, dmg, hitsRecv, dmgRecv;
-			if(iss >> num >> mod >> hits >> dmg >> hitsRecv >> dmgRecv)
+			float weightedHits;
+			if(iss >> num >> mod >> hits >> dmg >> hitsRecv >> dmgRecv >> weightedHits)
 			{
 				for(plugin_vec_iter i = events[MOD_DAMAGE].begin(); i != events[MOD_DAMAGE].end(); ++i)
-					(*i)->mod_damage(min, sec, num, mod, hits, dmg, hitsRecv, dmgRecv);
+					(*i)->mod_damage(min, sec, num, mod, hits, dmg, hitsRecv, dmgRecv, weightedHits);
 			}
 			else
 				std::cout << "Error parsing MODDamage" << '\n';
