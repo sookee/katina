@@ -138,7 +138,7 @@ private:
 	void stall_client(siz num);
 	void unstall_client(siz num);
 	void stall_clients();
-	void unstall_clients();
+	void unstall_clients(siz num = siz(-1));
 	void check_bots_and_players(std::time_t now, siz num = siz(-1));
 
 public:

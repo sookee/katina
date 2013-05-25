@@ -409,11 +409,15 @@ str get_acc(const stats& stats, siz weapon = siz(-1))//, siz mod)
 	
 	if(weapon == WP_RAILGUN)
 		hits += stats.pushes; // Pushes also count as hits
-		
+	
+	siz multi = 1;
+	if(weapon == WP_SHOTGUN)
+		multi = 10;
+	
 	str acc = "";
 	if(shots > 0)
 	{
-		double a = ((double) hits / shots) * 100.0;
+		double a = ((double) hits / (shots * multi)) * 100.0;
 		acc = to_string(a, 2);
 	}
 	return acc;

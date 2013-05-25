@@ -222,6 +222,8 @@ void KatinaPluginStats::stall_client(siz num)
 
 void KatinaPluginStats::unstall_client(siz num)
 {
+//	bug("UNSTALL: " << num);
+//	bug_var(teams[clients[num]]);
 	if(stats[clients[num]].joined_time)
 		return;
 	if(teams[clients[num]] != TEAM_R && teams[clients[num]] != TEAM_B)
@@ -237,11 +239,12 @@ void KatinaPluginStats::stall_clients()
 		stall_client(ci->first);
 }
 
-void KatinaPluginStats::unstall_clients()
+void KatinaPluginStats::unstall_clients(siz num)
 {
 	plog("UNSTALL CLIENTS: " << katina.now);
 	for(siz_guid_map_citer ci = clients.begin(); ci != clients.end(); ++ci)
-		unstall_client(ci->first);
+		if(num == siz(-1) || num != ci->first)
+			unstall_client(ci->first);
 }
 
 void KatinaPluginStats::check_bots_and_players(std::time_t now, siz num)
@@ -272,7 +275,7 @@ void KatinaPluginStats::check_bots_and_players(std::time_t now, siz num)
 	if(have_bots || !human_players_r || !human_players_b)
 		stall_clients();
 	else
-		unstall_clients();
+		unstall_clients(num);
 }
 
 bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name)
@@ -323,6 +326,7 @@ bool KatinaPluginStats::client_disconnect(siz min, siz sec, siz num)
 		return true;
 
 	stall_client(num);
+	//teams[clients[num]] = 0;
 	//if(stats[clients[num]].joined_time)
 	//	stats[clients[num]].logged_time += katina.now - stats[clients[num]].joined_time;
 	//stats[clients[num]].joined_time = 0;
