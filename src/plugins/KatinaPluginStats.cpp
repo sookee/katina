@@ -146,6 +146,8 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 					
 				if(!p->first.is_bot())
 				{
+					db.add_player(p->first, p->second.name);
+					
 					if((count = p->second.logged_time))
 						db.add_time(id, p->first, count);
 	
@@ -177,9 +179,9 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 //		for(guid_str_map_citer player = players.begin(); player != players.end(); ++player)
 //			if(!player->first.is_bot())
 //				db.add_player(player->first, player->second);
-		for(guid_str_map_citer player = names.begin(); player != names.end(); ++player)
-			if(!player->first.is_bot())
-				db.add_player(player->first, player->second);
+//		for(guid_str_map_citer player = names.begin(); player != names.end(); ++player)
+//			if(!player->first.is_bot())
+//				db.add_player(player->first, player->second);
 	
 		db.off();
 	}
@@ -232,20 +234,14 @@ void KatinaPluginStats::stall_clients()
 {
 	plog("  STALL CLIENTS: " << katina.now);
 	for(siz_guid_map_citer ci = clients.begin(); ci != clients.end(); ++ci)
-	{
-		plog("\t" << players[clients[ci->first]] << ": JT: " << stats[ci->second].joined_time);
 		stall_client(ci->first);
-	}
 }
 
 void KatinaPluginStats::unstall_clients()
 {
 	plog("UNSTALL CLIENTS: " << katina.now);
 	for(siz_guid_map_citer ci = clients.begin(); ci != clients.end(); ++ci)
-	{
-		plog("\t" << players[clients[ci->first]] << ": JT: " << stats[ci->second].joined_time);
 		unstall_client(ci->first);
-	}
 }
 
 void KatinaPluginStats::check_bots_and_players(std::time_t now, siz num)
@@ -272,44 +268,10 @@ void KatinaPluginStats::check_bots_and_players(std::time_t now, siz num)
 	bug_var(have_bots);
 	bug_var(human_players_r);
 	bug_var(human_players_b);
-	
-	bool stall = false;
-	bool unstall = false;
-	
-	if(have_bots != had_bots)
-	{
-		if(have_bots)
-		{
-			stall = true;
-			plog("INFO: bots are playing, stats will not be recorded.");
-		}
-		else
-		{
-			unstall = true;
-			plog("INFO: there are no bots, stats will now be recorded.");
-		}
-	}
 
-	if(!have_bots && human_players_nr_or_nb != (!human_players_r || !human_players_b))
-	{
-		if(!human_players_r || !human_players_b)
-		{
-			stall = true;
-			plog("INFO: One team has no players, stats will not be recorded.");
-		}
-		else
-		{
-			unstall = true;
-			plog("INFO: Both teams have players, stats will now be recorded.");
-		}
-	}
-	
-	bug_var(stall);
-	bug_var(unstall);
-	
-	if(stall)
+	if(have_bots || !human_players_r || !human_players_b)
 		stall_clients();
-	else if(unstall)
+	else
 		unstall_clients();
 }
 
@@ -320,20 +282,14 @@ bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, siz num, siz t
 	std::cout << std::endl;
 	
 	if(!guid.is_bot())
-		names[guid] = name;
+		stats[guid].name = name;
+		//names[guid] = name;
 	
 	if(!in_game)
 		return true;
 	if(!active)
 		return true;
 
-	// if we have been recording time for this player, accumulate it
-//	if(stats[clients[num]].joined_time)
-//		stats[clients[num]].logged_time += katina.now - stats[clients[num]].joined_time;
-
-	// stop recording time for this player
-//	stats[clients[num]].joined_time = 0; // stall
-	
 	stall_client(num);
 	
 	check_bots_and_players(katina.now);
@@ -343,10 +299,6 @@ bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, siz num, siz t
 	
 	if(!human_players_r || !human_players_b)
 		return true;
-	
-	// start recording time for this player (if no bots and not speccing and humans on both teams)
-//	if(teams[clients[num]] == TEAM_R || teams[clients[num]] == TEAM_B)
-//		stats[clients[num]].joined_time = katina.now;
 	
 	unstall_client(num);
 		
@@ -464,6 +416,7 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 {
 	stats.clear();
 	onevone.clear();
+	//names.clear();
 
 	if(in_game)
 		return true;

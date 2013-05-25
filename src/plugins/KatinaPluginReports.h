@@ -69,18 +69,6 @@ private:
 	KatinaPluginVotes* votes;
 	
 	RemoteClientList client;
-	
-	// %time %fph %cph %kpd %cpd %acc(RG|RL|LG)
-
-	enum
-	{
-		RSC_TIME     = 0b00000001
-		, RSC_FPH    = 0b00000010 // frags/hour
-		, RSC_CPH    = 0b00000100 // flags/hour
-		, RSC_KPD    = 0b00001000 // kills/deaths
-		, RSC_CPD    = 0b00010000 // caps/deaths
-		, RSC_RGACC  = 0b00100000 // railgun accuracy
-	};
 
 	// cvars
 	bool active;
@@ -90,8 +78,8 @@ private:
 	bool do_kills;
 	bool do_infos;
 	bool do_stats;
-	str stats_cols;
-	str stats_sort; // sort column
+	str stats_cols; // %time %fph %cph %kpd %cpd %acc(RG|RL|LG)
+	str stats_sort; // %fph
 	bool spamkill;
 	str chans;
 
@@ -104,25 +92,11 @@ private:
 	str old_mapname;
 
 	str_vec notspam; // spam exceptions
-/*
-	str get_stats_cols() const
-	{
-		str cols, sep;
-		if(stats_cols & RSC_TIME)
-			{ cols += sep + "TIME"; sep = " "; }
-		if(stats_cols & RSC_FPH)
-			{ cols += sep + "FPH"; sep = " "; }
-		if(stats_cols & RSC_CPH)
-			{ cols += sep + "CPH"; sep = " "; }
-		if(stats_cols & RSC_KPD)
-			{ cols += sep + "KPD"; sep = " "; }
-		if(stats_cols & RSC_CPD)
-			{ cols += sep + "CPD"; sep = " "; }
-		return cols;
-	}
-*/
+
 	str get_nums_team(siz num);
 	str get_nums_team(const GUID& guid);
+	
+	guid_str_map names; 
 
 public:
 	KatinaPluginReports(Katina& katina);

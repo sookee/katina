@@ -179,8 +179,8 @@ private:
 	str_map plugin_files; // id -> filename (for reloading))
 
 	event_map events; // event -> KatinaPlugin*
-	cvar_map_map cvars; // plugin* -> {name -> cvar*}
-	
+	cvar_map_map vars; // plugin* -> {name -> cvar*}
+
 	GUID guid_from_name(const str& name);
 	bool extract_name_from_text(const str& line, GUID& guid, str& text);
 	bool load_config(const str& dir, const str& file, property_map& props);
@@ -199,9 +199,10 @@ public:
 
 	str config_dir;
 	str mapname;
-	siz_guid_map clients; // slot -> GUID
-	guid_str_map players; // GUID -> name
-	guid_siz_map teams; // GUID -> 'R' | 'B'
+	siz_guid_map clients; // slot -> GUID // cleared when players disconnect and on game_begin()
+	guid_str_map players; // GUID -> name  // cleard before game_begin()
+	guid_siz_map teams; // GUID -> 'R' | 'B' // cleared when players disconnect and on game_begin()
+	str_map cvars;
 	siz logmode;
 	std::time_t now;
 	
@@ -259,7 +260,7 @@ public:
 	void add_var_event(class KatinaPlugin* plugin, const str& name, T& var, const T& dflt = T())
 	{
 		var = get(name, dflt);
-		cvars[plugin][name] = new cvar_t<T>(var);
+		vars[plugin][name] = new cvar_t<T>(var);
 		if(logmode > LOG_NORMAL)
 			log("CVAR: " << plugin->get_id() << ": " << name << " = " << var);  
 	}
@@ -268,7 +269,7 @@ public:
 	{
 		events[e].push_back(plugin);
 	}
-	
+
 	/**
 	 *
      * @param config path to config directory [$HOME/.katina]

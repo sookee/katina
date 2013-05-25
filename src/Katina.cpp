@@ -9,6 +9,7 @@
 
 #include <dlfcn.h>
 #include <cassert>
+#include <ctime>
 
 #include <katina/Katina.h>
 #include <katina/KatinaPlugin.h>
@@ -40,7 +41,7 @@ str Katina::get_version() { return version + "-" + tag; }
 void* cvarpoll(void* vp)
 {
 	Katina& katina = *reinterpret_cast<Katina*>(vp);
-	cvar_map_map& cvars = katina.cvars;
+	cvar_map_map& cvars = katina.vars;
 	
 	cvar_map_iter mi;
 	cvar_map_map_iter mmi = cvars.end();
@@ -118,22 +119,20 @@ bool Katina::rconset(const str& cvar, str& val)
 	// -> "<var>" is:"<val>^7", the default
 	// -> "katina_skivvy_chans" is:"#katina-test(c) #katina(c)^7" default:"#katina-test(c)^7"
 
-	str sval;
-
 	trim(response);
 	
 	if(response.empty())
 		return false;
 	
-	if(response.find("unknown command:"))
+	if(!response.find("unknown command:"))
+		return false;
+
+	str sval, skip;
+	siss iss(response);
+	if(!std::getline(std::getline(iss, skip, ':').ignore(), sval, '^'))
 	{
-		str skip;
-		siss iss(response);
-		if(!std::getline(std::getline(iss, skip, ':').ignore(), sval, '^'))
-		{
-			log("ERROR: parsing rconset response: " << response);
-			return false;
-		}
+		log("ERROR: parsing rconset response: " << response);
+		return false;
 	}
 
 	val = sval;
@@ -474,10 +473,11 @@ bool Katina::start(const str& dir)
 	siss iss;
 
 	now = get("run.time", std::time_t(-1));
+	std::time_t base_now = now; // rerun base time
 		
 	while(!done)
 	{
-		bug("loop:");
+		//bug("loop:");
 		if(!std::getline(is, line) || is.eof())
 		{
 			if(rerun)
@@ -539,50 +539,43 @@ bool Katina::start(const str& dir)
 		lock_guard lock(cvarevts_mtx);
 		
 		if(rerun)
-			++now;
+			now = base_now + (min * 60) + sec;
 		else
 			now = std::time(0);
 		
 		if(cmd == "Exit:")
 		{
+			bug(cmd << "(" << params << ")");
 			if(events[EXIT].empty())
 				continue;
 			
-			bug(cmd << "(" << params << ")");
-
 			for(plugin_vec_iter i = events[EXIT].begin()
 				; i != events[EXIT].end(); ++i)
 				(*i)->exit(min, sec);
 		}
 		else if(cmd == "ShutdownGame:")
 		{
+			bug(cmd << "(" << params << ")");
 			if(events[SHUTDOWN_GAME].empty())
 				continue;
 			
-			bug(cmd << "(" << params << ")");
-
 			for(plugin_vec_iter i = events[SHUTDOWN_GAME].begin()
 				; i != events[SHUTDOWN_GAME].end(); ++i)
 				(*i)->shutdown_game(min, sec);
 		}
 		else if(cmd == "Warmup:")
 		{
+			bug(cmd << "(" << params << ")");
 			if(events[WARMUP].empty())
 				continue;
 			
-			bug(cmd << "(" << params << ")");
-
 			for(plugin_vec_iter i = events[WARMUP].begin()
 				; i != events[WARMUP].end(); ++i)
 				(*i)->warmup(min, sec);
 		}
 		else if(cmd == "ClientUserinfoChanged:")
 		{
-			if(events[CLIENT_USERINFO_CHANGED].empty())
-				continue;
-			
 			bug(cmd << "(" << params << ")");
-			
 			// 0 n\Merman\t\2\model\merman\hmodel\merman\c1\1\c2\1\hc\70\w\0\l\0\skill\ 2.00\tt\0\tl\0\id\
 			// 2 \n\^1S^2oo^3K^5ee\t\3\c2\d\hc\100\w\0\l\0\tt\0\tl\0\id\041BD1732752BCC408FAF45616A8F64B
 			siz num, team;
@@ -604,9 +597,12 @@ bool Katina::start(const str& dir)
 						guid = to<GUID>(id.substr(24));
 	
 					clients[num] = guid;
-					teams[clients[num]] = team; // 1 = red, 2 = blue, 3 = spec
-					players[clients[num]] = name;
+					teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
+					players[guid] = name;
 	
+					if(events[CLIENT_USERINFO_CHANGED].empty())
+						continue;
+			
 					for(plugin_vec_iter i = events[CLIENT_USERINFO_CHANGED].begin()
 						; i != events[CLIENT_USERINFO_CHANGED].end(); ++i)
 						(*i)->client_userinfo_changed(min, sec, num, team, guid, name);
@@ -615,11 +611,10 @@ bool Katina::start(const str& dir)
 		}
 		else if(cmd == "ClientConnect:")
 		{
+			bug(cmd << "(" << params << ")");
 			if(events[CLIENT_CONNECT].empty())
 				continue;
 			
-			bug(cmd << "(" << params << ")");
-
 			siz num;
 			if(!(iss >> num))
 				log("Error parsing ClientConnect: "  << params);
@@ -632,11 +627,10 @@ bool Katina::start(const str& dir)
 		}
 		else if(cmd == "ClientBegin:") // 0:04 ClientBegin: 4
 		{
+			bug(cmd << "(" << params << ")");
 			if(events[CLIENT_BEGIN].empty())
 				continue;
 			
-			bug(cmd << "(" << params << ")");
-
 			siz num;
 			if(!(iss >> num))
 				log("Error parsing ClientBegin: "  << params);
@@ -649,9 +643,6 @@ bool Katina::start(const str& dir)
 		}
 		else if(cmd == "ClientDisconnect:")
 		{
-			if(events[CLIENT_DISCONNECT].empty())
-				continue;
-			
 			bug(cmd << "(" << params << ")");
 
 			siz num;
@@ -664,17 +655,16 @@ bool Katina::start(const str& dir)
 					(*i)->client_disconnect(min, sec, num);
 					
 				teams.erase(clients[num]);
-				players.erase(clients[num]);
+				//players.erase(clients[num]);
 				clients.erase(num);
 			}
 		}
 		else if(cmd == "Kill:")
 		{
+			bug(cmd << "(" << params << ")");
 			if(events[KILL].empty())
 				continue;
 			
-			bug(cmd << "(" << params << ")");
-
 			siz num1, num2, weap;
 			if(!(iss >> num1 >> num2 >> weap))
 				log("Error parsing Kill:" << params);
@@ -763,11 +753,10 @@ bool Katina::start(const str& dir)
 		}
 		else if(cmd == "red:") // BUG: red:(8  blue:6) [Katina.cpp] (662)
 		{
+			bug(cmd << "(" << params << ")");
 			if(events[CTF_EXIT].empty())
 				continue;
 			
-			// 20:44 red:4  blue:3
-			bug(cmd << "(" << params << ")");
 			//bug_var(iss.str());
 			siz r = 0;
 			siz b = 0;
@@ -787,6 +776,9 @@ bool Katina::start(const str& dir)
 		else if(cmd == "score:") // 
 		{
 			bug(cmd << "(" << params << ")");
+			if(events[SCORE_EXIT].empty())
+				continue;
+
 			int score = 0;
 			siz ping = 0;
 			siz num = 0;
@@ -814,11 +806,10 @@ bool Katina::start(const str& dir)
  		}
 		else if(cmd == "Award:")
 		{
+			bug(cmd << "(" << params << ")");
 			if(events[AWARD].empty())
 				continue;
 			
-			bug(cmd << "(" << params << ")");
-
 			siz num, awd;
 			if(!(iss >> num >> awd))
 				log("Error parsing Award:" << params);
@@ -831,37 +822,62 @@ bool Katina::start(const str& dir)
 		}
 		else if(cmd == "InitGame:")
 		{
-			if(events[INIT_GAME].empty())
-				continue;
-			
 			bug(cmd << "(" << params << ")");
 
 			static str key, val;
-			static str_map cvars;
-			
-			cvars.clear();
-			iss.ignore(); // skip initial '\\'
-			while(sgl(sgl(iss, key, '\\'), val, '\\'))
-				cvars[key] = val;
 			
 			clients.clear();
 			players.clear();
 			teams.clear();
+			cvars.clear();
+			
+			iss.ignore(); // skip initial '\\'
+			while(sgl(sgl(iss, key, '\\'), val, '\\'))
+				cvars[key] = val;
+			
+			mapname = cvars["mapname"];
+			
+			if(rerun)
+			{
+				str skip;
+				siz Y, M, D, h, m, s;
+				char c;
+				siss iss(cvars["g_timestamp"]);
+				// g_timestamp 2013-05-24 09:34:32
+				if((iss >> Y >> c >> M >> c >> D >> c >> h >> c >> m >> c >> s))
+				{
+					tm t;
+					std::time_t _t = std::time(0);
+					t = *gmtime(&_t);
+					t.tm_year = Y - 1900;
+					t.tm_mon = M;
+					t.tm_mday = D;
+					t.tm_hour = h;
+					t.tm_min = m;
+					t.tm_sec = s;
+					t.tm_isdst = 0;
+					base_now = std::mktime(&t);
+					log("RERUN TIMESTAMP: " << base_now);
+				}
+			}
 
 			str msg = "^1K^7at^3i^7na ^3Stats System v^7" + version + "^3-" + tag + ".";
 			server.cp(msg);
 
-			siz pos;
-			if((pos = line.find("mapname\\")) != str::npos)
-			{
-				mapname = "unknown";
-				std::istringstream iss(line.substr(pos + 8));
-				if(!std::getline(iss, mapname, '\\'))
-					std::cout << "Error parsing mapname\\" << '\n';
-				lower(mapname);
-			}
+//			siz pos;
+			//if((pos = line.find("mapname\\")) != str::npos)
+			//{
+				//mapname = "unknown";
+				//std::istringstream iss(line.substr(pos + 8));
+				//if(!std::getline(iss, mapname, '\\'))
+					//std::cout << "Error parsing mapname\\" << '\n';
+				//lower(mapname);
+			//}
 			log("MAP NAME: " << mapname);
 
+			if(events[INIT_GAME].empty())
+				continue;
+			
 			for(plugin_vec_iter i = events[INIT_GAME].begin()
 				; i != events[INIT_GAME].end(); ++i)
 				(*i)->init_game(min, sec, cvars);
