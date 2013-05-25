@@ -212,6 +212,9 @@ bool KatinaPluginReports::init_game(siz min, siz sec, const str_map& cvars)
 	flags[FL_BLUE] = 0;
 	caps.clear();
 
+	if(!active)
+		return true;
+
 	if(do_infos && katina.mapname != old_mapname)
 	{
 		str vote;
@@ -237,6 +240,9 @@ bool KatinaPluginReports::init_game(siz min, siz sec, const str_map& cvars)
 
 bool KatinaPluginReports::kill(siz min, siz sec, siz num1, siz num2, siz weap)
 {
+	if(!active)
+		return true;
+
 	if(!do_kills)
 		return true;
 	
@@ -273,6 +279,9 @@ str KatinaPluginReports::get_nums_team(const GUID& guid)
 
 bool KatinaPluginReports::ctf(siz min, siz sec, siz num, siz team, siz act)
 {
+	if(!active)
+		return true;
+
 	siz pcol = team - 1; // make 0-1 for array index
 	siz ncol = pcol ? 0 : 1;
 
@@ -344,6 +353,9 @@ bool KatinaPluginReports::ctf(siz min, siz sec, siz num, siz team, siz act)
 
 bool KatinaPluginReports::say(siz min, siz sec, const GUID& guid, const str& text)
 {
+	if(!active)
+		return true;
+
 	if(do_chats)
 	{
 		str hud;
@@ -361,6 +373,7 @@ bool KatinaPluginReports::say(siz min, siz sec, const GUID& guid, const str& tex
 	return true;
 }
 
+// weapon = siz(-1) => all weapons totalled
 str get_acc(const stats& stats, siz weapon = siz(-1))//, siz mod)
 {
 	bug_func();
@@ -397,27 +410,28 @@ str get_acc(const stats& stats, siz weapon = siz(-1))//, siz mod)
 	
 	for(siz w = ws; w <= we; ++w)
 	{
-		shots += map_get(stats.weapon_usage, w);
+		siz multi = 1;
+		if(w == WP_SHOTGUN)
+			multi = 10;
+	
+		bug_var(multi);
+
+		shots += map_get(stats.weapon_usage, w) * multi;
 		moddmg_map_citer it = stats.mod_damage.find(weap_to_mod[w]);
 		if(it != stats.mod_damage.end())
 			hits += it->second.hits;
+		if(w == WP_RAILGUN)
+			hits += stats.pushes; // Pushes also count as hits
 	}
 
 	bug_var(shots);
 	bug_var(hits);
 	bug_var(stats.pushes);
-	
-	if(weapon == WP_RAILGUN)
-		hits += stats.pushes; // Pushes also count as hits
-	
-	siz multi = 1;
-	if(weapon == WP_SHOTGUN)
-		multi = 10;
-	
+		
 	str acc = "";
 	if(shots > 0)
 	{
-		double a = ((double) hits / (shots * multi)) * 100.0;
+		double a = ((double) hits / shots) * 100.0;
 		acc = to_string(a, 2);
 	}
 	return acc;
@@ -450,6 +464,9 @@ siz weapon_to_siz(const str& weapon)
 
 bool KatinaPluginReports::exit(siz min, siz sec)
 {
+	if(!active)
+		return true;
+
 	// erase non spam marked messages
 	for(str_siz_map_iter i = spam.begin(); i != spam.end();)
 	{

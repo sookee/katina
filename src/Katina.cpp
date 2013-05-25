@@ -5,7 +5,7 @@
  * Created on May 1, 2013, 6:23 PM
  */
 
-#undef DEBUG
+//#undef DEBUG
 
 #include <dlfcn.h>
 #include <cassert>
@@ -689,7 +689,7 @@ bool Katina::start(const str& dir)
 					(*i)->weapon_usage(min, sec, num, weap, shots);
 			}
 			else
-				std::cout << "Error parsing WeaponUsage" << '\n';
+				log("Error parsing WeaponUsage: " << params);
 		}
 		else if(cmd == "MODDamage:")
 		{
@@ -705,7 +705,7 @@ bool Katina::start(const str& dir)
 					(*i)->mod_damage(min, sec, num, mod, hits, dmg, hitsRecv, dmgRecv, weightedHits);
 			}
 			else
-				std::cout << "Error parsing MODDamage" << '\n';
+				log("Error parsing MODDamage: " << params);
 		}
 		else if(cmd == "PlayerStats:")
 		{
