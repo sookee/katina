@@ -82,7 +82,7 @@ public:
 	 * Summarizing events for more detailed statistics (they only work with the katina game mod)
 	 */
 	virtual bool weapon_usage(siz min, siz sec, siz num, siz weapon, siz shots) {}
-	virtual bool mod_damage(siz min, siz sec, siz num, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv) {}
+	virtual bool mod_damage(siz min, siz sec, siz num, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv, float weightedHits) {}
 	virtual bool player_stats(siz min, siz sec, siz num,
 		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
 		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
