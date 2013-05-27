@@ -76,7 +76,7 @@ bool Database::query(const str& sql)
 		log("              : sql = " << sql);
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -84,9 +84,9 @@ bool Database::insert(const str& sql, my_ulonglong& insert_id)
 {
 	if(!insert(sql))
 		return false;
-	
+
 	insert_id = mysql_insert_id(&mysql);
-	
+
 	return true;
 }
 
@@ -94,9 +94,9 @@ bool Database::update(const str& sql, my_ulonglong& update_count)
 {
 	if(!update(sql))
 		return false;
-	
+
 	update_count = mysql_affected_rows(&mysql);
-	
+
 	return true;
 }
 
@@ -110,16 +110,16 @@ bool Database::select(const str& sql, str_vec_vec& rows, siz fields)
 	{
 		log("DATABASE ERROR: result: " << mysql_error(&mysql));
 		return false;
-	}		
+	}
 
 	if(fields == 0)
 		fields = fields = mysql_num_fields(result);
-	
+
 	if(fields != mysql_num_fields(result))
 		log("DATABASE: WARNING: parameter fields different from table");
 
 	rows.clear();
-	
+
 	MYSQL_ROW row;
 	while((row = mysql_fetch_row(result)))
 	{
@@ -129,7 +129,7 @@ bool Database::select(const str& sql, str_vec_vec& rows, siz fields)
 				v[f] = row[f];
 		rows.push_back(v);
 	}
-	
+
 	mysql_free_result(result);
 	return true;
 }
@@ -236,9 +236,9 @@ row_count Database::add_vote(const str& type, const str& item, const GUID& guid,
 		<< " on duplicate key update `count` = '" << count << "'";
 
 	str sql = oss.str();
-	
+
 	my_ulonglong update_count = 0;
-	
+
 	if(!update(sql, update_count))
 		return 0;
 
@@ -410,7 +410,7 @@ bool calc_period(siz& syear, siz& smonth, siz& eyear, siz& emonth, siz prev = 0)
 	bug_var(smonth);
 	bug_var(eyear);
 	bug_var(emonth);
-	
+
 	return true;
 }
 
@@ -433,7 +433,7 @@ struct stat_c
 typedef std::map<str, stat_c> stat_map; // guid -> stat_c
 typedef stat_map::iterator stat_map_iter;
 typedef stat_map::const_iterator stat_map_citer;
-	
+
 bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, GUID& guid, str& stats)
 {
 	log("DATABASE: get_ingame_boss(" << mapname << ", " << clients.size() << ")");
@@ -444,20 +444,20 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 
 	if(!calc_period(syear, smonth, eyear, emonth))
 		return false;
-	
+
 	stat_map stat_cs;
 	str_set guids;
-	
+
 	soss oss;
 	oss << "select `game_id` from `game` where `map` = '" << mapname << "'";
 	oss << " and `date` >= TIMESTAMP('" << syear << '-' << (smonth < 10 ? "0":"") << smonth << '-' << "01" << "')";
 	oss << " and `date` <  TIMESTAMP('" << eyear << '-' << (emonth < 10 ? "0":"") << emonth << '-' << "01" << "')";
 	str subsql = oss.str();
-	
+
 	// select distinct `guid`,sum(`kills`.`count`) from `kills`
 	// where `kills`.`guid` in ('F8247501','152299FD','E6686040')
 	// group by `guid` order by sum(`kills`.`count`) desc;
-	
+
 	str sep;
 	oss.clear();
 	oss.str("");
@@ -465,24 +465,24 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 		if(!i->second.is_bot())
 			{ oss << sep << "'" << i->second << "'"; sep = ",";}
 	str insql = oss.str();
-	
+
 	guid = null_guid;
 	stats = "^3FPH^7: ^20 ^3CPH^7: ^20 ^3index^7: ^20.00";
 
 	if(insql.empty())
 		return true;
-	
+
 	oss.clear();
 	oss.str("");
 	oss << "select distinct `guid`,sum(`kills`.`count`) from `kills` where `kills`.`guid` in (" << insql << ")";
-	oss << " and `game_id` in (" << subsql << ") group by `guid` order by sum(`kills`.`count`) desc"; 
-	
+	oss << " and `game_id` in (" << subsql << ") group by `guid` order by sum(`kills`.`count`) desc";
+
 	str sql = oss.str();
-	
+
 	bug_var(sql);
 
 	str_vec_vec rows;
-	
+
 	if(!select(sql, rows, 2))
 		return false;
 
@@ -493,14 +493,14 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 		stat_cs[rows[i][0]].kills = to<siz>(rows[i][1]);
 		guids.insert(rows[i][0]);
 	}
-	
+
 	oss.clear();
 	oss.str("");
 	oss << "select distinct `guid`,sum(`caps`.`count`) from `caps` where `caps`.`guid` in (" << insql << ")";
-	oss << " and `game_id` in (" << subsql << ") group by `guid` order by sum(`caps`.`count`) desc"; 
-	
+	oss << " and `game_id` in (" << subsql << ") group by `guid` order by sum(`caps`.`count`) desc";
+
 	sql = oss.str();
-	
+
 	bug_var(sql);
 
 	if(!select(sql, rows, 2))
@@ -513,14 +513,14 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 		stat_cs[rows[i][0]].caps = to<siz>(rows[i][1]);
 		guids.insert(rows[i][0]);
 	}
-	
+
 	oss.clear();
 	oss.str("");
 	oss << "select distinct `guid`,sum(`time`.`count`) from `time` where `time`.`guid` in (" << insql << ")";
-	oss << " and `game_id` in (" << subsql << ") group by `guid` order by sum(`time`.`count`) desc"; 
-	
+	oss << " and `game_id` in (" << subsql << ") group by `guid` order by sum(`time`.`count`) desc";
+
 	sql = oss.str();
-	
+
 	bug_var(sql);
 
 	if(!select(sql, rows, 2))
@@ -533,57 +533,57 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 		stat_cs[rows[i][0]].secs = to<siz>(rows[i][1]);
 		guids.insert(rows[i][0]);
 	}
-	
+
 	if(guids.empty())
 		return true;
-	
+
 	// -- get ratio of frags to caps
-	
+
 	oss.clear();
 	oss.str("");
 	oss << "select sum(`kills`.`count`) from `kills` where";
-	oss << " `kills`.`game_id` in (" << subsql << ")"; 
-	
+	oss << " `kills`.`game_id` in (" << subsql << ")";
+
 	sql = oss.str();
-	
+
 	bug_var(sql);
 
 	if(!select(sql, rows, 1))
 		return false;
 
 	double k = 0.0;
-	
+
 	if(!rows.empty() && !rows[0].empty())
 		k = to<double>(rows[0][0]);
-	
+
 	oss.clear();
 	oss.str("");
 	oss << "select sum(`caps`.`count`) from `caps` where";
-	oss << " `caps`.`game_id` in (" << subsql << ")"; 
-	
+	oss << " `caps`.`game_id` in (" << subsql << ")";
+
 	sql = oss.str();
-	
+
 	bug_var(sql);
 
 	if(!select(sql, rows, 1))
 		return false;
 
 	double c = 0.0;
-	
+
 	if(!rows.empty() && !rows[0].empty())
 		c = to<double>(rows[0][0]);
-	
+
 	double kpc = c > 0.001 ? (k / c) : 1.0;
-	
+
 	bug_var(k);
 	bug_var(c);
 	bug_var(kpc);
-	
+
 	// -- index: sqrt(pow(fph, 2) + pow(cph * kpc, 2)) * acc
-	
+
 	str_set_iter maxi = guids.end();
 	double maxv = 0.0;
-	
+
 	for(str_set_iter g = guids.begin(); g != guids.end(); ++g)
 	{
 		if(stat_cs[*g].secs)
@@ -599,7 +599,7 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 			}
 		}
 	}
-	
+
 	if(maxi != guids.end())
 	{
 		guid = GUID(*maxi);
@@ -614,7 +614,7 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 			bug_var(stats);
 		}
 	}
-	
+
 	return true;
 }
 
@@ -629,86 +629,86 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 
 	if(!calc_period(syear, smonth, eyear, emonth, prev))
 		return false;
-	
+
 	soss sql;
 	sql << "select `game_id` from `game` where `map` = '" << mapname << "'";
 	sql << " and `date` >= TIMESTAMP('" << syear << '-' << (smonth < 10 ? "0":"") << smonth << '-' << "01" << "')";
 	sql << " and `date` <  TIMESTAMP('" << eyear << '-' << (emonth < 10 ? "0":"") << emonth << '-' << "01" << "')";
 	str subsql = sql.str();
-	
+
 	// kills
-	
+
 	sql.clear();
 	sql.str("");
 	sql << "select sum(`kills`.`count`) from `kills` where `kills`.`guid` = '";
 	sql << guid << "'";
-	sql << " and `game_id` in (" << subsql << ")"; 
-	
+	sql << " and `game_id` in (" << subsql << ")";
+
 	bug_var(sql.str());
 
 	str_vec_vec rows;
-	
+
 	if(!select(sql.str(), rows, 1))
 		return false;
-		
+
 	str kills = rows.empty() || rows[0][0].empty() ? "0" : rows[0][0];
 	bug_var(kills);
-	
+
 	// shots
-	
+
 	sql.clear();
 	sql.str("");
 	sql << "select sum(`weapon_usage`.`shots`) from `weapon_usage` where `weapon_usage`.`guid` = '";
 	sql << guid << "'";
-	sql << " and `game_id` in (" << subsql << ")"; 
-	
+	sql << " and `game_id` in (" << subsql << ")";
+
 	bug_var(sql.str());
 
 	if(!select(sql.str(), rows, 1))
 		return false;
-		
+
 	str shots = rows.empty() || rows[0][0].empty() ? "0" : rows[0][0];
 	bug_var(shots);
-	
+
 	// caps
-	
+
 	sql.clear();
 	sql.str("");
 	sql << "select sum(`caps`.`count`) from `caps` where `caps`.`guid` = '";
 	sql << guid << "'";
-	sql << " and `game_id` in (" << subsql << ")"; 
-	
+	sql << " and `game_id` in (" << subsql << ")";
+
 	bug_var(sql.str());
 
 	if(!select(sql.str(), rows, 1))
 		return false;
-		
+
 	str caps = rows.empty() || rows[0][0].empty() ? "0" : rows[0][0];
 	bug_var(caps);
-	
+
 	// secs
-	
+
 	sql.clear();
 	sql.str("");
 	sql << "select sum(`time`.`count`) from `time` where `time`.`guid` = '";
 	sql << guid << "'";
-	sql << " and `game_id` in (" << subsql << ")"; 
-	
+	sql << " and `game_id` in (" << subsql << ")";
+
 	bug_var(sql.str());
 
 	if(!select(sql.str(), rows, 1))
 		return false;
-		
+
 	str secs = rows.empty() || rows[0][0].empty() ? "0" : rows[0][0];
 	bug_var(secs);
-	
+
 	siz sec = 0;
 	siz fph = 0;
 	siz cph = 0;
 	double acc = 0.0;
-	
+
 	siss iss(kills + ' ' + shots + ' ' + caps + ' ' + secs);
-	
+
 	if(!(iss >> fph >> acc >> cph >> sec))
 	{
 		log("DATABASE ERROR: parsing results: " << (kills + ' ' + shots + ' ' + caps + ' ' + secs));
@@ -721,13 +721,13 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	bug_var(acc);
 
 	stats = "^3FPH^7: ^20 ^3CPH^7: ^20 ^3ACC^7: ^20.00%";
-	
+
 	//hours /= (60 * 60);
 	if(acc > 0.0001)
 		acc = (fph * 100) / acc;
 	else
 		acc = 0.0;
-	
+
 	if(sec)
 	{
 		fph = (fph * 60 * 60) / sec;
@@ -742,8 +742,8 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 		oss << std::fixed;
 		oss.precision(2);
 		// TODO: add acc next month because shots have not been recorded for all this month.
-		//oss << "^3FPH^7: ^2" << fph << " ^3CPH^7: ^2" << cph << " ^ACC^7: ^2" << acc << '%';
-		oss << "^3FPH^7: ^2" << fph << " ^3CPH^7: ^2" << cph << " ^ACC^7: ^2 soon";
+		oss << "^3FPH^7: ^2" << fph << " ^3CPH^7: ^2" << cph << " ^ACC^7: ^2" << acc << '%';
+		//oss << "^3FPH^7: ^2" << fph << " ^3CPH^7: ^2" << cph << " ^ACC^7: ^2 soon";
 		stats = oss.str();
 		bug_var(stats);
 	}
