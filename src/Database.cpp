@@ -658,8 +658,9 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 
 	sql.clear();
 	sql.str("");
-	sql << "select sum(`weapon_usage`.`shots`) from `weapon_usage` where `weapon_usage`.`guid` = '";
-	sql << guid << "'";
+	sql << "select sum(`weapon_usage`.`shots`) from `weapon_usage`";
+	sql << " where `weapon_usage`.`guid` = '" << guid << "'";
+	sql << " and `weapon_usage`.`weap` = '7'"; // FIXME: railgun only (not good for AW)
 	sql << " and `game_id` in (" << subsql << ")";
 
 	bug_var(sql.str());
@@ -669,6 +670,23 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 
 	str shots = rows.empty() || rows[0][0].empty() ? "0" : rows[0][0];
 	bug_var(shots);
+
+	// hits
+
+	sql.clear();
+	sql.str("");
+	sql << "select sum(`damage`.`hits`) from `damage`";
+	sql << " where `damage`.`guid` = '" << guid << "'";
+	sql << " and `damage`.`mod` = '10'"; // FIXME: railgun only (not good for AW)
+	sql << " and `game_id` in (" << subsql << ")";
+
+	bug_var(sql.str());
+
+	if(!select(sql.str(), rows, 1))
+		return false;
+
+	str hits = rows.empty() || rows[0][0].empty() ? "0" : rows[0][0];
+	bug_var(hits);
 
 	// caps
 
@@ -705,26 +723,28 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	siz sec = 0;
 	siz fph = 0;
 	siz cph = 0;
+	siz hit = 0;
 	double acc = 0.0;
 
-	siss iss(kills + ' ' + shots + ' ' + caps + ' ' + secs);
+	siss iss(kills + ' ' + shots + ' ' + hits + ' ' + caps + ' ' + secs);
 
-	if(!(iss >> fph >> acc >> cph >> sec))
+	if(!(iss >> fph >> acc >> hit >> cph >> sec))
 	{
-		log("DATABASE ERROR: parsing results: " << (kills + ' ' + shots + ' ' + caps + ' ' + secs));
+		log("DATABASE ERROR: parsing results: " << (kills + ' ' + shots + ' ' + hits + ' ' + caps + ' ' + secs));
 		return false;
 	}
 
 	bug_var(sec);
 	bug_var(fph);
 	bug_var(cph);
+	bug_var(hit);
 	bug_var(acc);
 
 	stats = "^3FPH^7: ^20 ^3CPH^7: ^20 ^3ACC^7: ^20.00%";
 
 	//hours /= (60 * 60);
 	if(acc > 0.0001)
-		acc = (fph * 100) / acc;
+		acc = (hit * 100) / acc;
 	else
 		acc = 0.0;
 

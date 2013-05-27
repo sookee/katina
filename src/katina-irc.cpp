@@ -261,7 +261,12 @@ public:
 		while(!done)
 		{
 			if(!std::getline(ss, line))
+			{
+				ss.clear();
+				connected = false;
+				spin_wait(done, 30);
 				continue;
+			}
 //			bug("recv: " << line);
 			//std::istringstream iss(line);
 			parsemsg(line, msg);
@@ -271,7 +276,7 @@ public:
 				connected = true;
 			else if(msg.command == "JOIN")
 			{
-				// :Skivlet!~Skivlet@cpc21-pool13-2-0-cust125.15-1.cable.virginmedia.com JOIN #teammega
+				// :Skivlet!~Skivlet@host.com JOIN #teammega
 //				prompt("recv: " << line);
 //				bug_msg(msg);
 				prompt(msg.get_nick() << " has joined " << msg.get_chan());
