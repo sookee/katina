@@ -86,6 +86,7 @@ enum event_t
 	, MOD_DAMAGE
 	, PLAYER_STATS
 	, SAY
+	, SAYTEAM
 	, SHUTDOWN_GAME
 	, EXIT
 	, UNKNOWN

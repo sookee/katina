@@ -916,6 +916,18 @@ bool Katina::start(const str& dir)
 		}
 		else if(cmd == "sayteam:")
 		{
+			if(events[SAYTEAM].empty())
+				continue;
+
+			bug(cmd << "(" << params << ")");
+
+			str text;
+			GUID guid;
+
+			if(extract_name_from_text(line, guid, text))
+				for(plugin_vec_iter i = events[SAYTEAM].begin()
+					; i != events[SAYTEAM].end(); ++i)
+					(*i)->sayteam(min, sec, guid, text);
 		}
 		else if(cmd == "say:")
 		{

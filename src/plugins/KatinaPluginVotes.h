@@ -58,6 +58,7 @@ public:
 
 	virtual bool init_game(siz min, siz sec, const str_map& cvars);
 	virtual bool say(siz min, siz sec, const GUID& guid, const str& text);
+	virtual bool sayteam(siz min, siz sec, const GUID& guid, const str& text);
 
 	virtual void close();
 };

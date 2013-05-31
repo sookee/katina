@@ -27,7 +27,7 @@ KATINA_1_FLAGS = -D DEBUG $(VER_FLAGS) -O0 -g3 $(MYSQL_FLAG) $(MYSQL_INCL) -pthr
 KATINA_1_LIBS = $(MYSQL_LIBS) -lrt -pthread -ldl $(LIBGCRYPT_LIBS) -L. -lkatina
 KATINA_1_OBJS = katina-1.o Database.o
 
-KATINA_IRC_FLAGS = -O3 -g0 -pthread -Iinclude
+KATINA_IRC_FLAGS = -D DEBUG -O0 -g3 -pthread -Iinclude
 KATINA_IRC_LIBS = -lrt -pthread
 KATINA_IRC_OBJS = katina-irc.o rcon.o irc.o message.o
 

@@ -45,13 +45,13 @@ bool aocom(const str& cmd, str_vec& packets, const str& host, int port
 	hints.ai_family = AF_UNSPEC; // AF_INET or AF_INET6
 	hints.ai_socktype = SOCK_DGRAM;
 	
-	static milliseconds last = get_millitime();
-	
+//	static milliseconds last = get_millitime();
+//
 	milliseconds now = get_millitime();
-	while((now = get_millitime()) - last < 1500)
-		thread_sleep_millis(1500 + last - now);
-	
-	last = now;
+//	while((now = get_millitime()) - last < 1500)
+//		thread_sleep_millis(1500 + last - now);
+//
+//	last = now;
 	
 	addrinfo* res;
 	if(int status = getaddrinfo(host.c_str(), to_string(port).c_str(), &hints, &res) != 0)

@@ -144,15 +144,15 @@ bool KatinaPluginReports::open()
 {
 	if(katina.get_plugin("katina::stats", "0.0", stats))
 		plog("Found: " << stats->get_name());
-		
+
 	if(katina.get_plugin("katina::votes", "0.0", votes))
 		plog("Found: " << votes->get_name());
 
 	client.off();
 	client.clear();
-	
+
 	str_vec clients = katina.get_vec("remote.irc.client");
-	
+
 	for(siz i = 0; i < clients.size(); ++i)
 	{
 		log("Creating client: " << clients[i]);
@@ -163,11 +163,11 @@ bool KatinaPluginReports::open()
 			client.add(c);
 		}
 	}
-	
+
 	client.on();
-	
+
 	client.chat('*', "^3Stats Reporting System v^7" + katina.get_version() + " - ^1ONLINE");
-	
+
 	notspam = katina.get_vec("reports.notspam");
 
 	katina.add_var_event(this, "reports.active", active, false);
@@ -180,13 +180,13 @@ bool KatinaPluginReports::open()
 	katina.add_var_event(this, "reports.stats.cols", stats_cols);
 	katina.add_var_event(this, "reports.stats.sort", stats_sort);
 	katina.add_var_event(this, "reports.spam.kill", spamkill, false);
-	katina.add_var_event(this, "reports.spam.limit", spam_limit, (siz) 2); 
+	katina.add_var_event(this, "reports.spam.limit", spam_limit, (siz) 2);
 
 	katina.add_log_event(this, EXIT);
 	katina.add_log_event(this, KILL);
 	katina.add_log_event(this, CTF);
 	katina.add_log_event(this, INIT_GAME);
-	katina.add_log_event(this, SAY); 
+	katina.add_log_event(this, SAY);
 
 	return true;
 }
@@ -218,7 +218,7 @@ bool KatinaPluginReports::init_game(siz min, siz sec, const str_map& cvars)
 	if(do_infos && katina.mapname != old_mapname)
 	{
 		str vote;
-		
+
 		if(votes)
 		{
 			siz love, hate;
@@ -227,9 +227,7 @@ bool KatinaPluginReports::init_game(siz min, siz sec, const str_map& cvars)
 			oss << " ^7" << love << " ^1LOVE ^7" << hate << " ^2HATE ^3==";
 			vote = oss.str();
 		}
-		
-		//client.chat('i', ".");
-//		client.chat('i', "^3=== Playing Map: ^7" + katina.mapname + "^3 ==" + vote);
+
 		client.chat('i', "^3===" + vote + " ^4map: ^7" + katina.mapname);
 
 		old_mapname = katina.mapname;
@@ -245,15 +243,15 @@ bool KatinaPluginReports::kill(siz min, siz sec, siz num1, siz num2, siz weap)
 
 	if(!do_kills)
 		return true;
-	
+
 	str hud;
 	str nums_team = get_nums_team(num1);
-	
+
 	if(do_flags && do_flags_hud)
 	{
 		hud = get_hud(min, sec, hud_flag);
 	}
-	
+
 	if(weap != MOD_SUICIDE && katina.clients.find(num1) != katina.clients.end() && katina.clients.find(num2) != katina.clients.end())
 		client.raw_chat('k', hud + oa_to_IRC(nums_team + "^7" + katina.players[katina.clients[num1]] + " ^4killed ^7" + katina.players[katina.clients[num2]]
 			+ " ^4with a ^7" + weapons[weap]));
@@ -296,9 +294,9 @@ bool KatinaPluginReports::ctf(siz min, siz sec, siz num, siz team, siz act)
 		siz c = caps[katina.clients[num]];
 		str msg = katina.players[katina.clients[num]]
 			+ "^3 has ^7" + to_string(c) + "^3 flag" + (c==1?"":"s") + "!";
-		
+
 		katina.server.cp(msg);
-		
+
 		if(do_flags && do_flags_hud)
 		{
 			hud_flag[pcol] = HUD_FLAG_CAP;
@@ -360,12 +358,12 @@ bool KatinaPluginReports::say(siz min, siz sec, const GUID& guid, const str& tex
 	{
 		str hud;
 		str nums_team = get_nums_team(guid);
-		
+
 		if(do_flags && do_flags_hud)
 		{
 			hud = get_hud(min, sec, hud_flag);
 		}
-	
+
 		if(!spamkill || ++spam[text] < spam_limit || std::find(notspam.begin(), notspam.end(), text) != notspam.end())
 			client.raw_chat('c', hud + oa_to_IRC(nums_team + " ^7" + katina.players[guid] + "^7: ^2" + text));
 	}
@@ -395,25 +393,25 @@ str get_acc(const stats& stats, siz weapon = siz(-1))//, siz mod)
 		weap_to_mod[WP_PROX_LAUNCHER] = MOD_PROXIMITY_MINE;
 		weap_to_mod[WP_CHAINGUN] = MOD_CHAINGUN;
 	}
-	
+
 	siz ws = WP_GAUNTLET;
 	siz we = WP_CHAINGUN;
 
 	if(weapon != siz(-1))
 		ws = we = weapon;
-	
+
 	bug_var(ws);
 	bug_var(we);
 
 	siz shots = 0;
 	siz hits  = 0;
-	
+
 	for(siz w = ws; w <= we; ++w)
 	{
 		siz multi = 1;
 		if(w == WP_SHOTGUN)
 			multi = 10;
-	
+
 		bug_var(multi);
 
 		shots += map_get(stats.weapon_usage, w) * multi;
@@ -427,7 +425,7 @@ str get_acc(const stats& stats, siz weapon = siz(-1))//, siz mod)
 	bug_var(shots);
 	bug_var(hits);
 	bug_var(stats.pushes);
-		
+
 	str acc = "";
 	if(shots > 0)
 	{
@@ -478,18 +476,18 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 			i = spam.begin();
 		}
 	}
-	
+
 //	if(stats)
 	{
 		typedef std::multimap<siz, GUID> siz_guid_mmap;
 		typedef siz_guid_mmap::reverse_iterator siz_guid_mmap_ritr;
-		
+
 		siz_guid_mmap sorted;
-		
+
 		for(guid_siz_map_citer p = caps.begin(); p != caps.end(); ++p)
 			if(p->second)
 				sorted.insert(siz_guid_map_pair(p->second, p->first));
-		
+
 		if(!sorted.empty())
 		{
 			siz i = 0;
@@ -511,14 +509,14 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 				if(oss.str().size() > max)
 					max = oss.str().size();
 			}
-		
+
 			if(max < 23)
 				max = 23;
 			katina.server.chat("^5== ^6RESULTS ^5" + str(max - 23, '='));
 			for(siz i = 0; i < results.size(); ++i)
 				katina.server.chat(results[i]);
 			katina.server.chat("^5" + str(max - 12, '-'));
-	
+
 			if(do_infos)
 			{
 				client.chat('i', "^5== ^6RESULTS ^5== ^7"
@@ -530,11 +528,11 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 			}
 		}
 	}
-	
+
 	if(do_stats && stats)
 	{
 		std::multimap<str, str> scores;
-	
+
 		soss oss;
 		for(guid_stat_citer p = stats->stats.begin(); p != stats->stats.end(); ++p)
 		{
@@ -543,7 +541,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 			if(p->first.is_bot() || !p->second.logged_time)
 				continue;
 			str sort; // sort column
-			str sort_value; 
+			str sort_value;
 			str col;
 			siss iss(stats_cols);
 			str sep;
@@ -574,14 +572,14 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 					for(siz i = 0; i < MOD_MAXVALUE; ++i)
 						f += map_get(p->second.kills, i);
 					siz h = p->second.logged_time;
-					
+
 					str fph;
 					if(h)
 					{
 						siz fh = (f * 60 * 60) / h;
 						fph = to_string(fh, 3);
 					}
-					
+
 					str s = "^7" + fph;
 					set_width(s, 3, 2);
 					oss << sep << s;
@@ -593,14 +591,14 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 				{
 					siz c = map_get(p->second.flags, FL_CAPTURED);
 					siz h = p->second.logged_time;
-					
+
 					str cph;
 					if(h)
 					{
 						siz ch = (c * 60 * 60) / h;
 						cph = to_string(ch, 2);
 					}
-					
+
 					str s = "^7" + cph;
 					set_width(s, 3, 2);
 					oss << sep << s;
@@ -616,14 +614,14 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 					siz d = 0;
 					for(siz i = 0; i < MOD_MAXVALUE; ++i)
 						d += map_get(p->second.deaths, i);
-					
+
 					str fpd;
 					if(d)
 					{
 						double fd = double(f) / d;
 						fpd = to_string(fd, 5);
 					}
-					
+
 					str s = "^7" + fpd;
 					set_width(s, 5, 2);
 					oss << sep << s;
@@ -637,14 +635,14 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 					siz d = 0;
 					for(siz i = 0; i < MOD_MAXVALUE; ++i)
 						d += map_get(p->second.deaths, i);
-					
+
 					str cpd;
 					if(d)
 					{
 						double cd = double(c * 100) / d;
 						cpd = to_string(cd, 6);
 					}
-					
+
 					str s = "^7" + cpd;
 					set_width(s, 6, 2);
 					oss << sep << s;
@@ -662,7 +660,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 						w = weapon_to_siz(weapon);
 					else
 						w = siz(-1); // all weaps
-					
+
 					str acc = get_acc(p->second, w);
 					str s = "^7" + acc + "%";
 					set_width(s, 7, 2);

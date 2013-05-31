@@ -97,6 +97,7 @@ public:
 	virtual bool score_exit(siz min, siz sec, int score, siz ping, siz num, const str& name) {}
 	virtual bool award(siz min, siz sec, siz num, siz awd) {}
 	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) {}
+	virtual bool sayteam(siz min, siz sec, const GUID& guid, const str& text) {}
 	virtual bool shutdown_game(siz min, siz sec) {}
 	virtual bool exit(siz min, siz sec) {}
 	virtual bool unknown(siz min, siz sec, const str& cmd, const str& params) {}
