@@ -9,10 +9,34 @@
  * Created on May 1, 2013, 6:23 PM
  */
 
+/*-----------------------------------------------------------------.
+| Copyright (C) 2013 SooKee oasookee@gmail.com               |
+'------------------------------------------------------------------'
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+02110-1301, USA.
+
+http://www.gnu.org/licenses/gpl-2.0.html
+
+'-----------------------------------------------------------------*/
+
 #include "KatinaPlugin.h"
 #include "GUID.h"
 #include "rcon.h"
 #include "types.h"
+#include "utils.h"
 #include "PKI.h"
 
 #include <list>
@@ -23,18 +47,19 @@ namespace oastats {
 using namespace oastats::net;
 using namespace oastats::pki;
 using namespace oastats::types;
+using namespace oastats::utils;
 
 struct cvarevt
 {
 	str name;
 	str value;
 	KatinaPlugin* plugin;
-	
+
 	bool operator<(const cvarevt& e)
 	{
 		return &plugin < &e.plugin && name < e.name;
 	}
-	
+
 	bool operator==(const cvarevt& e)
 	{
 		return &plugin == &e.plugin && name == e.name;
@@ -61,9 +86,10 @@ enum event_t
 	, MOD_DAMAGE
 	, PLAYER_STATS
 	, SAY
+	, SAYTEAM
 	, SHUTDOWN_GAME
 	, EXIT
-	, UNKNOWN		
+	, UNKNOWN
 };
 
 typedef std::map<event_t, plugin_vec> event_map;
@@ -75,13 +101,13 @@ struct cvar
 	virtual bool get(str& s) const = 0;
 	virtual bool set(const str& s) = 0;
 };
-	
+
 template<typename T>
 class cvar_t
 : public cvar
 {
 	T& t;
-	
+
 public:
 	cvar_t(T& t): t(t) {}
 
@@ -109,7 +135,7 @@ class cvar_t<str>
 : public cvar
 {
 	str& s;
-	
+
 public:
 	cvar_t(str& s): s(s) {}
 
@@ -155,7 +181,7 @@ class Katina
 {
 	friend void* cvarpoll(void* vp);
 	bool rconset(const str& cvar, str& val);
-	
+
 private:
 	bool done;
 	bool active;
@@ -193,7 +219,7 @@ public:
 	~Katina();
 
 	// API
-	
+
 	PKI pki;
 	RCon server;
 
@@ -205,11 +231,11 @@ public:
 	str_map cvars;
 	siz logmode;
 	std::time_t now;
-	
+
 	str get_version();
 
 	KatinaPlugin* get_plugin(const str& id, const str& version);
-	
+
 	template<typename Plugin>
 	bool get_plugin(const str& id, const str& version, Plugin*& plugin)
 	{
@@ -231,9 +257,22 @@ public:
 		return props[s].empty() ? dflt : props[s][0];
 	}
 
+	str get_exp(const str& s, const str& dflt = "")
+	{
+		return props[s].empty() ? dflt : expand_env(props[s][0], WRDE_SHOWERR|WRDE_UNDEF);
+	}
+
 	str_vec get_vec(const str& s)
 	{
 		return props[s];
+	}
+
+	str_vec get_exp_vec(const str& s)
+	{
+		str_vec v = get_vec(s);
+		for(siz i = 0; i < v.size(); ++i)
+			v[i] = expand_env(v[i], WRDE_SHOWERR|WRDE_UNDEF);
+		return v;
 	}
 
 	bool has(const str& s)
@@ -243,7 +282,7 @@ public:
 	}
 
 	bool have(const str& s) { return has(s); }
-	
+
 	bool chat_to(siz num, const str& text);
 	bool chat_to(const GUID& guid, const str& text);
 	bool chat_to(const str& name, const str& text);
@@ -262,7 +301,7 @@ public:
 		var = get(name, dflt);
 		vars[plugin][name] = new cvar_t<T>(var);
 		if(logmode > LOG_NORMAL)
-			log("CVAR: " << plugin->get_id() << ": " << name << " = " << var);  
+			log("CVAR: " << plugin->get_id() << ": " << name << " = " << var);
 	}
 
 	void add_log_event(class KatinaPlugin* plugin, event_t e)

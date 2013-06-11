@@ -42,49 +42,49 @@ void* cvarpoll(void* vp)
 {
 	Katina& katina = *reinterpret_cast<Katina*>(vp);
 	cvar_map_map& cvars = katina.vars;
-	
+
 	cvar_map_iter mi;
 	cvar_map_map_iter mmi = cvars.end();
-	
+
 	while(!katina.done)
 	{
 		thread_sleep_millis(3000);
 
 		lock_guard lock(katina.cvarevts_mtx);
-		
+
 		if(mmi == cvars.end())
 		{
 			mmi = cvars.begin();
 			if(mmi != cvars.end())
 				mi = mmi->second.begin();
 		}
-		
+
 		if(mmi == cvars.end())
 			continue;
-		
+
 		if(mi == mmi->second.end())
 		{
 			++mmi;
 			mi = mmi->second.begin();
 			continue;
 		}
-		
+
 		//bug("cvar: " << mi->first);
 
-		str old_value;		
-		mi->second->get(old_value);		
+		str old_value;
+		mi->second->get(old_value);
 		//bug("old: " << old_value);
-			
+
 		str value;
 		if(katina.rconset(katina.prefix + mi->first, value))
 			mi->second->set(value);
 		else if(katina.rconset(katina.prefix + mi->first, value)) // one retry
 			mi->second->set(value);
-		
+
 		mi->second->get(value);
 		if(value != old_value) // changed
 			log("INFO: cvar: " << (katina.prefix + mi->first) << " changing value: " << value);
-		
+
 		++mi;
 	}
 	pthread_exit(0);
@@ -93,7 +93,7 @@ void* cvarpoll(void* vp)
 Katina::Katina()
 : done(false)
 , active(true) // TODO: make this false
-, logmode(LOG_NORMAL) 
+, logmode(LOG_NORMAL)
 , now(std::time(0))
 {
 	pthread_mutex_init(&cvarevts_mtx, 0);
@@ -120,10 +120,10 @@ bool Katina::rconset(const str& cvar, str& val)
 	// -> "katina_skivvy_chans" is:"#katina-test(c) #katina(c)^7" default:"#katina-test(c)^7"
 
 	trim(response);
-	
+
 	if(response.empty())
 		return false;
-	
+
 	if(!response.find("unknown command:"))
 		return false;
 
@@ -196,7 +196,7 @@ bool Katina::load_plugin(const str& file)
 			log("PLUGIN LOAD: plugin failed to unload: " << dlerror());
 		return false;
 	}
-	
+
 	plugin->dl = dl;
 
 	if(!plugin->open())
@@ -279,7 +279,7 @@ KatinaPlugin* Katina::get_plugin(const str& id, const str& version)
 		log("ERROR: plugin not found: " << id);
 		return 0;
 	}
-	
+
 	if(i->second->get_version() < version)
 	{
 		log("ERROR: wrong version found: " << i->second->get_version() << " expected " << version);
@@ -311,7 +311,7 @@ bool Katina::load_config(const str& dir, const str& file, property_map& props)
 	log("CONFIG LOAD: " << config_file);
 
 	std::ifstream ifs(config_file.c_str());
-	
+
 	if(!ifs.is_open())
 	{
 		log("ERROR: opening config file");
@@ -331,12 +331,12 @@ bool Katina::load_config(const str& dir, const str& file, property_map& props)
 
 		if((pos = line.find("//")) != str::npos)
 			line.erase(pos);
-		
+
 		trim(line);
 
 		if(line.empty() || line[0] == '#')
 			continue;
-		
+
 		siss iss(line);
 		if(!sgl(sgl(iss, key, ':') >> std::ws, val))
 		{
@@ -344,17 +344,18 @@ bool Katina::load_config(const str& dir, const str& file, property_map& props)
 			log("ERROR:                    : " << line);
 			continue;
 		}
-		
+
 		if(logmode > LOG_NORMAL)
-			log("CONF: " << key << ": " << val); 
-		
+			log("CONF: " << key << ": " << val);
+
 		if(key == "include")
 			load_config(dir, val, props);
 		else if(key == "logmode")
 			logmode =  to<int>(val);
 		else
-			props[key].push_back(expand_env(val, WRDE_SHOWERR|WRDE_UNDEF));
-		
+//			props[key].push_back(expand_env(val, WRDE_SHOWERR|WRDE_UNDEF));
+			props[key].push_back(val);
+
 	}
 	ifs.close();
 	log("CONFIG LOAD: OK:");
@@ -364,17 +365,17 @@ bool Katina::load_config(const str& dir, const str& file, property_map& props)
 bool Katina::start(const str& dir)
 {
 	config_dir = expand_env(dir);
-	
+
 	log("Setting config dir: " << dir);
 
 	load_config(config_dir, "katina.conf", props);
-	
+
 	// load pki
 
 	log("Reading keypair:");
 
-	str keypair_file = get("pki.keypair", "keypair.pki");
-	str pkeys_file = get("pki.pkeys", "pkeys.pki");
+	str keypair_file = get_exp("pki.keypair", "keypair.pki");
+//	str pkeys_file = get("pki.pkeys", "pkeys.pki");
 
 	if(!pki.load_keypair(config_dir + "/" + keypair_file))
 	{
@@ -393,26 +394,33 @@ bool Katina::start(const str& dir)
 			std::ofstream ofs((config_dir + "/" + keypair_file).c_str());
 			ofs << sexp;
 		}
-		
-		if(pki.get_public_key_as_text(sexp))
-		{
-			std::ofstream ofs((config_dir + "/" + pkeys_file).c_str());
-			ofs << sexp;
-		}
+
+//		if(pki.get_public_key_as_text(sexp))
+//		{
+//			std::ofstream ofs((config_dir + "/" + pkeys_file).c_str());
+//			ofs << sexp;
+//		}
 	}
-	
+
 	log("Reading public keys:");
+
+	str_vec pkeys = get_exp_vec("pki.pkey");
+	for(siz i = 0; i < pkeys.size(); ++i)
+	{
+		log("LOAD PUBLIC KEY: " << pkeys[i]);
+		pki.load_public_key(pkeys[i], pkeys[i]);
+	}
 	// TOSO: ad this
 	//ifs.open((config_dir + "/" + pkeys_file).c_str());
 	//while(pki.read_public_key(, ifs)) {}
 	//ifs.close();
-	
+
 	// initialize rcon
-	
+
 	log("Initializing rcon:");
 
 	server.config(get("rcon.host"), get<siz>("rcon.port"), get("rcon.pass"));
-	
+
 	if(get("rcon.active") == "true")
 		server.on();
 
@@ -420,7 +428,7 @@ bool Katina::start(const str& dir)
 
 	log("Loading plugins:");
 
-	str_vec pluginfiles = get_vec("plugin");
+	str_vec pluginfiles = get_exp_vec("plugin");
 	for(siz i = 0; i < pluginfiles.size(); ++i)
 		load_plugin(pluginfiles[i]);
 
@@ -428,19 +436,19 @@ bool Katina::start(const str& dir)
 	if(!prefix.empty())
 		prefix += ".";
 	pthread_create(&cvarevts_thread, 0, &cvarpoll, (void*) this);
-	
+
 	std::ios::openmode mode = std::ios::in|std::ios::ate;
 
 	bool rerun = get("run.mode") == "rerun";
-	
+
 	if(rerun)
 		mode = std::ios::in;
 
 	log("Opening logfile (" << get("run.mode") << "): " << get("logfile"));
 
 	std::ifstream ifs;
-	
-	ifs.open(get("logfile").c_str(), mode);
+
+	ifs.open(get_exp("logfile").c_str(), mode);
 
 	if(!ifs.is_open())
 	{
@@ -451,7 +459,7 @@ bool Katina::start(const str& dir)
 	std::istream& is = ifs;
 
 	std::ios::streampos gpos = is.tellg();
-	
+
 	// Sometimes the ClientUserinfoChanged message is split over
 	// two lines. This is a fudge to compensate for that bug
 	struct client_userinfo_bug_t
@@ -463,7 +471,7 @@ bool Katina::start(const str& dir)
 	} client_userinfo_bug;
 
 	client_userinfo_bug.reset();
-	
+
 	log("Processing:");
 
 	// working variables
@@ -474,7 +482,7 @@ bool Katina::start(const str& dir)
 
 	now = get("run.time", std::time_t(-1));
 	std::time_t base_now = now; // rerun base time
-		
+
 	while(!done)
 	{
 		//bug("loop:");
@@ -487,7 +495,7 @@ bool Katina::start(const str& dir)
 			is.seekg(gpos);
 			continue;
 		}
-		
+
 		bug_var(line);
 
 		gpos = is.tellg();
@@ -497,7 +505,7 @@ bool Katina::start(const str& dir)
 
 		iss.clear();
 		iss.str(line);
-		
+
 		if(!(sgl(iss >> min >> c >> sec >> std::ws, cmd, ':') >> std::ws))
 		{
 			if(!client_userinfo_bug)
@@ -521,7 +529,7 @@ bool Katina::start(const str& dir)
 				log("INFO: params: " << client_userinfo_bug.params << line);
 			}
 		}
-		
+
 		client_userinfo_bug.reset();
 
 		if(!cmd.find("----"))
@@ -530,25 +538,25 @@ bool Katina::start(const str& dir)
 		cmd += ":";
 
 		str params;
-		
+
 		sgl(iss, params); // not all commands have params
 
 		iss.clear();
 		iss.str(params);
-		
+
 		lock_guard lock(cvarevts_mtx);
-		
+
 		if(rerun)
 			now = base_now + (min * 60) + sec;
 		else
 			now = std::time(0);
-		
+
 		if(cmd == "Exit:")
 		{
 			bug(cmd << "(" << params << ")");
 			if(events[EXIT].empty())
 				continue;
-			
+
 			for(plugin_vec_iter i = events[EXIT].begin()
 				; i != events[EXIT].end(); ++i)
 				(*i)->exit(min, sec);
@@ -558,7 +566,7 @@ bool Katina::start(const str& dir)
 			bug(cmd << "(" << params << ")");
 			if(events[SHUTDOWN_GAME].empty())
 				continue;
-			
+
 			for(plugin_vec_iter i = events[SHUTDOWN_GAME].begin()
 				; i != events[SHUTDOWN_GAME].end(); ++i)
 				(*i)->shutdown_game(min, sec);
@@ -568,7 +576,7 @@ bool Katina::start(const str& dir)
 			bug(cmd << "(" << params << ")");
 			if(events[WARMUP].empty())
 				continue;
-			
+
 			for(plugin_vec_iter i = events[WARMUP].begin()
 				; i != events[WARMUP].end(); ++i)
 				(*i)->warmup(min, sec);
@@ -590,19 +598,19 @@ bool Katina::start(const str& dir)
 				{
 					str id = line.substr(pos + 4, 32);
 					GUID guid;
-	
+
 					if(id.size() != 32)
 						guid = bot_guid(num);//null_guid;
 					else
 						guid = to<GUID>(id.substr(24));
-	
+
 					clients[num] = guid;
 					teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
 					players[guid] = name;
-	
+
 					if(events[CLIENT_USERINFO_CHANGED].empty())
 						continue;
-			
+
 					for(plugin_vec_iter i = events[CLIENT_USERINFO_CHANGED].begin()
 						; i != events[CLIENT_USERINFO_CHANGED].end(); ++i)
 						(*i)->client_userinfo_changed(min, sec, num, team, guid, name);
@@ -614,7 +622,7 @@ bool Katina::start(const str& dir)
 			bug(cmd << "(" << params << ")");
 			if(events[CLIENT_CONNECT].empty())
 				continue;
-			
+
 			siz num;
 			if(!(iss >> num))
 				log("Error parsing ClientConnect: "  << params);
@@ -630,7 +638,7 @@ bool Katina::start(const str& dir)
 			bug(cmd << "(" << params << ")");
 			if(events[CLIENT_BEGIN].empty())
 				continue;
-			
+
 			siz num;
 			if(!(iss >> num))
 				log("Error parsing ClientBegin: "  << params);
@@ -653,7 +661,7 @@ bool Katina::start(const str& dir)
 				for(plugin_vec_iter i = events[CLIENT_DISCONNECT].begin()
 					; i != events[CLIENT_DISCONNECT].end(); ++i)
 					(*i)->client_disconnect(min, sec, num);
-					
+
 				teams.erase(clients[num]);
 				//players.erase(clients[num]);
 				clients.erase(num);
@@ -664,7 +672,7 @@ bool Katina::start(const str& dir)
 			bug(cmd << "(" << params << ")");
 			if(events[KILL].empty())
 				continue;
-			
+
 			siz num1, num2, weap;
 			if(!(iss >> num1 >> num2 >> weap))
 				log("Error parsing Kill:" << params);
@@ -678,23 +686,23 @@ bool Katina::start(const str& dir)
 		else if(cmd == "WeaponUsage:")
 		{
 			bug(cmd << "(" << params << ")");
-		
+
 			// Weapon Usage Update
 			// WeaponUsage: <client#> <weapon#> <#shotsFired>
 			siz num, weap, shots;
-			
+
 			if(iss >> num >> weap >> shots)
 			{
 				for(plugin_vec_iter i = events[WEAPON_USAGE].begin(); i != events[WEAPON_USAGE].end(); ++i)
 					(*i)->weapon_usage(min, sec, num, weap, shots);
 			}
 			else
-				std::cout << "Error parsing WeaponUsage" << '\n';
+				log("Error parsing WeaponUsage: " << params);
 		}
 		else if(cmd == "MODDamage:")
 		{
 			bug(cmd << "(" << params << ")");
-		
+
 			// MOD (Means of Death = Damage Type) Damage Update
 			// MODDamage: <client#> <mod#> <#hits> <damageDone> <#hitsRecv> <damageRecv> <weightedHits>
 			siz num, mod, hits, dmg, hitsRecv, dmgRecv;
@@ -705,12 +713,12 @@ bool Katina::start(const str& dir)
 					(*i)->mod_damage(min, sec, num, mod, hits, dmg, hitsRecv, dmgRecv, weightedHits);
 			}
 			else
-				std::cout << "Error parsing MODDamage" << '\n';
+				log("Error parsing MODDamage: " << params);
 		}
 		else if(cmd == "PlayerStats:")
 		{
 			bug(cmd << "(" << params << ")");
-		
+
 			// Player Stats Update
 			// PlayerStats: <client#>
 			// 			    <fragsFace> <fragsBack> <fraggedInFace> <fraggedInBack>
@@ -738,7 +746,7 @@ bool Katina::start(const str& dir)
 		{
 			if(events[CTF].empty())
 				continue;
-			
+
 			bug(cmd << "(" << params << ")");
 
 			siz num, col, act;
@@ -756,7 +764,7 @@ bool Katina::start(const str& dir)
 			bug(cmd << "(" << params << ")");
 			if(events[CTF_EXIT].empty())
 				continue;
-			
+
 			//bug_var(iss.str());
 			siz r = 0;
 			siz b = 0;
@@ -773,7 +781,7 @@ bool Katina::start(const str& dir)
 					(*i)->ctf_exit(min, sec, r, b);
 			}
 		}
-		else if(cmd == "score:") // 
+		else if(cmd == "score:") //
 		{
 			bug(cmd << "(" << params << ")");
 			if(events[SCORE_EXIT].empty())
@@ -809,7 +817,7 @@ bool Katina::start(const str& dir)
 			bug(cmd << "(" << params << ")");
 			if(events[AWARD].empty())
 				continue;
-			
+
 			siz num, awd;
 			if(!(iss >> num >> awd))
 				log("Error parsing Award:" << params);
@@ -825,18 +833,18 @@ bool Katina::start(const str& dir)
 			bug(cmd << "(" << params << ")");
 
 			static str key, val;
-			
+
 			clients.clear();
 			players.clear();
 			teams.clear();
 			cvars.clear();
-			
+
 			iss.ignore(); // skip initial '\\'
 			while(sgl(sgl(iss, key, '\\'), val, '\\'))
 				cvars[key] = val;
-			
+
 			mapname = cvars["mapname"];
-			
+
 			if(rerun)
 			{
 				str skip;
@@ -877,7 +885,7 @@ bool Katina::start(const str& dir)
 
 			if(events[INIT_GAME].empty())
 				continue;
-			
+
 			for(plugin_vec_iter i = events[INIT_GAME].begin()
 				; i != events[INIT_GAME].end(); ++i)
 				(*i)->init_game(min, sec, cvars);
@@ -908,14 +916,26 @@ bool Katina::start(const str& dir)
 		}
 		else if(cmd == "sayteam:")
 		{
+			if(events[SAYTEAM].empty())
+				continue;
+
+			bug(cmd << "(" << params << ")");
+
+			str text;
+			GUID guid;
+
+			if(extract_name_from_text(line, guid, text))
+				for(plugin_vec_iter i = events[SAYTEAM].begin()
+					; i != events[SAYTEAM].end(); ++i)
+					(*i)->sayteam(min, sec, guid, text);
 		}
 		else if(cmd == "say:")
 		{
 			if(events[SAY].empty())
 				continue;
-			
+
 			bug(cmd << "(" << params << ")");
-			
+
 			str text;
 			GUID guid;
 
@@ -928,7 +948,7 @@ bool Katina::start(const str& dir)
 		{
 			if(events[UNKNOWN].empty())
 				continue;
-			
+
 			bug("UNKNOWN: " << cmd << "(" << params << ")");
 
 			for(plugin_vec_iter i = events[UNKNOWN].begin()

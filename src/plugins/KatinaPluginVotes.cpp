@@ -40,6 +40,7 @@ bool KatinaPluginVotes::open()
 
 	katina.add_log_event(this, INIT_GAME);
 	katina.add_log_event(this, SAY);
+	katina.add_log_event(this, SAYTEAM);
 
 	return true;
 }
@@ -94,6 +95,11 @@ bool KatinaPluginVotes::init_game(siz min, siz sec, const str_map& cvars)
 	db.off();
 
 	return true;
+}
+
+bool KatinaPluginVotes::sayteam(siz min, siz sec, const GUID& guid, const str& text)
+{
+	say(min, sec, guid, text);
 }
 
 bool KatinaPluginVotes::say(siz min, siz sec, const GUID& guid, const str& text)

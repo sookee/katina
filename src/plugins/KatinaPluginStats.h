@@ -34,7 +34,7 @@ struct mod_damage_stats
 	siz hitsRecv;
 	siz damageRecv;
 	float weightedHits;
-	
+
 	mod_damage_stats() :
 		hits(0), damage(0), hitsRecv(0), damageRecv(0), weightedHits(0.0f)
 	{}
@@ -50,7 +50,7 @@ struct stats
 	siz_map deaths;
 	siz_map flags;
 	siz_map awards;
-	
+
 	siz_map   	weapon_usage; // shots fired
 	moddmg_map	mod_damage;   // MOD -> mod_damage_stats
 
@@ -66,13 +66,13 @@ struct stats
 	siz armorPickedUp;
 	siz holyShitFrags;
 	siz holyShitFragged;
-	
+
 	siz carrierFrags;
 	siz carrierFragsRecv;
 
 	time_t joined_time;
 	siz logged_time;
-	
+
 	str name;
 
 	stats() :
@@ -124,27 +124,27 @@ private:
 	// cvars
 	bool active;
 	bool write;
-	
+
 	bool in_game;
 	bool have_bots; // are any bots playing?
 	siz human_players_r; // number of human players on red team
 	siz human_players_b; // number of human players on blue team
-	
+
 	// Current flag carriers (slot number, -1 if nobody carries the flag)
 	int carrierBlue;
 	int carrierRed;
 
 	siz_set db_weaps; // which weapons to record
-	
+
 	void stall_client(siz num);
 	void unstall_client(siz num);
 	void stall_clients();
-	void unstall_clients();
+	void unstall_clients(siz num = siz(-1));
 	void check_bots_and_players(std::time_t now, siz num = siz(-1));
 
 public:
 	KatinaPluginStats(Katina& katina);
-	
+
 	// API
 
 	//const guid_stat_map& get_stats_ref() const { return stats; }
@@ -161,7 +161,7 @@ public:
 	virtual bool shutdown_game(siz min, siz sec);
 	virtual bool warmup(siz min, siz sec);
 	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name);
-	virtual bool client_connect(siz min, siz sec, siz num);
+//	virtual bool client_connect(siz min, siz sec, siz num);
 	virtual bool client_disconnect(siz min, siz sec, siz num);
 	virtual bool kill(siz min, siz sec, siz num1, siz num2, siz weap);
 	virtual bool ctf(siz min, siz sec, siz num, siz team, siz act);
@@ -176,6 +176,7 @@ public:
 		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
 		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged);
 	virtual bool say(siz min, siz sec, const GUID& guid, const str& text);
+	virtual bool sayteam(siz min, siz sec, const GUID& guid, const str& text);
 
 	virtual void close();
 };

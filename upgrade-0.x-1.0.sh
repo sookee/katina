@@ -1,15 +1,18 @@
 #!/bin/bash
 
+MYSQL=mysql
+
 #source upgrade-utils.sh
 
 execute_sql()
 {
-	echo $2 | $1
+	echo "$2" '|' "$1"
 }
 
 update_db()
 {
-	if [[ execute_sql $1 $2 ]]; then
+	echo "UPDATING: $3" 
+	if execute_sql "$1" "$2"; then
 		echo Database updated
 	else
 		echo Error updating database
@@ -25,7 +28,7 @@ ADD `carrierFrags` int(2) unsigned NOT NULL,
 ADD `carrierFragsRecv` int(2) unsigned NOT NULL
 EOF
 
-update_db $MYSQL $SQL "playerstats"
+update_db "$MYSQL" "$SQL" "playerstats"
 
 read -d '' SQL << 'EOF'
 DROP TABLE IF EXISTS `version`;
@@ -37,7 +40,7 @@ CREATE TABLE `version` (
 INSERT INTO version (`maj`,`min`) values (1,0);
 EOF
 
-update_db $MYSQL $SQL "version"
+update_db "$MYSQL" "$SQL" "version"
 
 read -d '' SQL << 'EOF'
 ALTER TABLE `awards` ADD PRIMARY KEY ( `game_id` , `guid` , `type` );
@@ -48,14 +51,13 @@ ALTER TABLE `ovo` ADD PRIMARY KEY ( `game_id` , `guid1`, `guid2` );
 ALTER TABLE `time` ADD PRIMARY KEY ( `game_id` , `guid` );
 EOF
 
-update_db $MYSQL $SQL "pkeys"
+update_db "$MYSQL" "$SQL" "pkeys"
 
 read -d '' SQL << 'EOF'
 ALTER TABLE `damage` ADD `weightedHits` FLOAT NOT NULL 
 EOF
 
-update_db $MYSQL $SQL "weightedHits column"
-
+update_db "$MYSQL" "$SQL" "weightedHits column"
 
 exit 1
 

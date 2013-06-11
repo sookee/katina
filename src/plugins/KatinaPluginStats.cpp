@@ -56,22 +56,25 @@ bool KatinaPluginStats::open()
 		, katina.get("db.user")
 		, katina.get("db.pass", "")
 		, katina.get("db.base"));
-	
+
 	if(!katina.has("db.base") || !katina.has("db.user"))
 	{
 		plog("FATAL: no database config found");
 		return false;
 	}
-	
+
 	katina.add_var_event(this, "stats.active", active, false);
 	katina.add_var_event(this, "stats.write", write, false);
 	katina.add_var_event<siz_set>(this, "stats.weaps", db_weaps);
-	
+
+	for(siz_set_iter i = db_weaps.begin(); i != db_weaps.end(); ++i)
+		plog("DB LOG WEAPON: " << *i);
+
 	katina.add_log_event(this, EXIT);
 	katina.add_log_event(this, SHUTDOWN_GAME);
 	katina.add_log_event(this, WARMUP);
 	katina.add_log_event(this, CLIENT_USERINFO_CHANGED);
-	katina.add_log_event(this, CLIENT_CONNECT);
+	//katina.add_log_event(this, CLIENT_CONNECT);
 	katina.add_log_event(this, CLIENT_DISCONNECT);
 	katina.add_log_event(this, KILL);
 	katina.add_log_event(this, CTF);
@@ -81,7 +84,8 @@ bool KatinaPluginStats::open()
 	katina.add_log_event(this, MOD_DAMAGE);
 	katina.add_log_event(this, PLAYER_STATS);
 	katina.add_log_event(this, SAY);
-	
+	katina.add_log_event(this, SAYTEAM);
+
 	return true;
 }
 
@@ -108,7 +112,7 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 	in_game = false;
 	if(!active)
 		return true;
-		
+
 	// in game timing
 	std::time_t logged_time = 0;
 	for(guid_stat_iter p = stats.begin(); p != stats.end(); ++p)
@@ -120,14 +124,14 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 		}
 		logged_time += p->second.logged_time;
 	}
-	
+
 	if(logged_time)
 	{
 		if(write)
 			db.on();
-	
+
 		game_id id = db.add_game(host, port, mapname);
-	
+
 		if(id != null_id && id != bad_id)
 		{
 			for(guid_stat_citer p = stats.begin(); p != stats.end(); ++p)
@@ -140,23 +144,23 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 					if((count = map_get(p->second.deaths, *weap)))
 						db.add_weaps(id, "deaths", p->first, *weap, count);
 				}
-				
+
 				if((count = map_get(p->second.flags, FL_CAPTURED)))
 					db.add_caps(id, p->first, count);
-					
+
 				if(!p->first.is_bot())
 				{
 					db.add_player(p->first, p->second.name);
-					
+
 					if((count = p->second.logged_time))
 						db.add_time(id, p->first, count);
-	
+
 					for(siz_map_citer wu = p->second.weapon_usage.begin(); wu != p->second.weapon_usage.end(); ++wu)
 						db.add_weapon_usage(id, p->first, wu->first, wu->second);
-	
+
 					for(moddmg_map_citer md = p->second.mod_damage.begin(); md != p->second.mod_damage.end(); ++md)
 						db.add_mod_damage(id, p->first, md->first, md->second.hits, md->second.damage, md->second.hitsRecv, md->second.damageRecv, md->second.weightedHits);
-	
+
 					if(p->second.fragsFace | p->second.fragsBack | p->second.fraggedInFace | p->second.fraggedInBack |
 						p->second.spawnKills | p->second.spawnKillsRecv | p->second.pushes | p->second.pushesRecv |
 						p->second.healthPickedUp | p->second.armorPickedUp | p->second.holyShitFrags | p->second.holyShitFragged |
@@ -168,21 +172,14 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 							p->second.healthPickedUp, p->second.armorPickedUp, p->second.holyShitFrags, p->second.holyShitFragged,
 							p->second.carrierFrags, p->second.carrierFragsRecv);
 					}
-				}		
+				}
 			}
-	
+
 			for(onevone_citer o = onevone.begin(); o != onevone.end(); ++o)
 				for(guid_siz_map_citer p = o->second.begin(); p != o->second.end(); ++p)
 					db.add_ovo(id, o->first, p->first, p->second);
 		}
-	
-//		for(guid_str_map_citer player = players.begin(); player != players.end(); ++player)
-//			if(!player->first.is_bot())
-//				db.add_player(player->first, player->second);
-//		for(guid_str_map_citer player = names.begin(); player != names.end(); ++player)
-//			if(!player->first.is_bot())
-//				db.add_player(player->first, player->second);
-	
+
 		db.off();
 	}
 	return true;
@@ -210,13 +207,8 @@ void KatinaPluginStats::stall_client(siz num)
 {
 	if(!stats[clients[num]].joined_time)
 		return;
-	
-	// if we have been recording time for this player, accumulate it
+
 	stats[clients[num]].logged_time += katina.now - stats[clients[num]].joined_time;
-	
-	plog("\t\t" << players[clients[num]] << ": LT: " << stats[clients[num]].logged_time);
-	
-	// stop recording time for this player
 	stats[clients[num]].joined_time = 0;
 }
 
@@ -227,21 +219,19 @@ void KatinaPluginStats::unstall_client(siz num)
 	if(teams[clients[num]] != TEAM_R && teams[clients[num]] != TEAM_B)
 		return;
 	stats[clients[num]].joined_time = katina.now;
-	plog("\t\t" << players[clients[num]] << ": JT: " << stats[clients[num]].joined_time);
 }
 
 void KatinaPluginStats::stall_clients()
 {
-	plog("  STALL CLIENTS: " << katina.now);
 	for(siz_guid_map_citer ci = clients.begin(); ci != clients.end(); ++ci)
 		stall_client(ci->first);
 }
 
-void KatinaPluginStats::unstall_clients()
+void KatinaPluginStats::unstall_clients(siz num)
 {
-	plog("UNSTALL CLIENTS: " << katina.now);
 	for(siz_guid_map_citer ci = clients.begin(); ci != clients.end(); ++ci)
-		unstall_client(ci->first);
+		if(num == siz(-1) || num != ci->first)
+			unstall_client(ci->first);
 }
 
 void KatinaPluginStats::check_bots_and_players(std::time_t now, siz num)
@@ -252,7 +242,7 @@ void KatinaPluginStats::check_bots_and_players(std::time_t now, siz num)
 	have_bots = false;
 	human_players_r = 0;
 	human_players_b = 0;
-	
+
 	for(guid_siz_map_citer ci = teams.begin(); ci != teams.end(); ++ci)
 	{
 		if(num != siz(-1) && ci->first == num)
@@ -264,7 +254,7 @@ void KatinaPluginStats::check_bots_and_players(std::time_t now, siz num)
 		else if(ci->second == TEAM_B)
 			++human_players_b;
 	}
-	
+
 	bug_var(have_bots);
 	bug_var(human_players_r);
 	bug_var(human_players_b);
@@ -272,7 +262,7 @@ void KatinaPluginStats::check_bots_and_players(std::time_t now, siz num)
 	if(have_bots || !human_players_r || !human_players_b)
 		stall_clients();
 	else
-		unstall_clients();
+		unstall_clients(num);
 }
 
 bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name)
@@ -280,60 +270,50 @@ bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, siz num, siz t
 	bug("KatinaPluginStats::client_userinfo_changed: [" <<  guid << "] " << name << " now: " << katina.now);
 	bug("in_game: " << in_game);
 	std::cout << std::endl;
-	
+
 	if(!guid.is_bot())
 		stats[guid].name = name;
-		//names[guid] = name;
-	
+
 	if(!in_game)
 		return true;
 	if(!active)
 		return true;
 
 	stall_client(num);
-	
+
 	check_bots_and_players(katina.now);
-	
+
 	if(have_bots)
 		return true;
-	
+
 	if(!human_players_r || !human_players_b)
 		return true;
-	
+
 	unstall_client(num);
-		
+
 	return true;
 }
 
-bool KatinaPluginStats::client_connect(siz min, siz sec, siz num)
-{
-	if(!active)
-		return true;
-	// bug("in_game: " << in_game);
-}
+//bool KatinaPluginStats::client_connect(siz min, siz sec, siz num)
+//{
+//	if(!active)
+//		return true;
+//}
 
 bool KatinaPluginStats::client_disconnect(siz min, siz sec, siz num)
 {
-	bug("KatinaPluginStats::client_disconnect: [" <<  clients[num] << "] " << players[clients[num]] << " now: " << katina.now);
-	bug("in_game: " << in_game);
-	std::cout << std::endl;
 	if(!in_game)
 		return true;
 	if(!active)
 		return true;
 
 	stall_client(num);
-	//if(stats[clients[num]].joined_time)
-	//	stats[clients[num]].logged_time += katina.now - stats[clients[num]].joined_time;
-	//stats[clients[num]].joined_time = 0;
-
 	check_bots_and_players(katina.now, num);
 
 	return true;
 }
 bool KatinaPluginStats::kill(siz min, siz sec, siz num1, siz num2, siz weap)
 {
-	// bug("in_game: " << in_game);
 	if(!in_game)
 		return true;
 	if(!active)
@@ -342,31 +322,28 @@ bool KatinaPluginStats::kill(siz min, siz sec, siz num1, siz num2, siz weap)
 		return true;
 	if(!human_players_r || !human_players_b)
 		return true;
+	if(clients.find(num1) == clients.end() || clients.find(num2) == clients.end())
+		return true;
+	if(clients[num2].is_bot())
+		return true;
 
-	if(clients.find(num1) != clients.end() && clients.find(num2) != clients.end())
+	if(num1 == 1022) // no killer
+		++stats[clients[num2]].deaths[weap];
+	else if(!clients[num1].is_bot())
 	{
-		// Target is human
-		if(!clients[num2].is_bot())
+		if(num1 != num2)
 		{
-			if(num1 == 1022) // no killer
-				++stats[clients[num2]].deaths[weap];
-			else if(!clients[num1].is_bot())
+			++stats[clients[num1]].kills[weap];
+			++onevone[clients[num1]][clients[num2]];
+
+			// Target was a flag carrier
+			if(num2 == carrierRed || num2 == carrierBlue)
 			{
-				if(num1 != num2)
-				{
-					++stats[clients[num1]].kills[weap];
-					++onevone[clients[num1]][clients[num2]];
-					
-					// Target was a flag carrier
-					if(num2 == carrierRed || num2 == carrierBlue)
-					{
-						++stats[clients[num1]].carrierFrags;
-						++stats[clients[num2]].carrierFragsRecv;
-					}
-				}
-				++stats[clients[num2]].deaths[weap];
+				++stats[clients[num1]].carrierFrags;
+				++stats[clients[num2]].carrierFragsRecv;
 			}
 		}
+		++stats[clients[num2]].deaths[weap];
 	}
 
 	return true;
@@ -376,13 +353,13 @@ bool KatinaPluginStats::ctf(siz min, siz sec, siz num, siz team, siz act)
 	// bug("in_game: " << in_game);
 	if(!in_game)
 		return true;
-		
+
 	// Remember who is carrying the flag
 	if(team == TEAM_R)
 		carrierRed = act == 0 ? num : -1;
 	else if(team == TEAM_B)
 		carrierBlue = act == 0 ? num : -1;
-		
+
 	if(!active)
 		return true;
 	if(have_bots)
@@ -443,7 +420,7 @@ bool KatinaPluginStats::weapon_usage(siz min, siz sec, siz num, siz weapon, siz 
 
 	if(!clients[num].is_bot())
 		stats[clients[num]].weapon_usage[weapon] += shots;
-		
+
 	return true;
 }
 
@@ -467,7 +444,7 @@ bool KatinaPluginStats::mod_damage(siz min, siz sec, siz num, siz mod, siz hits,
 		moddmg.damageRecv   += damageRecv;
 		moddmg.weightedHits += weightedHits;
 	}
-	
+
 	return true;
 }
 
@@ -501,21 +478,26 @@ bool KatinaPluginStats::player_stats(siz min, siz sec, siz num,
 		s.holyShitFrags    += holyShitFrags;
 		s.holyShitFragged  += holyShitFragged;
 	}
-	
+
 	return true;
+}
+
+bool KatinaPluginStats::sayteam(siz min, siz sec, const GUID& guid, const str& text)
+{
+	say(min, sec, guid, text);
 }
 
 bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 {
 	if(!active)
 		return true;
-	
+
 	str cmd;
 	siss iss(text);
-	
+
 	if(!(iss >> cmd))
 		return true;
-	
+
 	if(cmd == "!register")
 	{
 		if(write && players[guid] != "UnnamedPlayer" && players[guid] != "RenamedPlayer")
@@ -534,11 +516,11 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 			server.chat("^7STATS: ^2!stats^7: ^3calculated for this map and since the start of this month.");
 			return true;
 		}
-		
+
 		siz prev = 0; // count $prev month's back
 		if(!(iss >> prev))
 			prev = 0;
-		
+
 		bug_var(prev);
 
 		bug("getting stats");
@@ -549,7 +531,7 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 		db.off();
 	}
 /*	else if(cmd == "!champ") // last month's champion
-	{				
+	{
 		bug("champ:");
 
 		if(ka_cfg.do_db)
@@ -564,13 +546,13 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 		}
 	}
 */	else if(cmd == "!boss" || cmd == "?boss") // best player in this game (from current months stats)
-	{				
+	{
 		if(cmd[0] == '?')
 		{
 			server.chat("^7STATS: ^2!boss^7: ^3display this map's best player and their ^2!stats ^3for this month.");
 			return true;
 		}
-		
+
 		bug("getting boss");
 		db.on();
 		str stats;

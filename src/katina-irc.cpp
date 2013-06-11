@@ -34,19 +34,38 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include <katina/time.h>
 #include <katina/types.h>
+#include <katina/utils.h>
 #include <katina/log.h>
 #include <katina/socketstream.h>
 #include <katina/str.h>
 #include <katina/message.h>
 
 #include <pthread.h>
+#include <list>
+#include <fcntl.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <signal.h>
 
 using namespace oastats;
 using namespace oastats::log;
 using namespace oastats::time;
 using namespace oastats::types;
+using namespace oastats::utils;
 using namespace oastats::string;
 using namespace oastats::ircbot;
+
+class Bot;
+
+struct processor_params
+{
+	Bot* bot;
+	int cs;
+	processor_params(Bot* bot, int cs): bot(bot), cs(cs) {}
+};
+
+void* processor(void* vp);
+
 
 inline
 str stamp()
@@ -106,13 +125,20 @@ struct thread_data
 {
 	Bot* bot;
 	void (Bot::*func)();
-	thread_data(Bot* bot, void (Bot::*func)()): bot(bot), func(func) {}
+	thread_data(Bot* bot, void (Bot::*func)()): bot(bot), func(func), i(-1) {}
+
+	int i;
+	void (Bot::*func_i)(int);
+	thread_data(Bot* bot, void (Bot::*func_i)(int), int i): bot(bot), func_i(func_i), i(i) {}
 };
 
 void* thread_run(void* data_vp)
 {
 	thread_data* data = reinterpret_cast<thread_data*>(data_vp);
-	(data->bot->*data->func)();
+	if(data->i > 0)
+		(data->bot->*data->func_i)(data->i);
+	else
+		(data->bot->*data->func)();
 	delete data;
 	pthread_exit(0);
 }
@@ -131,6 +157,13 @@ class Bot
 
 	pthread_t responder_fut;
 	pthread_t connecter_fut;
+	pthread_t rlistener_fut;
+	
+	typedef std::list<pthread_t> thread_list;
+	typedef thread_list::iterator thread_list_iter;
+	typedef thread_list::const_iterator thread_list_citer;
+	
+	std::list<pthread_t> futs;
 
 public:
 	Bot(const str& host, int port)
@@ -155,8 +188,9 @@ public:
 			return false;
 		}
 
-		pthread_create(&connecter_fut, NULL, &thread_run, new thread_data(this, &Bot::connecter));
 		pthread_create(&responder_fut, NULL, &thread_run, new thread_data(this, &Bot::responder));
+		pthread_create(&connecter_fut, NULL, &thread_run, new thread_data(this, &Bot::connecter));
+		pthread_create(&rlistener_fut, NULL, &thread_run, new thread_data(this, &Bot::rlistener));
 
 		return true;
 	}
@@ -201,59 +235,6 @@ public:
 		}
 	}
 
-	void cli()
-	{
-		str cmd;
-		str line;
-		str channel;
-		std::istringstream iss;
-//		std::cout << "> " << std::flush;
-		while(!done)
-		{
-			if(!std::getline(std::cin, line))
-			{
-				done = true;
-				log("Can not read input:");
-				continue;
-			}
-			iss.clear();
-			iss.str(line);
-			if(!(iss >> cmd >> std::ws))
-				continue;
-
-			if(cmd == "/exit")
-			{
-				done = true;
-				send("QUIT :leaving");
-			}
-			else if(cmd == "/join")
-			{
-				if(!channel.empty())
-					send("PART " + channel + ": ...places to go people to see...");
-				iss >> channel;
-				send("JOIN " + channel);
-			}
-			else if(cmd == "/part")
-			{
-				if(!channel.empty())
-					send("PART " + channel + " ...places to go people to see...");
-			}
-			else
-			{
-				send("PRIVMSG " + channel + " :" + line);
-			}
-			std::cout << "> " << std::flush;
-			//prompt("");
-		}
-	}
-
-	void join()
-	{
-		pthread_join(responder_fut, 0);
-		pthread_join(connecter_fut, 0);
-		ss.close();
-	}
-
 	void responder()
 	{
 		str line;
@@ -261,21 +242,23 @@ public:
 		while(!done)
 		{
 			if(!std::getline(ss, line))
+			{
+				ss.clear();
+				connected = false;
+				spin_wait(done, 30);
 				continue;
-//			bug("recv: " << line);
-			//std::istringstream iss(line);
-			parsemsg(line, msg);
-//			bug_msg(msg);
+			}
+
+			if(!parsemsg(line, msg))
+			{
+				log("ERROR: parsing message: " << line);
+				continue;
+			}
 
 			if(msg.command == "001")
 				connected = true;
 			else if(msg.command == "JOIN")
-			{
-				// :Skivlet!~Skivlet@cpc21-pool13-2-0-cust125.15-1.cable.virginmedia.com JOIN #teammega
-//				prompt("recv: " << line);
-//				bug_msg(msg);
 				prompt(msg.get_nick() << " has joined " << msg.get_chan());
-			}
 			else if(msg.command == "QUIT")
 				prompt(msg.get_nick() << " has quit: " << msg.get_trailing());
 			else if(msg.command == "PING")
@@ -330,7 +313,253 @@ public:
 				prompt("recv: " << line);
 		}
 	}
+	
+	void exec(const str& cmd, const str& params, std::ostream* os = 0)
+	{
+		str channel;
+		siss iss(params);
+		if(cmd == "/exit")
+		{
+			done = true;
+			send("QUIT :leaving");
+		}
+		else if(cmd == "/join")
+		{
+			if(!channel.empty())
+				send("PART " + channel + ": ...places to go people to see...");
+			iss >> channel;
+			send("JOIN " + channel);
+		}
+		else if(cmd == "/part")
+		{
+			if(!channel.empty())
+				send("PART " + channel + " ...places to go people to see...");
+		}
+		else
+		{
+			send("PRIVMSG " + channel + " :" + params);
+		}
+	}
+	
+	void cli()
+	{
+		str cmd;
+		str line;
+		str params;
+		std::istringstream iss;
+//		std::cout << "> " << std::flush;
+		while(!done)
+		{
+			if(!std::getline(std::cin, line))
+			{
+				done = true;
+				log("Can not read input:");
+				continue;
+			}
+			iss.clear();
+			iss.str(line);
+			if(!sgl(iss >> cmd >> std::ws, params))
+				continue;
+
+			exec(cmd, params);
+			//std::cout << "> " << std::flush;
+			//prompt("");
+		}
+	}
+
+	void join()
+	{
+		pthread_join(responder_fut, 0);
+		pthread_join(connecter_fut, 0);
+		ss.close();
+	}
+	
+	void rlistener()
+	{
+		bug_func();
+		
+		int ss = ::socket(PF_INET, SOCK_STREAM, 0);
+		
+		siz p = 3777;
+		str host = "0.0.0.0";
+		sockaddr_in addr;
+		std::memset(&addr, 0, sizeof(addr));
+		addr.sin_family = AF_INET;
+		addr.sin_port = htons(p);
+		addr.sin_addr.s_addr = inet_addr(host.c_str());
+		if(::bind(ss, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) == -1)
+		{
+			log("ERROR: " << std::strerror(errno));
+			return;
+		}
+		if(::listen(ss, 10) == -1)
+		{
+			log("ERROR: " << std::strerror(errno));
+			return;
+		}
+		while(!done)
+		{
+			sockaddr connectee;
+			socklen_t connectee_len = sizeof(sockaddr);
+			int cs;
+	
+			while(!done)
+			{
+				while(!done && (cs = ::accept4(ss, &connectee, &connectee_len, SOCK_NONBLOCK)) == -1)
+				{
+					if(!done)
+					{
+						if(errno ==  EAGAIN || errno == EWOULDBLOCK)
+							thread_sleep_millis(1000);
+						else
+						{
+							log("ERROR: " << strerror(errno));
+							::close(cs);
+							return;
+						}
+					}
+				}
+	
+				if(!done)
+				{
+					for(thread_list_iter i = futs.begin(); i != futs.end();)
+					{
+						if(pthread_kill(*i, 0) == ESRCH)
+							futs.erase(i);
+						else
+							++i;
+					}
+							
+					pthread_t fut;
+					futs.push_back(fut);
+					pthread_create(&fut, NULL, &thread_run, new thread_data(this, &Bot::process, cs));
+					//std::async(std::launch::async, [&]{ process(cs); });
+				}
+			}
+		}
+	}
+	
+	void process(int cs)
+	{
+		str cmd;
+		str line;
+		str params;
+		net::socketstream ss(cs);
+		// receive null terminated string
+		if(!sgl(ss, line, '\0'))
+		{
+			done = true;
+			log("ERROR: can not read input:");
+			return;
+		}
+		siss iss(line);
+		if(!sgl(iss >> cmd >> std::ws, params))
+		{
+			log("ERROR: parsing remote: " << line);
+			return;
+		}
+
+		if(!trim(cmd).empty())
+		{
+	/*
+			if(!cmd.find("pki::"))
+			{
+				// c: pki::req: <key>:<sig>
+				// s: pki::acc: <ref>:<key>:<sig>
+	
+				// c: pki::cmd: <ref>:<sig>:<cmd>
+				// s: pki::cmd: ok
+	
+				if(!cmd.find("pki::req: ")) // initial connection
+				{
+					// c: pki::req: <key>:<sig>
+					// s: pki::acc: <ref>:<key>:<sig>
+	
+					str skip, key, sig;
+					if(!sgl(sgl(sgl(siss(cmd), skip, ' '), key, ':'), sig))
+					{
+						ss << "pki::err: garbage received" << '\0' << std::flush;
+						return;
+					}
+	
+					str ref;
+					if(!pki.get_ref(key, ref))
+					{
+						ss << "pki::err: unknown client" << '\0' << std::flush;
+						return;
+					}
+	
+					bool is_good = false;
+					if(!pki.verify_signature(ref, sig, is_good))
+					{
+						ss << "pki::err: server error" << '\0' << std::flush;
+						return;
+					}
+	
+					if(!is_good)
+					{
+						ss << "pki::err: bad signature" << '\0' << std::flush;
+						return;
+					}
+	
+					if(!pki.create_signature(sig))
+					{
+						ss << "pki::err: server error" << '\0' << std::flush;
+						return;
+					}
+	
+					ss << "pki::acc: " << ref << ':' << pki.get_public_key() << ':' << sig << '\0' << std::flush;
+				}
+				else if(!cmd.find("pki::cmd: "))
+				{
+					// c: pki::cmd: <ref>:<sig>:<cmd>
+					// s: pki::cmd: ok
+					str skip, ref, sig, cmd;
+					if(!sgl(sgl(sgl(sgl(siss(cmd), skip, ' '), ref, ':'), sig, ':'), cmd)
+					{
+						ss << "pki::err: garbage received" << '\0' << std::flush;
+						return;
+					}
+	
+					bool is_good = false;
+					if(!pki.verify_signature(ref, sig, is_good))
+					{
+						ss << "pki::err: server error" << '\0' << std::flush;
+						return;
+					}
+	
+					if(!is_good)
+					{
+						ss << "pki::err: bad signature" << '\0' << std::flush;
+						return;
+					}
+	
+					soss oss;
+					bot.exec(cmd, &oss);
+					ss << "pki::cmd: " << oss.str() << '\0' << std::flush;
+				}
+				return;
+			}
+	*/
+			soss oss;
+			exec(cmd, params, &oss);
+			ss << oss.str() << '\0' << std::flush;
+		}
+	}
+
 };
+
+void* processor(void* vp)
+{
+	Bot* bot = reinterpret_cast<processor_params*>(vp)->bot;
+	int cs = reinterpret_cast<processor_params*>(vp)->cs;
+	if(!bot)
+		log("ERROR: no bot* for new processor thread");
+	else
+		bot->process(cs);		
+	
+	pthread_exit(0);
+}
 
 int main()
 {

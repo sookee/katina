@@ -8,6 +8,29 @@
  * Created on April 27, 2013, 5:08 AM
  */
 
+/*-----------------------------------------------------------------.
+| Copyright (C) 2013 SooKee oasookee@gmail.com               |
+'------------------------------------------------------------------'
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+02110-1301, USA.
+
+http://www.gnu.org/licenses/gpl-2.0.html
+
+'-----------------------------------------------------------------*/
+
 #include <memory>
 #include <vector>
 
@@ -74,6 +97,7 @@ public:
 	virtual bool score_exit(siz min, siz sec, int score, siz ping, siz num, const str& name) {}
 	virtual bool award(siz min, siz sec, siz num, siz awd) {}
 	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) {}
+	virtual bool sayteam(siz min, siz sec, const GUID& guid, const str& text) {}
 	virtual bool shutdown_game(siz min, siz sec) {}
 	virtual bool exit(siz min, siz sec) {}
 	virtual bool unknown(siz min, siz sec, const str& cmd, const str& params) {}
