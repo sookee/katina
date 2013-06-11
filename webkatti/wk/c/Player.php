@@ -27,7 +27,7 @@ class Player
                 'select distinct game.*, count(distinct `guid`) AS numPlayers
                 from game natural join deaths
                 where date > now() - interval 1 month
-                group by game_id HAVING SUM(IF(`guid` = ?, 1, 0))>1
+                group by game_id HAVING SUM(IF(`guid` = ?, 1, 0))>=1
                 order by game_id desc', $guid);
 
         $gameIds = '';

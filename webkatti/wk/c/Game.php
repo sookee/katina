@@ -31,7 +31,7 @@ class Game
             }
             $c->dateFrom = time() - 60 * 60 * 24 * 7;
         }
-        $c->dateFrom = date('Y-m-d', $c->dateFrom);
+        $c->dateFrom = date('Y-m-d', $c->dateFrom) . " 00:00:00";
 
 
         $c->dateTo = strtotime(@$_GET['to']);
@@ -43,7 +43,7 @@ class Game
             }
             $c->dateTo = time();
         }
-        $c->dateTo = date('Y-m-d', $c->dateTo);
+        $c->dateTo = date('Y-m-d', $c->dateTo) . " 23:59:59";
 
 
         // List all games of the selected day and count the players using the tables kills & deaths
