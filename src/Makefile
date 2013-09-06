@@ -58,7 +58,7 @@ katina: $(KATINA_OBJS)
 	$(CXX) -o $@ $(KATINA_OBJS) $(KATINA_LIBS)
 	@echo
 
-katina.o: katina.cpp $(INCLUDES)
+katina.o: katina_old.cpp $(INCLUDES)
 	$(CXX) -c $(KATINA_FLAGS) -o $@ $<
 
 katina-1: $(KATINA_1_OBJS)
