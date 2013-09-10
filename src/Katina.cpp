@@ -21,6 +21,7 @@
 #include <katina/utils.h>
 #include <katina/str.h>
 #include <katina/GUID.h>
+#include <katina/codes.h>
 
 #include <katina/log.h>
 
@@ -35,6 +36,47 @@ using namespace oastats::string;
 
 const str version = "1.0";
 const str tag = "dev";
+
+
+siz Katina::getTeam(siz client)
+{
+    siz_guid_map_citer clientsIt = clients.find(client);
+    if(clientsIt == clients.end())
+        return TEAM_U;
+    
+    guid_siz_map_citer teamsIt = teams.find(clientsIt->second);
+    if(teamsIt == teams.end())
+        return TEAM_U;
+    
+    return teamsIt->second;
+}
+
+
+str Katina::getPlayerName(siz client)
+{
+    siz_guid_map_citer clientsIt = clients.find(client);
+    if(clientsIt == clients.end())
+        return "";
+    
+    guid_str_map_citer playersIt = players.find(clientsIt->second);
+    if(playersIt == players.end())
+        return "";
+    
+    return playersIt->second;
+}
+
+
+siz Katina::getClientNr(GUID guid)
+{
+    for(siz_guid_map_citer it = clients.begin(); it != clients.end(); ++it)
+    {
+        if(it->second == guid)
+            return it->first;
+    }
+    
+    return siz(-1);
+}
+
 
 str Katina::get_version() { return version + "-" + tag; }
 
@@ -608,9 +650,6 @@ bool Katina::start(const str& dir)
 					teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
 					players[guid] = name;
 
-					if(events[CLIENT_USERINFO_CHANGED].empty())
-						continue;
-
 					for(plugin_vec_iter i = events[CLIENT_USERINFO_CHANGED].begin()
 						; i != events[CLIENT_USERINFO_CHANGED].end(); ++i)
 						(*i)->client_userinfo_changed(min, sec, num, team, guid, name);
@@ -889,9 +928,6 @@ bool Katina::start(const str& dir)
 			for(plugin_vec_iter i = events[INIT_GAME].begin()
 				; i != events[INIT_GAME].end(); ++i)
 				(*i)->init_game(min, sec, cvars);
-		}
-		else if(cmd == "ClientBegin:")
-		{
 		}
 		else if(cmd == "Playerstore:")
 		{

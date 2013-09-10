@@ -540,6 +540,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 
 			if(p->first.is_bot() || !p->second.logged_time)
 				continue;
+            
 			str sort; // sort column
 			str sort_value;
 			str col;

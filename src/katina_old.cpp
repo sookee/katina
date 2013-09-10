@@ -76,6 +76,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <katina/RemoteClient_v0_x.h>
 #include <katina/Database.h>
 #include <katina/GUID.h>
+#include <katina/codes.h>
 
 #include <arpa/inet.h> // IP to int
 
@@ -864,10 +865,6 @@ str get_hud(siz m, siz s, str hud_flag[2])
 	return oss.str();
 }
 
-const siz TEAM_U = 0;
-const siz TEAM_R = 1;
-const siz TEAM_B = 2;
-const siz TEAM_S = 3;
 
 template<typename Map>
 struct mapped_eq

@@ -231,6 +231,10 @@ public:
 	str_map cvars;
 	siz logmode;
 	std::time_t now;
+    
+    siz getTeam(siz client);
+    str getPlayerName(siz client);
+    siz getClientNr(GUID guid);
 
 	str get_version();
 

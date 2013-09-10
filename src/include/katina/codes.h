@@ -114,4 +114,10 @@ enum // WEAPONS
 	WP_NUM_WEAPONS
 };
 
+
+const unsigned int TEAM_U = 0;
+const unsigned int TEAM_R = 1;
+const unsigned int TEAM_B = 2;
+const unsigned int TEAM_S = 3;
+
 #endif /* _OASTATS_CODES_H_ */

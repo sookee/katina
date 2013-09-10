@@ -145,9 +145,8 @@ private:
 public:
 	KatinaPluginStats(Katina& katina);
 
-	// API
-
-	//const guid_stat_map& get_stats_ref() const { return stats; }
+	void updatePlayerTime(siz num);
+    
 
 	// INTERFACE: KatinaPlugin
 

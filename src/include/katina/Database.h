@@ -111,14 +111,7 @@ protected:
 	 */
 	bool update(const str& sql, my_ulonglong& update_count);
 
-	/**
-	 * Perform an "select" sql statement.
-	 * @param sql The "select" sql statement.
-	 * @param rows is a std::vector of std::string std::vectors
-	 * containing the returned table in the form rows[row][column].
-	 * @return true on success else false
-	 */
-	bool select(const str& sql, str_vec_vec& rows, siz fields = 0);
+
 
 public:
 	Database();
@@ -138,6 +131,15 @@ public:
 	void off();
 
 	bool escape(const str& from, str& to);
+    
+	/**
+	 * Perform an "select" sql statement.
+	 * @param sql The "select" sql statement.
+	 * @param rows is a std::vector of std::string std::vectors
+	 * containing the returned table in the form rows[row][column].
+	 * @return true on success else false
+	 */
+	bool select(const str& sql, str_vec_vec& rows, siz fields = 0);
 
 	game_id add_game(const str& host, const str& port, const str& mapname);
 

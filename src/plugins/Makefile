@@ -37,13 +37,18 @@ PLUGIN_VOTECTRL_FLAGS = -D DEBUG -O0 -g3 $(DL_EXPORT) -shared -pthread
 PLUGIN_VOTECTRL_LIBS = -pthread -L.. -lkatina
 PLUGIN_VOTECTRL_OBJS = KatinaPluginCallVoteCtrl.o
 
+PLUGIN_TEAMBALANCER_FLAGS = -D DEBUG -O0 -g3 $(DL_EXPORT) -shared -pthread
+PLUGIN_TEAMBALANCER_LIBS = -pthread -L.. -lkatina
+PLUGIN_TEAMBALANCER_OBJS = KatinaPluginTeamBalancer.o TB_DefaultEvaluation.o TB_DefaultTeamBuilder.o ../Database.o
+
 PLUGINS = \
 	katina-plugin-example.so \
 	katina-plugin-stats.so \
 	katina-plugin-votes.so \
 	katina-plugin-reports.so \
 	katina-plugin-wso.so \
-	katina-plugin-votectrl.so
+	katina-plugin-votectrl.so \
+	katina-plugin-teambalancer.so
 
 all: $(PLUGINS)
 
@@ -64,6 +69,9 @@ katina-plugin-wso.so: $(PLUGIN_WSO_OBJS)
 
 katina-plugin-votectrl.so: $(PLUGIN_VOTECTRL_OBJS)
 	$(CXX) $(PLUGIN_VOTECTRL_FLAGS) -o $@ $(PLUGIN_VOTECTRL_OBJS) $(PLUGIN_VOTECTRL_LIBS)
+	
+katina-plugin-teambalancer.so: $(PLUGIN_TEAMBALANCER_OBJS)
+	$(CXX) $(PLUGIN_TEAMBALANCER_FLAGS) -o $@ $(PLUGIN_TEAMBALANCER_OBJS) $(PLUGIN_TEAMBALANCER_LIBS)
 
 %.o: %.cpp %.h
 	$(CXX) $(CXXFLAGS) $(MYSQL_INCL) -c -o $@ $<
