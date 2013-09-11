@@ -39,7 +39,7 @@ namespace oastats { namespace net {
 using namespace oastats::log;
 using namespace oastats::types;
 
-#define TIMEOUT 1000
+#define TIMEOUT 2000
 
 /**
  * IPv4 IPv6 agnostic OOB (out Of Band) comms

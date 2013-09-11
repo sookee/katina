@@ -592,6 +592,10 @@ bool Katina::start(const str& dir)
 			now = base_now + (min * 60) + sec;
 		else
 			now = std::time(0);
+        
+        // Send HEARTBEAT event to plugins
+        for(plugin_vec_iter i = events[HEARTBEAT].begin(); i != events[HEARTBEAT].end(); ++i)
+            (*i)->heartbeat(min, sec);
 
 		if(cmd == "Exit:")
 		{
@@ -647,12 +651,19 @@ bool Katina::start(const str& dir)
 						guid = to<GUID>(id.substr(24));
 
 					clients[num] = guid;
-					teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
 					players[guid] = name;
+                    
+                    siz teamBefore = teams[guid];
+                    teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
 
-					for(plugin_vec_iter i = events[CLIENT_USERINFO_CHANGED].begin()
-						; i != events[CLIENT_USERINFO_CHANGED].end(); ++i)
+					for(plugin_vec_iter i = events[CLIENT_USERINFO_CHANGED].begin(); i != events[CLIENT_USERINFO_CHANGED].end(); ++i)
 						(*i)->client_userinfo_changed(min, sec, num, team, guid, name);
+                    
+                    if(team != teamBefore && !guid.is_bot())
+                    {
+                        for(plugin_vec_iter i = events[CLIENT_SWITCH_TEAM].begin(); i != events[CLIENT_SWITCH_TEAM].end(); ++i)
+                            (*i)->client_switch_team(min, sec, num, teamBefore, team);
+                    }
 				}
 			}
 		}
@@ -697,13 +708,15 @@ bool Katina::start(const str& dir)
 				std::cout << "Error parsing ClientConnect: "  << params << '\n';
 			else
 			{
+                // Remove the data first, client is not available in event handlers
+                GUID guid = clients[num];
+				teams.erase(guid);
+				players.erase(guid); // TODO: WHY WAS THIS COMMENTED OUT?
+				clients.erase(num);
+                
 				for(plugin_vec_iter i = events[CLIENT_DISCONNECT].begin()
 					; i != events[CLIENT_DISCONNECT].end(); ++i)
 					(*i)->client_disconnect(min, sec, num);
-
-				teams.erase(clients[num]);
-				//players.erase(clients[num]);
-				clients.erase(num);
 			}
 		}
 		else if(cmd == "Kill:")

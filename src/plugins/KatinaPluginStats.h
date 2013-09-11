@@ -124,6 +124,7 @@ private:
 	// cvars
 	bool active;
 	bool write;
+    bool recordBotGames;
 
 	bool in_game;
 	bool have_bots; // are any bots playing?
@@ -148,6 +149,7 @@ public:
 	void updatePlayerTime(siz num);
     
 
+    ///////////////////////////////////////////
 	// INTERFACE: KatinaPlugin
 
 	virtual bool open();

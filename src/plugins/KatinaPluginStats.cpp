@@ -35,6 +35,7 @@ KatinaPluginStats::KatinaPluginStats(Katina& katina)
 , server(katina.server)
 , active(true)
 , write(true)
+, recordBotGames(true)
 , in_game(false)
 , have_bots(false)
 , human_players_r(0)
@@ -255,7 +256,8 @@ void KatinaPluginStats::check_bots_and_players(std::time_t now, siz num)
 	human_players_r = 0;
 	human_players_b = 0;
     
-    return; /////////////////////////////////////////////////////////////////////////////
+    if(recordBotGames)
+        return;
 
 	for(guid_siz_map_citer ci = teams.begin(); ci != teams.end(); ++ci)
 	{
@@ -274,17 +276,26 @@ void KatinaPluginStats::check_bots_and_players(std::time_t now, siz num)
 	bug_var(human_players_b);
 
 	if(have_bots || !human_players_r || !human_players_b)
-		stall_clients();
+    {
+        stall_clients();
+        bug("BOT GAME ===================");
+        have_bots = true; // TODO: one flag for everything, maybe change its name?
+        server.chat("^2Stats recording deactivated: ^7Not enough humans or too many bots");
+    }
 	else
+    {
 		unstall_clients(num);
+        bug("HUMAN GAME ===================");
+        server.chat("^2Stats recording activated^7");
+    }
 }
 
 
 bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name)
 {
-	bug("KatinaPluginStats::client_userinfo_changed: [" <<  guid << "] " << name << " now: " << katina.now);
-	bug("in_game: " << in_game);
-	std::cout << std::endl;
+	//bug("KatinaPluginStats::client_userinfo_changed: [" <<  guid << "] " << name << " now: " << katina.now);
+	//bug("in_game: " << in_game);
+	//std::cout << std::endl;
 
 	if(!guid.is_bot())
 		stats[guid].name = name;
@@ -424,7 +435,6 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 	if(in_game)
 		return true;
 	in_game = true;
-
 
 	if(!active)
 		return true;

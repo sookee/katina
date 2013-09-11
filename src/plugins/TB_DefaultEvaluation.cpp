@@ -52,7 +52,7 @@ void DefaultEvaluation::loadStats(GUID guid, stats& dest)
     for(siz i=0; i<rows.size(); ++i)
         dest.mod_damage[ to<siz>(rows[i][0]) ].weightedHits = to<float>(rows[i][1]);
     
-    db.off();
+    //db.off();
 }
     
     

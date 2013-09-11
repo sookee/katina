@@ -53,6 +53,21 @@ public:
 
 
 /*********************************************************
+ * Events that call the TeamBuilder methods.
+ */
+enum TeamBuilderEvent
+{
+    TB_INIT,
+    TB_JOIN,
+    TB_DISCONNECT,
+    TB_CAPTURE,
+    TB_COMMAND,
+    TB_UNKNOWN
+};
+
+
+
+/*********************************************************
  * Base class for team building algorithms
  * that decide how the teams should look.
  */
@@ -63,14 +78,27 @@ protected:
     Katina& katina;
     KatinaPluginTeamBalancer& balancerPlugin;
     
+    bool is1vs1() const;
+    
+    
 public:
     TeamBuilder(Katina& katina, KatinaPluginTeamBalancer& plugin) :
         katina(katina), balancerPlugin(plugin) {}
         
     // Returns Mapping: Client Slot -> Team
-    virtual bool buildTeams(siz_float_map playerRatings, siz_map& destTeams) = 0;  
+    virtual bool buildTeams(siz_float_map playerRatings, siz_map& destTeams, TeamBuilderEvent event=TB_UNKNOWN, void* payload=NULL) = 0;  
 };
 
+
+/*********************************************************
+ * Payload data structures for the different events
+ */
+struct TB_JoinData
+{
+    siz client;
+    siz teamBefore;
+    siz teamNow;
+};
 
 
 /*********************************************************
@@ -104,9 +132,27 @@ private:
     siz lastBalancing;
     siz minTimeBetweenRebalancing;
     
+    siz scoreRed;
+    siz scoreBlue;
+    std::list<siz> teamScoreHistory;
+    
+    
+    struct QueuedChange
+    {
+        siz timestamp;
+        siz targetTeam;
+    };
+    
+    typedef std::map<siz, QueuedChange> queued_changes_map;
+    queued_changes_map queuedChanges;
+    
+    
+    
     void rateAllPlayers();
     float ratePlayer(siz client);
-    void buildTeams(TeamBuilder* teamBuilder);
+    void buildTeams(TeamBuilder* teamBuilder, TeamBuilderEvent event=TB_UNKNOWN, void* payload=NULL, bool skipTimeCheck=false);
+    
+    void printTeams(bool printBug=false, bool printChat=true);
     
     
 public:
@@ -115,7 +161,10 @@ public:
     
     KatinaPluginStats* getStatsPlugin() { return statsPlugin; }
     stat_list& getLastStats() { return lastStats; }
-    float getRating(siz client) { return playerRatings[client]; }
+    
+    siz getScoreRed() const { return scoreRed; }
+    siz getScoreBlue() const { return scoreBlue; }
+    const std::list<siz>& getTeamScoreHistory() const { return teamScoreHistory; }
 
     //
 	// INTERFACE: KatinaPlugin
@@ -136,10 +185,11 @@ public:
 	// Game server log events
 	virtual bool init_game(siz min, siz sec, const str_map& cvars);
 	//virtual bool warmup(siz min, siz sec) {}
-	virtual bool client_connect(siz min, siz sec, siz client) {}
-	virtual bool client_begin(siz min, siz sec, siz client);
+	//virtual bool client_connect(siz min, siz sec, siz client) {}
+	//virtual bool client_begin(siz min, siz sec, siz client) {}
 	virtual bool client_disconnect(siz min, siz sec, siz client);
 	//virtual bool client_userinfo_changed(siz min, siz sec, siz client, siz team, const GUID& guid, const str& name) {}
+    virtual bool client_switch_team(siz min, siz sec, siz num, siz teamBefore, siz teamNow);
 	//virtual bool kill(siz min, siz sec, siz client1, siz client2, siz weap) {}
 	virtual bool ctf(siz min, siz sec, siz client, siz team, siz act);
 	
@@ -173,6 +223,8 @@ public:
 	 * This is a good place to clean up any threads, close files etc.
 	 */
 	virtual void close();
+    
+    virtual void heartbeat(siz min, siz sec);
 };
 
 

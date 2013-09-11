@@ -87,6 +87,7 @@ public:
 	virtual bool client_begin(siz min, siz sec, siz num) {}
 	virtual bool client_disconnect(siz min, siz sec, siz num) {}
 	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name) {}
+    virtual bool client_switch_team(siz min, siz sec, siz num, siz teamBefore, siz teamNow) {}
 	virtual bool kill(siz min, siz sec, siz num1, siz num2, siz weap) {}
 	virtual bool ctf(siz min, siz sec, siz num, siz team, siz act) {}
 	
@@ -119,6 +120,8 @@ public:
 	 * This is a good place to clean up any threads, close files etc.
 	 */
 	virtual void close() = 0;
+    
+    virtual void heartbeat(siz min, siz sec) {}
 };
 
 //typedef boost::shared_ptr<KatinaPlugin> KatinaPluginSPtr;

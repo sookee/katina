@@ -77,6 +77,7 @@ enum event_t
 	, CLIENT_BEGIN
 	, CLIENT_DISCONNECT
 	, CLIENT_USERINFO_CHANGED
+    , CLIENT_SWITCH_TEAM
 	, KILL
 	, CTF
 	, CTF_EXIT
@@ -90,6 +91,7 @@ enum event_t
 	, SHUTDOWN_GAME
 	, EXIT
 	, UNKNOWN
+    , HEARTBEAT
 };
 
 typedef std::map<event_t, plugin_vec> event_map;
