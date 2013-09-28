@@ -130,11 +130,13 @@ private:
     stat_list lastStats;
     
     siz lastBalancing;
-    siz minTimeBetweenRebalancing;
+    //siz minTimeBetweenRebalancing;
     
     siz scoreRed;
     siz scoreBlue;
     std::list<siz> teamScoreHistory;
+    
+    bool activeInBotGames;
     
     
     struct QueuedChange
@@ -150,7 +152,7 @@ private:
     
     void rateAllPlayers();
     float ratePlayer(siz client);
-    void buildTeams(TeamBuilder* teamBuilder, TeamBuilderEvent event=TB_UNKNOWN, void* payload=NULL, bool skipTimeCheck=false);
+    void buildTeams(TeamBuilder* teamBuilder, TeamBuilderEvent event=TB_UNKNOWN, void* payload=NULL, siz waitTime=15, bool force=false);
     
     void printTeams(bool printBug=false, bool printChat=true);
     

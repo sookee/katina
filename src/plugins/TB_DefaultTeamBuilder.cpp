@@ -121,6 +121,9 @@ bool DefaultTeamBuilder::buildTeams(siz_float_map playerRatings, siz_map& destTe
         }
     }
     
+    if(ingamePlayers.size() < 3)
+        return false;
+    
     // Search for teams with minimal rating difference
     siz teamMask   = pow(2, ingamePlayers.size() / 2) - 1;
     siz end        = 1 << ingamePlayers.size();
@@ -221,6 +224,11 @@ bool MinimalChangesTeamBuilder::buildTeams(siz_float_map playerRatings, siz_map&
         }
     }
     
+    if(ingamePlayers.size() < 3)
+        return false;
+    
+    bug("building teams for " << ingamePlayers.size() << " players");
+    
     // Calculate current team difference
     siz currentTeam = currentTeamMask(ingamePlayers);
     const float currentDiff = abs( difference(currentTeam, ratings) );
@@ -249,14 +257,17 @@ bool MinimalChangesTeamBuilder::buildTeams(siz_float_map playerRatings, siz_map&
     
     // Search for best teamMask with minimal number of changes to current teams
     if(proposals.empty())
+    {
+        bug("no proposals available");
         return false;
+    }
 
     float maxImprove = -1000000000000.0f;
     for(proposal_map_citer it=proposals.begin(); it != proposals.end(); ++it)
     {
         float improve = (currentDiff - it->second.ratingDiff) / sqrt(it->first+1.0f);
         
-        //bug("proposal with " << it->first << " changes: " << bitstring(it->second.teamMask, ingamePlayers.size()) << " diff: " << it->second.ratingDiff << " improvement: " << improve);
+        bug("proposal with " << it->first << " changes: " << bitstring(it->second.teamMask, ingamePlayers.size()) << " diff: " << it->second.ratingDiff << " improvement: " << improve);
         
         if(improve > maxImprove)
         {
@@ -267,9 +278,12 @@ bool MinimalChangesTeamBuilder::buildTeams(siz_float_map playerRatings, siz_map&
     
     // The chosen mask is the same as the current one, diff delta = 0
     if(teamMask & end)
+    {
+        bug("no proposal chosen");
         return false;
+    }
     
-    //bug("choosed proposal: " << bitstring(teamMask, ingamePlayers.size()) << " improvement: " << maxImprove);
+    bug("choosed proposal: " << bitstring(teamMask, ingamePlayers.size()) << " improvement: " << maxImprove);
     
     // Build map with team definitions
     for(int i=0; i<ingamePlayers.size(); ++i, teamMask >>= 1)

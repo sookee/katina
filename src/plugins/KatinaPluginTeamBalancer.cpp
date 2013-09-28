@@ -27,9 +27,10 @@ KatinaPluginTeamBalancer::KatinaPluginTeamBalancer(Katina& katina) :
     statsPlugin(NULL),
     numLastStats(3),
     lastBalancing(0),
-    minTimeBetweenRebalancing(20),
+ //   minTimeBetweenRebalancing(20),
     scoreRed(0),
-    scoreBlue(0)
+    scoreBlue(0),
+    activeInBotGames(false)
 {
     evaluation          = new DefaultEvaluation(katina, *this);
     
@@ -67,13 +68,23 @@ float KatinaPluginTeamBalancer::ratePlayer(siz client)
 }
 
 
-void KatinaPluginTeamBalancer::buildTeams(TeamBuilder* teamBuilder, TeamBuilderEvent event, void* payload, bool skipTimeCheck)
+void KatinaPluginTeamBalancer::buildTeams(TeamBuilder* teamBuilder, TeamBuilderEvent event, void* payload, siz waitTime, bool force)
 {
     if(teamBuilder == NULL)
         return;
     
-    if(!skipTimeCheck && lastBalancing > katina.now - minTimeBetweenRebalancing)
+    if(lastBalancing > katina.now - waitTime)
         return;
+    
+    if(!activeInBotGames && !force)
+    {
+        // Leave if there are bots
+        for(siz_guid_map_citer it = katina.clients.begin(); it != katina.clients.end(); ++it)
+        {
+            if(it->second.is_bot())
+                return;
+        }
+    }
 
     // TODO:
     str botSkill;
@@ -138,10 +149,8 @@ void KatinaPluginTeamBalancer::buildTeams(TeamBuilder* teamBuilder, TeamBuilderE
     if(switched > 0)
     {
         lastBalancing = katina.now;
-        rcon.cp("Teams adjusted");
+        rcon.cp("Teams balanced");
     }
-    
-    printTeams(true, false);
 }
 
 siz nameLength(str name)
@@ -192,7 +201,7 @@ void KatinaPluginTeamBalancer::printTeams(bool printBug, bool printChat)
         soss oss;
         oss << "^1=== RED ===^7";
         for(int i=11; i<col1Len+pad; ++i)
-            oss << ".";
+            oss << "\"";
         oss << "^4=== BLUE ===";
         if(printChat) katina.server.chat(oss.str());
         if(printBug) bug(oss.str());
@@ -215,17 +224,17 @@ void KatinaPluginTeamBalancer::printTeams(bool printBug, bool printChat)
             oss << name;
             
             for(int i=nameLength(name); i<col1Len-8; ++i)
-                oss << ".";
+                oss << "\"";
             
             oss << " ^3(^7";
-            if(rating < 10000) oss << " ";
-            if(rating < 1000) oss << ".";
-            if(rating < 100) oss << ".";
-            if(rating < 10) oss << ".";
+            if(rating < 10000) oss << "\"";
+            if(rating < 1000) oss << "\"";
+            if(rating < 100) oss << "\"";
+            if(rating < 10) oss << "\"";
             oss << "^1" << rating << "^3)^7";
             
             for(int i=0; i<pad; ++i)
-                oss << ".";
+                oss << "\"";
             
             ++itRed;
             sumRed += rating;
@@ -233,7 +242,7 @@ void KatinaPluginTeamBalancer::printTeams(bool printBug, bool printChat)
         else
         {
             for(int i=0; i<col1Len+pad; ++i)
-                oss << ".";
+                oss << "\"";
         }
         
         if(itBlue != blue.rend())
@@ -243,13 +252,13 @@ void KatinaPluginTeamBalancer::printTeams(bool printBug, bool printChat)
             oss << name;
             
             for(int i=nameLength(name); i<col2Len-8; ++i)
-                oss << ".";
+                oss << "\"";
                     
             oss << " ^3(^7";
-            if(rating < 10000) oss << " ";
-            if(rating < 1000) oss << ".";
-            if(rating < 100) oss << ".";
-            if(rating < 10) oss << ".";
+            if(rating < 10000) oss << "\"";
+            if(rating < 1000) oss << "\"";
+            if(rating < 100) oss << "\"";
+            if(rating < 10) oss << "\"";
             oss << "^4" << rating << "^3)";
             
             ++itBlue;
@@ -305,7 +314,7 @@ bool KatinaPluginTeamBalancer::init_game(siz min, siz sec, const str_map& cvars)
     teamScoreHistory.clear();
     
     rateAllPlayers();
-    buildTeams(teamBuilderInit, TB_INIT, NULL, true);
+    buildTeams(teamBuilderInit, TB_INIT, NULL, 0);
     
     return true;
 }
@@ -313,6 +322,8 @@ bool KatinaPluginTeamBalancer::init_game(siz min, siz sec, const str_map& cvars)
 
 bool KatinaPluginTeamBalancer::client_switch_team(siz min, siz sec, siz num, siz teamBefore, siz teamNow)
 {
+    bug("TB client_switch_team begin");
+    
     // Skip if it was a queued change
     queued_changes_map::iterator it = queuedChanges.find(num);
     if(it != queuedChanges.end())
@@ -325,6 +336,7 @@ bool KatinaPluginTeamBalancer::client_switch_team(siz min, siz sec, siz num, siz
         else
             bug("====> CLIENT NOT IN EXPECTED TARGET TEAM!!");
         
+        bug("TB client_switch_team return false");
         return false;
     }
     
@@ -338,14 +350,14 @@ bool KatinaPluginTeamBalancer::client_switch_team(siz min, siz sec, siz num, siz
         payload.teamBefore = teamBefore;
         payload.teamNow    = teamNow;
         
-        buildTeams(teamBuilderJoin, TB_JOIN, &payload, true);
+        buildTeams(teamBuilderJoin, TB_JOIN, &payload, 0, true);
     }
     
     // Player joined spec
     else if(teamNow == TEAM_S && (teamBefore == TEAM_R || teamBefore == TEAM_B))
     {
         rateAllPlayers();
-        buildTeams(teamBuilderLeave, TB_DISCONNECT, NULL, true);
+        buildTeams(teamBuilderLeave, TB_DISCONNECT, NULL, 10);
     }
     
     // Player just joined
@@ -358,15 +370,18 @@ bool KatinaPluginTeamBalancer::client_switch_team(siz min, siz sec, siz num, siz
         rcon.chat(oss.str());
     }
     
+    bug("TB client_switch_team return true");
     return true;
 }
 
 
 bool KatinaPluginTeamBalancer::client_disconnect(siz min, siz sec, siz client)
 {
+    bug("TB client_disconnect begin");
     playerRatings.erase(client);
     rateAllPlayers();
-    buildTeams(teamBuilderLeave, TB_DISCONNECT, NULL, true);
+    buildTeams(teamBuilderLeave, TB_DISCONNECT, NULL, 10);
+    bug("TB client_disconnect end");
     
     return true;
 }
@@ -374,6 +389,8 @@ bool KatinaPluginTeamBalancer::client_disconnect(siz min, siz sec, siz client)
 
 bool KatinaPluginTeamBalancer::ctf(siz min, siz sec, siz client, siz team, siz act)
 {
+    bug("TB ctf begin");
+    
     // Count flag captures (team score)
     if(act == FL_CAPTURED)
     {
@@ -390,10 +407,11 @@ bool KatinaPluginTeamBalancer::ctf(siz min, siz sec, siz client, siz team, siz a
         if(scoreRed < capturelimit && scoreBlue < capturelimit)
         {
             rateAllPlayers();
-            buildTeams(teamBuilderCapture, TB_CAPTURE, NULL);
+            buildTeams(teamBuilderCapture, TB_CAPTURE, NULL, 15);
         }
     }
     
+    bug("TB ctf end");
     return true;
 }
 
@@ -412,6 +430,8 @@ bool KatinaPluginTeamBalancer::exit(siz min, siz sec)
 
 bool KatinaPluginTeamBalancer::say(siz min, siz sec, const GUID& guid, const str& text)
 {
+    bug("TB say: " << text);
+    
     siz client = katina.getClientNr(guid);
 	siss iss(text);
     str cmd;
@@ -440,16 +460,18 @@ bool KatinaPluginTeamBalancer::say(siz min, siz sec, const GUID& guid, const str
         }
     }*/
     
-    /*else if(cmd == "!teams")
+    else if(cmd == "!teams")
     {
         rateAllPlayers();
-        buildTeams(teamBuilderInit, TB_COMMAND, NULL);
-    }*/
+        buildTeams(teamBuilderInit, TB_COMMAND, NULL, 15);
+    }
     
     else if(cmd == "!teamrating")
     {
         printTeams();
     }
+    
+    bug("TB say end");
     
     return true;
 }
@@ -458,6 +480,8 @@ bool KatinaPluginTeamBalancer::say(siz min, siz sec, const GUID& guid, const str
 
 void KatinaPluginTeamBalancer::heartbeat(siz min, siz sec)
 {
+    return; /////////////////////////////////////////////////////////////////////////////////////////
+
     static siz waitTime = 1;
     static std::vector<siz> toDelete;
     
@@ -487,6 +511,9 @@ void KatinaPluginTeamBalancer::heartbeat(siz min, siz sec)
         queuedChanges.erase(toDelete[i]);
     
     toDelete.clear();
+    
+    // Occasionally check teams
+    //buildTeams(teamBuilderCapture, TB_UNKNOWN, NULL, 60);
 }
 
 

@@ -80,6 +80,8 @@ siz Katina::getClientNr(GUID guid)
 
 str Katina::get_version() { return version + "-" + tag; }
 
+
+
 void* cvarpoll(void* vp)
 {
 	Katina& katina = *reinterpret_cast<Katina*>(vp);
@@ -132,6 +134,8 @@ void* cvarpoll(void* vp)
 	pthread_exit(0);
 }
 
+
+
 Katina::Katina()
 : done(false)
 , active(true) // TODO: make this false
@@ -141,11 +145,15 @@ Katina::Katina()
 	pthread_mutex_init(&cvarevts_mtx, 0);
 }
 
+
+
 Katina::~Katina()
 {
 	done = true;
 	pthread_join(cvarevts_thread, 0);
 }
+
+
 
 bool Katina::rconset(const str& cvar, str& val)
 {
@@ -181,6 +189,8 @@ bool Katina::rconset(const str& cvar, str& val)
 	return true;
 }
 
+
+
 GUID Katina::guid_from_name(const str& name)
 {
 	for(guid_str_map_iter i = players.begin(); i != players.end(); ++i)
@@ -188,6 +198,8 @@ GUID Katina::guid_from_name(const str& name)
 			return i->first;
 	return null_guid;
 }
+
+
 
 bool Katina::extract_name_from_text(const str& line, GUID& guid, str& text)
 {
@@ -210,6 +222,8 @@ bool Katina::extract_name_from_text(const str& line, GUID& guid, str& text)
 	}
 	return found;
 }
+
+
 
 bool Katina::load_plugin(const str& file)
 {
@@ -258,6 +272,8 @@ bool Katina::load_plugin(const str& file)
 	return true;
 }
 
+
+
 bool Katina::unload_plugin(const str& id)
 {
 	plugin_map_iter i = plugins.find(id);
@@ -281,6 +297,8 @@ bool Katina::unload_plugin(const str& id)
 
 	return true;
 }
+
+
 
 bool Katina::reload_plugin(const str& id)
 {
@@ -312,6 +330,8 @@ bool Katina::reload_plugin(const str& id)
 	return true;
 }
 
+
+
 KatinaPlugin* Katina::get_plugin(const str& id, const str& version)
 {
 	plugin_map_iter i = plugins.find(id);
@@ -331,6 +351,8 @@ KatinaPlugin* Katina::get_plugin(const str& id, const str& version)
 	return i->second;
 }
 
+
+
 bool Katina::chat_to(siz num, const str& text)
 {
 	return chat_to(clients[num], text);
@@ -345,6 +367,8 @@ bool Katina::chat_to(const str& name, const str& text)
 {
 	return server.s_chat(name + "^2 " + text);
 }
+
+
 
 bool Katina::load_config(const str& dir, const str& file, property_map& props)
 {
@@ -404,16 +428,10 @@ bool Katina::load_config(const str& dir, const str& file, property_map& props)
 	return true;
 }
 
-bool Katina::start(const str& dir)
+
+
+bool Katina::init_pki()
 {
-	config_dir = expand_env(dir);
-
-	log("Setting config dir: " << dir);
-
-	load_config(config_dir, "katina.conf", props);
-
-	// load pki
-
 	log("Reading keypair:");
 
 	str keypair_file = get_exp("pki.keypair", "keypair.pki");
@@ -445,51 +463,69 @@ bool Katina::start(const str& dir)
 	}
 
 	log("Reading public keys:");
-
 	str_vec pkeys = get_exp_vec("pki.pkey");
 	for(siz i = 0; i < pkeys.size(); ++i)
 	{
 		log("LOAD PUBLIC KEY: " << pkeys[i]);
 		pki.load_public_key(pkeys[i], pkeys[i]);
 	}
+    
 	// TOSO: ad this
 	//ifs.open((config_dir + "/" + pkeys_file).c_str());
 	//while(pki.read_public_key(, ifs)) {}
 	//ifs.close();
+    
+    return true;
+}
 
-	// initialize rcon
 
+
+void Katina::init_rcon()
+{
 	log("Initializing rcon:");
-
 	server.config(get("rcon.host"), get<siz>("rcon.port"), get("rcon.pass"));
 
 	if(get("rcon.active") == "true")
 		server.on();
-
-	// load plugins
-
-	log("Loading plugins:");
-
-	str_vec pluginfiles = get_exp_vec("plugin");
-	for(siz i = 0; i < pluginfiles.size(); ++i)
-		load_plugin(pluginfiles[i]);
-
+    
 	prefix = get("rcon.cvar.prefix");
 	if(!prefix.empty())
 		prefix += ".";
+    
 	pthread_create(&cvarevts_thread, 0, &cvarpoll, (void*) this);
+}
+
+
+
+void Katina::load_plugins()
+{
+	log("Loading plugins:");
+	str_vec pluginfiles = get_exp_vec("plugin");
+	for(siz i = 0; i < pluginfiles.size(); ++i)
+		load_plugin(pluginfiles[i]);
+}
+
+
+
+bool Katina::start(const str& dir)
+{
+	config_dir = expand_env(dir);
+	log("Setting config dir: " << dir);
+
+	load_config(config_dir, "katina.conf", props);
+    if(!init_pki()) return false;
+    init_rcon();
+    load_plugins();
 
 	std::ios::openmode mode = std::ios::in|std::ios::ate;
 
 	bool rerun = get("run.mode") == "rerun";
-
 	if(rerun)
 		mode = std::ios::in;
 
 	log("Opening logfile (" << get("run.mode") << "): " << get("logfile"));
 
 	std::ifstream ifs;
-
 	ifs.open(get_exp("logfile").c_str(), mode);
 
 	if(!ifs.is_open())
@@ -499,7 +535,6 @@ bool Katina::start(const str& dir)
 	}
 
 	std::istream& is = ifs;
-
 	std::ios::streampos gpos = is.tellg();
 
 	// Sometimes the ClientUserinfoChanged message is split over
@@ -532,7 +567,7 @@ bool Katina::start(const str& dir)
 		{
 			if(rerun)
 				done = true;
-			thread_sleep_millis(100);
+			thread_sleep_millis(50);
 			is.clear();
 			is.seekg(gpos);
 			continue;
@@ -711,7 +746,7 @@ bool Katina::start(const str& dir)
                 // Remove the data first, client is not available in event handlers
                 GUID guid = clients[num];
 				teams.erase(guid);
-				players.erase(guid); // TODO: WHY WAS THIS COMMENTED OUT?
+				//players.erase(guid); // TODO: WHY IS THIS COMMENTED OUT?
 				clients.erase(num);
                 
 				for(plugin_vec_iter i = events[CLIENT_DISCONNECT].begin()
@@ -1006,6 +1041,7 @@ bool Katina::start(const str& dir)
 		}
 		//pthread_mutex_unlock(&cvarevts_mtx);
 	}
+    
 	return true;
 }
 

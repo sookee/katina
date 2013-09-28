@@ -35,7 +35,7 @@ KatinaPluginStats::KatinaPluginStats(Katina& katina)
 , server(katina.server)
 , active(true)
 , write(true)
-, recordBotGames(true)
+, recordBotGames(false)
 , in_game(false)
 , have_bots(false)
 , human_players_r(0)
@@ -274,19 +274,22 @@ void KatinaPluginStats::check_bots_and_players(std::time_t now, siz num)
 	bug_var(have_bots);
 	bug_var(human_players_r);
 	bug_var(human_players_b);
-
+    
 	if(have_bots || !human_players_r || !human_players_b)
     {
         stall_clients();
         bug("BOT GAME ===================");
         have_bots = true; // TODO: one flag for everything, maybe change its name?
-        server.chat("^2Stats recording deactivated: ^7Not enough humans or too many bots");
+        
+        if(had_bots != have_bots)
+            server.chat("^2Stats recording deactivated: ^7Not enough humans or too many bots");
     }
 	else
     {
 		unstall_clients(num);
         bug("HUMAN GAME ===================");
-        server.chat("^2Stats recording activated^7");
+        if(had_bots != have_bots)
+            server.chat("^2Stats recording activated^7");
     }
 }
 
