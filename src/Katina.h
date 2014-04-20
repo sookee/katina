@@ -118,7 +118,7 @@ public:
 class Processor
 {
 public:
-	virtual ~Process() {}
+	virtual ~Processor() {}
 
 	virtual bool process_exit() = 0;
 	virtual bool process_shutdown_game() = 0;
