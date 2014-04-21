@@ -14,7 +14,7 @@ using namespace oastats::log;
 using namespace oastats::types;
 
 KATINA_PLUGIN_TYPE(KatinaPluginPlayerDb);
-KATINA_PLUGIN_INFO("katina::player::db", "Katina Example", "0.1-dev");
+KATINA_PLUGIN_INFO("katina::player::db", "Katina Player Database", "0.1-dev");
 
 struct player_do
 {
@@ -160,6 +160,7 @@ KatinaPluginPlayerDb::KatinaPluginPlayerDb(Katina& katina)
 , teams(katina.teams)
 , active(true)
 {
+	mysql_init(&mysql);
 }
 
 bool KatinaPluginPlayerDb::open()
@@ -169,6 +170,20 @@ bool KatinaPluginPlayerDb::open()
 	katina.add_log_event(this, CLIENT_CONNECT);
 	katina.add_log_event(this, CLIENT_DISCONNECT);
 	katina.add_log_event(this, CLIENT_USERINFO_CHANGED);
+
+	str host = katina.get("player.db.host", "localhost");
+	siz port = katina.get("player.db.port", 3306);
+	str user = katina.get("player.db.user");
+	str pass = katina.get("player.db.pass", "");
+	str base = katina.get("player.db.base");
+
+	if(mysql_real_connect(&mysql, host.c_str(), user.c_str()
+		, pass.c_str(), base.c_str(), port, NULL, 0) != &mysql)
+	{
+		log("DATABASE ERROR: Unable to connect; " << mysql_error(&mysql));
+		return false;
+	}
+	plog("PLAYER DB DATABASE: on");
 
 	return true;
 }
@@ -208,6 +223,7 @@ bool KatinaPluginPlayerDb::client_userinfo_changed(siz min, siz sec, siz num, si
 
 void KatinaPluginPlayerDb::close()
 {
+	mysql_close(&mysql);
 }
 
 }} // katina::plugin
