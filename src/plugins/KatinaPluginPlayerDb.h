@@ -1,11 +1,13 @@
 #pragma once
-#ifndef _OASTATS_KATINA_PLUGIN_EXAMPLE_H
-#define	_OASTATS_KATINA_PLUGIN_EXAMPLE_H
+#ifndef _OASTATS_KATINA_PLUGIN_PLAYER_DB_H
+#define	_OASTATS_KATINA_PLUGIN_PLAYER_DB_H
 /*
- * File:   KatinaPluginExample.h
+ * File:   KatinaPluginPlayerDb.h
  * Author: SooKee oasookee@gmail.com
  *
  * Created on April 27, 2013, 10:02 AM
+ *
+ * This plugin stored player info such as GUID, IP address and name.
  */
 
 #include <map>
@@ -29,10 +31,12 @@ using namespace oastats::log;
 using namespace oastats::data;
 using namespace oastats::types;
 
-class KatinaPluginExample
+class KatinaPluginPlayerDb
 : public KatinaPlugin
 {
 private:
+	RCon& server;
+
 	str& mapname;
 	siz_guid_map& clients; // slot -> GUID
 	guid_str_map& players; // GUID -> name
@@ -40,8 +44,11 @@ private:
 	
 	bool active;
 
+	void add_player(siz num);
+	void sub_player(siz num);
+
 public:
-	KatinaPluginExample(Katina& katina);
+	KatinaPluginPlayerDb(Katina& katina);
 
 	// INTERFACE: KatinaPlugin
 
@@ -74,5 +81,5 @@ public:
 
 }} // katina::plugin
 
-#endif // _OASTATS_KATINA_PLUGIN_EXAMPLE_H
+#endif // _OASTATS_KATINA_PLUGIN_PLAYER_DB_H
 

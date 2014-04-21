@@ -81,37 +81,37 @@ public:
 	virtual str get_version() const = 0;
 	
 	// Game server log events
-	virtual bool init_game(siz min, siz sec, const str_map& cvars) {}
-	virtual bool warmup(siz min, siz sec) {}
-	virtual bool client_connect(siz min, siz sec, siz num) {}
-	virtual bool client_begin(siz min, siz sec, siz num) {}
-	virtual bool client_disconnect(siz min, siz sec, siz num) {}
-	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name) {}
-    virtual bool client_switch_team(siz min, siz sec, siz num, siz teamBefore, siz teamNow) {}
-	virtual bool kill(siz min, siz sec, siz num1, siz num2, siz weap) {}
-	virtual bool ctf(siz min, siz sec, siz num, siz team, siz act) {}
+	virtual bool init_game(siz min, siz sec, const str_map& cvars) { return true; }
+	virtual bool warmup(siz min, siz sec) { return true; }
+	virtual bool client_connect(siz min, siz sec, siz num) { return true; }
+	virtual bool client_begin(siz min, siz sec, siz num) { return true; }
+	virtual bool client_disconnect(siz min, siz sec, siz num) { return true; }
+	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name) { return true; }
+    virtual bool client_switch_team(siz min, siz sec, siz num, siz teamBefore, siz teamNow) { return true; }
+	virtual bool kill(siz min, siz sec, siz num1, siz num2, siz weap) { return true; }
+	virtual bool ctf(siz min, siz sec, siz num, siz team, siz act) { return true; }
 	
 	/**
 	 * Final score of complete CTF game
 	 */
-	virtual bool ctf_exit(siz min, siz sec, siz r, siz b) {}
-	virtual bool score_exit(siz min, siz sec, int score, siz ping, siz num, const str& name) {}
-	virtual bool award(siz min, siz sec, siz num, siz awd) {}
-	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) {}
-	virtual bool sayteam(siz min, siz sec, const GUID& guid, const str& text) {}
-	virtual bool shutdown_game(siz min, siz sec) {}
-	virtual bool exit(siz min, siz sec) {}
-	virtual bool unknown(siz min, siz sec, const str& cmd, const str& params) {}
+	virtual bool ctf_exit(siz min, siz sec, siz r, siz b) { return true; }
+	virtual bool score_exit(siz min, siz sec, int score, siz ping, siz num, const str& name) { return true; }
+	virtual bool award(siz min, siz sec, siz num, siz awd) { return true; }
+	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) { return true; }
+	virtual bool sayteam(siz min, siz sec, const GUID& guid, const str& text) { return true; }
+	virtual bool shutdown_game(siz min, siz sec) { return true; }
+	virtual bool exit(siz min, siz sec) { return true; }
+	virtual bool unknown(siz min, siz sec, const str& cmd, const str& params) { return true; }
 	
 	/**
 	 * Summarizing events for more detailed statistics (they only work with the katina game mod)
 	 */
-	virtual bool weapon_usage(siz min, siz sec, siz num, siz weapon, siz shots) {}
-	virtual bool mod_damage(siz min, siz sec, siz num, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv, float weightedHits) {}
+	virtual bool weapon_usage(siz min, siz sec, siz num, siz weapon, siz shots) { return true; }
+	virtual bool mod_damage(siz min, siz sec, siz num, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv, float weightedHits) { return true; }
 	virtual bool player_stats(siz min, siz sec, siz num,
 		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
 		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
-		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged) {}
+		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged) { return true; }
 	 
 	 
 	/**
