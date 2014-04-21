@@ -14,7 +14,7 @@ using namespace oastats::log;
 using namespace oastats::types;
 
 KATINA_PLUGIN_TYPE(KatinaPluginPlayerDb);
-KATINA_PLUGIN_INFO("katina::example", "Katina Example", "0.1-dev");
+KATINA_PLUGIN_INFO("katina::player::db", "Katina Example", "0.1-dev");
 
 struct player_do
 {
