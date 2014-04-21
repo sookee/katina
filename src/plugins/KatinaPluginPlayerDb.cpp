@@ -179,8 +179,8 @@ str KatinaPluginPlayerDb::get_version() const { return VERSION; }
 
 bool KatinaPluginPlayerDb::client_connect(siz min, siz sec, siz num)
 {
-	if(!active)
-		return true;
+//	if(!active)
+//		return true;
 	plog("client_connect(" << num << ")");
 	add_player(num);
 
@@ -189,8 +189,8 @@ bool KatinaPluginPlayerDb::client_connect(siz min, siz sec, siz num)
 
 bool KatinaPluginPlayerDb::client_disconnect(siz min, siz sec, siz num)
 {
-	if(!active)
-		return true;
+//	if(!active)
+//		return true;
 	plog("client_disconnect(" << num << ")");
 	sub_player(num);
 	return true;
@@ -198,11 +198,11 @@ bool KatinaPluginPlayerDb::client_disconnect(siz min, siz sec, siz num)
 
 bool KatinaPluginPlayerDb::client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name)
 {
-	if(!active)
-		return true;
-	plog("client_userinfo_changed(" << num << ", " << team << ", " << guid << ", " << name << ")");
-	plog("clients[" << num << "]         : " << clients[num]);
-	plog("players[clients[" << num << "]]: " << players[clients[num]]);
+//	if(!active)
+//		return true;
+//	plog("client_userinfo_changed(" << num << ", " << team << ", " << guid << ", " << name << ")");
+//	plog("clients[" << num << "]         : " << clients[num]);
+//	plog("players[clients[" << num << "]]: " << players[clients[num]]);
 	return true;
 }
 
