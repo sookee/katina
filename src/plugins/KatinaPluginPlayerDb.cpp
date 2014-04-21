@@ -101,8 +101,8 @@ void db_add(const player_set::value_type& p)
 	bug("PLAYER DB: add: " << p.guid << " " << p.ip << " " << p.name);
 	std::ostringstream sql;
 
-	sql << "insert into `" << base << "`.`info` values (";
-	sql << p.guid << "," << p.ip << "," << p.name << ")";
+	sql << "insert into `" << base << "`.`info` values ('";
+	sql << p.guid << "'," << p.ip << ",'" << p.name << "')";
 
 	insert(sql.str());
 }
