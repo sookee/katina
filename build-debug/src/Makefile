@@ -1,5 +1,7 @@
 # Makefile
 
+src_topdir = ../../src
+
 VER_FLAGS = -D REVISION=\"$(shell git log -n 1 --pretty=format:%h|tr [:lower:] [:upper:])\"
 
 #MYSQL_INCL = -I/usr/include/mysql
@@ -8,7 +10,7 @@ MYSQL_LIBS = $(shell mysql_config --libs)
 LIBGCRYPT_FLAGS=$(shell libgcrypt-config --cflags)
 LIBGCRYPT_LIBS=$(shell libgcrypt-config --libs)
 
-INCLUDES = $(wildcard include/katina/*.h)
+INCLUDES = $(wildcard $(src_topdir)/include/katina/*.h)
 
 CXXFLAGS = -D DEBUG -O0 -g3 -Iinclude
 
@@ -58,8 +60,8 @@ katina: $(KATINA_OBJS)
 	$(CXX) -o $@ $(KATINA_OBJS) $(KATINA_LIBS)
 	@echo
 
-katina.o: katina_old.cpp $(INCLUDES)
-	$(CXX) -c $(KATINA_FLAGS) -o $@ $<
+katina.o: $(src_topdir)/katina_old.cpp $(INCLUDES)
+	$(CXX) -c -I$(src_topdir)/include $(KATINA_FLAGS) -o $@ $<
 
 katina-1: $(KATINA_1_OBJS)
 	@echo
@@ -67,8 +69,8 @@ katina-1: $(KATINA_1_OBJS)
 	$(CXX) -o $@ $(KATINA_1_OBJS) $(KATINA_1_LIBS)
 	@echo
 
-katina-1.o: katina-1.cpp $(INCLUDES)
-	$(CXX) -c $(KATINA_1_FLAGS) -o $@ $<
+katina-1.o: $(src_topdir)/katina-1.cpp $(INCLUDES)
+	$(CXX) -c -I$(src_topdir)/include $(KATINA_1_FLAGS) -o $@ $<
 
 katina-irc: $(KATINA_IRC_OBJS)
 	@echo
@@ -76,8 +78,8 @@ katina-irc: $(KATINA_IRC_OBJS)
 	$(CXX) -o $@ $(KATINA_IRC_OBJS) $(KATINA_IRC_LIBS)
 	@echo
 
-katina-irc.o: katina-irc.cpp $(INCLUDES)
-	$(CXX) -c $(KATINA_IRC_FLAGS) -o $@ $<
+katina-irc.o: $(src_topdir)/katina-irc.cpp $(INCLUDES)
+	$(CXX) -c -I$(src_topdir)/include $(KATINA_IRC_FLAGS) -o $@ $<
 
 katina-votes: $(KATINA_VOTES_OBJS)
 	@echo
@@ -85,8 +87,8 @@ katina-votes: $(KATINA_VOTES_OBJS)
 	$(CXX) -o $@ $(KATINA_VOTES_OBJS) $(KATINA_VOTES_LIBS)
 	@echo
 
-katina-votes.o: katina-votes.cpp $(INCLUDES)
-	$(CXX) -c $(KATINA_VOTES_FLAGS) -o $@ $<
+katina-votes.o: $(src_topdir)/katina-votes.cpp $(INCLUDES)
+	$(CXX) -c -I$(src_topdir)/include $(KATINA_VOTES_FLAGS) -o $@ $<
 
 katina-guid-fix: $(KATINA_GUID_FIX_OBJS)
 	@echo
@@ -94,12 +96,12 @@ katina-guid-fix: $(KATINA_GUID_FIX_OBJS)
 	$(CXX) -o $@ $(KATINA_GUID_FIX_OBJS) $(KATINA_GUID_FIX_LIBS)
 	@echo
 
-katina-guid-fix.o: katina-guid-fix.cpp $(INCLUDES)
-	$(CXX) -c $(KATINA_GUID_FIX_FLAGS) -o $@ $<
+katina-guid-fix.o: $(src_topdir)/katina-guid-fix.cpp $(INCLUDES)
+	$(CXX) -c -I$(src_topdir)/include $(KATINA_GUID_FIX_FLAGS) -o $@ $<
 
-%.o: %.cpp include/katina/%.h
+%.o: $(src_topdir)/%.cpp $(src_topdir)/include/katina/%.h
 	@echo -n "AUTO: "
-	$(CXX) -fPIC $(CXXFLAGS) $(MYSQL_INCL) -c -o $@ $<
+	$(CXX) -fPIC -I$(src_topdir)/include $(CXXFLAGS) $(MYSQL_INCL) -c -o $@ $<
 
 install: $(PROGRAMS) $(LIBRARIES)
 	mkdir -p $(HOME)/bin
