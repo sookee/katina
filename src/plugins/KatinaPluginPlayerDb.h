@@ -23,7 +23,6 @@
 #include <katina/log.h>
 
 #include <pthread.h>
-#include <mysql.h>
 
 namespace katina { namespace plugin {
 
@@ -37,7 +36,6 @@ class KatinaPluginPlayerDb
 {
 private:
 	RCon& server;
-	MYSQL mysql;
 
 	str& mapname;
 	siz_guid_map& clients; // slot -> GUID

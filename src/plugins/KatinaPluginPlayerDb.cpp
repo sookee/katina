@@ -7,6 +7,7 @@
 #include <string>
 
 #include <arpa/inet.h>
+#include <mysql.h>
 
 namespace katina { namespace plugin {
 
@@ -15,6 +16,13 @@ using namespace oastats::types;
 
 KATINA_PLUGIN_TYPE(KatinaPluginPlayerDb);
 KATINA_PLUGIN_INFO("katina::player::db", "Katina Player Database", "0.1-dev");
+
+MYSQL mysql;
+str host;
+siz port = 0;
+str user;
+str pass;
+str base;
 
 struct player_do
 {
@@ -59,9 +67,44 @@ bool is_ip(const str& s)
 	return s.size() == dot + dig;
 }
 
+bool query(const str& sql)
+{
+	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+	{
+		plog("DATABASE ERROR: " << mysql_error(&mysql));
+		plog("              : sql = " << sql);
+		return false;
+	}
+
+	return true;
+}
+
+/**
+ * Perform an "insert" sql statement.
+ * @param sql The "insert" sql statement.
+ * @return true on success else false
+ */
+bool insert(const str& sql) { return query(sql); }
+
+bool insert(const str& sql, my_ulonglong& insert_id)
+{
+	if(!insert(sql))
+		return false;
+
+	insert_id = mysql_insert_id(&mysql);
+
+	return true;
+}
+
 void db_add(const player_set::value_type& p)
 {
 	bug("PLAYER DB: add: " << p.guid << " " << p.ip << " " << p.name);
+	std::ostringstream sql;
+
+	sql << "insert into `" << base << "`,`info` values (";
+	sql << p.guid << "," << p.ip << "," << p.name << ")";
+
+	insert(sql.str());
 }
 
 str to_string(siz n)
@@ -171,11 +214,11 @@ bool KatinaPluginPlayerDb::open()
 	katina.add_log_event(this, CLIENT_DISCONNECT);
 	katina.add_log_event(this, CLIENT_USERINFO_CHANGED);
 
-	str host = katina.get("player.db.host", "localhost");
-	siz port = katina.get("player.db.port", 3306);
-	str user = katina.get("player.db.user");
-	str pass = katina.get("player.db.pass", "");
-	str base = katina.get("player.db.base");
+	host = katina.get("player.db.host", "localhost");
+	port = katina.get("player.db.port", 3306);
+	user = katina.get("player.db.user");
+	pass = katina.get("player.db.pass", "");
+	base = katina.get("player.db.base");
 
 	if(mysql_real_connect(&mysql, host.c_str(), user.c_str()
 		, pass.c_str(), base.c_str(), port, NULL, 0) != &mysql)
