@@ -8,6 +8,7 @@
 
 #include <arpa/inet.h>
 #include <mysql.h>
+#include <mysqld_error.h>
 
 namespace katina { namespace plugin {
 
@@ -69,7 +70,7 @@ bool is_ip(const str& s)
 
 bool query(const str& sql)
 {
-	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
+	if(mysql_real_query(&mysql, sql.c_str(), sql.length()) && mysql_errno(&mysql) != ER_DUP_ENTRY)
 	{
 		plog("DATABASE ERROR: [" << mysql_errno(&mysql) << "] " << mysql_error(&mysql));
 		plog("              : sql = " << sql);
