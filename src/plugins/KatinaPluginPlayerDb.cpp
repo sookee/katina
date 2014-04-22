@@ -146,7 +146,7 @@ void parse_namelog(const str& text, siz num)
 		bug_var(ip);
 		bug_var(names);
 
-		if(id[0] != '(' || id [1] != '*' || id.size() != 11 || !is_ip(ip))
+		if(id.size() != 11 || !is_ip(ip))
 			continue;
 
 		if(n == "-")
@@ -157,16 +157,17 @@ void parse_namelog(const str& text, siz num)
 
 		GUID guid = id.substr(2, 8);
 
-//		bug("num  : " << num);
-//		bug("guid : " << guid);
-//		bug("ip   : " << ip);
-//		bug("names: " << names);
+		bug("num  : " << num);
+		bug("guid : " << guid);
+		bug("ip   : " << ip);
+		bug("names: " << names);
 
 		str name;
 		iss.clear();
 		iss.str(names);
 		while(std::getline(iss, skip, '\'') && std::getline(iss, name, '\''))
 		{
+			bug_var(name);
 			player_set& infos = players[num];
 			player_set::value_type p;
 			p.guid = guid;
