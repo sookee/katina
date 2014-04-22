@@ -271,14 +271,14 @@ void KatinaPluginStats::check_bots_and_players(std::time_t now, siz num)
 			++human_players_b;
 	}
 
-	bug_var(have_bots);
-	bug_var(human_players_r);
-	bug_var(human_players_b);
+//	bug_var(have_bots);
+//	bug_var(human_players_r);
+//	bug_var(human_players_b);
     
 	if(have_bots || !human_players_r || !human_players_b)
     {
         stall_clients();
-        bug("BOT GAME ===================");
+//        bug("BOT GAME ===================");
         have_bots = true; // TODO: one flag for everything, maybe change its name?
         
         if(had_bots != have_bots)
@@ -287,7 +287,7 @@ void KatinaPluginStats::check_bots_and_players(std::time_t now, siz num)
 	else
     {
 		unstall_clients(num);
-        bug("HUMAN GAME ===================");
+ //       bug("HUMAN GAME ===================");
         if(had_bots != have_bots)
             server.chat("^2Stats recording activated^7");
     }
