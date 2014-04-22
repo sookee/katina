@@ -135,11 +135,16 @@ void parse_namelog(const str& text, siz num)
 	str line, skip, n, id, ip, names;
 	while(std::getline(iss, line))
 	{
-		//bug(line);
+		bug(line);
 
 		std::istringstream iss(line);
 		if(!std::getline(iss >> n >> id >> ip >> std::ws, names) || n == "!namelog:")
 			continue;
+
+		bug_var(n);
+		bug_var(id);
+		bug_var(ip);
+		bug_var(names);
 
 		if(id[0] != '(' || id [1] != '*' || id.size() != 11 || !is_ip(ip))
 			continue;
@@ -147,7 +152,7 @@ void parse_namelog(const str& text, siz num)
 		if(n == "-")
 			continue;
 
-		if(n != to_string(num))
+		if(n.empty() || n.substr(1) != to_string(num))
 			continue;
 
 		GUID guid = id.substr(2, 8);
