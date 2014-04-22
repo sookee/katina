@@ -116,6 +116,9 @@ str to_string(siz n)
 
 void parse_namelog(const str& text, siz num)
 {
+	bug_func();
+	bug_var(num);
+	bug_var(text);
 	// ^2|<^8MAD^1Kitty Too^7: ^2why no? ))
 	// ^30  (*2BC45233)  77.123.107.231^7 '^2BDSM^7'
 	// ^31  (*1DE6454E)  90.192.206.146^7 '^4A^5ngel ^4E^5yes^7'
@@ -132,7 +135,7 @@ void parse_namelog(const str& text, siz num)
 	str line, skip, n, id, ip, names;
 	while(std::getline(iss, line))
 	{
-//		bug(line);
+		//bug(line);
 
 		std::istringstream iss(line);
 		if(!std::getline(iss >> n >> id >> ip >> std::ws, names) || n == "!namelog:")

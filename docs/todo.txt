@@ -4,8 +4,8 @@
 Add: Old Hag Contest plugin
 	!set_players n
 	!set_bots n
-	!play <num> // add player to game
-	!unplay <num>|"all" // remove player(s)
+	!add <num> // add player to game
+	!rem <num>|"all" // remove player(s)
 	!begin // start game
 
 Mod: fix GUIDs in database {1.0}
