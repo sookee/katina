@@ -135,49 +135,49 @@ void parse_namelog(const str& text, siz num)
 	str line, skip, n, id, ip, names;
 	while(std::getline(iss, line))
 	{
-		bug_var(line);
+//		bug_var(line);
 
 		std::istringstream iss(line);
 		if(!std::getline(iss >> n >> id >> ip >> std::ws, names) || n == "!namelog:")
 			continue;
 
-		bug_var(n);
-		bug_var(id);
-		bug_var(ip);
-		bug_var(names);
-		bug_var(is_ip(ip));
+//		bug_var(n);
+//		bug_var(id);
+//		bug_var(ip);
+//		bug_var(names);
+//		bug_var(is_ip(ip));
 
 		if(id.size() != 11 || !is_ip(ip))
 			continue;
 
-		bug("A");
+//		bug("A");
 
 		if(n == "-")
 			continue;
 
-		bug("B");
-		bug_var(n.empty());
-		bug_var(n.substr(1));
-		bug_var(to_string(num));
+//		bug("B");
+//		bug_var(n.empty());
+//		bug_var(n.substr(1));
+//		bug_var(to_string(num));
 
 		if(n.empty() || n != to_string(num))
 			continue;
 
-		bug("C");
+//		bug("C");
 
 		GUID guid = id.substr(2, 8);
 
-		bug("num  : " << num);
-		bug("guid : " << guid);
-		bug("ip   : " << ip);
-		bug("names: " << names);
+//		bug("num  : " << num);
+//		bug("guid : " << guid);
+//		bug("ip   : " << ip);
+//		bug("names: " << names);
 
 		str name;
 		iss.clear();
 		iss.str(names);
 		while(std::getline(iss, skip, '\'') && std::getline(iss, name, '\''))
 		{
-			bug_var(name);
+//			bug_var(name);
 			player_set& infos = players[num];
 			player_set::value_type p;
 			p.guid = guid;
@@ -186,13 +186,16 @@ void parse_namelog(const str& text, siz num)
 			struct in_addr ip4;
 
 			if(!inet_pton(AF_INET, ip.c_str(), &ip4))
-				plog("");
+				plog("ERROR: converting IP address: " << ip);
 			else
 			{
 				p.ip = ip4.s_addr;
 				player_set_ret ret = infos.insert(p);
 				if(ret.second) // new element inserted
 					db_add(p);
+
+				char dst[64];
+				bug_var(inet_ntop(AF_INET, &p.ip, dst, 64));
 			}
 		}
 
