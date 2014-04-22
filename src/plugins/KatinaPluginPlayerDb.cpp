@@ -178,7 +178,6 @@ void parse_namelog(const str& text, siz num)
 		iss.str(names);
 		while(std::getline(iss, skip, '\'') && std::getline(iss, name, '\''))
 		{
-//			bug_var(name);
 			player_set& infos = players[num];
 			player_set::value_type p;
 			p.guid = guid;
@@ -186,8 +185,11 @@ void parse_namelog(const str& text, siz num)
 
 			struct in_addr ip4;
 
-			if(!inet_pton(AF_INET, ip.c_str(), &ip4))
+			if(!inet_pton(AF_INET, ip.c_str(), &ip4) || !ip4.s_addr)
+			{
 				plog("ERROR: converting IP address: " << ip);
+				bug_var(line);
+			}
 			else
 			{
 				p.ip = ip4.s_addr;
@@ -196,7 +198,7 @@ void parse_namelog(const str& text, siz num)
 					db_add(p);
 
 				char dst[64];
-				//bug_var(inet_ntop(AF_INET, &p.ip, dst, 64));
+				bug_var(inet_ntop(AF_INET, &p.ip, dst, 64));
 			}
 		}
 
@@ -231,7 +233,7 @@ KatinaPluginPlayerDb::KatinaPluginPlayerDb(Katina& katina)
 
 bool KatinaPluginPlayerDb::open()
 {
-	katina.add_var_event(this, "player.db.active", active);
+	//katina.add_var_event(this, "player.db.active", active);
 	//katina.add_var_event(this, "flag", "0");
 	katina.add_log_event(this, CLIENT_CONNECT);
 	katina.add_log_event(this, CLIENT_DISCONNECT);
@@ -263,6 +265,11 @@ bool KatinaPluginPlayerDb::client_connect(siz min, siz sec, siz num)
 //	if(!active)
 //		return true;
 	plog("client_connect(" << num << ")");
+
+	// TODO:
+	// How about when a client connects wait 1 minute before parsing !namelog
+	// ignore all client connects until then. Then collect all players, not
+	// just the connector.
 	add_player(num);
 
 	return true;
