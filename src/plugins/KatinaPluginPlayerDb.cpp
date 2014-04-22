@@ -156,6 +156,9 @@ void parse_namelog(const str& text, siz num)
 			continue;
 
 		bug("B");
+		bug_var(n.empty());
+		bug_var(n.substr(1));
+		bug_var(to_string(num));
 
 		if(n.empty() || n.substr(1) != to_string(num))
 			continue;
