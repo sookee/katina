@@ -71,7 +71,7 @@ bool query(const str& sql)
 {
 	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
 	{
-		plog("DATABASE ERROR: " << mysql_error(&mysql));
+		plog("DATABASE ERROR: [" << mysql_errno(&mysql) << "] " << mysql_error(&mysql));
 		plog("              : sql = " << sql);
 		return false;
 	}
