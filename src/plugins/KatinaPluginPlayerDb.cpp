@@ -117,8 +117,8 @@ str to_string(siz n)
 
 void parse_namelog(const str& text, siz num)
 {
-	bug_func();
-	bug_var(num);
+	//bug_func();
+	//bug_var(num);
 	//bug_var(text);
 	// ^2|<^8MAD^1Kitty Too^7: ^2why no? ))
 	// ^30  (*2BC45233)  77.123.107.231^7 '^2BDSM^7'
