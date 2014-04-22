@@ -119,7 +119,7 @@ void parse_namelog(const str& text, siz num)
 {
 	bug_func();
 	bug_var(num);
-	bug_var(text);
+	//bug_var(text);
 	// ^2|<^8MAD^1Kitty Too^7: ^2why no? ))
 	// ^30  (*2BC45233)  77.123.107.231^7 '^2BDSM^7'
 	// ^31  (*1DE6454E)  90.192.206.146^7 '^4A^5ngel ^4E^5yes^7'
@@ -196,7 +196,7 @@ void parse_namelog(const str& text, siz num)
 					db_add(p);
 
 				char dst[64];
-				bug_var(inet_ntop(AF_INET, &p.ip, dst, 64));
+				//bug_var(inet_ntop(AF_INET, &p.ip, dst, 64));
 			}
 		}
 
