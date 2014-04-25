@@ -1,21 +1,35 @@
 #!/bin/bash
 
-CMD=$1 # start|restart|stop|clear
+if(($# < 2)); then
+	help
+	exit 1
+fi
 
-KATINA_DATA=$HOME/.katina
+SERVER_LIST="insta2 aw"
+
+SERVER=$1
+
+if [[ $SERVER_LIST != *${SERVER}* ]]; then
+	echo "Unknown server $SERVER"
+	exit 1
+fi
+
+CMD=$2 # start|restart|stop|clear
+
+KATINA_DATA=$HOME/.katina-$SERVER
 
 mkdir -p $KATINA_DATA
 
 KATINA_LOG=$KATINA_DATA/katina.log
 
-NAME=katina
+NAME=katina-$SERVER
 COMMAND="katina"
 LOG=$KATINA_LOG
 PID=$KATINA_DATA/.pid
 
 help()
 {
-	echo -e "\nUsage: katina.sh [help|clear|start|stop|restart|show]"
+	echo -e "\nUsage: katina.sh <server> [help|clear|start|stop|restart|show]"
 	echo
 	echo -e "\thelp    - Show this help"
 	echo -e "\tclear   - Clear the running flag"
