@@ -223,8 +223,6 @@ bool Katina::extract_name_from_text(const str& line, GUID& guid, str& text)
 	return found;
 }
 
-
-
 bool Katina::load_plugin(const str& file)
 {
 	void* dl = 0;
@@ -272,8 +270,6 @@ bool Katina::load_plugin(const str& file)
 	return true;
 }
 
-
-
 bool Katina::unload_plugin(const str& id)
 {
 	plugin_map_iter i = plugins.find(id);
@@ -297,8 +293,6 @@ bool Katina::unload_plugin(const str& id)
 
 	return true;
 }
-
-
 
 bool Katina::reload_plugin(const str& id)
 {
@@ -330,8 +324,6 @@ bool Katina::reload_plugin(const str& id)
 	return true;
 }
 
-
-
 KatinaPlugin* Katina::get_plugin(const str& id, const str& version)
 {
 	plugin_map_iter i = plugins.find(id);
@@ -351,8 +343,6 @@ KatinaPlugin* Katina::get_plugin(const str& id, const str& version)
 	return i->second;
 }
 
-
-
 bool Katina::chat_to(siz num, const str& text)
 {
 	return chat_to(clients[num], text);
@@ -367,8 +357,6 @@ bool Katina::chat_to(const str& name, const str& text)
 {
 	return server.s_chat(name + "^2 " + text);
 }
-
-
 
 bool Katina::load_config(const str& dir, const str& file, property_map& props)
 {
@@ -428,8 +416,6 @@ bool Katina::load_config(const str& dir, const str& file, property_map& props)
 	return true;
 }
 
-
-
 bool Katina::init_pki()
 {
 	log("Reading keypair:");
@@ -470,7 +456,7 @@ bool Katina::init_pki()
 		pki.load_public_key(pkeys[i], pkeys[i]);
 	}
     
-	// TOSO: ad this
+	// TODO: ad this
 	//ifs.open((config_dir + "/" + pkeys_file).c_str());
 	//while(pki.read_public_key(, ifs)) {}
 	//ifs.close();

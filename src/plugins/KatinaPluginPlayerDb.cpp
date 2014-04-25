@@ -144,7 +144,7 @@ void parse_namelog(const str& text, siz num)
 
 //		bug_var(n);
 //		bug_var(id);
-//		bug_var(ip);
+		bug_var(ip);
 //		bug_var(names);
 //		bug_var(is_ip(ip));
 
@@ -192,6 +192,7 @@ void parse_namelog(const str& text, siz num)
 			}
 			else
 			{
+				bug_var(ip4.s_addr);
 				p.ip = ip4.s_addr;
 				player_set_ret ret = infos.insert(p);
 				if(ret.second) // new element inserted

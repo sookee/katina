@@ -51,7 +51,7 @@ using namespace oastats::types;
 #endif
 
 /**
- * katina-1 /path/to/config [$HOME/.katina]
+ * katina /path/to/config [$HOME/.katina]
  */
 int main(const int argc, const char* argv[])
 {
