@@ -358,6 +358,15 @@ bool Katina::chat_to(const str& name, const str& text)
 	return server.s_chat(name + "^2 " + text);
 }
 
+bool Katina::is_admin(const GUID& guid)
+{
+	str_vec admins = get_vec("admin.guid");
+	for(str_vec_iter i = admins.begin(); i != admins.end(); ++i)
+		if(guid == *i)
+			return true;
+	return false;
+}
+
 bool Katina::load_config(const str& dir, const str& file, property_map& props)
 {
 	str config_file = config_dir + "/" + expand_env(file);
@@ -671,6 +680,17 @@ bool Katina::start(const str& dir)
 					else
 						guid = to<GUID>(id.substr(24));
 
+					siz hc = 100;
+					if((pos = line.find("\\hc\\")) == str::npos)
+					{
+						log("WARN: no handicap info found: " << line);
+					}
+					else
+					{
+						if(!(siss(line.substr(pos + 4)) >> hc))
+							log("ERROR: Parsing handicap: " << line.substr(pos + 4));
+					}
+
 					clients[num] = guid;
 					players[guid] = name;
                     
@@ -678,7 +698,7 @@ bool Katina::start(const str& dir)
                     teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
 
 					for(plugin_vec_iter i = events[CLIENT_USERINFO_CHANGED].begin(); i != events[CLIENT_USERINFO_CHANGED].end(); ++i)
-						(*i)->client_userinfo_changed(min, sec, num, team, guid, name);
+						(*i)->client_userinfo_changed(min, sec, num, team, guid, name, hc);
                     
                     if(team != teamBefore && !guid.is_bot())
                     {

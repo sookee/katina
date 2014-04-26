@@ -62,7 +62,7 @@ public:
 	virtual bool client_connect(siz min, siz sec, siz num);
 	virtual bool client_begin(siz min, siz sec, siz num);
 	virtual bool client_disconnect(siz min, siz sec, siz num);
-	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name);
+	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name, siz hc);
 	virtual bool kill(siz min, siz sec, siz num1, siz num2, siz weap);
 	virtual bool award(siz min, siz sec, siz num, siz awd);
 	virtual bool ctf(siz min, siz sec, siz num, siz team, siz act);

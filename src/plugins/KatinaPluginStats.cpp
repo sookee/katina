@@ -294,7 +294,7 @@ void KatinaPluginStats::check_bots_and_players(std::time_t now, siz num)
 }
 
 
-bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name)
+bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name, siz hc)
 {
 	//bug("KatinaPluginStats::client_userinfo_changed: [" <<  guid << "] " << name << " now: " << katina.now);
 	//bug("in_game: " << in_game);

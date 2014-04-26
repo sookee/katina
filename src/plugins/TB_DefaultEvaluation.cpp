@@ -52,6 +52,7 @@ void DefaultEvaluation::loadStats(GUID guid, stats& dest)
     for(siz i=0; i<rows.size(); ++i)
         dest.mod_damage[ to<siz>(rows[i][0]) ].weightedHits = to<float>(rows[i][1]);
     
+    // TODO: Should this be included? - SooKee
     //db.off();
 }
     
@@ -163,10 +164,15 @@ float DefaultEvaluation::calcRating(siz client)
     
     float rating = sqrt( (f / t) * sqrt(f / deaths) );
     
-    float accuracy = hits / shots;
-    if(shots == 0)
-        accuracy = 0.0f;
+//    FIX: Avoid div by zero
+//    float accuracy = hits / shots;
+//    if(shots == 0)
+//        accuracy = 0.0f;
     
+    float accuracy = 0.0f;
+    if(shots != 0)
+    	accuracy = hits / shots;
+//	-SooKee
     return round(rating * 100.0f * (accuracy+1.0));
 }
 

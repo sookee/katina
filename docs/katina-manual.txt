@@ -6,6 +6,11 @@ katina-manual.txt
 
 # -- katina v1.0 --     
 
+# config
+admin.guid: <guid of admin>
+
+teambalancer.enabled: true|false
+
 # cvars:
 
 katina::stats: stats.active

@@ -204,7 +204,7 @@ bool WinnerStaysOn::client_disconnect(siz min, siz sec, siz num)
 	return true;
 }
 
-bool WinnerStaysOn::client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name)
+bool WinnerStaysOn::client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name, siz hc)
 {
 	siz_deq_iter i = std::find(q.begin(), q.end(), num);
 	if(i == q.end())

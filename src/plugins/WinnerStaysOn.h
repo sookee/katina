@@ -85,10 +85,10 @@ public:
 	virtual bool exit(siz min, siz sec);
 	virtual bool shutdown_game(siz min, siz sec);
 	virtual bool warmup(siz min, siz sec);
-//	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name);
+//	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name, siz hc);
 	virtual bool client_connect(siz min, siz sec, siz num);
 	virtual bool client_disconnect(siz min, siz sec, siz num);
-	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name);
+	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name, siz hc);
 	virtual bool ctf(siz min, siz sec, siz num, siz team, siz act);
 	virtual bool ctf_exit(siz min, siz sec, siz r, siz b);
 	virtual bool init_game(siz min, siz sec);

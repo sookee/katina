@@ -23,6 +23,7 @@ const str TEAM_CHAR[] = { "s", "r", "b", "s" };
     
 KatinaPluginTeamBalancer::KatinaPluginTeamBalancer(Katina& katina) : 
     KatinaPlugin(katina),
+	enabled(false),
     rcon(katina.server),
     statsPlugin(NULL),
     numLastStats(3),
@@ -296,6 +297,11 @@ bool KatinaPluginTeamBalancer::open()
 	katina.add_log_event(this, SAY);
     katina.add_log_event(this, HEARTBEAT);
     
+
+    enabled = katina.get("teambalancer.enabled", false);
+    if(enabled)
+    	plog("TEAMBALANCER ENABLED");
+
     return true;
 }
 
@@ -322,6 +328,9 @@ bool KatinaPluginTeamBalancer::init_game(siz min, siz sec, const str_map& cvars)
 
 bool KatinaPluginTeamBalancer::client_switch_team(siz min, siz sec, siz num, siz teamBefore, siz teamNow)
 {
+	if(!enabled)
+		return true;
+
     bug("TB client_switch_team begin");
     
     // Skip if it was a queued change
@@ -471,6 +480,16 @@ bool KatinaPluginTeamBalancer::say(siz min, siz sec, const GUID& guid, const str
         printTeams();
     }
     
+    else if(cmd == "!tb-on" and katina.is_admin(guid))
+    {
+        enabled = true;
+    }
+
+    else if(cmd == "!tb-off" and katina.is_admin(guid))
+    {
+        enabled = false;
+    }
+
     bug("TB say end");
     
     return true;

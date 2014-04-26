@@ -114,6 +114,7 @@ struct TB_JoinData
 class KatinaPluginTeamBalancer : public KatinaPlugin
 {
 private:
+	bool enabled;
     RCon& rcon;
     KatinaPluginStats* statsPlugin;
     

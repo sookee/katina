@@ -8,6 +8,8 @@ Add: Old Hag Contest plugin
 	!rem <num>|"all" // remove player(s)
 	!begin // start game
 
+Mod: remove svars, use say interface !setvar <name> <value> AUTH on GUID (read !admin file?)
+
 Mod: fix GUIDs in database {1.0}
 Add: make test-harness {1.0}
 Fix: finish PKI key loading (Katina) {1.0}

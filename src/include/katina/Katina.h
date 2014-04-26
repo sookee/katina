@@ -322,6 +322,8 @@ public:
 		events[e].push_back(plugin);
 	}
 
+	bool is_admin(const GUID& guid);
+
 	/**
 	 *
      * @param config path to config directory [$HOME/.katina]

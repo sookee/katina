@@ -62,7 +62,7 @@ public:
 	
 	virtual bool client_connect(siz min, siz sec, siz num);
 	virtual bool client_disconnect(siz min, siz sec, siz num);
-	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name);
+	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name, siz hc);
 
 	virtual void close();
 };

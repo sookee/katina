@@ -285,7 +285,8 @@ bool KatinaPluginPlayerDb::client_disconnect(siz min, siz sec, siz num)
 	return true;
 }
 
-bool KatinaPluginPlayerDb::client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name)
+bool KatinaPluginPlayerDb::client_userinfo_changed(siz min, siz sec, siz num, siz team
+		, const GUID& guid, const str& name, siz hc)
 {
 //	if(!active)
 //		return true;
