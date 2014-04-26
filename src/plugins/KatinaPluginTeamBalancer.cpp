@@ -71,6 +71,9 @@ float KatinaPluginTeamBalancer::ratePlayer(siz client)
 
 void KatinaPluginTeamBalancer::buildTeams(TeamBuilder* teamBuilder, TeamBuilderEvent event, void* payload, siz waitTime, bool force)
 {
+	if(!enabled)
+		return;
+
     if(teamBuilder == NULL)
         return;
     
@@ -469,10 +472,13 @@ bool KatinaPluginTeamBalancer::say(siz min, siz sec, const GUID& guid, const str
         }
     }*/
     
-    else if(cmd == "!teams")
+    else if(cmd == "!teams" and katina.is_admin(guid))
     {
+    	bool old_enabled = enabled;
+    	enabled = true;
         rateAllPlayers();
         buildTeams(teamBuilderInit, TB_COMMAND, NULL, 15);
+        enabled = old_enabled;
     }
     
     else if(cmd == "!teamrating")
