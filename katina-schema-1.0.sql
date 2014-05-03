@@ -164,7 +164,7 @@ CREATE  TABLE IF NOT EXISTS `oadb`.`speed` (
   `game_id` INT(4) UNSIGNED NOT NULL ,
   `guid` VARCHAR(8) NOT NULL ,
   `ave_speed` INT(2) UNSIGNED NOT NULL ,
-  `distance` INT(2) UNSIGNED NOT NULL ,
+  `distance` INT(4) UNSIGNED NOT NULL ,
   PRIMARY KEY (`game_id`, `guid`) )
 ENGINE = MyISAM
 DEFAULT CHARACTER SET = utf8;
