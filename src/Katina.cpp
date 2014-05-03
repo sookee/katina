@@ -34,7 +34,7 @@ using namespace oastats::types;
 using namespace oastats::utils;
 using namespace oastats::string;
 
-const str version = "1.0";
+const str version = "0.1";
 const str tag = "dev";
 
 
@@ -54,15 +54,16 @@ siz Katina::getTeam(siz client)
 
 str Katina::getPlayerName(siz client)
 {
-    siz_guid_map_citer clientsIt = clients.find(client);
-    if(clientsIt == clients.end())
-        return "";
-    
-    guid_str_map_citer playersIt = players.find(clientsIt->second);
-    if(playersIt == players.end())
-        return "";
-    
-    return playersIt->second;
+	return players[clients[client]];
+//    siz_guid_map_citer clientsIt = clients.find(client);
+//    if(clientsIt == clients.end())
+//        return "";
+//
+//    guid_str_map_citer playersIt = players.find(clientsIt->second);
+//    if(playersIt == players.end())
+//        return "";
+//
+//    return playersIt->second;
 }
 
 
@@ -487,7 +488,7 @@ void Katina::init_rcon()
 	if(!prefix.empty())
 		prefix += ".";
     
-	pthread_create(&cvarevts_thread, 0, &cvarpoll, (void*) this);
+	//pthread_create(&cvarevts_thread, 0, &cvarpoll, (void*) this);
 }
 
 
@@ -500,7 +501,54 @@ void Katina::load_plugins()
 		load_plugin(pluginfiles[i]);
 }
 
+void Katina::builtin_command(const GUID& guid, const str& text)
+{
+	bug_func();
+	bug_var(guid);
+	bug_var(text);
 
+	str cmd;
+	siss iss(text);
+
+	static str prefix = "";
+
+	if(!(iss >> cmd))
+		log("Error: parsing builtin command: " << text);
+	else
+	{
+		bug_var(cmd);
+		if(cmd == "prefix")
+		{
+			if(iss >> prefix)
+				server.s_chat("prefix is now: " + prefix);
+		}
+		else if(cmd == "set")
+		{
+			// !katina set plugin varname value
+			str plugin, var, val;
+			if(!(iss >> plugin >> var >> val))
+				log("Error: parsing builtin command parameters: " << text);
+			else
+			{
+				if(!prefix.empty())
+					plugin = prefix + "::" + plugin;
+				if(!plugins[plugin])
+					server.s_chat("Plugin " + plugin + " is not loaded");
+				else
+				{
+					if(!vars[plugins[prefix]][var])
+						server.s_chat("Plugin " + plugin + " does not recognise " + var);
+					else
+					{
+						vars[plugins[prefix]][var]->set(val);
+						if(vars[plugins[prefix]][var]->get(val))
+							server.s_chat("Variable " + var + " set to: " + val);
+					}
+				}
+			}
+		}
+	}
+}
 
 bool Katina::start(const str& dir)
 {
@@ -722,6 +770,24 @@ bool Katina::start(const str& dir)
 				for(plugin_vec_iter i = events[CLIENT_CONNECT].begin()
 					; i != events[CLIENT_CONNECT].end(); ++i)
 					(*i)->client_connect(min, sec, num);
+			}
+		}
+		else if(cmd == "ClientConnectInfo:")
+		{
+			bug(cmd << "(" << params << ")");
+			if(events[CLIENT_CONNECT_INFO].empty())
+				continue;
+
+			siz num;
+			str ip;
+			GUID guid;
+			if(!(iss >> num >> guid >> ip))
+				log("Error parsing ClientConnectInfo: "  << params);
+			else
+			{
+				for(plugin_vec_iter i = events[CLIENT_CONNECT_INFO].begin()
+					; i != events[CLIENT_CONNECT_INFO].end(); ++i)
+					(*i)->client_connect_info(min, sec, num, guid, ip);
 			}
 		}
 		else if(cmd == "ClientBegin:") // 0:04 ClientBegin: 4
@@ -965,15 +1031,6 @@ bool Katina::start(const str& dir)
 			str msg = "^1K^7at^3i^7na ^3Stats System v^7" + version + "^3-" + tag + ".";
 			server.cp(msg);
 
-//			siz pos;
-			//if((pos = line.find("mapname\\")) != str::npos)
-			//{
-				//mapname = "unknown";
-				//std::istringstream iss(line.substr(pos + 8));
-				//if(!std::getline(iss, mapname, '\\'))
-					//std::cout << "Error parsing mapname\\" << '\n';
-				//lower(mapname);
-			//}
 			log("MAP NAME: " << mapname);
 
 			if(events[INIT_GAME].empty())
@@ -1030,9 +1087,14 @@ bool Katina::start(const str& dir)
 			GUID guid;
 
 			if(extract_name_from_text(line, guid, text))
-				for(plugin_vec_iter i = events[SAY].begin()
-					; i != events[SAY].end(); ++i)
-					(*i)->say(min, sec, guid, text);
+			{
+				if(!text.find("!katina"))
+					builtin_command(guid, text);
+				else
+					for(plugin_vec_iter i = events[SAY].begin()
+						; i != events[SAY].end(); ++i)
+						(*i)->say(min, sec, guid, text);
+			}
 		}
 		else
 		{

@@ -102,6 +102,33 @@ public:
 		return ret;
 	}
 
+	bool has_chatnobeep() const
+	{
+		static int y = -1;
+
+		if(y < 0)
+		{
+			str ret;
+			rcon("rcon " + pass + " chatnobeep", ret, host, port);
+			y = (ret.find("unknown command:") != str::npos) ? 1 : 0;
+		}
+		return y;
+	}
+
+	str chat_nobeep(const str& msg) const
+	{
+		if(!has_chatnobeep())
+			return chat(msg);
+
+		if(!active)
+			return "";
+
+		str ret;
+		rcon("rcon " + pass + " chatnobeep ^1K^7at^3i^7na^8: ^7" + msg, ret, host, port);
+
+		return ret;
+	}
+
 	void cp(const str& msg) const
 	{
 		if(!active)

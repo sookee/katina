@@ -310,6 +310,22 @@ bool Database::add_playerstats(game_id id, const GUID& guid,
 	return insert(sql);
 }
 
+bool Database::add_speed(game_id id, const GUID& guid,
+	siz ave_speed, siz dist)
+{
+	log("DATABASE: add_speed(" << id << ", " << guid << ", " << ave_speed << ", " << dist << ")");
+
+
+	soss oss;
+	oss << "insert into `speed` ("
+	    << "`game_id`,`guid`,`ave_speed`,`distance`) "
+	    << "values ('" << id << "','" << guid << "','" << ave_speed << "','" << dist << "')";
+
+	str sql = oss.str();
+
+	return insert(sql);
+}
+
 
 
 bool Database::read_map_votes(const str& mapname, guid_int_map& map_votes)

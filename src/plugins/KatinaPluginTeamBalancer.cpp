@@ -33,6 +33,7 @@ KatinaPluginTeamBalancer::KatinaPluginTeamBalancer(Katina& katina) :
     scoreBlue(0),
     activeInBotGames(false)
 {
+	bug_func();
     evaluation          = new DefaultEvaluation(katina, *this);
     
     teamBuilderInit     = new DefaultTeamBuilder(katina, *this);
@@ -44,6 +45,7 @@ KatinaPluginTeamBalancer::KatinaPluginTeamBalancer(Katina& katina) :
 
 KatinaPluginTeamBalancer::~KatinaPluginTeamBalancer()
 {
+	bug_func();
     delete evaluation;
     delete teamBuilderInit;
     delete teamBuilderJoin;
@@ -54,6 +56,7 @@ KatinaPluginTeamBalancer::~KatinaPluginTeamBalancer()
 
 void KatinaPluginTeamBalancer::rateAllPlayers()
 {
+	bug_func();
     playerRatings.clear();
     for(siz_guid_map_citer it = katina.clients.begin(); it != katina.clients.end(); ++it)
         ratePlayer(it->first);
@@ -62,7 +65,8 @@ void KatinaPluginTeamBalancer::rateAllPlayers()
 
 float KatinaPluginTeamBalancer::ratePlayer(siz client)
 {
-    if(statsPlugin)
+	bug_func();
+   if(statsPlugin)
         statsPlugin->updatePlayerTime(client);
     
     return playerRatings[client] = evaluation->calcRating(client);
@@ -71,6 +75,7 @@ float KatinaPluginTeamBalancer::ratePlayer(siz client)
 
 void KatinaPluginTeamBalancer::buildTeams(TeamBuilder* teamBuilder, TeamBuilderEvent event, void* payload, siz waitTime, bool force)
 {
+	bug_func();
 	if(!enabled)
 		return;
 
@@ -159,6 +164,7 @@ void KatinaPluginTeamBalancer::buildTeams(TeamBuilder* teamBuilder, TeamBuilderE
 
 siz nameLength(str name)
 {
+	bug_func();
     siz len = name.length();
     for(int i=0; i<name.length()-1; ++i)
     {
@@ -172,6 +178,7 @@ siz nameLength(str name)
 
 void KatinaPluginTeamBalancer::printTeams(bool printBug, bool printChat)
 {
+	bug_func();
     rateAllPlayers();
     
     siz col1Len = 11;
@@ -287,7 +294,8 @@ str KatinaPluginTeamBalancer::get_version() const   { return VERSION; }
 
 bool KatinaPluginTeamBalancer::open()
 {
-    statsPlugin = dynamic_cast<KatinaPluginStats*>( katina.get_plugin("katina::stats", "0.1-dev") );
+	bug_func();
+   statsPlugin = dynamic_cast<KatinaPluginStats*>( katina.get_plugin("katina::stats", "0.1-dev") );
     
     // Register for events
 	katina.add_log_event(this, EXIT);
@@ -311,14 +319,15 @@ bool KatinaPluginTeamBalancer::open()
 
 void KatinaPluginTeamBalancer::close()
 {
-    
+	bug_func();
 }
 
 
 
 bool KatinaPluginTeamBalancer::init_game(siz min, siz sec, const str_map& cvars)
 {
-    scoreRed = 0;
+	bug_func();
+   scoreRed = 0;
     scoreBlue = 0;
     teamScoreHistory.clear();
     
@@ -331,6 +340,7 @@ bool KatinaPluginTeamBalancer::init_game(siz min, siz sec, const str_map& cvars)
 
 bool KatinaPluginTeamBalancer::client_switch_team(siz min, siz sec, siz num, siz teamBefore, siz teamNow)
 {
+	bug_func();
 	if(!enabled)
 		return true;
 
@@ -389,6 +399,7 @@ bool KatinaPluginTeamBalancer::client_switch_team(siz min, siz sec, siz num, siz
 
 bool KatinaPluginTeamBalancer::client_disconnect(siz min, siz sec, siz client)
 {
+	bug_func();
     bug("TB client_disconnect begin");
     playerRatings.erase(client);
     rateAllPlayers();
@@ -401,6 +412,7 @@ bool KatinaPluginTeamBalancer::client_disconnect(siz min, siz sec, siz client)
 
 bool KatinaPluginTeamBalancer::ctf(siz min, siz sec, siz client, siz team, siz act)
 {
+	bug_func();
     bug("TB ctf begin");
     
     // Count flag captures (team score)
@@ -430,6 +442,7 @@ bool KatinaPluginTeamBalancer::ctf(siz min, siz sec, siz client, siz team, siz a
 
 bool KatinaPluginTeamBalancer::exit(siz min, siz sec)
 {
+	bug_func();
     if(statsPlugin != NULL)
         lastStats.push_back(statsPlugin->stats);
     
@@ -442,6 +455,7 @@ bool KatinaPluginTeamBalancer::exit(siz min, siz sec)
 
 bool KatinaPluginTeamBalancer::say(siz min, siz sec, const GUID& guid, const str& text)
 {
+	bug_func();
     bug("TB say: " << text);
     
     siz client = katina.getClientNr(guid);
@@ -489,11 +503,13 @@ bool KatinaPluginTeamBalancer::say(siz min, siz sec, const GUID& guid, const str
     else if(cmd == "!tb-on" and katina.is_admin(guid))
     {
         enabled = true;
+        plog("TEAMBALANCER ENABLED BY: " << katina.players[guid]);
     }
 
     else if(cmd == "!tb-off" and katina.is_admin(guid))
     {
         enabled = false;
+        plog("TEAMBALANCER DISABLED BY: " << katina.players[guid]);
     }
 
     bug("TB say end");
@@ -545,7 +561,8 @@ void KatinaPluginTeamBalancer::heartbeat(siz min, siz sec)
 
 bool TeamBuilder::is1vs1() const
 {
-    siz r = 0;
+	bug_func();
+   siz r = 0;
     siz b = 0;
     
     for(guid_siz_map_citer it = katina.teams.begin(); it != katina.teams.end(); ++it)

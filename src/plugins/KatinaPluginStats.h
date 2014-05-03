@@ -70,6 +70,9 @@ struct stats
 	siz carrierFrags;
 	siz carrierFragsRecv;
 
+	siz ave_speed;
+	siz dist;
+
 	time_t joined_time;
 	siz logged_time;
 
@@ -170,6 +173,7 @@ public:
 	virtual bool init_game(siz min, siz sec, const str_map& cvars);
 //	virtual bool say(siz min, siz sec, const GUID& guid, const str& text);
 //	virtual bool unknown(siz min, siz sec, const str& cmd, const str& params);
+	virtual bool speed(siz num, siz ave_speed, siz dist);
 	virtual bool weapon_usage(siz min, siz sec, siz num, siz weapon, siz shots);
 	virtual bool mod_damage(siz min, siz sec, siz num, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv, float weightedHits);
 	virtual bool player_stats(siz min, siz sec, siz num,

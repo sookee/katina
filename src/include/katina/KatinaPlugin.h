@@ -84,6 +84,9 @@ public:
 	virtual bool init_game(siz min, siz sec, const str_map& cvars) { return true; }
 	virtual bool warmup(siz min, siz sec) { return true; }
 	virtual bool client_connect(siz min, siz sec, siz num) { return true; }
+
+	/** zim@openmafia.org mod >= 0.1-beta */
+	virtual bool client_connect_info(siz min, siz sec, siz num, const GUID& guid, const str& ip) { return true; }
 	virtual bool client_begin(siz min, siz sec, siz num) { return true; }
 	virtual bool client_disconnect(siz min, siz sec, siz num) { return true; }
 	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name, siz hc) { return true; }
@@ -103,6 +106,8 @@ public:
 	virtual bool exit(siz min, siz sec) { return true; }
 	virtual bool unknown(siz min, siz sec, const str& cmd, const str& params) { return true; }
 	
+	virtual bool speed(siz num, siz ave_speed, siz dist) { return true; }
+
 	/**
 	 * Summarizing events for more detailed statistics (they only work with the katina game mod)
 	 */

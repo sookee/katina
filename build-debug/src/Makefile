@@ -4,7 +4,6 @@ src_topdir = ../../src
 
 VER_FLAGS = -D REVISION=\"$(shell git log -n 1 --pretty=format:%h|tr [:lower:] [:upper:])\"
 
-#MYSQL_INCL = -I/usr/include/mysql
 MYSQL_INCL = $(shell mysql_config --include)
 MYSQL_LIBS = $(shell mysql_config --libs)
 LIBGCRYPT_FLAGS=$(shell libgcrypt-config --cflags)
@@ -17,13 +16,8 @@ CXXFLAGS = -D DEBUG -O0 -g3 -Iinclude
 LIBKATINA_FLAGS = -D DEBUG -O0 -g3 -fPIC -pthread -Iinclude $(LIBGCRYPT_FLAGS)
 LIBKATINA_LIBS = -lrt -pthread -ldl $(LIBGCRYPT_LIBS)
 LIBKATINA_OBJS = rcon.o RemoteClient.o irc.o GUID.o Katina.o PKI.o
-#LIBKATINA_OBJS = rcon.o irc.o GUID.o Katina.o PKI.o
 
 LIBRARIES = libkatina.so
-
-#KATINA_FLAGS = -D DEBUG -O0 -g3 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread -Iinclude
-#KATINA_LIBS = $(MYSQL_LIBS) -lrt -pthread
-#KATINA_OBJS = katina.o rcon.o RemoteClient_v0_x.o irc.o Database.o GUID.o
 
 KATINA_FLAGS = -D DEBUG $(VER_FLAGS) -O0 -g3 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread -Iinclude
 KATINA_LIBS = $(MYSQL_LIBS) -lrt -pthread -ldl $(LIBGCRYPT_LIBS) -L. -lkatina
@@ -41,7 +35,6 @@ KATINA_GUID_FIX_FLAGS = -D DEBUG -O0 -g3 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread -I
 KATINA_GUID_FIX_LIBS = $(MYSQL_LIBS) -lrt -pthread -ldl -L. -lkatina
 KATINA_GUID_FIX_OBJS = katina-guid-fix.o Database.o
 
-#PROGRAMS = katina katina-1 katina-irc katina-votes katina-guid-fix
 PROGRAMS = katina katina-irc katina-votes katina-guid-fix
 
 all: $(addsuffix .0.0.0, $(LIBRARIES)) $(PROGRAMS)
@@ -54,15 +47,6 @@ libkatina.so.0.0.0: $(LIBKATINA_OBJS)
 	@ln -f -s libkatina.so.0.0 libkatina.so.0
 	@ln -f -s libkatina.so.0 libkatina.so
 	@echo
-
-#katina: $(KATINA_OBJS)
-#	@echo
-#	@echo Compiling $@
-#	$(CXX) -o $@ $(KATINA_OBJS) $(KATINA_LIBS)
-#	@echo
-
-#katina.o: $(src_topdir)/katina_old.cpp $(INCLUDES)
-#	$(CXX) -c -I$(src_topdir)/include $(KATINA_FLAGS) -o $@ $<
 
 katina: $(KATINA_OBJS)
 	@echo

@@ -87,6 +87,7 @@ bool KatinaPluginStats::open()
 	katina.add_log_event(this, PLAYER_STATS);
 	katina.add_log_event(this, SAY);
 	katina.add_log_event(this, SAYTEAM);
+	katina.add_log_event(this, SPEED);
 
 	return true;
 }
@@ -160,6 +161,8 @@ bool KatinaPluginStats::exit(siz min, siz sec)
                     p->second.spawnKills, p->second.spawnKillsRecv, p->second.pushes, p->second.pushesRecv,
                     p->second.healthPickedUp, p->second.armorPickedUp, p->second.holyShitFrags, p->second.holyShitFragged,
                     p->second.carrierFrags, p->second.carrierFragsRecv);
+
+                db.add_speed(id, p->first, p->second.ave_speed, p->second.dist);
 			}
 
 			for(onevone_citer o = onevone.begin(); o != onevone.end(); ++o)
@@ -428,7 +431,6 @@ bool KatinaPluginStats::award(siz min, siz sec, siz num, siz awd)
 	return true;
 }
 
-
 bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 {
 	stats.clear();
@@ -445,6 +447,23 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 	return true;
 }
 
+
+bool KatinaPluginStats::speed(siz num, siz ave_speed, siz dist)
+{
+	//  0:14 Speed: 0 313 1252 : Client 0's average speed was 313u/s, distance covered 1252u
+	if(!in_game)
+		return true;
+	if(!active)
+		return true;
+	if(have_bots)
+		return true;
+
+	stats[clients[num]].ave_speed =
+			((stats[clients[num]].ave_speed * stats[clients[num]].dist) + (ave_speed * dist))
+			/ (stats[clients[num]].dist + dist);
+
+	return true;
+}
 
 bool KatinaPluginStats::weapon_usage(siz min, siz sec, siz num, siz weapon, siz shots)
 {

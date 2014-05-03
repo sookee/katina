@@ -54,6 +54,7 @@ public:
 
 	virtual bool init_game(siz min, siz sec, const str_map& cvars);
 	virtual bool shutdown_game(siz min, siz sec);
+	virtual bool say(siz min, siz sec, const GUID& guid, const str& text);
 	virtual bool exit(siz min, siz sec);
 
 	virtual void close();

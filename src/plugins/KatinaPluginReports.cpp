@@ -512,10 +512,10 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 
 			if(max < 23)
 				max = 23;
-			katina.server.chat("^5== ^6RESULTS ^5" + str(max - 23, '='));
+			katina.server.chat_nobeep("^5== ^6RESULTS ^5" + str(max - 23, '='));
 			for(siz i = 0; i < results.size(); ++i)
-				katina.server.chat(results[i]);
-			katina.server.chat("^5" + str(max - 12, '-'));
+				katina.server.chat_nobeep(results[i]);
+			katina.server.chat_nobeep("^5" + str(max - 12, '-'));
 
 			if(do_infos)
 			{

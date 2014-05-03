@@ -38,12 +38,14 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include "types.h"
 #include "utils.h"
 #include "PKI.h"
+#include "log.h"
 
 #include <list>
 #include <pthread.h>
 
 namespace oastats {
 
+using namespace oastats::log;
 using namespace oastats::net;
 using namespace oastats::pki;
 using namespace oastats::types;
@@ -74,6 +76,7 @@ enum event_t
 	INIT_GAME
 	, WARMUP
 	, CLIENT_CONNECT
+	, CLIENT_CONNECT_INFO // zim@openmafia >= 0.1-beta
 	, CLIENT_BEGIN
 	, CLIENT_DISCONNECT
 	, CLIENT_USERINFO_CHANGED
@@ -83,15 +86,16 @@ enum event_t
 	, CTF_EXIT
 	, SCORE_EXIT
 	, AWARD
-	, WEAPON_USAGE
-	, MOD_DAMAGE
-	, PLAYER_STATS
+	, WEAPON_USAGE // zim@openmafia >= 0.1-beta
+	, MOD_DAMAGE // zim@openmafia >= 0.1-beta
+	, PLAYER_STATS // zim@openmafia >= 0.1-beta
 	, SAY
 	, SAYTEAM
 	, SHUTDOWN_GAME
 	, EXIT
 	, UNKNOWN
     , HEARTBEAT
+    , SPEED // zim@openmafia >= 0.1-beta
 };
 
 typedef std::map<event_t, plugin_vec> event_map;
@@ -240,6 +244,8 @@ public:
 	str_map cvars;
 	siz logmode;
 	std::time_t now;
+
+	void builtin_command(const GUID& guid, const str& text);
     
     siz getTeam(siz client);
     str getPlayerName(siz client);

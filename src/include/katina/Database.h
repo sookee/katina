@@ -178,6 +178,7 @@ public:
 		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
 		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,
 		siz carrierFrags, siz carrierFragsRecv);
+	bool add_speed(game_id id, const GUID& guid, siz ave_speed, siz dist);
 
 	bool read_map_votes(const str& mapname, guid_int_map& map_votes);
 

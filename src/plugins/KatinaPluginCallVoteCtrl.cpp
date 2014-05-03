@@ -69,6 +69,7 @@ bool KatinaPluginCallVoteCtrl::open()
 	katina.add_var_event(this, "callvotectrl.wait", wait, std::time_t(15));
 
 	katina.add_log_event(this, INIT_GAME);
+	katina.add_log_event(this, SAY);
 	katina.add_log_event(this, EXIT);
 	katina.add_log_event(this, SHUTDOWN_GAME);
 
@@ -176,6 +177,39 @@ bool KatinaPluginCallVoteCtrl::init_game(siz min, siz sec, const str_map& cvars)
 		vote_enable();
 	}
 	
+	return true;
+}
+
+bool KatinaPluginCallVoteCtrl::say(siz min, siz sec, const GUID& guid, const str& text)
+{
+	//	!callvote on|off|enable|disable
+	if(!katina.is_admin(guid))
+	{
+		plog("INFO: Unauthorized admin attempt from " << katina.players[guid] << ": " << text);
+		return true;
+	}
+
+	siss iss(text);
+	str cmd, param;
+	if(!(iss >> cmd >> param) || cmd.empty() || cmd[0] != '!')
+		return true;
+
+	bug("SAY: " << cmd << ' ' << param);
+
+	if(cmd != "!callvote")
+		return true;
+
+	if(param == "on")
+		vote_enable();
+	else if(param == "off")
+		vote_disable();
+	else if(param == "enable")
+		active = true;
+	else if(param == "disable")
+		active = false;
+	else
+		plog("WARN: Unknown !callvote parameter: " << param);
+
 	return true;
 }
 
