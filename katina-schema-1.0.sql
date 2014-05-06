@@ -2,15 +2,11 @@ SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 
-CREATE SCHEMA IF NOT EXISTS `oadb` DEFAULT CHARACTER SET latin1 ;
-USE `oadb` ;
-
 -- -----------------------------------------------------
--- Table `oadb`.`awards`
+-- Table `awards`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `oadb`.`awards` ;
 
-CREATE  TABLE IF NOT EXISTS `oadb`.`awards` (
+CREATE  TABLE IF NOT EXISTS `awards` (
   `game_id` INT(4) UNSIGNED NOT NULL ,
   `guid` VARCHAR(8) NOT NULL ,
   `type` INT(1) UNSIGNED NOT NULL ,
@@ -21,11 +17,10 @@ DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
--- Table `oadb`.`caps`
+-- Table `caps`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `oadb`.`caps` ;
 
-CREATE  TABLE IF NOT EXISTS `oadb`.`caps` (
+CREATE  TABLE IF NOT EXISTS `caps` (
   `game_id` INT(4) UNSIGNED NOT NULL ,
   `guid` VARCHAR(8) NOT NULL ,
   `count` INT(2) UNSIGNED NOT NULL DEFAULT '0' ,
@@ -35,11 +30,10 @@ DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
--- Table `oadb`.`damage`
+-- Table `damage`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `oadb`.`damage` ;
 
-CREATE  TABLE IF NOT EXISTS `oadb`.`damage` (
+CREATE  TABLE IF NOT EXISTS `damage` (
   `game_id` INT(4) NOT NULL ,
   `guid` VARCHAR(8) NOT NULL ,
   `mod` INT(1) NOT NULL ,
@@ -53,11 +47,10 @@ DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
--- Table `oadb`.`deaths`
+-- Table `deaths`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `oadb`.`deaths` ;
 
-CREATE  TABLE IF NOT EXISTS `oadb`.`deaths` (
+CREATE  TABLE IF NOT EXISTS `deaths` (
   `game_id` INT(4) UNSIGNED NOT NULL ,
   `guid` VARCHAR(8) NOT NULL ,
   `weap` INT(1) UNSIGNED NOT NULL ,
@@ -68,11 +61,10 @@ DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
--- Table `oadb`.`game`
+-- Table `game`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `oadb`.`game` ;
 
-CREATE  TABLE IF NOT EXISTS `oadb`.`game` (
+CREATE  TABLE IF NOT EXISTS `game` (
   `game_id` INT(4) UNSIGNED NOT NULL AUTO_INCREMENT ,
   `host` INT(4) UNSIGNED NOT NULL ,
   `port` INT(2) UNSIGNED NOT NULL ,
@@ -85,11 +77,10 @@ DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
--- Table `oadb`.`kills`
+-- Table `kills`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `oadb`.`kills` ;
 
-CREATE  TABLE IF NOT EXISTS `oadb`.`kills` (
+CREATE  TABLE IF NOT EXISTS `kills` (
   `game_id` INT(4) UNSIGNED NOT NULL ,
   `guid` VARCHAR(8) NOT NULL ,
   `weap` INT(1) UNSIGNED NOT NULL ,
@@ -100,11 +91,10 @@ DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
--- Table `oadb`.`ovo`
+-- Table `ovo`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `oadb`.`ovo` ;
 
-CREATE  TABLE IF NOT EXISTS `oadb`.`ovo` (
+CREATE  TABLE IF NOT EXISTS `ovo` (
   `game_id` INT(4) UNSIGNED NOT NULL ,
   `guid1` VARCHAR(8) NOT NULL ,
   `guid2` VARCHAR(8) NOT NULL ,
@@ -115,11 +105,10 @@ DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
--- Table `oadb`.`player`
+-- Table `player`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `oadb`.`player` ;
 
-CREATE  TABLE IF NOT EXISTS `oadb`.`player` (
+CREATE  TABLE IF NOT EXISTS `player` (
   `guid` VARCHAR(8) NOT NULL ,
   `name` VARCHAR(32) NOT NULL ,
   `count` INT(4) UNSIGNED NOT NULL ,
@@ -130,11 +119,10 @@ DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
--- Table `oadb`.`playerstats`
+-- Table `playerstats`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `oadb`.`playerstats` ;
 
-CREATE  TABLE IF NOT EXISTS `oadb`.`playerstats` (
+CREATE  TABLE IF NOT EXISTS `playerstats` (
   `game_id` INT(4) UNSIGNED NOT NULL ,
   `guid` VARCHAR(8) NOT NULL ,
   `fragsFace` INT(2) UNSIGNED NOT NULL ,
@@ -156,11 +144,10 @@ ENGINE = MyISAM
 DEFAULT CHARACTER SET = utf8;
 
 -- -----------------------------------------------------
--- Table `oadb`.`speed`
+-- Table `speed`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `oadb`.`speed` ;
 
-CREATE  TABLE IF NOT EXISTS `oadb`.`speed` (
+CREATE  TABLE IF NOT EXISTS `speed` (
   `game_id` INT(4) UNSIGNED NOT NULL ,
   `guid` VARCHAR(8) NOT NULL ,
   `ave_speed` INT(2) UNSIGNED NOT NULL ,
@@ -171,11 +158,10 @@ DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
--- Table `oadb`.`polls`
+-- Table `polls`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `oadb`.`polls` ;
 
-CREATE  TABLE IF NOT EXISTS `oadb`.`polls` (
+CREATE  TABLE IF NOT EXISTS `polls` (
   `date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP ,
   `type` VARCHAR(8) NOT NULL ,
   `item` VARCHAR(32) NOT NULL ,
@@ -187,11 +173,10 @@ DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
--- Table `oadb`.`time`
+-- Table `time`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `oadb`.`time` ;
 
-CREATE  TABLE IF NOT EXISTS `oadb`.`time` (
+CREATE  TABLE IF NOT EXISTS `time` (
   `game_id` INT(4) UNSIGNED NOT NULL ,
   `guid` VARCHAR(8) NOT NULL ,
   `count` INT(4) UNSIGNED NOT NULL COMMENT '// seconds in game' ,
@@ -201,11 +186,10 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `oadb`.`user`
+-- Table `user`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `oadb`.`user` ;
 
-CREATE  TABLE IF NOT EXISTS `oadb`.`user` (
+CREATE  TABLE IF NOT EXISTS `user` (
   `guid` VARCHAR(8) NOT NULL ,
   `name` VARCHAR(32) NOT NULL ,
   PRIMARY KEY (`guid`) )
@@ -214,11 +198,10 @@ DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
--- Table `oadb`.`version`
+-- Table `version`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `oadb`.`version` ;
 
-CREATE  TABLE IF NOT EXISTS `oadb`.`version` (
+CREATE  TABLE IF NOT EXISTS `version` (
   `maj` INT(10) UNSIGNED NOT NULL ,
   `min` INT(2) UNSIGNED ZEROFILL NOT NULL ,
   PRIMARY KEY (`maj`, `min`) )
@@ -227,11 +210,10 @@ DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
--- Table `oadb`.`votes`
+-- Table `votes`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `oadb`.`votes` ;
 
-CREATE  TABLE IF NOT EXISTS `oadb`.`votes` (
+CREATE  TABLE IF NOT EXISTS `votes` (
   `type` VARCHAR(8) NOT NULL ,
   `item` VARCHAR(32) NOT NULL ,
   `guid` VARCHAR(8) NOT NULL ,
@@ -242,11 +224,10 @@ DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
--- Table `oadb`.`weapon_usage`
+-- Table `weapon_usage`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `oadb`.`weapon_usage` ;
 
-CREATE  TABLE IF NOT EXISTS `oadb`.`weapon_usage` (
+CREATE  TABLE IF NOT EXISTS `weapon_usage` (
   `game_id` INT(4) UNSIGNED NOT NULL ,
   `guid` VARCHAR(8) NOT NULL ,
   `weap` INT(1) NOT NULL ,
@@ -254,9 +235,6 @@ CREATE  TABLE IF NOT EXISTS `oadb`.`weapon_usage` (
   PRIMARY KEY (`game_id`, `guid`, `weap`) )
 ENGINE = MyISAM
 DEFAULT CHARACTER SET = utf8;
-
-USE `oadb` ;
-
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

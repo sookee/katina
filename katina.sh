@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ $1 == "--version" ]; then
+	echo "0.1-beta"
+	exit 0
+fi
+
 if(($# < 2)); then
 	help
 	exit 1

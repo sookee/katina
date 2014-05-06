@@ -243,10 +243,8 @@ void KatinaPluginStats::stall_clients()
 void KatinaPluginStats::unstall_clients(siz num)
 {
 	for(siz_guid_map_citer ci = clients.begin(); ci != clients.end(); ++ci)
-    {
 		if(num == siz(-1) || num != ci->first)
 			unstall_client(ci->first);
-    }
 }
 
 
@@ -563,12 +561,18 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 			db.off();
 		}
 	}
+	else if(cmd == "!help")
+	{
+		server.chat("^7TRY: ^2?stats^7, ^2?boss^7, ^2?champ");
+	}
 	else if(cmd == "!stats" || cmd == "?stats")
 	{
 		if(cmd[0] == '?')
 		{
-			server.chat("^7STATS: ^2!stats^7: ^3display a players ^7fph (^2frags^7/^2hour^7) ^2& ^7cph (^2caps^7/^2hour^7)");
-			server.chat("^7STATS: ^2!stats^7: ^3calculated for this map and since the start of this month.");
+			server.chat("^7STATS: ^3For this map and since the start of month.");
+			server.chat("^7STATS: ^3FPH   ^7(^2frags^7/^2hour^7)");
+			server.chat("^7STATS: ^3CPH   ^7(^2caps^7/^2hour^7)");
+			server.chat("^7STATS: ^3SPEED ^7(^2average u^7/^2second^7)");
 			return true;
 		}
 

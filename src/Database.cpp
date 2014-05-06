@@ -723,6 +723,44 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	str caps = rows.empty() || rows[0][0].empty() ? "0" : rows[0][0];
 	bug_var(caps);
 
+	// speed
+
+	sql.clear();
+	sql.str("");
+	sql << "select sum(`speed`.`ave_speed` * `speed`.`distance`), sum(`speed`.`distance`) from `speed` where `speed`.`guid` = '";
+	sql << guid << "'";
+	sql << " and `game_id` in (" << subsql << ")";
+
+	bug_var(sql.str());
+
+	if(!select(sql.str(), rows, 2))
+		return false;
+
+	str ave_speed = rows.empty() || rows[0][0].empty() ? "0" : rows[0][0];
+	str distance = rows.empty() || rows[0][1].empty() ? "0" : rows[0][1];
+
+	bug_var(ave_speed);
+	bug_var(distance);
+
+	siz s = 0;
+	siz d = 0;
+
+	siss iss;
+
+	iss.str(ave_speed + ' ' + distance);
+	iss.clear();
+
+	if(!(iss >> s >> d))
+	{
+		log("DATABASE ERROR: parsing results: ave_speed: " << ave_speed << " distance: " << distance);
+		return false;
+	}
+
+	siz ups = 0; // u/sec
+
+	if(d)
+		ups = s / d;
+
 	// secs
 
 	sql.clear();
@@ -745,7 +783,8 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	siz hit = 0;
 	double acc = 0.0;
 
-	siss iss(kills + ' ' + shots + ' ' + hits + ' ' + caps + ' ' + secs);
+	iss.str(kills + ' ' + shots + ' ' + hits + ' ' + caps + ' ' + secs);
+	iss.clear();
 
 	if(!(iss >> fph >> acc >> hit >> cph >> sec))
 	{
@@ -759,7 +798,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	bug_var(hit);
 	bug_var(acc);
 
-	stats = "^3FPH^7: ^20 ^3CPH^7: ^20 ^3ACC^7: ^20.00%";
+	stats = "^7<^3not recorded for this map^7>";
 
 	//hours /= (60 * 60);
 	if(acc > 0.0001)
@@ -780,8 +819,9 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 		soss oss;
 		oss << std::fixed;
 		oss.precision(2);
-		// TODO: add acc next month because shots have not been recorded for all this month.
+//		oss << "^3FPH^7: ^2" << fph << " ^3CPH^7: ^2" << cph << " ^3ACC^7: ^2" << acc << '%';
 		oss << "^3FPH^7: ^2" << fph << " ^3CPH^7: ^2" << cph << " ^3ACC^7: ^2" << acc << '%';
+		oss << " ^3SPEED^7: ^2" << ups << "u/s";
 		//oss << "^3FPH^7: ^2" << fph << " ^3CPH^7: ^2" << cph << " ^ACC^7: ^2 soon";
 		stats = oss.str();
 		bug_var(stats);
