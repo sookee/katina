@@ -14,6 +14,7 @@ PLUGIN_STATS_INCLUDES = -I..
 #DL_EXPORT = -Wl,-E
 DL_EXPORT =
 
+PREFIX ?= $(HOME)
 
 PLUGIN_EXAMPLE_FLAGS = -D DEBUG -O0 -g3 $(DL_EXPORT) -shared -pthread
 PLUGIN_EXAMPLE_LIBS = -pthread -L.. -lkatina
@@ -87,8 +88,8 @@ katina-plugin-player-db.so: $(PLUGIN_PLAYER_DB_OBJS)
 	$(CXX) $(CXXFLAGS) $(MYSQL_INCL) -c -o $@ $<
 
 install: $(PLUGINS)
-	mkdir -p $(HOME)/lib
-	for plugin in $(PLUGINS); do cp $$plugin $(HOME)/lib; done
+	mkdir -p $(PREFIX)/lib
+	for plugin in $(PLUGINS); do cp $$plugin $(PREFIX)/lib; done
 
 clean:
 	rm -f *.o *.so $(PLUGINS)

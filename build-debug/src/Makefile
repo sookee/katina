@@ -37,6 +37,14 @@ KATINA_GUID_FIX_OBJS = katina-guid-fix.o Database.o
 
 PROGRAMS = katina katina-irc katina-votes katina-guid-fix
 
+PREFIX ?= $(HOME)
+
+#ifeq ($(origin PREFIX), defined)
+#  PREFIX = -$(PREFIX)
+#  echo PREFIX: $(PREFIX)
+#endif
+
+
 all: $(addsuffix .0.0.0, $(LIBRARIES)) $(PROGRAMS)
 
 libkatina.so.0.0.0: $(LIBKATINA_OBJS)
@@ -89,16 +97,16 @@ katina-guid-fix.o: $(src_topdir)/katina-guid-fix.cpp $(INCLUDES)
 	$(CXX) -fPIC -I$(src_topdir)/include $(CXXFLAGS) $(MYSQL_INCL) -c -o $@ $<
 
 install: $(PROGRAMS) $(LIBRARIES)
-	mkdir -p $(HOME)/bin
+	mkdir -p $(PREFIX)/bin
 	@for program in $(PROGRAMS); \
 	do \
-		cp $$program $(HOME)/bin; \
+		cp $$program $(PREFIX)/bin; \
 	done
-	mkdir -p $(HOME)/lib
+	mkdir -p $(PREFIX)/lib
 	@for library in $(LIBRARIES); \
 	do \
-		cp $$library.0.0.0 $(HOME)/lib; \
-		cd $(HOME)/lib; \
+		cp $$library.0.0.0 $(PREFIX)/lib; \
+		cd $(PREFIX)/lib; \
 		ln -f -s $$library.0.0.0 $$library.0.0; \
 		ln -f -s $$library.0.0 $$library.0; \
 		ln -f -s $$library.0 $$library; \

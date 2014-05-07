@@ -1,0 +1,1 @@
+export PREFIX = $(HOME)/dev

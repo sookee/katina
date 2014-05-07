@@ -1,0 +1,17 @@
+
+BUILDING
+========
+
+Build from the folder build-debug
+
+Katina will install into $PREFIX/bin and $PREFIX/lib. By default $PREFIX == $HOME.
+
+Create Makefile.local to set PREFIX like in Makefile.local.example.
+
+DO NOT add Makefile.local to git, add it to .gitignore
+
+make // build application
+make install // install application
+
+There is an example launch script that needs tailoring to specific needs "katina.sh.example"
+

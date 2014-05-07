@@ -1,6 +1,8 @@
 
 == v 1.0 ==
 
+Add: team of player? If player switch then log as "unaligned"? Or last team joined?
+
 Add: Old Hag Contest plugin
 	!set_players n
 	!set_bots n

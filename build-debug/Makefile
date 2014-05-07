@@ -1,3 +1,5 @@
+-include Makefile.local
+
 all:
 	make -C src
 	make -C src/plugins
