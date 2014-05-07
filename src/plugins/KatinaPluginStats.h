@@ -70,8 +70,8 @@ struct stats
 	siz carrierFrags;
 	siz carrierFragsRecv;
 
-	siz ave_speed;
-	siz dist;
+	siz time, time_f;
+	siz dist, dist_f;
 
 	time_t joined_time;
 	siz logged_time;
@@ -83,7 +83,7 @@ struct stats
 		fragsFace(0), fragsBack(0), fraggedInFace(0), fraggedInBack(0),
 		spawnKills(0), spawnKillsRecv(0), pushes(0), pushesRecv(0),
 		healthPickedUp(0), armorPickedUp(0), holyShitFrags(0), holyShitFragged(0),
-		carrierFrags(0), carrierFragsRecv(0),
+		carrierFrags(0), carrierFragsRecv(0), time(0), dist(0), time_f(0), dist_f(0),
 		joined_time(0), logged_time(0)
 	{}
 };
@@ -173,7 +173,7 @@ public:
 	virtual bool init_game(siz min, siz sec, const str_map& cvars);
 //	virtual bool say(siz min, siz sec, const GUID& guid, const str& text);
 //	virtual bool unknown(siz min, siz sec, const str& cmd, const str& params);
-	virtual bool speed(siz num, siz ave_speed, siz dist);
+	virtual bool speed(siz num, siz dist, siz time, bool has_flag); // zim@openmafia >= 0.1-beta
 	virtual bool weapon_usage(siz min, siz sec, siz num, siz weapon, siz shots);
 	virtual bool mod_damage(siz min, siz sec, siz num, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv, float weightedHits);
 	virtual bool player_stats(siz min, siz sec, siz num,

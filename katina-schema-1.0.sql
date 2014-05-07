@@ -150,8 +150,9 @@ DEFAULT CHARACTER SET = utf8;
 CREATE  TABLE IF NOT EXISTS `speed` (
   `game_id` INT(4) UNSIGNED NOT NULL ,
   `guid` VARCHAR(8) NOT NULL ,
-  `ave_speed` INT(2) UNSIGNED NOT NULL ,
-  `distance` INT(4) UNSIGNED NOT NULL ,
+  `dist` INT(4) UNSIGNED NOT NULL ,
+  `time` INT(4) UNSIGNED NOT NULL ,
+  `flag` TINYINT(1) NOT NULL ,
   PRIMARY KEY (`game_id`, `guid`) )
 ENGINE = MyISAM
 DEFAULT CHARACTER SET = utf8;

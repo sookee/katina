@@ -311,15 +311,14 @@ bool Database::add_playerstats(game_id id, const GUID& guid,
 }
 
 bool Database::add_speed(game_id id, const GUID& guid,
-	siz ave_speed, siz dist)
+	siz dist, siz time, bool has_flag)
 {
-	log("DATABASE: add_speed(" << id << ", " << guid << ", " << ave_speed << ", " << dist << ")");
-
+	log("DATABASE: add_speed(" << id << ", " << guid << ", " << dist << ", " << time << ", " << has_flag << ")");
 
 	soss oss;
 	oss << "insert into `speed` ("
-	    << "`game_id`,`guid`,`ave_speed`,`distance`) "
-	    << "values ('" << id << "','" << guid << "','" << ave_speed << "','" << dist << "')";
+	    << "`game_id`,`guid`,`dist`,`time`,`flag`) "
+	    << "values ('" << id << "','" << guid << "','" << dist << "','" << time << "','" << has_flag << "')";
 
 	str sql = oss.str();
 
@@ -727,7 +726,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 
 	sql.clear();
 	sql.str("");
-	sql << "select sum(`speed`.`ave_speed` * `speed`.`distance`), sum(`speed`.`distance`) from `speed` where `speed`.`guid` = '";
+	sql << "select sum(`speed`.`time`), sum(`speed`.`distance`) from `speed` where `speed`.`guid` = '";
 	sql << guid << "'";
 	sql << " and `game_id` in (" << subsql << ")";
 
@@ -736,30 +735,30 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	if(!select(sql.str(), rows, 2))
 		return false;
 
-	str ave_speed = rows.empty() || rows[0][0].empty() ? "0" : rows[0][0];
+	str time = rows.empty() || rows[0][0].empty() ? "0" : rows[0][0];
 	str distance = rows.empty() || rows[0][1].empty() ? "0" : rows[0][1];
 
-	bug_var(ave_speed);
+	bug_var(time);
 	bug_var(distance);
 
-	siz s = 0;
+	siz t = 0;
 	siz d = 0;
 
 	siss iss;
 
-	iss.str(ave_speed + ' ' + distance);
+	iss.str(time + ' ' + distance);
 	iss.clear();
 
-	if(!(iss >> s >> d))
+	if(!(iss >> t >> d))
 	{
-		log("DATABASE ERROR: parsing results: ave_speed: " << ave_speed << " distance: " << distance);
+		log("DATABASE ERROR: parsing results: time: " << time << " distance: " << distance);
 		return false;
 	}
 
 	siz ups = 0; // u/sec
 
-	if(d)
-		ups = s / d;
+	if(t)
+		ups = d / t;
 
 	// secs
 

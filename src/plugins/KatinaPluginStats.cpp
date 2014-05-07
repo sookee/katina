@@ -162,7 +162,10 @@ bool KatinaPluginStats::exit(siz min, siz sec)
                     p->second.healthPickedUp, p->second.armorPickedUp, p->second.holyShitFrags, p->second.holyShitFragged,
                     p->second.carrierFrags, p->second.carrierFragsRecv);
 
-                db.add_speed(id, p->first, p->second.ave_speed, p->second.dist);
+                if(p->second.time && p->second.dist)
+                	db.add_speed(id, p->first, p->second.dist, p->second.time, false);
+                if(p->second.time_f && p->second.dist_f)
+                	db.add_speed(id, p->first, p->second.dist_f, p->second.time_f, true);
 			}
 
 			for(onevone_citer o = onevone.begin(); o != onevone.end(); ++o)
@@ -445,10 +448,11 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 	return true;
 }
 
-
-bool KatinaPluginStats::speed(siz num, siz ave_speed, siz dist)
+// zim@openmafia >= 0.1-beta
+bool KatinaPluginStats::speed(siz num, siz dist, siz time, bool has_flag)
 {
-	//  0:14 Speed: 0 313 1252 : Client 0's average speed was 313u/s, distance covered 1252u
+	// 9:35 Speed: 3 1957 13 : Client 3 ran 1957u in 13s without the flag.
+	// 9:35 SpeedFlag: 3 3704 12 : Client 3 ran 3704u in 12s while holding the flag.
 	if(!in_game)
 		return true;
 	if(!active)
@@ -456,9 +460,16 @@ bool KatinaPluginStats::speed(siz num, siz ave_speed, siz dist)
 	if(have_bots)
 		return true;
 
-	stats[clients[num]].ave_speed =
-			((stats[clients[num]].ave_speed * stats[clients[num]].dist) + (ave_speed * dist))
-			/ (stats[clients[num]].dist + dist);
+	if(has_flag)
+	{
+		stats[clients[num]].time_f += time;
+		stats[clients[num]].dist_f += dist;
+	}
+	else
+	{
+		stats[clients[num]].time += time;
+		stats[clients[num]].dist += dist;
+	}
 
 	return true;
 }

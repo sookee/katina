@@ -675,6 +675,8 @@ bool Katina::start(const str& dir)
         for(plugin_vec_iter i = events[HEARTBEAT].begin(); i != events[HEARTBEAT].end(); ++i)
             (*i)->heartbeat(min, sec);
 
+        bool flagspeed = false; // speed carrying a flag
+
 		if(cmd == "Exit:")
 		{
 			bug(cmd << "(" << params << ")");
@@ -971,6 +973,24 @@ bool Katina::start(const str& dir)
 					(*i)->score_exit(min, sec, score, ping, num, name);
 			}
  		}
+		else if((flagspeed = cmd == "SpeedFlag:") || (cmd == "Speed:")) // zim@openmafia >= 0.1-beta
+		{
+			// 9:35 Speed: 3 1957 13 : Client 3 ran 1957u in 13s without the flag.
+			// 9:35 SpeedFlag: 3 3704 12 : Client 3 ran 3704u in 12s while holding the flag.
+			bug(cmd << "(" << params << ")");
+			if(events[SPEED].empty())
+				continue;
+
+			siz num, dist, time;
+			if(!(iss >> num >> dist >> time))
+				log("Error parsing Speed:" << params);
+			else
+			{
+				for(plugin_vec_iter i = events[SPEED].begin()
+					; i != events[SPEED].end(); ++i)
+					(*i)->speed(num, dist, time, flagspeed);
+			}
+		}
 		else if(cmd == "Award:")
 		{
 			bug(cmd << "(" << params << ")");
