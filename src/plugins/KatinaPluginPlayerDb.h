@@ -60,7 +60,7 @@ public:
 
 	//virtual void cvar_event(const str& name, const str& value);
 	
-	virtual bool client_connect(siz min, siz sec, siz num);
+	virtual bool client_connect_info(siz min, siz sec, siz num, const GUID& guid, const str& ip);
 	virtual bool client_disconnect(siz min, siz sec, siz num);
 	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name, siz hc);
 

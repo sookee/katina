@@ -5,10 +5,11 @@
 #include <katina/log.h>
 
 #include <string>
+#include <algorithm>
 
 #include <arpa/inet.h>
-#include <mysql.h>
-#include <mysqld_error.h>
+#include <mysql/mysql.h>
+#include <mysql/mysqld_error.h>
 
 namespace katina { namespace plugin {
 
@@ -47,12 +48,12 @@ struct player_do
 
 typedef std::set<player_do> player_set;
 typedef player_set::iterator player_set_iter;
-typedef std::pair<player_set_iter, bool> player_set_ret;
+//typedef std::pair<player_set_iter, bool> player_set_ret;
 
-typedef std::map<siz, player_set> player_map;
-typedef player_map::iterator player_map_iter;
+player_set player_cache;
 
-player_map players;
+typedef std::map<siz, int32_t> ip_map; // num -> ip
+ip_map ips;
 
 bool is_ip(const str& s)
 {
@@ -97,15 +98,23 @@ bool insert(const str& sql, my_ulonglong& insert_id)
 	return true;
 }
 
-void db_add(const player_set::value_type& p)
+void db_add(const player_do& p)
 {
 	bug("PLAYER DB: add: " << p.guid << " " << p.ip << " " << p.name);
+
+	if(player_cache.count(p))
+	{
+		bug("CACHE HIT DATABASE WRITE AVOIDED");
+		return;
+	}
+
 	std::ostringstream sql;
 
 	sql << "insert into `" << base << "`.`info` values ('";
 	sql << p.guid << "'," << p.ip << ",'" << p.name << "')";
 
 	insert(sql.str());
+	player_cache.insert(p);
 }
 
 str to_string(siz n)
@@ -113,111 +122,6 @@ str to_string(siz n)
 	std::ostringstream oss;
 	oss << n;
 	return oss.str();
-}
-
-void parse_namelog(const str& text, siz num)
-{
-	//bug_func();
-	//bug_var(num);
-	//bug_var(text);
-	// ^2|<^8MAD^1Kitty Too^7: ^2why no? ))
-	// ^30  (*2BC45233)  77.123.107.231^7 '^2BDSM^7'
-	// ^31  (*1DE6454E)  90.192.206.146^7 '^4A^5ngel ^4E^5yes^7'
-	// -  (*4A8B117F)    86.1.110.133^7 'Andrius [LTU]^7'
-	// ^33  (*F1147474)    37.47.104.24^7 'UFK POLAND^7'
-	// ^34  (*ACF58F90)  95.118.224.206^7 '^1Vamp ^3G^1i^3r^1l^7'
-	// ^35  (*EAF1A70C)  88.114.147.124^7 ':D^7'
-	// -  (*E5DAD0FE)   201.37.205.57^7 '^1*^7M^1*^7^^1p^7ev^7'
-	// -  (*B45368DF)    82.50.105.85^7 'Kiloren^7'
-	// ^36  (*5F9DFD1F)      86.2.36.24^7 'SodaMan^7'
-	// -  (*11045255)   79.154.175.14^7 '^3R^^2ocket^7' '^4G^1O^3O^4G^2L^1E^7'
-
-	std::istringstream iss(text);
-	str line, skip, n, id, ip, names;
-	while(std::getline(iss, line))
-	{
-//		bug_var(line);
-
-		std::istringstream iss(line);
-		if(!std::getline(iss >> n >> id >> ip >> std::ws, names) || n == "!namelog:")
-			continue;
-
-//		bug_var(n);
-//		bug_var(id);
-		bug_var(ip);
-//		bug_var(names);
-//		bug_var(is_ip(ip));
-
-		if(id.size() != 11 || !is_ip(ip))
-			continue;
-
-//		bug("A");
-
-		if(n == "-")
-			continue;
-
-//		bug("B");
-//		bug_var(n.empty());
-//		bug_var(n.substr(1));
-//		bug_var(to_string(num));
-
-		if(n.empty() || n != to_string(num))
-			continue;
-
-//		bug("C");
-
-		GUID guid = id.substr(2, 8);
-
-//		bug("num  : " << num);
-//		bug("guid : " << guid);
-//		bug("ip   : " << ip);
-//		bug("names: " << names);
-
-		str name;
-		iss.clear();
-		iss.str(names);
-		while(std::getline(iss, skip, '\'') && std::getline(iss, name, '\''))
-		{
-			player_set& infos = players[num];
-			player_set::value_type p;
-			p.guid = guid;
-			p.name = name;
-
-			struct in_addr ip4;
-
-			if(!inet_pton(AF_INET, ip.c_str(), &ip4) || !ip4.s_addr)
-			{
-				plog("ERROR: converting IP address: " << ip);
-				bug_var(line);
-			}
-			else
-			{
-				bug_var(ip4.s_addr);
-				p.ip = ip4.s_addr;
-				player_set_ret ret = infos.insert(p);
-				if(ret.second) // new element inserted
-					db_add(p);
-
-				char dst[64];
-				bug_var(inet_ntop(AF_INET, &p.ip, dst, 64));
-			}
-		}
-
-		break;
-	}
-}
-
-void KatinaPluginPlayerDb::add_player(siz num)
-{
-	str rep;
-	server.command("!namelog", rep);
-	if(!rep.empty())
-		parse_namelog(rep, num);
-}
-
-void KatinaPluginPlayerDb::sub_player(siz num)
-{
-	katina::plugin::players.erase(num);
 }
 
 KatinaPluginPlayerDb::KatinaPluginPlayerDb(Katina& katina)
@@ -236,7 +140,7 @@ bool KatinaPluginPlayerDb::open()
 {
 	//katina.add_var_event(this, "player.db.active", active);
 	//katina.add_var_event(this, "flag", "0");
-	katina.add_log_event(this, CLIENT_CONNECT);
+	katina.add_log_event(this, CLIENT_CONNECT_INFO);
 	katina.add_log_event(this, CLIENT_DISCONNECT);
 	katina.add_log_event(this, CLIENT_USERINFO_CHANGED);
 
@@ -261,27 +165,29 @@ str KatinaPluginPlayerDb::get_id() const { return ID; }
 str KatinaPluginPlayerDb::get_name() const { return NAME; }
 str KatinaPluginPlayerDb::get_version() const { return VERSION; }
 
-bool KatinaPluginPlayerDb::client_connect(siz min, siz sec, siz num)
+bool KatinaPluginPlayerDb::client_connect_info(siz min, siz sec, siz num, const GUID& guid, const str& ip)
 {
-//	if(!active)
-//		return true;
-	plog("client_connect(" << num << ")");
+	struct in_addr ip4;
 
-	// TODO:
-	// How about when a client connects wait 1 minute before parsing !namelog
-	// ignore all client connects until then. Then collect all players, not
-	// just the connector.
-	add_player(num);
+	if(!inet_pton(AF_INET, ip.c_str(), &ip4) || !ip4.s_addr)
+		plog("ERROR: converting IP address: " << ip);
+	else
+		ips[num] = ip4.s_addr;
 
 	return true;
 }
 
 bool KatinaPluginPlayerDb::client_disconnect(siz min, siz sec, siz num)
 {
-//	if(!active)
-//		return true;
-	plog("client_disconnect(" << num << ")");
-	sub_player(num);
+	player_set_iter i, p;
+	for(i = player_cache.begin(); i != player_cache.end();)
+	{
+		p = i++;
+		if(p->ip == ips[num])
+			player_cache.erase(p);
+	}
+	ips.erase(num);
+
 	return true;
 }
 
@@ -293,6 +199,20 @@ bool KatinaPluginPlayerDb::client_userinfo_changed(siz min, siz sec, siz num, si
 //	plog("client_userinfo_changed(" << num << ", " << team << ", " << guid << ", " << name << ")");
 //	plog("clients[" << num << "]         : " << clients[num]);
 //	plog("players[clients[" << num << "]]: " << players[clients[num]]);
+
+	if(!ips[num])
+	{
+		plog("ERROR: ip data not known for: " << guid << ", [" << name << "]");
+		return true;
+	}
+
+	player_do p;
+	p.guid = guid;
+	p.name = name;
+	p.ip = ips[num];
+
+	db_add(p);
+
 	return true;
 }
 

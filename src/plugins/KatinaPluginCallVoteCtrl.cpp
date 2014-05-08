@@ -183,9 +183,12 @@ bool KatinaPluginCallVoteCtrl::init_game(siz min, siz sec, const str_map& cvars)
 bool KatinaPluginCallVoteCtrl::say(siz min, siz sec, const GUID& guid, const str& text)
 {
 	//	!callvote on|off|enable|disable
+	if(cmd != "!callvote")
+		return true;
+
 	if(!katina.is_admin(guid))
 	{
-		plog("INFO: Unauthorized admin attempt from " << katina.players[guid] << ": " << text);
+		plog("INFO: Unauthorized admin attempt from [" << guid << "] " << katina.players[guid] << ": " << text);
 		return true;
 	}
 
@@ -195,9 +198,6 @@ bool KatinaPluginCallVoteCtrl::say(siz min, siz sec, const GUID& guid, const str
 		return true;
 
 	bug("SAY: " << cmd << ' ' << param);
-
-	if(cmd != "!callvote")
-		return true;
 
 	if(param == "on")
 		vote_enable();

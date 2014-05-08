@@ -633,6 +633,10 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 	return true;
 }
 
+//2014-05-08 11:42:17: DATABASE: on [../../src/Database.cpp] (36)
+//2014-05-08 11:42:17: DATABASE: get_ingame_stats(7B5DA741, , 0) [../../src/Database.cpp] (638)
+//2014-05-08 11:42:17: DATABASE: off [../../src/Database.cpp] (46)
+
 bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, str& stats)
 {
 	log("DATABASE: get_ingame_stats(" << guid << ", " << mapname << ", " << prev << ")");
@@ -726,7 +730,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 
 	sql.clear();
 	sql.str("");
-	sql << "select sum(`speed`.`time`), sum(`speed`.`distance`) from `speed` where `speed`.`guid` = '";
+	sql << "select sum(`speed`.`time`), sum(`speed`.`dist`) from `speed` where `speed`.`guid` = '";
 	sql << guid << "'";
 	sql << " and `game_id` in (" << subsql << ")";
 

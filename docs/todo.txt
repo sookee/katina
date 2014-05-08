@@ -1,6 +1,8 @@
 
 == v 1.0 ==
 
+Fix: when katina restarts she looses all player names for flag counting
+   : and she looses mapname for !stats !boss etc
 Add: team of player? If player switch then log as "unaligned"? Or last team joined?
 
 Add: Old Hag Contest plugin
