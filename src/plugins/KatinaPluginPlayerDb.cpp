@@ -170,7 +170,7 @@ bool KatinaPluginPlayerDb::client_connect_info(siz min, siz sec, siz num, const 
 	struct in_addr ip4;
 
 	if(!inet_pton(AF_INET, ip.c_str(), &ip4) || !ip4.s_addr)
-		plog("ERROR: converting IP address: " << ip);
+		plog("ERROR: converting IP address: " << ip << " for [" << guid << "]");
 	else
 		ips[num] = ip4.s_addr;
 
@@ -199,6 +199,8 @@ bool KatinaPluginPlayerDb::client_userinfo_changed(siz min, siz sec, siz num, si
 //	plog("client_userinfo_changed(" << num << ", " << team << ", " << guid << ", " << name << ")");
 //	plog("clients[" << num << "]         : " << clients[num]);
 //	plog("players[clients[" << num << "]]: " << players[clients[num]]);
+	if(guid.is_bot())
+		return true;
 
 	if(!ips[num])
 	{

@@ -776,17 +776,25 @@ bool Katina::start(const str& dir)
 		}
 		else if(cmd == "ClientConnectInfo:")
 		{
+			bug("==============================================");
 			bug(cmd << "(" << params << ")");
 			if(events[CLIENT_CONNECT_INFO].empty())
 				continue;
 
+			// ClientConnectInfo: 4 87597A67B5A4E3C79544A72B7B5DA741 81.101.111.32
+
 			siz num;
 			str ip;
 			GUID guid;
-			if(!(iss >> num >> guid >> ip))
+			str skip; // rest of guid needs to be skipped before ip
+			if(!(iss >> num >> guid >> skip >> ip))
 				log("Error parsing ClientConnectInfo: "  << params);
 			else
 			{
+				bug_var(num);
+				bug_var(guid);
+				bug_var(skip);
+				bug_var(ip);
 				for(plugin_vec_iter i = events[CLIENT_CONNECT_INFO].begin()
 					; i != events[CLIENT_CONNECT_INFO].end(); ++i)
 					(*i)->client_connect_info(min, sec, num, guid, ip);
