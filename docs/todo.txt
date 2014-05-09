@@ -1,4 +1,9 @@
 
+2014-05-09 16:27:47: DATABASE: add_mod_damage(50, 7B5DA741, 19, 0, 0, 1, 5, 0) [../../src/Database.cpp] (277)
+2014-05-09 16:27:47: DATABASE ERROR: Unknown column 'weightedHits' in 'field list' [../../src/Database.cpp] (75)
+2014-05-09 16:27:47:               : sql = insert into `damage` (`game_id`,`guid`,`mod`,`hits`,`dmgDone`,`hitsRecv`,`dmgRecv`,`weightedHits`) values ('50','7B5DA741','19','0','0','1','5','0') [../../src/Database.cpp] (76)
+
+
 == v 1.0 ==
 
 Fix: when katina restarts she looses all player names for flag counting

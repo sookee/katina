@@ -19,10 +19,9 @@
 -- Table structure for table `awards`
 --
 
-DROP TABLE IF EXISTS `awards`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `awards` (
+CREATE TABLE IF NOT EXISTSIF NOT EXISTS `awards` (
   `game_id` int(4) unsigned NOT NULL,
   `guid` varchar(8) NOT NULL,
   `type` int(1) unsigned NOT NULL,
@@ -35,10 +34,9 @@ CREATE TABLE `awards` (
 -- Table structure for table `caps`
 --
 
-DROP TABLE IF EXISTS `caps`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `caps` (
+CREATE TABLE IF NOT EXISTSIF NOT EXISTS `caps` (
   `game_id` int(4) unsigned NOT NULL,
   `guid` varchar(8) NOT NULL,
   `count` int(2) unsigned NOT NULL DEFAULT '0',
@@ -50,10 +48,9 @@ CREATE TABLE `caps` (
 -- Table structure for table `deaths`
 --
 
-DROP TABLE IF EXISTS `deaths`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `deaths` (
+CREATE TABLE IF NOT EXISTS `deaths` (
   `game_id` int(4) unsigned NOT NULL,
   `guid` varchar(8) NOT NULL,
   `weap` int(1) unsigned NOT NULL,
@@ -66,10 +63,9 @@ CREATE TABLE `deaths` (
 -- Table structure for table `game`
 --
 
-DROP TABLE IF EXISTS `game`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `game` (
+CREATE TABLE IF NOT EXISTS `game` (
   `game_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
   `host` int(4) unsigned NOT NULL,
   `port` int(2) unsigned NOT NULL,
@@ -83,10 +79,9 @@ CREATE TABLE `game` (
 -- Table structure for table `kills`
 --
 
-DROP TABLE IF EXISTS `kills`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `kills` (
+CREATE TABLE IF NOT EXISTS `kills` (
   `game_id` int(4) unsigned NOT NULL,
   `guid` varchar(8) NOT NULL,
   `weap` int(1) unsigned NOT NULL,
@@ -99,10 +94,9 @@ CREATE TABLE `kills` (
 -- Table structure for table `ovo`
 --
 
-DROP TABLE IF EXISTS `ovo`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `ovo` (
+CREATE TABLE IF NOT EXISTS `ovo` (
   `game_id` int(4) unsigned NOT NULL,
   `guid1` varchar(8) NOT NULL,
   `guid2` varchar(8) NOT NULL,
@@ -115,10 +109,9 @@ CREATE TABLE `ovo` (
 -- Table structure for table `player`
 --
 
-DROP TABLE IF EXISTS `player`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `player` (
+CREATE TABLE IF NOT EXISTS `player` (
   `guid` varchar(8) NOT NULL,
   `name` varchar(32) NOT NULL,
   `count` int(4) unsigned NOT NULL,
@@ -131,10 +124,9 @@ CREATE TABLE `player` (
 -- Table structure for table `user`
 --
 
-DROP TABLE IF EXISTS `user`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `user` (
+CREATE TABLE IF NOT EXISTS `user` (
   `guid` varchar(8) NOT NULL,
   `name` varchar(32) NOT NULL,
   PRIMARY KEY (`guid`)
@@ -145,10 +137,9 @@ CREATE TABLE `user` (
 -- Table structure for table `votes`
 --
 
-DROP TABLE IF EXISTS `votes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `votes` (
+CREATE TABLE IF NOT EXISTS `votes` (
   `type` varchar(8) NOT NULL,
   `item` varchar(32) NOT NULL,
   `guid` varchar(8) NOT NULL,
@@ -161,10 +152,9 @@ CREATE TABLE `votes` (
 -- Table structure for table `polls`
 --
 
-DROP TABLE IF EXISTS `polls`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `polls` (
+CREATE TABLE IF NOT EXISTS `polls` (
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `type` varchar(8) NOT NULL,
   `item` varchar(32) NOT NULL,
@@ -178,10 +168,9 @@ CREATE TABLE `polls` (
 -- Table structure for table `time`
 --
 
-DROP TABLE IF EXISTS `time`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `time` (
+CREATE TABLE IF NOT EXISTS `time` (
   `game_id` int(4) unsigned NOT NULL,
   `guid` varchar(8) NOT NULL,
   `count` int(4) unsigned NOT NULL COMMENT '// seconds in game',
@@ -205,8 +194,7 @@ CREATE TABLE `time` (
 -- Table structure for table `damage`
 --
 
-DROP TABLE IF EXISTS `damage`;
-CREATE TABLE `damage` (
+CREATE TABLE IF NOT EXISTS `damage` (
   `game_id` int(4) NOT NULL,
   `guid` varchar(8) NOT NULL,
   `mod` int(1) NOT NULL,
@@ -222,8 +210,7 @@ CREATE TABLE `damage` (
 -- Table structure for table `playerstats`
 --
 
-DROP TABLE IF EXISTS `playerstats`;
-CREATE TABLE `playerstats` (
+CREATE TABLE IF NOT EXISTS `playerstats` (
   `game_id` int(4) unsigned NOT NULL,
   `guid` varchar(8) NOT NULL,
   `fragsFace` int(2) unsigned NOT NULL,
@@ -247,8 +234,7 @@ CREATE TABLE `playerstats` (
 -- Table structure for table `weapon_usage`
 --
 
-DROP TABLE IF EXISTS `weapon_usage`;
-CREATE TABLE `weapon_usage` (
+CREATE TABLE IF NOT EXISTS `weapon_usage` (
   `game_id` int(4) unsigned NOT NULL,
   `guid` varchar(8) NOT NULL,
   `weap` int(1) NOT NULL,
@@ -260,8 +246,7 @@ CREATE TABLE `weapon_usage` (
 -- Table structure for table `version`
 --
 
-DROP TABLE IF EXISTS `version`;
-CREATE TABLE `version` (
+CREATE TABLE IF NOT EXISTS `version` (
   `maj` int unsigned NOT NULL,
   `min` int(2) ZEROFILL NOT NULL,
   PRIMARY KEY (`maj`,`min`)

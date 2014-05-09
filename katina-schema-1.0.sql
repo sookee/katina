@@ -33,18 +33,17 @@ DEFAULT CHARACTER SET = utf8;
 -- Table `damage`
 -- -----------------------------------------------------
 
-CREATE  TABLE IF NOT EXISTS `damage` (
-  `game_id` INT(4) NOT NULL ,
-  `guid` VARCHAR(8) NOT NULL ,
-  `mod` INT(1) NOT NULL ,
-  `hits` INT(4) NOT NULL ,
-  `dmgDone` INT(4) NOT NULL ,
-  `hitsRecv` INT(4) NOT NULL ,
-  `dmgRecv` INT(4) NOT NULL ,
-  PRIMARY KEY (`game_id`, `guid`, `mod`) )
-ENGINE = MyISAM
-DEFAULT CHARACTER SET = utf8;
-
+CREATE TABLE IF NOT EXISTS `damage` (
+  `game_id` int(4) NOT NULL,
+  `guid` varchar(8) NOT NULL,
+  `mod` int(1) NOT NULL,
+  `hits` int(4) NOT NULL,
+  `dmgDone` int(4) NOT NULL,
+  `hitsRecv` int(4) NOT NULL,
+  `dmgRecv` int(4) NOT NULL,
+  `weightedHits` float NOT NULL,
+  PRIMARY KEY (`game_id`,`guid`,`mod`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- -----------------------------------------------------
 -- Table `deaths`
