@@ -48,7 +48,12 @@ PLUGIN_PLAYER_DB_FLAGS = -D DEBUG -O0 -g3 $(DL_EXPORT) -shared -pthread
 PLUGIN_PLAYER_DB_LIBS = -pthread -L.. -lkatina
 PLUGIN_PLAYER_DB_OBJS = KatinaPluginPlayerDb.o ../Database.o
 
+PLUGIN_ADMIN_FLAGS = -D DEBUG -O0 -g3 $(DL_EXPORT) -shared -pthread
+PLUGIN_ADMIN_LIBS = -pthread -L.. -lkatina
+PLUGIN_ADMIN_OBJS = KatinaPluginAdmin.o
+
 PLUGINS = \
+	katina-plugin-admin.so \
 	katina-plugin-stats.so \
 	katina-plugin-votes.so \
 	katina-plugin-reports.so \
@@ -62,6 +67,9 @@ all: $(PLUGINS)
 
 katina-plugin-example.so: $(PLUGIN_EXAMPLE_OBJS)
 	$(CXX) $(PLUGIN_EXAMPLE_FLAGS) -o $@ $(PLUGIN_EXAMPLE_OBJS) $(PLUGIN_EXAMPLE_LIBS)
+
+katina-plugin-admin.so: $(PLUGIN_ADMIN_OBJS)
+	$(CXX) $(PLUGIN_ADMIN_FLAGS) -o $@ $(PLUGIN_ADMIN_OBJS) $(PLUGIN_ADMIN_LIBS)
 
 katina-plugin-stats.so: $(PLUGIN_STATS_OBJS)
 	$(CXX) $(PLUGIN_STATS_FLAGS) -o $@ $(PLUGIN_STATS_OBJS) $(PLUGIN_STATS_LIBS)
