@@ -110,6 +110,8 @@ public:
 		{
 			str ret;
 			rcon("rcon " + pass + " chatnobeep", ret, host, port);
+
+			// FIXME: This test must be a POSSITIVE test for success
 			y = (ret.find("unknown command:") != str::npos) ? 1 : 0;
 		}
 		return y;
@@ -117,11 +119,11 @@ public:
 
 	str chat_nobeep(const str& msg) const
 	{
-		if(!has_chatnobeep())
-			return chat(msg);
-
 		if(!active)
 			return "";
+
+		if(!has_chatnobeep())
+			return chat(msg);
 
 		str ret;
 		rcon("rcon " + pass + " chatnobeep ^1K^7at^3i^7na^8: ^7" + msg, ret, host, port);

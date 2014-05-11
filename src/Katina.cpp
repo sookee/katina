@@ -531,7 +531,7 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 			else
 			{
 				if(!prefix.empty())
-					plugin = prefix + "::" + plugin;
+					var = prefix + "." + var;
 				if(!plugins[plugin])
 					server.s_chat("Plugin " + plugin + " is not loaded");
 				else

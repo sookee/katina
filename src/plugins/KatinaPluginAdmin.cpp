@@ -76,53 +76,77 @@ bool KatinaPluginAdmin::save_sanctions()
 
 enum
 {
-	S_MUTED
+	S_MUTEPP
+	, S_FIXNAME
 };
 
-bool KatinaPluginAdmin::apply_sanction(sanction_lst_iter& s)
+//bool KatinaPluginAdmin::apply_sanction(sanction_lst_iter& s)
+//{
+//	if(s->expires > std::time(0))
+//	{
+//		s = sanctions.erase(s);
+//		return true;
+//	}
+//
+//	++s;
+//
+//	siz num = katina.getClientNr(s->guid);
+//
+//	if(num == siz(-1))
+//	{
+//		plog("Client slot number not found for " << s->guid);
+//		return false;
+//	}
+//
+//	if(s->type == S_MUTEPP)
+//	{
+//		if(s->applied)
+//			return true;
+//		server.command("!mute " + to_string(num));
+//		s->applied = true;
+//	}
+//	else
+//	{
+//		plog("Unknown sanction type: " << s->type);
+//	}
+//
+//	return true;
+//}
+//
+//bool KatinaPluginAdmin::apply_sanctions()
+//{
+//	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end();)
+//		apply_sanction(s);
+//
+//	return true;
+//}
+
+bool KatinaPluginAdmin::mutepp(siz num)
 {
-	if(s->expires > std::time(0))
-	{
-		s = sanctions.erase(s);
+	str reply;
+	server.command("!mute " + to_string(num), reply);
+	// ����      broadcast: print "^3!mute: ^7^1S^2oo^3K^5ee^7 has been muted by ^7console\n"
+	if(reply.find("broadcast: print") != str::npos
+	&& reply.find("has been muted by") != str::npos)
 		return true;
-	}
-
-	++s;
-
-	siz num = katina.getClientNr(s->guid);
-
-	if(num == siz(-1))
-	{
-		plog("Client slot number not found for " << s->guid);
-		return false;
-	}
-
-	if(s->type == S_MUTED)
-	{
-		if(s->applied)
-			return true;
-		server.command("!mute " + to_string(num));
-		s->applied = true;
-	}
-	else
-	{
-		plog("Unknown sanction type: " << s->type);
-	}
-
-	return true;
+	return false;
 }
 
-bool KatinaPluginAdmin::apply_sanctions()
+bool KatinaPluginAdmin::fixname(siz num, const str& name)
 {
-	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end();)
-		apply_sanction(s);
-
-	return true;
+	str reply;
+	server.command("!rename " + to_string(num) + " " + name, reply);
+	// ����      broadcast: print "^1S^2oo^3K^5ee^7 renamed to wibble\n"
+	if(reply.find("broadcast: print") != str::npos
+	&& reply.find("renamed to") != str::npos)
+		return true;
+	return false;
 }
+
 
 bool KatinaPluginAdmin::open()
 {
-	katina.add_var_event(this, "example.active", active);
+	katina.add_var_event(this, "admin.active", active);
 	//katina.add_var_event(this, "flag", "0");
 	katina.add_log_event(this, INIT_GAME);
 	katina.add_log_event(this, WARMUP);
@@ -141,7 +165,25 @@ bool KatinaPluginAdmin::open()
 	katina.add_log_event(this, UNKNOWN);
 
 	load_sanctions();
-	apply_sanctions();
+
+	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end(); ++s)
+	{
+		if(players.find(s->guid) != players.end())
+		{
+			// !mute++
+			if(s->type == S_MUTEPP)
+				if(mutepp(katina.getClientNr(s->guid)))
+					s->applied = true;
+			// !fixname
+			if(s->type == S_FIXNAME && !s->params.empty()
+			&& s->params[0] == players[s->guid])
+				if(fixname(katina.getClientNr(s->guid), s->params[0]))
+					s->applied = true;
+		}
+	}
+
+	// fixname
+	active = katina.get("admin.active", false);
 
 	return true;
 }
@@ -165,10 +207,14 @@ bool KatinaPluginAdmin::init_game(siz min, siz sec, const str_map& cvars)
 {
 	if(!active)
 		return true;
-	plog("init_game()");
-	plog("mapname: " << mapname);
-	for(str_map_citer i = cvars.begin(); i != cvars.end(); ++i)
-		plog("cvar: " << i->first << " = " << i->second);
+
+	// !muted become unstuck after every game
+	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end(); ++s)
+		if(players.find(s->guid) != players.end())
+			if(s->type == S_MUTEPP)
+				if(mutepp(katina.getClientNr(s->guid)))
+					s->applied = true;
+
 	return true;
 }
 
@@ -176,7 +222,6 @@ bool KatinaPluginAdmin::warmup(siz min, siz sec)
 {
 	if(!active)
 		return true;
-	plog("warmup()");
 	return true;
 }
 
@@ -184,7 +229,6 @@ bool KatinaPluginAdmin::client_connect(siz min, siz sec, siz num)
 {
 	if(!active)
 		return true;
-	plog("client_connect(" << num << ")");
 	return true;
 }
 
@@ -192,8 +236,6 @@ bool KatinaPluginAdmin::client_begin(siz min, siz sec, siz num)
 {
 	if(!active)
 		return true;
-	plog("client_begin(" << num << ")");
-	katina.server.chat("BEGIN: " + players[clients[num]]);
 	return true;
 }
 
@@ -201,7 +243,6 @@ bool KatinaPluginAdmin::client_disconnect(siz min, siz sec, siz num)
 {
 	if(!active)
 		return true;
-	plog("client_disconnect(" << num << ")");
 	return true;
 }
 
@@ -210,9 +251,23 @@ bool KatinaPluginAdmin::client_userinfo_changed(siz min, siz sec, siz num, siz t
 {
 	if(!active)
 		return true;
-	plog("client_userinfo_changed(" << num << ", " << team << ", " << guid << ", " << name << ")");
-	plog("clients[" << num << "]         : " << clients[num]);
-	plog("players[clients[" << num << "]]: " << players[clients[num]]);
+//	plog("client_userinfo_changed(" << num << ", " << team << ", " << guid << ", " << name << ")");
+//	plog("clients[" << num << "]         : " << clients[num]);
+//	plog("players[clients[" << num << "]]: " << players[clients[num]]);
+
+	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end(); ++s)
+	{
+		if(s->guid == guid)
+		{
+			if(s->type == S_FIXNAME)
+			{
+				if(!s->params.empty() && name != s->params[0])
+					if(fixname(num, s->params[0]))
+						s->applied = true;
+			}
+		}
+	}
+
 	return true;
 }
 
@@ -220,7 +275,7 @@ bool KatinaPluginAdmin::kill(siz min, siz sec, siz num1, siz num2, siz weap)
 {
 	if(!active)
 		return true;
-	plog("kill(" << num1 << ", " << num2 << ", " << weap << ")");
+//	plog("kill(" << num1 << ", " << num2 << ", " << weap << ")");
 	return true;
 }
 
@@ -228,7 +283,7 @@ bool KatinaPluginAdmin::ctf(siz min, siz sec, siz num, siz team, siz act)
 {
 	if(!active)
 		return true;
-	plog("ctf(" << num << ", " << team << ", " << act << ")");
+//	plog("ctf(" << num << ", " << team << ", " << act << ")");
 	return true;
 }
 
@@ -236,7 +291,7 @@ bool KatinaPluginAdmin::ctf_exit(siz min, siz sec, siz r, siz b)
 {
 	if(!active)
 		return true;
-	plog("ctf_exit(" << r << ", " << b << ")");
+//	plog("ctf_exit(" << r << ", " << b << ")");
 	return true;
 }
 
@@ -244,7 +299,7 @@ bool KatinaPluginAdmin::score_exit(siz min, siz sec, int score, siz ping, siz nu
 {
 	if(!active)
 		return true;
-	plog("score_exit(" << score << ", " << ping << ", " << num << ", " << name << ")");
+//	plog("score_exit(" << score << ", " << ping << ", " << num << ", " << name << ")");
 	return true;	
 }
 
@@ -252,7 +307,7 @@ bool KatinaPluginAdmin::award(siz min, siz sec, siz num, siz awd)
 {
 	if(!active)
 		return true;
-	plog("award(" << num << ", " << awd << ")");
+//	plog("award(" << num << ", " << awd << ")");
 	return true;
 }
 
@@ -274,6 +329,56 @@ bool KatinaPluginAdmin::check_admin(const GUID& guid)
 		return false;
 	}
 	return true;
+}
+
+bool KatinaPluginAdmin::check_slot(siz num)
+{
+	if(clients.find(num) == clients.end())
+	{
+		plog("WARN: Unknown client number: " << num);
+		server.chat_nobeep("^7!ADMIN: ^3Unknown client number: ^7" + to_string(num));
+		return false;
+	}
+	return true;
+}
+
+std::time_t parse_duration(const str& duration, std::time_t dflt)
+{
+	std::time_t t = dflt;
+
+	// 30 w|d|h|m|s
+
+	siss iss(duration);
+
+	str units = "m";
+	if(!(iss >> t >> std::ws >> units))
+	{
+		plog("ERROR: parsing duration: " << duration);
+		return dflt;
+	}
+
+	if(units == "s")
+		t *= 1;
+	else if (units == "m")
+		t *= 60;
+	else if (units == "h")
+		t *= 60 * 60;
+	else if (units == "d")
+		t *= 60 * 60 * 24;
+	else if (units == "w")
+		t *= 60 * 60 * 24 * 7;
+
+	return t;
+}
+
+void KatinaPluginAdmin::remove_sanctions(const GUID& guid, siz type)
+{
+	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end();)
+		if(s->guid == guid && s->type == type)
+			s = sanctions.erase(s);
+		else
+			++s;
+	save_sanctions();
 }
 
 bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
@@ -298,11 +403,40 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 	iss.clear();
 	iss.str(params);
 
-	if(cmd == trans("!mute++"))
+	if(cmd == "!help")
+	{
+		if(!check_admin(guid))
+			return true;
+
+		server.chat("^7ADMIN: ^2?sanctions^7, ^2?mute++^7, ^2?fixname^7, ^2?champ");
+	}
+	else if(cmd == trans("!sanctions") || cmd == trans("?sanctions"))
+	{
+		if(!check_admin(guid))
+			return true;
+
+		if(cmd[0] == '?')
+		{
+			server.chat("^7ADMIN: ^3manage sanctions.");
+			server.chat_nobeep("^7ADMIN: ^3!sanctions = list all sanctions.");
+			server.chat_nobeep("^7ADMIN: ^3!sanctions <num> = list sanctions for player.");
+			return true;
+		}
+	}
+	else if(cmd == trans("!mute++") || cmd == trans("?mute++"))
 	{
 		// !mute++ <num> <duration>? <reason>?
 		if(!check_admin(guid))
 			return true;
+
+		if(cmd[0] == '?')
+		{
+			server.chat("^7ADMIN: ^3Keep a player muted for the specified duration.");
+			server.chat_nobeep("^7ADMIN: ^3!mute++ <num> <duration>? <reason>?");
+			server.chat_nobeep("^7ADMIN: ^3        <duration> = N(s|m|h|d|w) [eg, 5w = 5 weeks]");
+			server.chat_nobeep("^7ADMIN: ^3!mute++ remove = remove mute");
+			return true;
+		}
 
 		siz num = siz(-1);
 		str duration = "5m";
@@ -310,13 +444,71 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 
 		sgl(iss >> num >> duration >> std::ws, reason);
 
+		if(!check_slot(num))
+			return true;
+
+		if(duration == "remove")
+		{
+			remove_sanctions(clients[num], S_MUTEPP);
+			if(un_mutepp(num))
+				server.chat("^7ADMIN: ^3Removed mute from: ^2" + players[clients[num]]);
+			return true;
+		}
+
 		sanction s;
-		s.guid = guid;
+		s.type = S_MUTEPP;
+		s.guid = clients[num];
+		s.expires = parse_duration(duration, 5 * 60);
+
+		if(mutepp(num))
+			s.applied = true;
+
+		sanctions.push_back(s);
+		save_sanctions();
+	}
+	else if(cmd == trans("!fixname") || cmd == trans("?fixname"))
+	{
+		// !fixname <slot> <name>
+		if(!check_admin(guid))
+			return true;
+
+		if(cmd[0] == '?')
+		{
+			server.chat("^7ADMIN: ^3Force a player to have a specific name.");
+			server.chat_nobeep("^7ADMIN: ^3!fixname <num> <name>");
+			server.chat_nobeep("^7ADMIN: ^3!fixname <num> remove");
+			return true;
+		}
+
+		siz num = siz(-1);
+		str name;
+
+		sgl(iss >> num >> std::ws, name);
+
+		if(!check_slot(num))
+			return true;
+
+		if(name == "remove")
+		{
+			remove_sanctions(clients[num], S_FIXNAME);
+			if(un_fixname(num))
+				server.chat("^7ADMIN: ^3Removed fixed name from: ^2" + players[clients[num]]);
+			return true;
+		}
+
+		sanction s;
+		s.type = S_FIXNAME;
+		s.guid = clients[num];
+		s.expires = 0;
+		s.params.push_back(name);
+
+		if(fixname(num, name))
+			s.applied = true;
+
+		sanctions.push_back(s);
+		save_sanctions();
 	}
 
-	str s = text;
-	std::reverse(s.begin(), s.end());
-	katina.chat_to(guid, s);
 	return true;
 }
 
@@ -324,7 +516,7 @@ bool KatinaPluginAdmin::shutdown_game(siz min, siz sec)
 {
 	if(!active)
 		return true;
-	plog("shutdown_game()");
+//	plog("shutdown_game()");
 	return true;
 }
 
@@ -332,7 +524,7 @@ bool KatinaPluginAdmin::exit(siz min, siz sec)
 {
 	if(!active)
 		return true;
-	plog("exit()");
+//	plog("exit()");
 	return true;
 }
 

@@ -180,6 +180,9 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 
         db.off();
 	}
+
+	stats.clear();
+	onevone.clear();
     
 	return true;
 }
@@ -434,8 +437,6 @@ bool KatinaPluginStats::award(siz min, siz sec, siz num, siz awd)
 
 bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 {
-	stats.clear();
-	onevone.clear();
 	//names.clear();
 
 	if(in_game)
@@ -574,16 +575,16 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 	}
 	else if(cmd == "!help")
 	{
-		server.chat("^7TRY: ^2?stats^7, ^2?boss^7, ^2?champ");
+		server.chat("^7STATS: ^2?stats^7, ^2?boss^7, ^2?champ");
 	}
 	else if(cmd == "!stats" || cmd == "?stats")
 	{
 		if(cmd[0] == '?')
 		{
 			server.chat("^7STATS: ^3For this map and since the start of month.");
-			server.chat("^7STATS: ^3FPH   ^7(^2frags^7/^2hour^7)");
-			server.chat("^7STATS: ^3CPH   ^7(^2caps^7/^2hour^7)");
-			server.chat("^7STATS: ^3SPEED ^7(^2average u^7/^2second^7)");
+			server.chat_nobeep("^7STATS: ^3FPH   ^7(^2frags^7/^2hour^7)");
+			server.chat_nobeep("^7STATS: ^3CPH   ^7(^2caps^7/^2hour^7)");
+			server.chat_nobeep("^7STATS: ^3SPEED ^7(^2average u^7/^2second^7)");
 			return true;
 		}
 

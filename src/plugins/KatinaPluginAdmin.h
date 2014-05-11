@@ -37,6 +37,7 @@ struct sanction
 	siz type;
 	time_t expires;
 	str reason;
+	str_vec params;
 
 	bool applied; // not stored to file
 
@@ -70,11 +71,22 @@ private:
 
 	sanction_lst sanctions;
 
+	bool mutepp(siz num);
+	bool un_mutepp(siz num);
+	bool fixname(siz num, const str& name);
+	bool un_fixname(siz num);
+
 	bool check_admin(const GUID& guid);
+	bool check_slot(siz num);
 	bool load_sanctions();
 	bool save_sanctions();
-	bool apply_sanction(sanction_lst_iter& s);
-	bool apply_sanctions();
+
+	/**
+	 * Remove all sanctions of a given type.
+	 */
+	void remove_sanctions(const GUID& guid, siz type);
+//	bool apply_sanction(sanction_lst_iter& s);
+//	bool apply_sanctions();
 
 public:
 	KatinaPluginAdmin(Katina& katina);
