@@ -112,7 +112,8 @@ public:
 			rcon("rcon " + pass + " chatnobeep", ret, host, port);
 
 			// FIXME: This test must be a POSSITIVE test for success
-			y = (ret.find("unknown command:") != str::npos) ? 1 : 0;
+			// ����      unknown command: chatnobeep
+			y = (ret.find("unknown command: chatnobeep") != str::npos) ? 0 : 1;
 		}
 		return y;
 	}

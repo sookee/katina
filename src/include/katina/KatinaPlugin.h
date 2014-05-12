@@ -92,6 +92,7 @@ public:
 	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name, siz hc) { return true; }
     virtual bool client_switch_team(siz min, siz sec, siz num, siz teamBefore, siz teamNow) { return true; }
 	virtual bool kill(siz min, siz sec, siz num1, siz num2, siz weap) { return true; }
+	virtual bool push(siz min, siz sec, siz num1, siz num2) { return true; }
 	virtual bool ctf(siz min, siz sec, siz num, siz team, siz act) { return true; }
 	
 	/**

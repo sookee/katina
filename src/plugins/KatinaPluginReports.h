@@ -76,6 +76,8 @@ private:
 	bool do_flags_hud;
 	bool do_chats;
 	bool do_kills;
+	bool do_pushes;
+	bool do_announce_pushes; // rcon them to game
 	bool do_infos;
 	bool do_stats;
 	str stats_cols; // %time %fph %cph %kpd %cpd %acc(RG|RL|LG)
@@ -111,6 +113,7 @@ public:
 
 	virtual bool init_game(siz min, siz sec, const str_map& cvars);
 	virtual bool kill(siz min, siz sec, siz num1, siz num2, siz weap);
+	virtual bool push(siz min, siz sec, siz num1, siz num2);
 	virtual bool ctf(siz min, siz sec, siz num, siz team, siz act);
 	virtual bool say(siz min, siz sec, const GUID& guid, const str& text);
 	virtual bool exit(siz min, siz sec);

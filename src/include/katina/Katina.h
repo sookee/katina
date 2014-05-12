@@ -76,7 +76,7 @@ enum event_t
 	INIT_GAME
 	, WARMUP
 	, CLIENT_CONNECT
-	, CLIENT_CONNECT_INFO // zim@openmafia >= 0.1-beta
+	, CLIENT_CONNECT_INFO // mod_katina >= 0.1-beta
 	, CLIENT_BEGIN
 	, CLIENT_DISCONNECT
 	, CLIENT_USERINFO_CHANGED
@@ -86,16 +86,17 @@ enum event_t
 	, CTF_EXIT
 	, SCORE_EXIT
 	, AWARD
-	, WEAPON_USAGE // zim@openmafia >= 0.1-beta
-	, MOD_DAMAGE // zim@openmafia >= 0.1-beta
-	, PLAYER_STATS // zim@openmafia >= 0.1-beta
+	, WEAPON_USAGE // mod_katina >= 0.1-beta
+	, MOD_DAMAGE // mod_katina >= 0.1-beta
+	, PLAYER_STATS // mod_katina >= 0.1-beta
 	, SAY
 	, SAYTEAM
 	, SHUTDOWN_GAME
 	, EXIT
 	, UNKNOWN
     , HEARTBEAT
-    , SPEED // zim@openmafia >= 0.1-beta
+    , SPEED //mod_katina >= 0.1-beta
+    , PUSH // mod_katina >= 0.1-beta
 };
 
 typedef std::map<event_t, plugin_vec> event_map;
@@ -244,6 +245,8 @@ public:
 	str_map cvars;
 	siz logmode;
 	std::time_t now;
+
+	str mod_katina; // server enhancements
 
 	void builtin_command(const GUID& guid, const str& text);
     

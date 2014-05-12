@@ -51,8 +51,10 @@ bool KatinaPluginAdmin::load_sanctions()
 			return false;
 		}
 
-		if(s.expires > std::time(0))
-			sanctions.push_back(s);
+		if(s.expires && s.expires < std::time(0))
+			continue;
+
+		sanctions.push_back(s);
 	}
 
 	return true;
@@ -76,8 +78,10 @@ bool KatinaPluginAdmin::save_sanctions()
 
 enum
 {
-	S_MUTEPP
+	S_NONE = 0
+	, S_MUTEPP
 	, S_FIXNAME
+	, S_WARN_ON_SIGHT
 };
 
 //bool KatinaPluginAdmin::apply_sanction(sanction_lst_iter& s)
@@ -143,6 +147,16 @@ bool KatinaPluginAdmin::fixname(siz num, const str& name)
 	return false;
 }
 
+bool KatinaPluginAdmin::warn_on_sight(siz num, const str& reason)
+{
+	str reply;
+	server.command("!warn " + to_string(num) + " " + reason, reply);
+	// ����
+	// ����      ^/warn: no connected player by that name or slot #
+	if(reply.find("warn: no connected player by that name or slot #") != str::npos)
+		return false;
+	return true;
+}
 
 bool KatinaPluginAdmin::open()
 {
@@ -255,7 +269,7 @@ bool KatinaPluginAdmin::client_userinfo_changed(siz min, siz sec, siz num, siz t
 //	plog("clients[" << num << "]         : " << clients[num]);
 //	plog("players[clients[" << num << "]]: " << players[clients[num]]);
 
-	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end(); ++s)
+	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end();)
 	{
 		if(s->guid == guid)
 		{
@@ -264,6 +278,14 @@ bool KatinaPluginAdmin::client_userinfo_changed(siz min, siz sec, siz num, siz t
 				if(!s->params.empty() && name != s->params[0])
 					if(fixname(num, s->params[0]))
 						s->applied = true;
+				++s;
+			}
+			else if(s->type == S_WARN_ON_SIGHT && !s->params.empty())
+			{
+				if(warn_on_sight(num, s->params[0]))
+					{ s = sanctions.erase(s); save_sanctions(); }
+				else
+					++s;
 			}
 		}
 	}
@@ -394,21 +416,57 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 
 	str cmd, params;
 
-	if(!sgl(iss >> cmd >> std::ws, params))
+	if(!(iss >> cmd >> std::ws))
 	{
 		plog("ERROR parsing admin command.");
 		return true;
 	}
 
+	sgl(iss, params);
+
 	iss.clear();
 	iss.str(params);
 
-	if(cmd == "!help")
+	if(cmd == trans("!help") || cmd == trans("?help"))
 	{
+		server.chat_nobeep("^7ADMIN: ^2?request^7");
+
 		if(!check_admin(guid))
 			return true;
 
-		server.chat("^7ADMIN: ^2?sanctions^7, ^2?mute++^7, ^2?fixname^7, ^2?champ");
+		server.chat("^7ADMIN: ^2?sanctions^7, ^2?mute++^7, ^2?fixname^7");
+		server.chat_nobeep("^7ADMIN: ^2?warnonsight^7");
+	}
+	else if(cmd == trans("!request") || cmd == trans("?request"))
+	{
+		if(cmd[0] == '?')
+		{
+			server.chat("^7ADMIN: ^3Request a map? Or any other suggestion..");
+			server.chat_nobeep("^7ADMIN: ^3!request <request>");
+			return true;
+		}
+
+		siz num = katina.getClientNr(guid);
+
+		if(num == siz(-1))
+		{
+			plog("ERROR: Unableto get slot number from guid: " << guid);
+			return true;
+		}
+
+		if(!check_slot(num))
+			return true;
+
+		str request;
+		sgl(iss >> std::ws, request);
+
+		sofs ofs((katina.config_dir + "/requests.txt").c_str(), sofs::app);
+		if(ofs << clients[num] << ": " << request << " [" << players[clients[num]] << "]"<< '\n')
+		{
+			server.chat_nobeep("^7ADMIN: "
+					+  players[guid]
+					           + "^3, your request has been logged.");
+		}
 	}
 	else if(cmd == trans("!sanctions") || cmd == trans("?sanctions"))
 	{
@@ -504,6 +562,52 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 
 		if(fixname(num, name))
 			s.applied = true;
+
+		sanctions.push_back(s);
+		save_sanctions();
+	}
+	else if(cmd == trans("!warnonsight") || cmd == trans("?warnonsight"))
+	{
+		// !warnonsight <GUID> <reason>
+		if(!check_admin(guid))
+			return true;
+
+		if(cmd[0] == '?')
+		{
+			server.chat("^7ADMIN: ^3Warn a player next time they connect.");
+			server.chat_nobeep("^7ADMIN: ^3!warnonsight <GUID> <reason>");
+			return true;
+		}
+
+		GUID guid;
+		str reason;
+
+		sgl(iss >> guid >> std::ws, reason);
+
+		if(!guid)
+		{
+			server.chat("^7ADMIN: ^1Error: ^3Bad GUID entered: ^2" + guid);
+			return true;
+		}
+
+		if(trim(reason).empty())
+		{
+			server.chat("^7ADMIN: ^1Error: ^3Must give reason to warn: ^2" + guid);
+			return true;
+		}
+
+		if(reason == "remove")
+		{
+			remove_sanctions(guid, S_WARN_ON_SIGHT);
+			server.chat("^7ADMIN: ^3Removed warn-on-sight from: ^2" + guid);
+			return true;
+		}
+
+		sanction s;
+		s.type = S_WARN_ON_SIGHT;
+		s.guid = guid;
+		s.expires = 0;
+		s.params.push_back(reason);
 
 		sanctions.push_back(s);
 		save_sanctions();

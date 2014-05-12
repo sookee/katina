@@ -76,6 +76,11 @@ private:
 	bool fixname(siz num, const str& name);
 	bool un_fixname(siz num);
 
+	/**
+	 * !warn a player next time they connect
+	 */
+	bool warn_on_sight(siz num, const str& reason);
+
 	bool check_admin(const GUID& guid);
 	bool check_slot(siz num);
 	bool load_sanctions();

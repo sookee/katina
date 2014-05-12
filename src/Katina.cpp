@@ -5,7 +5,7 @@
  * Created on May 1, 2013, 6:23 PM
  */
 
-#undef DEBUG
+//#undef DEBUG
 
 #include <dlfcn.h>
 #include <cassert>
@@ -510,38 +510,52 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 	str cmd;
 	siss iss(text);
 
-	static str prefix = "";
+	static str plugin = "";
 
-	if(!(iss >> cmd))
+	if(!(iss >> cmd >> cmd))
 		log("Error: parsing builtin command: " << text);
 	else
 	{
+//		BUG: say:(^1S^2oo^3K^5ee^4|^7AFK: !katina set katina::reports reports.announce.pushes 1) [../../src/Katina.cpp] (1133)
+//
+//		---> void oastats::Katina::builtin_command(const oastats::GUID&, const str&) [../../src/Katina.cpp]
+//
+//		BUG: guid: 61E0E6CF [../../src/Katina.cpp] (507)
+//		BUG: text: !katina set katina::reports reports.announce.pushes 1 [../../src/Katina.cpp] (508)
+//		BUG: cmd: !katina [../../src/Katina.cpp] (519)
+//
+//		<--- void oastats::Katina::builtin_command(const oastats::GUID&, const str&) [../../src/Katina.cpp]
 		bug_var(cmd);
-		if(cmd == "prefix")
+		if(cmd == "plugin")
 		{
-			if(iss >> prefix)
-				server.s_chat("prefix is now: " + prefix);
+			if(iss >> plugin)
+				server.s_chat("plugin is now: " + plugin);
 		}
 		else if(cmd == "set")
 		{
 			// !katina set plugin varname value
-			str plugin, var, val;
-			if(!(iss >> plugin >> var >> val))
+			// Error: parsing builtin command parameters: !katina set reports.announce.pushes 1
+			str var, val;
+			if(!(iss >> var >> val))
+			{
+				bug_var(var);
+				bug_var(val);
 				log("Error: parsing builtin command parameters: " << text);
+			}
 			else
 			{
-				if(!prefix.empty())
-					var = prefix + "." + var;
+//				if(!prefix.empty())
+//					var = prefix + "." + var;
 				if(!plugins[plugin])
 					server.s_chat("Plugin " + plugin + " is not loaded");
 				else
 				{
-					if(!vars[plugins[prefix]][var])
+					if(!vars[plugins[plugin]][var])
 						server.s_chat("Plugin " + plugin + " does not recognise " + var);
 					else
 					{
-						vars[plugins[prefix]][var]->set(val);
-						if(vars[plugins[prefix]][var]->get(val))
+						vars[plugins[plugin]][var]->set(val);
+						if(vars[plugins[plugin]][var]->get(val))
 							server.s_chat("Variable " + var + " set to: " + val);
 					}
 				}
@@ -576,6 +590,11 @@ bool Katina::start(const str& dir)
 		log("FATAL: Logfile not found: " << get("logfile"));
 		return false;
 	}
+
+	// Get mod_katina version if available
+	if(!rconset("mod_katina", mod_katina))
+		if(!rconset("mod_katina", mod_katina))
+			mod_katina.clear();
 
 	std::istream& is = ifs;
 	std::ios::streampos gpos = is.tellg();
@@ -850,6 +869,22 @@ bool Katina::start(const str& dir)
 				for(plugin_vec_iter i = events[KILL].begin()
 					; i != events[KILL].end(); ++i)
 					(*i)->kill(min, sec, num1, num2, weap);
+			}
+		}
+		else if(cmd == "Push:") // mod_katina only
+		{
+			bug(cmd << "(" << params << ")");
+			if(events[PUSH].empty())
+				continue;
+
+			siz num1, num2;
+			if(!(iss >> num1 >> num2))
+				log("Error parsing Push:" << params);
+			else
+			{
+				for(plugin_vec_iter i = events[PUSH].begin()
+					; i != events[PUSH].end(); ++i)
+					(*i)->push(min, sec, num1, num2);
 			}
 		}
 		else if(cmd == "WeaponUsage:")

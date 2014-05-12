@@ -132,6 +132,7 @@ KatinaPluginReports::KatinaPluginReports(Katina& katina)
 , do_flags_hud(false)
 , do_chats(false)
 , do_kills(false)
+, do_pushes(false)
 , do_infos(false)
 , do_stats(false)
 //, stats_cols(0)
@@ -175,6 +176,8 @@ bool KatinaPluginReports::open()
 	katina.add_var_event(this, "reports.flags.hud", do_flags_hud, false);
 	katina.add_var_event(this, "reports.chats", do_chats, false);
 	katina.add_var_event(this, "reports.kills", do_kills, false);
+	katina.add_var_event(this, "reports.pushes", do_pushes, false);
+	katina.add_var_event(this, "reports.announce.pushes", do_announce_pushes, false);
 	katina.add_var_event(this, "reports.infos", do_infos, false);
 	katina.add_var_event(this, "reports.stats", do_stats, false);
 	katina.add_var_event(this, "reports.stats.cols", stats_cols);
@@ -184,6 +187,7 @@ bool KatinaPluginReports::open()
 
 	katina.add_log_event(this, EXIT);
 	katina.add_log_event(this, KILL);
+	katina.add_log_event(this, PUSH);
 	katina.add_log_event(this, CTF);
 	katina.add_log_event(this, INIT_GAME);
 	katina.add_log_event(this, SAY);
@@ -255,6 +259,36 @@ bool KatinaPluginReports::kill(siz min, siz sec, siz num1, siz num2, siz weap)
 	if(weap != MOD_SUICIDE && katina.clients.find(num1) != katina.clients.end() && katina.clients.find(num2) != katina.clients.end())
 		client.raw_chat('k', hud + oa_to_IRC(nums_team + "^7" + katina.players[katina.clients[num1]] + " ^4killed ^7" + katina.players[katina.clients[num2]]
 			+ " ^4with a ^7" + weapons[weap]));
+
+	return true;
+}
+
+bool KatinaPluginReports::push(siz min, siz sec, siz num1, siz num2)
+{
+//	bug_func();
+//	bug_var(num1);
+//	bug_var(num2);
+
+	if(!active)
+		return true;
+
+	if(do_announce_pushes)
+		if(katina.clients.find(num1) != katina.clients.end() && katina.clients.find(num2) != katina.clients.end())
+			katina.server.command("chat " + katina.players[katina.clients[num2]] + " ^7was ^3pushed ^7by " + katina.players[katina.clients[num1]]);
+
+	if(!do_pushes)
+		return true;
+
+	str hud;
+	str nums_team = get_nums_team(num1);
+
+	if(do_flags && do_flags_hud)
+	{
+		hud = get_hud(min, sec, hud_flag);
+	}
+
+	if(katina.clients.find(num1) != katina.clients.end() && katina.clients.find(num2) != katina.clients.end())
+		client.raw_chat('k', hud + oa_to_IRC(nums_team + "^7" + katina.players[katina.clients[num1]] + " ^4pushed ^7" + katina.players[katina.clients[num2]]));
 
 	return true;
 }
