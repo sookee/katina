@@ -5,7 +5,7 @@
  * Created on May 1, 2013, 6:23 PM
  */
 
-//#undef DEBUG
+#undef DEBUG
 
 #include <dlfcn.h>
 #include <cassert>
