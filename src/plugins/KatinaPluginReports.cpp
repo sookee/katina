@@ -272,9 +272,10 @@ bool KatinaPluginReports::push(siz min, siz sec, siz num1, siz num2)
 	if(!active)
 		return true;
 
-	if(do_announce_pushes)
-		if(katina.clients.find(num1) != katina.clients.end() && katina.clients.find(num2) != katina.clients.end())
-			katina.server.command("chat " + katina.players[katina.clients[num2]] + " ^7was ^3pushed ^7by " + katina.players[katina.clients[num1]]);
+// This is now handled by mod_katina
+//	if(do_announce_pushes)
+//		if(katina.clients.find(num1) != katina.clients.end() && katina.clients.find(num2) != katina.clients.end())
+//			katina.server.command("chat " + katina.players[katina.clients[num2]] + " ^7was ^3pushed ^7by " + katina.players[katina.clients[num1]]);
 
 	if(!do_pushes)
 		return true;

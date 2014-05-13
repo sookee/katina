@@ -581,7 +581,8 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 	{
 		if(cmd[0] == '?')
 		{
-			server.chat("^7STATS: ^3For this map and since the start of month.");
+			server.chat("^7STATS: ^3!stats <1-3>? = give stats for this month or");
+			server.chat_nobeep("^7STATS: ^3optionally 1-3 months previously.");
 			server.chat_nobeep("^7STATS: ^3FPH   ^7(^2frags^7/^2hour^7)");
 			server.chat_nobeep("^7STATS: ^3CPH   ^7(^2caps^7/^2hour^7)");
 			server.chat_nobeep("^7STATS: ^3SPEED ^7(^2average u^7/^2second^7)");

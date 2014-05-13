@@ -104,7 +104,7 @@ void db_add(const player_do& p)
 
 	if(p.ip == 0)
 	{
-		bug("ZERO: p.ip: " << ip)
+		bug("ZERO: p.ip: " << p.ip);
 				return;
 	}
 
