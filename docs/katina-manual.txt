@@ -7,7 +7,28 @@ katina-manual.txt
 # -- katina v1.0 --     
 
 # config
-admin.guid: <guid of admin>
+run.mode: live|rerun
+logmode: 0-9 // loging level (more is more)
+
+logfile: $HOME/Servers/openarena-test/CTF/test.log // OA server log
+
+plugin: $HOME/dev/lib/katina-plugin-admin.so // plugins to load
+plugin: $HOME/dev/lib/katina-plugin-stats.so
+
+admin.guid: DC449AAD // guid of admin
+
+// Database info where the stats plugin can store its data
+// TODO: move to stats plugin namespace: stats.db.host etc...
+db.base: oadb_test
+db.host: 127.0.0.1
+db.pass: secret
+db.port: 3306
+db.user: katina_test
+
+pki.keypair: keypair.pki // filename for katina's public/private keys
+pki.pkeys: pkeys.pki // filename for remote client's public keys
+
+
 
 teambalancer.enabled: true|false
 

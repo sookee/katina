@@ -29,7 +29,7 @@ str base;
 struct player_do
 {
 	GUID guid;
-	int32_t ip;
+	uint32_t ip;
 	str name;
 
 	player_do(): ip(0) {}
@@ -52,7 +52,7 @@ typedef player_set::iterator player_set_iter;
 
 player_set player_cache;
 
-typedef std::map<siz, int32_t> ip_map; // num -> ip
+typedef std::map<siz, uint32_t> ip_map; // num -> ip
 ip_map ips;
 
 bool is_ip(const str& s)
@@ -101,6 +101,12 @@ bool insert(const str& sql, my_ulonglong& insert_id)
 void db_add(const player_do& p)
 {
 	bug("PLAYER DB: add: " << p.guid << " " << p.ip << " " << p.name);
+
+	if(p.ip == 0)
+	{
+		bug("ZERO: p.ip: " << ip)
+				return;
+	}
 
 	if(player_cache.count(p))
 	{

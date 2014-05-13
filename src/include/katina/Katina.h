@@ -248,6 +248,7 @@ public:
 
 	str mod_katina; // server enhancements
 
+	bool initial_player_info();
 	void builtin_command(const GUID& guid, const str& text);
     
     siz getTeam(siz client);

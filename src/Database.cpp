@@ -673,7 +673,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	if(!select(sql.str(), rows, 1))
 		return false;
 
-	str kills = rows.empty() || rows[0][0].empty() ? "0" : rows[0][0];
+	str kills = (rows.empty() || rows[0][0].empty()) ? "0" : rows[0][0];
 	bug_var(kills);
 
 	// shots
@@ -723,7 +723,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	if(!select(sql.str(), rows, 1))
 		return false;
 
-	str caps = rows.empty() || rows[0][0].empty() ? "0" : rows[0][0];
+	str caps = (rows.empty() || rows[0][0].empty()) ? "0" : rows[0][0];
 	bug_var(caps);
 
 	// speed
