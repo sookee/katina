@@ -155,12 +155,14 @@ typedef plugin_map::const_iterator plugin_map_citer;
  * The plugin class should derive from KatinaPlugin.
  *
  */
+#define PREPASTER(x, y) x ## y
+#define PASTER(x, y) PREPASTER(x, y)
+
 #define KATINA_PLUGIN_TYPE(type) \
 extern "C" KatinaPlugin* katina_plugin_factory(Katina& katina) \
 { \
 	return new type(katina); \
-} extern int _missing_semicolon_
-
+} extern int _missing_semicolon_()
 /**
  * Plugins should use this macro which provides
  * an interface to plugin loaders.

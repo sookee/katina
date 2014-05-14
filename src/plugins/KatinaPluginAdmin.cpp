@@ -333,14 +333,52 @@ bool KatinaPluginAdmin::award(siz min, siz sec, siz num, siz awd)
 	return true;
 }
 
+const str ADMIN_ALIASES_FILE_KEY = "admin.aliases.file";
+const str ADMIN_ALIASES_FILE_VAL = "admin.aliases.text";
+
 /**
  * Potentially this function could
  * translate commands to avoid conflicting
  * with commands for other plugins.
  */
-str trans(const str& cmd)
+str KatinaPluginAdmin::trans(const str& cmd) const
 {
-	return cmd;
+	static str_map* aliases = 0;
+
+	if(!aliases)
+	{
+		aliases = new str_map;
+
+		sifs ifs((katina.config_dir + "/"
+				+ katina.get(ADMIN_ALIASES_FILE_KEY, ADMIN_ALIASES_FILE_VAL)).c_str());
+
+		if(!ifs)
+			return cmd;
+
+		siz pos;
+		str line, key, val;
+		while(sgl(ifs, line))
+		{
+			if((pos = line.find("//")) != str::npos)
+				line.erase(pos);
+			if(trim(line).empty() || line[0] == '#')
+				continue;
+			else
+			{
+				siss iss(line);
+				if(sgl(sgl(iss, key, ':') >> std::ws, val))
+					(*aliases)[key] = val;
+			}
+		}
+	}
+
+	if(aliases->empty())
+		return cmd;
+
+	if(aliases->find(cmd) == aliases->end())
+		return cmd;
+
+	return (*aliases)[cmd];
 }
 
 bool KatinaPluginAdmin::check_admin(const GUID& guid)
@@ -412,6 +450,17 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 
 	// !cmd <parans>
 
+	siz say_num = katina.getClientNr(guid);
+
+	if(say_num == siz(-1))
+	{
+		plog("ERROR: Unable to get slot number from guid: " << guid);
+		return true;
+	}
+
+	if(!check_slot(say_num))
+		return true;
+
 	siss iss(text);
 
 	str cmd, params;
@@ -429,43 +478,32 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 
 	if(cmd == trans("!help") || cmd == trans("?help"))
 	{
-		server.chat_nobeep("^7ADMIN: ^2?request^7");
+		server.msg_to(say_num, "^7ADMIN: ^2?request^7", true);
 
 		if(!check_admin(guid))
 			return true;
 
-		server.chat("^7ADMIN: ^2?sanctions^7, ^2?mute++^7, ^2?fixname^7");
-		server.chat_nobeep("^7ADMIN: ^2?warnonsight^7");
+		server.msg_to(say_num, "^7ADMIN: ^2?sanctions^7, ^2?mute++^7, ^2?fixname^7");
+		server.msg_to(say_num, "^7ADMIN: ^2?warnonsight^7");
 	}
 	else if(cmd == trans("!request") || cmd == trans("?request"))
 	{
 		if(cmd[0] == '?')
 		{
-			server.chat("^7ADMIN: ^3Request a map? Or any other suggestion..");
-			server.chat_nobeep("^7ADMIN: ^3!request <request>");
+			server.msg_to(say_num, "^7ADMIN: ^3Request a map? Or any other suggestion..", true);
+			server.msg_to(say_num, "^7ADMIN: ^3!request <request>");
 			return true;
 		}
-
-		siz num = katina.getClientNr(guid);
-
-		if(num == siz(-1))
-		{
-			plog("ERROR: Unableto get slot number from guid: " << guid);
-			return true;
-		}
-
-		if(!check_slot(num))
-			return true;
 
 		str request;
 		sgl(iss >> std::ws, request);
 
 		sofs ofs((katina.config_dir + "/requests.txt").c_str(), sofs::app);
-		if(ofs << clients[num] << ": " << request << " [" << players[clients[num]] << "]"<< '\n')
+		if(ofs << clients[say_num] << ": " << request << " [" << players[clients[say_num]] << "]"<< '\n')
 		{
-			server.chat_nobeep("^7ADMIN: "
+			server.msg_to(say_num, "^7ADMIN: "
 					+  players[guid]
-					           + "^3, your request has been logged.");
+					           + "^3, your request has been logged.", true);
 		}
 	}
 	else if(cmd == trans("!sanctions") || cmd == trans("?sanctions"))
@@ -475,9 +513,9 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 
 		if(cmd[0] == '?')
 		{
-			server.chat("^7ADMIN: ^3manage sanctions.");
-			server.chat_nobeep("^7ADMIN: ^3!sanctions = list all sanctions.");
-			server.chat_nobeep("^7ADMIN: ^3!sanctions <num> = list sanctions for player.");
+			server.msg_to(say_num, "^7ADMIN: ^3manage sanctions.", true);
+			server.msg_to(say_num, "^7ADMIN: ^3!sanctions = list all sanctions.");
+			server.msg_to(say_num, "^7ADMIN: ^3!sanctions <num> = list sanctions for player.");
 			return true;
 		}
 	}
@@ -489,10 +527,10 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 
 		if(cmd[0] == '?')
 		{
-			server.chat("^7ADMIN: ^3Keep a player muted for the specified duration.");
-			server.chat_nobeep("^7ADMIN: ^3!mute++ <num> <duration>? <reason>?");
-			server.chat_nobeep("^7ADMIN: ^3        <duration> = N(s|m|h|d|w) [eg, 5w = 5 weeks]");
-			server.chat_nobeep("^7ADMIN: ^3!mute++ remove = remove mute");
+			server.msg_to(say_num, "^7ADMIN: ^3Keep a player muted for the specified duration.", true);
+			server.msg_to(say_num, "^7ADMIN: ^3!mute++ <num> <duration>? <reason>?");
+			server.msg_to(say_num, "^7ADMIN: ^3        <duration> = N(s|m|h|d|w) [eg, 5w = 5 weeks]");
+			server.msg_to(say_num, "^7ADMIN: ^3!mute++ remove = remove mute");
 			return true;
 		}
 
@@ -509,7 +547,11 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		{
 			remove_sanctions(clients[num], S_MUTEPP);
 			if(un_mutepp(num))
-				server.chat("^7ADMIN: ^3Removed mute from: ^2" + players[clients[num]]);
+			{
+				server.msg_to(num, "^7ADMIN: ^3Removed mute from: ^2" + players[clients[num]], true);
+				if(num != say_num)
+					server.msg_to(say_num, "^7ADMIN: ^3Removed mute from: ^2" + players[clients[num]], true);
+			}
 			return true;
 		}
 
@@ -532,9 +574,9 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 
 		if(cmd[0] == '?')
 		{
-			server.chat("^7ADMIN: ^3Force a player to have a specific name.");
-			server.chat_nobeep("^7ADMIN: ^3!fixname <num> <name>");
-			server.chat_nobeep("^7ADMIN: ^3!fixname <num> remove");
+			server.msg_to(say_num, "^7ADMIN: ^3Force a player to have a specific name.", true);
+			server.msg_to(say_num, "^7ADMIN: ^3!fixname <num> <name>");
+			server.msg_to(say_num, "^7ADMIN: ^3!fixname <num> remove");
 			return true;
 		}
 
@@ -549,8 +591,9 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		if(name == "remove")
 		{
 			remove_sanctions(clients[num], S_FIXNAME);
-			if(un_fixname(num))
-				server.chat("^7ADMIN: ^3Removed fixed name from: ^2" + players[clients[num]]);
+			server.msg_to(say_num, "^7ADMIN: ^3Removed fixed name from: ^2" + players[clients[num]], true);
+			if(num != say_num)
+				server.msg_to(num, "^7ADMIN: ^3Removed fixed name from: ^2" + players[clients[num]], true);
 			return true;
 		}
 
@@ -574,8 +617,8 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 
 		if(cmd[0] == '?')
 		{
-			server.chat("^7ADMIN: ^3Warn a player next time they connect.");
-			server.chat_nobeep("^7ADMIN: ^3!warnonsight <GUID> <reason>");
+			server.msg_to(say_num, "^7ADMIN: ^3Warn a player next time they connect.", true);
+			server.msg_to(say_num, "^7ADMIN: ^3!warnonsight <GUID> <reason>");
 			return true;
 		}
 
@@ -586,20 +629,23 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 
 		if(!guid)
 		{
-			server.chat("^7ADMIN: ^1Error: ^3Bad GUID entered: ^2" + guid);
+			server.msg_to(say_num, "^7ADMIN: ^1Error: ^3Bad GUID entered: ^2" + guid, true);
 			return true;
 		}
 
 		if(trim(reason).empty())
 		{
-			server.chat("^7ADMIN: ^1Error: ^3Must give reason to warn: ^2" + guid);
+			server.msg_to(say_num, "^7ADMIN: ^1Error: ^3Must give reason to warn: ^2" + guid, true);
 			return true;
 		}
 
 		if(reason == "remove")
 		{
 			remove_sanctions(guid, S_WARN_ON_SIGHT);
-			server.chat("^7ADMIN: ^3Removed warn-on-sight from: ^2" + guid);
+			server.msg_to(say_num, "^7ADMIN: ^3Removed warn-on-sight from: ^2" + guid, true);
+			if(katina.getClientNr(guid) != siz(-1))
+				server.msg_to(say_num, "^7ADMIN: ^3Removed warn-on-sight from: ^2" + guid, true);
+
 			return true;
 		}
 

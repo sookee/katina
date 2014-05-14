@@ -71,10 +71,11 @@ private:
 
 	sanction_lst sanctions;
 
+	str trans(const str& cmd) const;
+
 	bool mutepp(siz num);
 	bool un_mutepp(siz num);
 	bool fixname(siz num, const str& name);
-	bool un_fixname(siz num);
 
 	/**
 	 * !warn a player next time they connect

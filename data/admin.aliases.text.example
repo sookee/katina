@@ -1,0 +1,9 @@
+# Sample alias file for katina::admin plugin
+
+!help: #help
+?help: #help
+!request: !idea
+?request: ?idea
+!sanctions: !bans // you can dd comments here too
+?sanctions: ?bans
+

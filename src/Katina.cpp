@@ -143,7 +143,7 @@ Katina::Katina()
 , logmode(LOG_NORMAL)
 , now(std::time(0))
 {
-	pthread_mutex_init(&cvarevts_mtx, 0);
+//	pthread_mutex_init(&cvarevts_mtx, 0);
 }
 
 
@@ -151,7 +151,7 @@ Katina::Katina()
 Katina::~Katina()
 {
 	done = true;
-	pthread_join(cvarevts_thread, 0);
+//	pthread_join(cvarevts_thread, 0);
 }
 
 
@@ -608,7 +608,7 @@ bool Katina::initial_player_info()
 		if(!server.command("!listplayers", reply))
 			return false;
 
-	if(reply.find("����      !listplayers:"))
+	if(reply.find("!listplayers:") == str::npos)
 	{
 		log("ERROR: bad reply from !listplayers: " << reply);
 		return false;
@@ -641,7 +641,7 @@ bool Katina::initial_player_info()
 			if(!server.command("userinfo" + to_string(num), reply))
 				{ log("WARN: No userinfo for client: " << num); continue; }
 
-		if(reply.find("����      userinfo"))
+		if(reply.find("userinfo") == str::npos)
 			{ log("ERROR: bad reply from userinfo: " << reply); continue; }
 
 		GUID guid;

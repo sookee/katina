@@ -29,6 +29,11 @@ pki.keypair: keypair.pki // filename for katina's public/private keys
 pki.pkeys: pkeys.pki // filename for remote client's public keys
 
 
+# ADMIN PLUGIN
+
+// file admin.aliases.text contains command aliases format: !mute++: !mutepp
+admin.aliases.file: admin.aliases.text // name of aliases file
+
 
 teambalancer.enabled: true|false
 
