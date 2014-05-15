@@ -675,13 +675,18 @@ bool Katina::initial_player_info()
 
 bool Katina::start(const str& dir)
 {
+	log("Starting Katina:");
 	config_dir = expand_env(dir);
 	log("Setting config dir: " << dir);
 
 	load_config(config_dir, "katina.conf", props);
+	log("Config loaded:");
     if(!init_pki()) return false;
+	log("Initialized PKI:");
     init_rcon();
+	log("Initialized RCon:");
     load_plugins();
+	log("Loaded plugins:");
 
 	std::ios::openmode mode = std::ios::in|std::ios::ate;
 
@@ -731,8 +736,8 @@ bool Katina::start(const str& dir)
 	now = get("run.time", std::time_t(-1));
 	std::time_t base_now = now; // rerun base time
 
-	if(!initial_player_info())
-		log("ERROR: Unable to get initial player info");
+//	if(!initial_player_info())
+//		log("ERROR: Unable to get initial player info");
 
 	while(!done)
 	{
@@ -795,7 +800,7 @@ bool Katina::start(const str& dir)
 		iss.clear();
 		iss.str(params);
 
-		lock_guard lock(cvarevts_mtx);
+		//lock_guard lock(cvarevts_mtx);
 
 		if(rerun)
 			now = base_now + (min * 60) + sec;

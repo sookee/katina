@@ -178,6 +178,19 @@ bool KatinaPluginStats::exit(siz min, siz sec)
             }
 		}
 
+		double idx;
+		str stats;
+		std::map<double, str> buffers;
+		for(guid_str_map_iter p = players.begin(); p != players.end(); ++p)
+		{
+			if(db.get_ingame_stats(p->first, mapname, 0, stats, idx))
+				buffers[idx] = "^7STATS: " + stats + " ^7[" + p->second + "^7]";
+				//server.chat("^7STATS: " + stats + " ^7[" + p->second + "^7]");
+		}
+
+		for(std::map<double, str>::reverse_iterator r = buffers.rbegin(); r != buffers.rend(); ++r)
+			server.msg_to(-1, r->second + " ^7(^3" + to_string(r->first) + "^7)");
+
         db.off();
 	}
 
@@ -598,8 +611,9 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 		bug("getting stats");
 		db.on();
 		str stats;
-		if(db.get_ingame_stats(guid, mapname, prev, stats))
-			server.chat("^7STATS: " + players[guid] + "^7: " + stats);
+		double idx = 0.0;
+		if(db.get_ingame_stats(guid, mapname, prev, stats, idx))
+			server.chat("^7STATS: " + stats + " ^7[" + players[guid] + "^7]");
 		db.off();
 	}
 /*	else if(cmd == "!champ") // last month's champion

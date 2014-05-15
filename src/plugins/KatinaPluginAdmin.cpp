@@ -84,47 +84,6 @@ enum
 	, S_WARN_ON_SIGHT
 };
 
-//bool KatinaPluginAdmin::apply_sanction(sanction_lst_iter& s)
-//{
-//	if(s->expires > std::time(0))
-//	{
-//		s = sanctions.erase(s);
-//		return true;
-//	}
-//
-//	++s;
-//
-//	siz num = katina.getClientNr(s->guid);
-//
-//	if(num == siz(-1))
-//	{
-//		plog("Client slot number not found for " << s->guid);
-//		return false;
-//	}
-//
-//	if(s->type == S_MUTEPP)
-//	{
-//		if(s->applied)
-//			return true;
-//		server.command("!mute " + to_string(num));
-//		s->applied = true;
-//	}
-//	else
-//	{
-//		plog("Unknown sanction type: " << s->type);
-//	}
-//
-//	return true;
-//}
-//
-//bool KatinaPluginAdmin::apply_sanctions()
-//{
-//	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end();)
-//		apply_sanction(s);
-//
-//	return true;
-//}
-
 bool KatinaPluginAdmin::mutepp(siz num)
 {
 	str reply;
@@ -160,8 +119,12 @@ bool KatinaPluginAdmin::warn_on_sight(siz num, const str& reason)
 
 bool KatinaPluginAdmin::open()
 {
+	bug_func();
+
+	bug("Adding var events");
 	katina.add_var_event(this, "admin.active", active);
 	//katina.add_var_event(this, "flag", "0");
+	bug("Adding log events");
 	katina.add_log_event(this, INIT_GAME);
 	katina.add_log_event(this, WARMUP);
 	katina.add_log_event(this, CLIENT_CONNECT);
@@ -178,6 +141,7 @@ bool KatinaPluginAdmin::open()
 	katina.add_log_event(this, EXIT);
 	katina.add_log_event(this, UNKNOWN);
 
+	bug("Loading sanctions");
 	load_sanctions();
 
 	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end(); ++s)
@@ -196,7 +160,7 @@ bool KatinaPluginAdmin::open()
 		}
 	}
 
-	// fixname
+	bug("setting config");
 	active = katina.get("admin.active", false);
 
 	return true;

@@ -132,7 +132,7 @@ public:
 
 			// FIXME: This test must be a POSSITIVE test for success
 			// ����      unknown command: chatnobeep
-			y = (!ret.find("����      usage: msg_to <slot|name> <message>")) ? 1 : 0;
+			y = (ret.find("usage: msg_to") != str::npos) ? 1 : 0;
 		}
 		return y;
 	}

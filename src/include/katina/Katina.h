@@ -105,6 +105,7 @@ typedef event_map::const_iterator event_map_citer;
 
 struct cvar
 {
+	virtual ~cvar() {}
 	virtual bool get(str& s) const = 0;
 	virtual bool set(const str& s) = 0;
 };
@@ -201,8 +202,8 @@ private:
 	typedef std::pair<property_map_iter, property_map_iter> property_map_iter_pair;
 	typedef std::pair<property_map_iter, property_map_iter> property_map_range;
 
-	pthread_t cvarevts_thread;
-	pthread_mutex_t cvarevts_mtx;
+//	pthread_t cvarevts_thread;
+//	pthread_mutex_t cvarevts_mtx;
 
 	str prefix;
 	cvarevt_lst cvarevts;

@@ -449,6 +449,72 @@ typedef std::map<str, stat_c> stat_map; // guid -> stat_c
 typedef stat_map::iterator stat_map_iter;
 typedef stat_map::const_iterator stat_map_citer;
 
+double Database::get_kills_per_cap(const str& mapname)
+{
+	// -- get ratio of frags to caps
+
+	siz syear = 0;
+	siz smonth = 0;
+	siz eyear = 0;
+	siz emonth = 0;
+
+	if(!calc_period(syear, smonth, eyear, emonth))
+		return false;
+
+	stat_map stat_cs;
+	str_set guids;
+
+	soss oss;
+	oss << "select `game_id` from `game` where `map` = '" << mapname << "'";
+	oss << " and `date` >= TIMESTAMP('" << syear << '-' << (smonth < 10 ? "0":"") << smonth << '-' << "01" << "')";
+	oss << " and `date` <  TIMESTAMP('" << eyear << '-' << (emonth < 10 ? "0":"") << emonth << '-' << "01" << "')";
+	str subsql = oss.str();
+
+	oss.clear();
+	oss.str("");
+	oss << "select sum(`kills`.`count`) from `kills` where";
+	oss << " `kills`.`game_id` in (" << subsql << ")";
+
+	str sql = oss.str();
+
+	bug_var(sql);
+
+	str_vec_vec rows;
+
+	if(!select(sql, rows, 1))
+		return false;
+
+	double k = 0.0;
+
+	if(!rows.empty() && !rows[0].empty())
+		k = to<double>(rows[0][0]);
+
+	oss.clear();
+	oss.str("");
+	oss << "select sum(`caps`.`count`) from `caps` where";
+	oss << " `caps`.`game_id` in (" << subsql << ")";
+
+	sql = oss.str();
+
+	bug_var(sql);
+
+	if(!select(sql, rows, 1))
+		return false;
+
+	double c = 0.0;
+
+	if(!rows.empty() && !rows[0].empty())
+		c = to<double>(rows[0][0]);
+
+	double kpc = c > 0.001 ? (k / c) : 1.0;
+
+	bug_var(k);
+	bug_var(c);
+	bug_var(kpc);
+
+	return kpc;
+}
+
 bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, GUID& guid, str& stats)
 {
 	log("DATABASE: get_ingame_boss(" << mapname << ", " << clients.size() << ")");
@@ -552,47 +618,14 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 	if(guids.empty())
 		return true;
 
-	// -- get ratio of frags to caps
+	// -- get ratio of kills to caps
 
-	oss.clear();
-	oss.str("");
-	oss << "select sum(`kills`.`count`) from `kills` where";
-	oss << " `kills`.`game_id` in (" << subsql << ")";
 
-	sql = oss.str();
+	double kpc = get_kills_per_cap(mapname);
 
-	bug_var(sql);
-
-	if(!select(sql, rows, 1))
-		return false;
-
-	double k = 0.0;
-
-	if(!rows.empty() && !rows[0].empty())
-		k = to<double>(rows[0][0]);
-
-	oss.clear();
-	oss.str("");
-	oss << "select sum(`caps`.`count`) from `caps` where";
-	oss << " `caps`.`game_id` in (" << subsql << ")";
-
-	sql = oss.str();
-
-	bug_var(sql);
-
-	if(!select(sql, rows, 1))
-		return false;
-
-	double c = 0.0;
-
-	if(!rows.empty() && !rows[0].empty())
-		c = to<double>(rows[0][0]);
-
-	double kpc = c > 0.001 ? (k / c) : 1.0;
-
-	bug_var(k);
-	bug_var(c);
-	bug_var(kpc);
+//	bug_var(k);
+//	bug_var(c);
+//	bug_var(kpc);
 
 	// -- index: sqrt(pow(fph, 2) + pow(cph * kpc, 2)) * acc
 
@@ -637,7 +670,7 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 //2014-05-08 11:42:17: DATABASE: get_ingame_stats(7B5DA741, , 0) [../../src/Database.cpp] (638)
 //2014-05-08 11:42:17: DATABASE: off [../../src/Database.cpp] (46)
 
-bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, str& stats)
+bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, str& stats, double& idx)
 {
 	log("DATABASE: get_ingame_stats(" << guid << ", " << mapname << ", " << prev << ")");
 
@@ -809,6 +842,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	else
 		acc = 0.0;
 
+	idx = 0.0;
 	if(sec)
 	{
 		fph = (fph * 60 * 60) / sec;
@@ -822,12 +856,15 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 		soss oss;
 		oss << std::fixed;
 		oss.precision(2);
-//		oss << "^3FPH^7: ^2" << fph << " ^3CPH^7: ^2" << cph << " ^3ACC^7: ^2" << acc << '%';
-		oss << "^3FPH^7: ^2" << fph << " ^3CPH^7: ^2" << cph << " ^3ACC^7: ^2" << acc << '%';
+		oss << "^3FPH^7: ^2" << fph << " ^3CPH^7: ^2" << cph << " ^3ACC^7: ^2" << acc << "pc";
 		oss << " ^3SPEED^7: ^2" << ups << "u/s";
-		//oss << "^3FPH^7: ^2" << fph << " ^3CPH^7: ^2" << cph << " ^ACC^7: ^2 soon";
 		stats = oss.str();
 		bug_var(stats);
+		// Ranking
+		double kpc = get_kills_per_cap(mapname);
+		idx = std::sqrt(std::pow(fph, 2) + std::pow(cph * kpc, 2));
+		// - Ranking
+
 	}
 
 	return true;
