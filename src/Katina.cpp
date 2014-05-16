@@ -516,15 +516,6 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 		log("Error: parsing builtin command: " << text);
 	else
 	{
-//		BUG: say:(^1S^2oo^3K^5ee^4|^7AFK: !katina set katina::reports reports.announce.pushes 1) [../../src/Katina.cpp] (1133)
-//
-//		---> void oastats::Katina::builtin_command(const oastats::GUID&, const str&) [../../src/Katina.cpp]
-//
-//		BUG: guid: 61E0E6CF [../../src/Katina.cpp] (507)
-//		BUG: text: !katina set katina::reports reports.announce.pushes 1 [../../src/Katina.cpp] (508)
-//		BUG: cmd: !katina [../../src/Katina.cpp] (519)
-//
-//		<--- void oastats::Katina::builtin_command(const oastats::GUID&, const str&) [../../src/Katina.cpp]
 		bug_var(cmd);
 		if(cmd == "plugin")
 		{
@@ -746,7 +737,7 @@ bool Katina::start(const str& dir)
 		{
 			if(rerun)
 				done = true;
-			thread_sleep_millis(50);
+			thread_sleep_millis(100);
 			is.clear();
 			is.seekg(gpos);
 			continue;
@@ -927,10 +918,6 @@ bool Katina::start(const str& dir)
 				log("Error parsing ClientConnectInfo: "  << params);
 			else
 			{
-				bug_var(num);
-				bug_var(guid);
-				bug_var(skip);
-				bug_var(ip);
 				for(plugin_vec_iter i = events[CLIENT_CONNECT_INFO].begin()
 					; i != events[CLIENT_CONNECT_INFO].end(); ++i)
 					(*i)->client_connect_info(min, sec, num, guid, ip);

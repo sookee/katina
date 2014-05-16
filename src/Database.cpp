@@ -855,9 +855,12 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 
 		soss oss;
 		oss << std::fixed;
-		oss.precision(2);
-		oss << "^3FPH^7: ^2" << fph << " ^3CPH^7: ^2" << cph << " ^3ACC^7: ^2" << acc << "pc";
-		oss << " ^3SPEED^7: ^2" << ups << "u/s";
+//		oss.precision(2);
+//		oss << "^3FPH^7: ^2" << fph << " ^3CPH^7: ^2" << cph << " ^3ACC^7: ^2" << acc << "pc";
+//		oss << " ^3SPEED^7: ^2" << ups << "u/s";
+		oss.precision(1);
+		oss << "^3FH^7:^2" << fph << " ^3CH^7:^2" << cph << " ^3AC^7:^2" << acc;
+		oss << " ^3SP^7:^2" << ups << "u/s";
 		stats = oss.str();
 		bug_var(stats);
 		// Ranking

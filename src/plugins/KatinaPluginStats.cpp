@@ -97,6 +97,7 @@ str KatinaPluginStats::get_id() const       { return ID; }
 str KatinaPluginStats::get_name() const     { return NAME; }
 str KatinaPluginStats::get_version() const  { return VERSION; }
 
+std::map<double, str> prev_game_stats;
 
 bool KatinaPluginStats::exit(siz min, siz sec)
 {
@@ -178,18 +179,13 @@ bool KatinaPluginStats::exit(siz min, siz sec)
             }
 		}
 
+		// prepare stats to be displayed at the start of next game
+		prev_game_stats.clear();
 		double idx;
 		str stats;
-		std::map<double, str> buffers;
 		for(guid_str_map_iter p = players.begin(); p != players.end(); ++p)
-		{
 			if(db.get_ingame_stats(p->first, mapname, 0, stats, idx))
-				buffers[idx] = "^7STATS: " + stats + " ^7[" + p->second + "^7]";
-				//server.chat("^7STATS: " + stats + " ^7[" + p->second + "^7]");
-		}
-
-		for(std::map<double, str>::reverse_iterator r = buffers.rbegin(); r != buffers.rend(); ++r)
-			server.msg_to(-1, r->second + " ^7(^3" + to_string(r->first) + "^7)");
+				prev_game_stats[idx] = "^7STATS: " + stats + " ^7" + p->second;
 
         db.off();
 	}
@@ -459,6 +455,10 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 	if(!active)
 		return true;
 
+	server.msg_to_all("^7STATS: ^3From previous game:");
+	for(std::map<double, str>::reverse_iterator r = prev_game_stats.rbegin(); r != prev_game_stats.rend(); ++r)
+		server.msg_to_all(r->second + " ^7(^3" + to_string(r->first) + "^7)");
+
 	return true;
 }
 
@@ -613,7 +613,7 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 		str stats;
 		double idx = 0.0;
 		if(db.get_ingame_stats(guid, mapname, prev, stats, idx))
-			server.chat("^7STATS: " + stats + " ^7[" + players[guid] + "^7]");
+			server.msg_to_all("^7STATS: " + stats + " ^7[" + players[guid] + "^7]");
 		db.off();
 	}
 /*	else if(cmd == "!champ") // last month's champion

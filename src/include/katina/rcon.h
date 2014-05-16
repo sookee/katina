@@ -153,6 +153,11 @@ public:
 		return rcon("rcon " + pass + " msg_to" + (beep?"_beep ":" ") + to_string(num) + " " + message, ret, host, port);
 	}
 
+	bool msg_to_all(const str& message, bool beep = false)
+	{
+		return msg_to(-1, message, beep);
+	}
+
 	str chat_nobeep(const str& msg) const
 	{
 		if(!active)
