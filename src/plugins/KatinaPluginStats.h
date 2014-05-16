@@ -128,6 +128,7 @@ private:
 	bool active;
 	bool write;
     bool recordBotGames;
+    bool do_prev_stats;
 
 	bool in_game;
 	bool have_bots; // are any bots playing?

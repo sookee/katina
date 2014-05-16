@@ -36,6 +36,7 @@ KatinaPluginStats::KatinaPluginStats(Katina& katina)
 , active(true)
 , write(true)
 , recordBotGames(false)
+, do_prev_stats(false)
 , in_game(false)
 , have_bots(false)
 , human_players_r(0)
@@ -186,6 +187,8 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 		for(guid_str_map_iter p = players.begin(); p != players.end(); ++p)
 			if(db.get_ingame_stats(p->first, mapname, 0, stats, idx))
 				prev_game_stats[idx] = "^7S: " + stats + " ^7" + p->second;
+		if(!prev_game_stats.empty())
+			do_prev_stats = true;
 
         db.off();
 	}
@@ -203,6 +206,7 @@ bool KatinaPluginStats::shutdown_game(siz min, siz sec)
 	in_game = false;
 	if(!active)
 		return true;
+
 	return true;
 }
 
@@ -448,17 +452,20 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 {
 	//names.clear();
 
-	if(in_game)
-		return true;
+//	if(!in_game)
+//		return true;
 	in_game = true;
 
 	if(!active)
 		return true;
 
-	server.msg_to_all("^7S: ^3From previous game:");
-	for(std::map<double, str>::reverse_iterator r = prev_game_stats.rbegin(); r != prev_game_stats.rend(); ++r)
-		server.msg_to_all(r->second + " ^3" + to_string(r->first));
-
+	if(do_prev_stats)
+	{
+		server.msg_to_all("^7S: ^3From previous game:");
+		for(std::map<double, str>::reverse_iterator r = prev_game_stats.rbegin(); r != prev_game_stats.rend(); ++r)
+			server.msg_to_all(r->second + " ^3" + to_string(r->first));
+		do_prev_stats = false;
+	}
 	return true;
 }
 
