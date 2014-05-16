@@ -421,10 +421,10 @@ bool calc_period(siz& syear, siz& smonth, siz& eyear, siz& emonth, siz prev = 0)
 		++eyear;
 	}
 
-	bug_var(syear);
-	bug_var(smonth);
-	bug_var(eyear);
-	bug_var(emonth);
+//	bug_var(syear);
+//	bug_var(smonth);
+//	bug_var(eyear);
+//	bug_var(emonth);
 
 	return true;
 }
@@ -477,7 +477,7 @@ double Database::get_kills_per_cap(const str& mapname)
 
 	str sql = oss.str();
 
-	bug_var(sql);
+//	bug_var(sql);
 
 	str_vec_vec rows;
 
@@ -496,7 +496,7 @@ double Database::get_kills_per_cap(const str& mapname)
 
 	sql = oss.str();
 
-	bug_var(sql);
+//	bug_var(sql);
 
 	if(!select(sql, rows, 1))
 		return false;
@@ -508,9 +508,9 @@ double Database::get_kills_per_cap(const str& mapname)
 
 	double kpc = c > 0.001 ? (k / c) : 1.0;
 
-	bug_var(k);
-	bug_var(c);
-	bug_var(kpc);
+//	bug_var(k);
+//	bug_var(c);
+//	bug_var(kpc);
 
 	return kpc;
 }
@@ -534,10 +534,6 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 	oss << " and `date` >= TIMESTAMP('" << syear << '-' << (smonth < 10 ? "0":"") << smonth << '-' << "01" << "')";
 	oss << " and `date` <  TIMESTAMP('" << eyear << '-' << (emonth < 10 ? "0":"") << emonth << '-' << "01" << "')";
 	str subsql = oss.str();
-
-	// select distinct `guid`,sum(`kills`.`count`) from `kills`
-	// where `kills`.`guid` in ('F8247501','152299FD','E6686040')
-	// group by `guid` order by sum(`kills`.`count`) desc;
 
 	str sep;
 	oss.clear();
