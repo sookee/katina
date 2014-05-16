@@ -670,7 +670,7 @@ bool Katina::initial_player_info()
 		bug_var(guid);
 		bug_var(name);
 
-		if(!name.empty())
+		if(!name.empty() && !guid.is_bot())
 		{
 			clients[num] = guid;
 			players[guid] = name;
@@ -885,20 +885,23 @@ bool Katina::start(const str& dir)
 							log("ERROR: Parsing handicap: " << line.substr(pos + 4));
 					}
 
-					clients[num] = guid;
-					players[guid] = name;
-                    
-                    siz teamBefore = teams[guid];
-                    teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
+					siz teamBefore = siz(-1);
+
+					if(!guid.is_bot()) // don't add bots'
+					{
+						teamBefore = teams[guid];
+						clients[num] = guid;
+						players[guid] = name;
+
+						teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
+					}
 
 					for(plugin_vec_iter i = events[CLIENT_USERINFO_CHANGED].begin(); i != events[CLIENT_USERINFO_CHANGED].end(); ++i)
 						(*i)->client_userinfo_changed(min, sec, num, team, guid, name, hc);
                     
                     if(team != teamBefore && !guid.is_bot())
-                    {
                         for(plugin_vec_iter i = events[CLIENT_SWITCH_TEAM].begin(); i != events[CLIENT_SWITCH_TEAM].end(); ++i)
                             (*i)->client_switch_team(min, sec, num, teamBefore, team);
-                    }
 				}
 			}
 		}
