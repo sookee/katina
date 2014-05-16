@@ -510,6 +510,14 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 	str cmd;
 	siss iss(text);
 
+	siz num = getClientNr(guid);
+
+	if(num == siz(-1))
+	{
+		server.s_chat("ERROR: Cannot locate client number.");
+		return;
+	}
+
 	static str plugin = "";
 
 	if(!(iss >> cmd >> cmd))
@@ -520,12 +528,23 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 		if(cmd == "plugin")
 		{
 			if(iss >> plugin)
-				server.s_chat("plugin is now: " + plugin);
+				server.msg_to(num, "plugin is now: " + plugin);
+		}
+		else if(cmd == "reconfigure")
+		{
+			property_map new_props;
+			if(!load_config(config_dir, "katina.conf", new_props))
+				server.msg_to(num, "ERROR: Failed to reload config file");
+			else
+			{
+				props.clear();
+				props = new_props;
+				server.msg_to(num, "Config file reloaded successfully");
+			}
 		}
 		else if(cmd == "set")
 		{
 			// !katina set plugin varname value
-			// Error: parsing builtin command parameters: !katina set reports.announce.pushes 1
 			str var, val;
 			if(!(iss >> var >> val))
 			{
@@ -535,19 +554,17 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 			}
 			else
 			{
-//				if(!prefix.empty())
-//					var = prefix + "." + var;
 				if(!plugins[plugin])
-					server.s_chat("Plugin " + plugin + " is not loaded");
+					server.msg_to(num, "Plugin " + plugin + " is not loaded");
 				else
 				{
 					if(!vars[plugins[plugin]][var])
-						server.s_chat("Plugin " + plugin + " does not recognise " + var);
+						server.msg_to(num, "Plugin " + plugin + " does not recognise " + var);
 					else
 					{
 						vars[plugins[plugin]][var]->set(val);
 						if(vars[plugins[plugin]][var]->get(val))
-							server.s_chat("Variable " + var + " set to: " + val);
+							server.msg_to(num, "Variable " + var + " set to: " + val);
 					}
 				}
 			}

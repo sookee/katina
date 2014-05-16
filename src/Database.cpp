@@ -837,8 +837,8 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 		cph = (cph * 60 * 60) / sec;
 
 		str fpad = fph < 10 ? "00" : (fph < 100 ? "0" : "");
-		str cpad = cph < 10 ? "00" : (cph < 100 ? "0" : "");
-		str apad = acc < 10 ? "00" : (acc < 100 ? "0" : "");
+		str cpad = cph < 10 ? "0" : "";
+		str apad = acc < 10 ? "0" : "";
 		soss oss;
 		oss << std::fixed;
 		oss.precision(1);

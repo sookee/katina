@@ -6,6 +6,13 @@ katina-manual.txt
 
 # -- katina v1.0 --     
 
+# builtin commands
+
+!katina (plugin|reconfigure|set)
+	reconfigure // reload the config file (usually in ~/.katina/ktina.conf)
+	plugin <plugin-id> // set current plugin to plugin-id
+	set <varname> <varval> // set variable in the current plugin to <varval>
+
 # config
 run.mode: live|rerun
 logmode: 0-9 // loging level (more is more)
