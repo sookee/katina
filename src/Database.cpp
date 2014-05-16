@@ -441,8 +441,8 @@ struct stat_c
 	siz secs;
 	siz fph;
 	siz cph;
-	double idx;
-	stat_c(): kills(0), caps(0), secs(0), idx(0.0) {}
+	siz idx;
+	stat_c(): kills(0), caps(0), secs(0), fph(0), cph(0), idx(0) {}
 };
 
 typedef std::map<str, stat_c> stat_map; // guid -> stat_c
@@ -560,7 +560,7 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 
 	str sql = oss.str();
 
-	bug_var(sql);
+//	bug_var(sql);
 
 	str_vec_vec rows;
 
@@ -582,7 +582,7 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 
 	sql = oss.str();
 
-	bug_var(sql);
+//	bug_var(sql);
 
 	if(!select(sql, rows, 2))
 		return false;
@@ -602,7 +602,7 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 
 	sql = oss.str();
 
-	bug_var(sql);
+//	bug_var(sql);
 
 	if(!select(sql, rows, 2))
 		return false;
@@ -653,13 +653,17 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 		guid = GUID(*maxi);
 		if(!guid.is_bot())
 		{
+			str fpad = stat_cs[*maxi].fph < 10 ? "00" : (stat_cs[*maxi].fph < 100 ? "0" : "");
+			str cpad = stat_cs[*maxi].cph < 10 ? "00" : (stat_cs[*maxi].cph < 100 ? "0" : "");
+			str spad = stat_cs[*maxi].idx < 10 ? "00" : (stat_cs[*maxi].idx < 100 ? "0" : "");
 			soss oss;
-			oss << "^3FPH^7: ^2" << stat_cs[*maxi].fph << " ^3CPH^7: ^2" << stat_cs[*maxi].cph;
+			oss << "^3FH^7: ^2" << fpad << stat_cs[*maxi].fph;
+			oss << " ^3CH^7: ^2" << cpad << stat_cs[*maxi].cph;
 			oss << std::fixed;
 			oss.precision(2);
-			oss << " ^3index^7: ^2" << stat_cs[*maxi].idx;
+			oss << " ^3skill^7: ^2" << spad << stat_cs[*maxi].idx;
 			stats = oss.str();
-			bug_var(stats);
+//			bug_var(stats);
 		}
 	}
 
@@ -699,7 +703,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	sql << guid << "'";
 	sql << " and `game_id` in (" << subsql << ")";
 
-	bug_var(sql.str());
+//	bug_var(sql.str());
 
 	str_vec_vec rows;
 
@@ -707,7 +711,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 		return false;
 
 	str kills = (rows.empty() || rows[0][0].empty()) ? "0" : rows[0][0];
-	bug_var(kills);
+//	bug_var(kills);
 
 	// shots
 
@@ -718,13 +722,13 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	sql << " and `weapon_usage`.`weap` = '7'"; // FIXME: railgun only (not good for AW)
 	sql << " and `game_id` in (" << subsql << ")";
 
-	bug_var(sql.str());
+//	bug_var(sql.str());
 
 	if(!select(sql.str(), rows, 1))
 		return false;
 
 	str shots = rows.empty() || rows[0][0].empty() ? "0" : rows[0][0];
-	bug_var(shots);
+//	bug_var(shots);
 
 	// hits
 
@@ -735,7 +739,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	sql << " and `damage`.`mod` = '10'"; // FIXME: railgun only (not good for AW)
 	sql << " and `game_id` in (" << subsql << ")";
 
-	bug_var(sql.str());
+//	bug_var(sql.str());
 
 	if(!select(sql.str(), rows, 1))
 		return false;
@@ -751,13 +755,13 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	sql << guid << "'";
 	sql << " and `game_id` in (" << subsql << ")";
 
-	bug_var(sql.str());
+//	bug_var(sql.str());
 
 	if(!select(sql.str(), rows, 1))
 		return false;
 
 	str caps = (rows.empty() || rows[0][0].empty()) ? "0" : rows[0][0];
-	bug_var(caps);
+//	bug_var(caps);
 
 	// speed
 
@@ -767,7 +771,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	sql << guid << "'";
 	sql << " and `game_id` in (" << subsql << ")";
 
-	bug_var(sql.str());
+//	bug_var(sql.str());
 
 	if(!select(sql.str(), rows, 2))
 		return false;
@@ -775,8 +779,8 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	str time = rows.empty() || rows[0][0].empty() ? "0" : rows[0][0];
 	str distance = rows.empty() || rows[0][1].empty() ? "0" : rows[0][1];
 
-	bug_var(time);
-	bug_var(distance);
+//	bug_var(time);
+//	bug_var(distance);
 
 	siz t = 0;
 	siz d = 0;
@@ -805,13 +809,13 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	sql << guid << "'";
 	sql << " and `game_id` in (" << subsql << ")";
 
-	bug_var(sql.str());
+//	bug_var(sql.str());
 
 	if(!select(sql.str(), rows, 1))
 		return false;
 
 	str secs = rows.empty() || rows[0][0].empty() ? "0" : rows[0][0];
-	bug_var(secs);
+//	bug_var(secs);
 
 	siz sec = 0;
 	siz fph = 0;
@@ -828,12 +832,6 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 		return false;
 	}
 
-	bug_var(sec);
-	bug_var(fph);
-	bug_var(cph);
-	bug_var(hit);
-	bug_var(acc);
-
 	stats = "^7<^3not recorded for this map^7>";
 
 	//hours /= (60 * 60);
@@ -848,11 +846,6 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 		fph = (fph * 60 * 60) / sec;
 		cph = (cph * 60 * 60) / sec;
 
-		bug_var(sec);
-		bug_var(fph);
-		bug_var(cph);
-		bug_var(acc);
-
 		soss oss;
 		oss << std::fixed;
 //		oss.precision(2);
@@ -862,7 +855,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 		oss << "^3FH^7:^2" << fph << " ^3CH^7:^2" << cph << " ^3AC^7:^2" << acc;
 		oss << " ^3SP^7:^2" << ups << "u/s";
 		stats = oss.str();
-		bug_var(stats);
+//		bug_var(stats);
 		// Ranking
 		double kpc = get_kills_per_cap(mapname);
 		idx = std::sqrt(std::pow(fph, 2) + std::pow(cph * kpc, 2));

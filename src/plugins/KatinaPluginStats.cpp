@@ -185,7 +185,7 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 		str stats;
 		for(guid_str_map_iter p = players.begin(); p != players.end(); ++p)
 			if(db.get_ingame_stats(p->first, mapname, 0, stats, idx))
-				prev_game_stats[idx] = "^7STATS: " + stats + " ^7" + p->second;
+				prev_game_stats[idx] = "^7S: " + stats + " ^7" + p->second;
 
         db.off();
 	}
@@ -455,9 +455,9 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 	if(!active)
 		return true;
 
-	server.msg_to_all("^7STATS: ^3From previous game:");
+	server.msg_to_all("^7S: ^3From previous game:");
 	for(std::map<double, str>::reverse_iterator r = prev_game_stats.rbegin(); r != prev_game_stats.rend(); ++r)
-		server.msg_to_all(r->second + " ^7(^3" + to_string(r->first) + "^7)");
+		server.msg_to_all(r->second + " ^3" + to_string(r->first));
 
 	return true;
 }
@@ -613,7 +613,7 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 		str stats;
 		double idx = 0.0;
 		if(db.get_ingame_stats(guid, mapname, prev, stats, idx))
-			server.msg_to_all("^7STATS: " + stats + " ^7[" + players[guid] + "^7]");
+			server.msg_to_all("^7S: " + stats + " ^7" + players[guid]);
 		db.off();
 	}
 /*	else if(cmd == "!champ") // last month's champion
