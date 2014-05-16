@@ -55,85 +55,19 @@ siz Katina::getTeam(siz client)
 str Katina::getPlayerName(siz client)
 {
 	return players[clients[client]];
-//    siz_guid_map_citer clientsIt = clients.find(client);
-//    if(clientsIt == clients.end())
-//        return "";
-//
-//    guid_str_map_citer playersIt = players.find(clientsIt->second);
-//    if(playersIt == players.end())
-//        return "";
-//
-//    return playersIt->second;
 }
 
 
 siz Katina::getClientNr(GUID guid)
 {
-    for(siz_guid_map_citer it = clients.begin(); it != clients.end(); ++it)
-    {
-        if(it->second == guid)
-            return it->first;
-    }
-    
+	for(siz_guid_map_citer it = clients.begin(); it != clients.end(); ++it)
+		if(it->second == guid)
+			return it->first;
     return siz(-1);
 }
 
 
 str Katina::get_version() { return version + "-" + tag; }
-
-
-
-//void* cvarpoll(void* vp)
-//{
-//	Katina& katina = *reinterpret_cast<Katina*>(vp);
-//	cvar_map_map& cvars = katina.vars;
-//
-//	cvar_map_iter mi;
-//	cvar_map_map_iter mmi = cvars.end();
-//
-//	while(!katina.done)
-//	{
-//		thread_sleep_millis(3000);
-//
-//		lock_guard lock(katina.cvarevts_mtx);
-//
-//		if(mmi == cvars.end())
-//		{
-//			mmi = cvars.begin();
-//			if(mmi != cvars.end())
-//				mi = mmi->second.begin();
-//		}
-//
-//		if(mmi == cvars.end())
-//			continue;
-//
-//		if(mi == mmi->second.end())
-//		{
-//			++mmi;
-//			mi = mmi->second.begin();
-//			continue;
-//		}
-//
-//		//bug("cvar: " << mi->first);
-//
-//		str old_value;
-//		mi->second->get(old_value);
-//		//bug("old: " << old_value);
-//
-//		str value;
-//		if(katina.rconset(katina.prefix + mi->first, value))
-//			mi->second->set(value);
-//		else if(katina.rconset(katina.prefix + mi->first, value)) // one retry
-//			mi->second->set(value);
-//
-//		mi->second->get(value);
-//		if(value != old_value) // changed
-//			log("INFO: cvar: " << (katina.prefix + mi->first) << " changing value: " << value);
-//
-//		++mi;
-//	}
-//	pthread_exit(0);
-//}
 
 
 
@@ -143,7 +77,6 @@ Katina::Katina()
 , logmode(LOG_NORMAL)
 , now(std::time(0))
 {
-//	pthread_mutex_init(&cvarevts_mtx, 0);
 }
 
 
@@ -151,7 +84,6 @@ Katina::Katina()
 Katina::~Katina()
 {
 	done = true;
-//	pthread_join(cvarevts_thread, 0);
 }
 
 
