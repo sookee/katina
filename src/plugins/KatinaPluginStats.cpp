@@ -181,7 +181,7 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 
 		// prepare stats to be displayed at the start of next game
 		prev_game_stats.clear();
-		double idx;
+		siz idx;
 		str stats;
 		for(guid_str_map_iter p = players.begin(); p != players.end(); ++p)
 			if(db.get_ingame_stats(p->first, mapname, 0, stats, idx))
@@ -611,7 +611,7 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 		bug("getting stats");
 		db.on();
 		str stats;
-		double idx = 0.0;
+		siz idx = 0;
 		if(db.get_ingame_stats(guid, mapname, prev, stats, idx))
 			server.msg_to_all("^7S: " + stats + " ^7" + players[guid]);
 		db.off();
