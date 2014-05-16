@@ -839,11 +839,12 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 		str fpad = fph < 10 ? "00" : (fph < 100 ? "0" : "");
 		str cpad = cph < 10 ? "0" : "";
 		str apad = acc < 10 ? "0" : "";
+		str spad = ups < 10 ? "00" : (ups < 100 ? "0" : "");
 		soss oss;
 		oss << std::fixed;
 		oss.precision(1);
 		oss << "^3FH^7:^2" << fpad << fph << " ^3CH^7:^2" << cpad << cph << " ^3AC^7:^2" << apad << acc;
-		oss << " ^3SP^7:^2" << ups << "u/s";
+		oss << " ^3SP^7:^2" << spad << ups << "u/s";
 		stats = oss.str();
 //		bug_var(stats);
 		// Ranking
