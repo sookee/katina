@@ -461,7 +461,7 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 
 	if(do_prev_stats)
 	{
-		server.msg_to_all("^7S: ^3From previous game:");
+		server.msg_to_all("^7S: STATS^3for previous map:");
 		for(std::map<double, str>::reverse_iterator r = prev_game_stats.rbegin(); r != prev_game_stats.rend(); ++r)
 			server.msg_to_all(r->second + " ^3" + to_string(r->first));
 		do_prev_stats = false;
