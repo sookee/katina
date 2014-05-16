@@ -449,7 +449,7 @@ typedef std::map<str, stat_c> stat_map; // guid -> stat_c
 typedef stat_map::iterator stat_map_iter;
 typedef stat_map::const_iterator stat_map_citer;
 
-double Database::get_kills_per_cap(const str& mapname)
+siz Database::get_kills_per_cap(const str& mapname)
 {
 	// -- get ratio of frags to caps
 
@@ -484,10 +484,10 @@ double Database::get_kills_per_cap(const str& mapname)
 	if(!select(sql, rows, 1))
 		return false;
 
-	double k = 0.0;
+	siz k = 0;
 
 	if(!rows.empty() && !rows[0].empty())
-		k = to<double>(rows[0][0]);
+		k = to<siz>(rows[0][0]);
 
 	oss.clear();
 	oss.str("");
@@ -501,18 +501,12 @@ double Database::get_kills_per_cap(const str& mapname)
 	if(!select(sql, rows, 1))
 		return false;
 
-	double c = 0.0;
+	siz c = 0;
 
 	if(!rows.empty() && !rows[0].empty())
-		c = to<double>(rows[0][0]);
+		c = to<siz>(rows[0][0]);
 
-	double kpc = c > 0.001 ? (k / c) : 1.0;
-
-//	bug_var(k);
-//	bug_var(c);
-//	bug_var(kpc);
-
-	return kpc;
+	return c ? (k / c) : 1;
 }
 
 bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, GUID& guid, str& stats)
@@ -653,11 +647,11 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 			str cpad = stat_cs[*maxi].cph < 10 ? "00" : (stat_cs[*maxi].cph < 100 ? "0" : "");
 			str spad = stat_cs[*maxi].idx < 10 ? "00" : (stat_cs[*maxi].idx < 100 ? "0" : "");
 			soss oss;
-			oss << "^3FH^7: ^2" << fpad << stat_cs[*maxi].fph;
-			oss << " ^3CH^7: ^2" << cpad << stat_cs[*maxi].cph;
+			oss << "^3FH^7:^2" << fpad << stat_cs[*maxi].fph;
+			oss << " ^3CH^7:^2" << cpad << stat_cs[*maxi].cph;
 			oss << std::fixed;
 			oss.precision(2);
-			oss << " ^3skill^7: ^2" << spad << stat_cs[*maxi].idx;
+			oss << " ^3skill^7:^2" << spad << stat_cs[*maxi].idx;
 			stats = oss.str();
 //			bug_var(stats);
 		}
@@ -670,7 +664,7 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 //2014-05-08 11:42:17: DATABASE: get_ingame_stats(7B5DA741, , 0) [../../src/Database.cpp] (638)
 //2014-05-08 11:42:17: DATABASE: off [../../src/Database.cpp] (46)
 
-bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, str& stats, double& idx)
+bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, str& stats, siz& skill)
 {
 	log("DATABASE: get_ingame_stats(" << guid << ", " << mapname << ", " << prev << ")");
 
@@ -817,7 +811,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	siz fph = 0;
 	siz cph = 0;
 	siz hit = 0;
-	double acc = 0.0;
+	siz acc = 0;
 
 	iss.str(kills + ' ' + shots + ' ' + hits + ' ' + caps + ' ' + secs);
 	iss.clear();
@@ -831,30 +825,30 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	stats = "^7<^3not recorded for this map^7>";
 
 	//hours /= (60 * 60);
-	if(acc > 0.0001)
+	if(acc)
 		acc = (hit * 100) / acc;
 	else
-		acc = 0.0;
+		acc = 0;
 
-	idx = 0.0;
+	skill = 0;
 	if(sec)
 	{
 		fph = (fph * 60 * 60) / sec;
 		cph = (cph * 60 * 60) / sec;
 
+		str fpad = fph < 10 ? "00" : (fph < 100 ? "0" : "");
+		str cpad = cph < 10 ? "00" : (cph < 100 ? "0" : "");
+		str apad = acc < 10 ? "00" : (acc < 100 ? "0" : "");
 		soss oss;
 		oss << std::fixed;
-//		oss.precision(2);
-//		oss << "^3FPH^7: ^2" << fph << " ^3CPH^7: ^2" << cph << " ^3ACC^7: ^2" << acc << "pc";
-//		oss << " ^3SPEED^7: ^2" << ups << "u/s";
 		oss.precision(1);
-		oss << "^3FH^7:^2" << fph << " ^3CH^7:^2" << cph << " ^3AC^7:^2" << acc;
+		oss << "^3FH^7:^2" << fpad << fph << " ^3CH^7:^2" << cpad << cph << " ^3AC^7:^2" << apad << acc;
 		oss << " ^3SP^7:^2" << ups << "u/s";
 		stats = oss.str();
 //		bug_var(stats);
 		// Ranking
-		double kpc = get_kills_per_cap(mapname);
-		idx = std::sqrt(std::pow(fph, 2) + std::pow(cph * kpc, 2));
+		siz kpc = get_kills_per_cap(mapname);
+		skill = std::sqrt(std::pow(fph, 2) + std::pow(cph * kpc, 2));
 		// - Ranking
 
 	}
