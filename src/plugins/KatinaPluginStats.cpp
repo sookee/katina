@@ -99,6 +99,7 @@ str KatinaPluginStats::get_name() const     { return NAME; }
 str KatinaPluginStats::get_version() const  { return VERSION; }
 
 std::multimap<siz, str> prev_game_stats;
+str prev_mapname;
 
 bool KatinaPluginStats::exit(siz min, siz sec)
 {
@@ -181,6 +182,7 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 		}
 
 		// prepare stats to be displayed at the start of next game
+		prev_mapname = mapname;
 		prev_game_stats.clear();
 		siz skill;
 		str stats;
@@ -463,7 +465,7 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 	{
 		siz prev = siz(-1);
 		siz rank = 0;
-		server.msg_to_all("^7S: STATS^3for previous map:");
+		server.msg_to_all("^7S: STATS^3for previous map: ^3" + prev_mapname, true);
 		for(std::multimap<siz, str>::reverse_iterator r = prev_game_stats.rbegin(); r != prev_game_stats.rend(); ++r)
 		{
 			if(prev != r->first)
