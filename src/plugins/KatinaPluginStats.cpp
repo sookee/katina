@@ -188,7 +188,7 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 		str stats;
 		for(guid_str_map_iter p = players.begin(); p != players.end(); ++p)
 			if(db.get_ingame_stats(p->first, mapname, 0, stats, skill))
-				prev_game_stats.insert(std::pair<siz,str>(skill, "^7S: " + stats + " ^7" + p->second));
+				prev_game_stats.insert(std::pair<siz,str>(skill, stats + " ^7" + p->second));
 		if(!prev_game_stats.empty())
 			do_prev_stats = true;
 
@@ -465,7 +465,7 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 	{
 		siz prev = siz(-1);
 		siz rank = 0;
-		server.msg_to_all("^7S: STATS^3for previous map: ^3" + prev_mapname, true);
+		server.msg_to_all("^7STATS ^3for previous map: ^7" + prev_mapname, true);
 		for(std::multimap<siz, str>::reverse_iterator r = prev_game_stats.rbegin(); r != prev_game_stats.rend(); ++r)
 		{
 			if(prev != r->first)
@@ -474,7 +474,7 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 			str rnk = to_string(rank);
 			if(rnk.size() == 1)
 				rnk = "0" + rnk;
-			server.msg_to_all("#^1" + rnk + " " + r->second + " ^3" + to_string(r->first));
+			server.msg_to_all("#^5" + rnk + " " + r->second + " ^3" + to_string(r->first));
 		}
 		do_prev_stats = false;
 	}
