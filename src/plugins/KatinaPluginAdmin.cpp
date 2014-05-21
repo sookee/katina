@@ -2,6 +2,8 @@
 #include "KatinaPluginAdmin.h"
 
 #include <list>
+#include <algorithm>
+#include <functional>
 
 #include <katina/types.h>
 #include <katina/log.h>
@@ -24,6 +26,51 @@ KatinaPluginAdmin::KatinaPluginAdmin(Katina& katina)
 , server(katina.server)
 , active(true)
 {
+}
+
+bool is_ip(const str& s)
+{
+	siz dot = std::count(s.begin(), s.end(), '.');
+	if(dot > 3)
+		return false;
+
+	siz dig = std::count_if(s.begin(), s.end(), std::ptr_fun<int, int>(isdigit));
+	if(dig > dot * 3 + 3)
+		return false;
+
+	return s.size() == dot + dig;
+}
+
+bool is_guid(const str& s)
+{
+	//assert(min <= 8);
+	return s.size() == 8
+		&& std::count_if(s.begin(), s.end(), std::ptr_fun<int, int>(isxdigit)) == s.size();
+}
+
+bool KatinaPluginAdmin::load_total_bans()
+{
+	sifs ifs((katina.config_dir + "/total-bans.txt").c_str());
+
+	if(!ifs)
+	{
+		plog("ERROR: can not open bans file.");
+		return false;
+	}
+
+	str line;
+	while(sgl(ifs, line))
+	{
+		if(trim(line).empty())
+			continue;
+
+		if(is_ip(line))
+			total_bans.ips.push_back(line);
+		else if(is_guid(line))
+			total_bans.guids.push_back(line);
+	}
+
+	return true;
 }
 
 bool KatinaPluginAdmin::load_sanctions()
@@ -82,6 +129,7 @@ enum
 	, S_MUTEPP
 	, S_FIXNAME
 	, S_WARN_ON_SIGHT
+	, S_RETEAM
 };
 
 bool KatinaPluginAdmin::mutepp(siz num)
@@ -117,6 +165,41 @@ bool KatinaPluginAdmin::warn_on_sight(siz num, const str& reason)
 	return true;
 }
 
+siz char_to_team(char t)
+{
+	// 1 = red, 2 = blue, 3 = spec
+	if(toupper(t) == 'R')
+		return 1;
+	else if(toupper(t) == 'B')
+		return 2;
+	return 3;
+}
+
+bool KatinaPluginAdmin::reteam(siz num, char team)
+{
+	if(clients.find(num) == clients.end())
+	{
+		plog("ERROR: can't find client num: " << num);
+		return true;
+	}
+	if(teams.find(clients[num]) == teams.end())
+	{
+		plog("ERROR: can't find team guid: " << clients[num]);
+		return true;
+	}
+	if(teams[clients[num]] == char_to_team(team))
+		return true;
+
+	str reply;
+	server.command("!putteam " + to_string(num) + " " + (char)tolower(team), reply);
+	// ����
+	// ����      ^/warn: no connected player by that name or slot #
+	if(reply.find("!putteam: no connected player by that name or slot #") != str::npos
+	|| reply.find("!putteam: unknown team") != str::npos)
+		return false;
+	return true;
+}
+
 bool KatinaPluginAdmin::open()
 {
 	bug_func();
@@ -128,6 +211,7 @@ bool KatinaPluginAdmin::open()
 	katina.add_log_event(this, INIT_GAME);
 	katina.add_log_event(this, WARMUP);
 	katina.add_log_event(this, CLIENT_CONNECT);
+	katina.add_log_event(this, CLIENT_CONNECT_INFO);
 	katina.add_log_event(this, CLIENT_BEGIN);
 	katina.add_log_event(this, CLIENT_DISCONNECT);
 	katina.add_log_event(this, CLIENT_USERINFO_CHANGED);
@@ -143,6 +227,7 @@ bool KatinaPluginAdmin::open()
 
 	bug("Loading sanctions");
 	load_sanctions();
+	load_total_bans();
 
 	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end(); ++s)
 	{
@@ -210,6 +295,22 @@ bool KatinaPluginAdmin::client_connect(siz min, siz sec, siz num)
 	return true;
 }
 
+bool KatinaPluginAdmin::client_connect_info(siz min, siz sec, siz num, const GUID& guid, const str& ip)
+{
+	if(!active)
+		return true;
+
+	for(str_vec_iter i = total_bans.ips.begin(); i != total_bans.ips.end(); ++i)
+		if(!ip.find(*i)) // left substring match
+			server.command("!ban " + to_string(num) + "Automated ban ip: " + *i);
+
+	for(str_vec_iter i = total_bans.guids.begin(); i != total_bans.guids.end(); ++i)
+		if(guid == *i)
+			server.command("!ban " + to_string(num) + "Automated ban guid: " + *i);
+
+	return true;
+}
+
 bool KatinaPluginAdmin::client_begin(siz min, siz sec, siz num)
 {
 	if(!active)
@@ -250,6 +351,12 @@ bool KatinaPluginAdmin::client_userinfo_changed(siz min, siz sec, siz num, siz t
 					{ s = sanctions.erase(s); save_sanctions(); }
 				else
 					++s;
+			}
+			else if(s->type == S_RETEAM && !s->params.empty() && !s->params[0].empty())
+			{
+				if(reteam(num, s->params[0][0]))
+					s->applied = true;
+				++s;
 			}
 		}
 	}
@@ -568,6 +675,55 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		s.params.push_back(name);
 
 		if(fixname(num, name))
+			s.applied = true;
+
+		sanctions.push_back(s);
+		save_sanctions();
+	}
+	else if(cmd == trans("!reteam") || cmd == trans("?reteam"))
+	{
+		// !reteam <slot> r|b|s (red, blue or spec)
+		if(!check_admin(guid))
+			return true;
+
+		if(cmd[0] == '?')
+		{
+			server.msg_to(say_num, "^7ADMIN: ^3Force a player to a specific team (default to spec).", true);
+			server.msg_to(say_num, "^7ADMIN: ^3!reteam <num> <r|g|b>");
+			server.msg_to(say_num, "^7ADMIN: ^3!reteam <num> remove");
+			return true;
+		}
+
+		siz num = siz(-1);
+		str team;
+
+		sgl(iss >> num >> std::ws, team);
+
+		if(upper(team) != "R" || team != "G" || team != "S")
+		{
+			server.msg_to(say_num, "^7ADMIN: ^3Bad team. Needs to be: r|g|b", true);
+			return true;
+		}
+
+		if(!check_slot(num))
+			return true;
+
+		if(team == "remove")
+		{
+			remove_sanctions(clients[num], S_RETEAM);
+			server.msg_to(say_num, "^7ADMIN: ^3Removed fixed team from: ^2" + players[clients[num]], true);
+			if(num != say_num)
+				server.msg_to(num, "^7ADMIN: ^3Removed fixed team from: ^2" + players[clients[num]], true);
+			return true;
+		}
+
+		sanction s;
+		s.type = S_FIXNAME;
+		s.guid = clients[num];
+		s.expires = 0;
+		s.params.push_back(team);
+
+		if(reteam(num, team[0]))
 			s.applied = true;
 
 		sanctions.push_back(s);

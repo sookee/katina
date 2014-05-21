@@ -56,6 +56,7 @@ public:
 	virtual bool init_game(siz min, siz sec, const str_map& cvars);
 	virtual bool warmup(siz min, siz sec);
 	virtual bool client_connect(siz min, siz sec, siz num);
+	virtual bool client_connect_info(siz min, siz sec, siz num, const GUID& guid, const str& ip);
 	virtual bool client_begin(siz min, siz sec, siz num);
 	virtual bool client_disconnect(siz min, siz sec, siz num);
 	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name, siz hc);
@@ -68,6 +69,18 @@ public:
 	virtual bool shutdown_game(siz min, siz sec);
 	virtual bool exit(siz min, siz sec);
 	virtual bool unknown(siz min, siz sec, const str& cmd, const str& params);
+
+	virtual bool speed(siz min, siz sec, siz num, siz dist, siz time, bool has_flag);
+
+	/**
+	 * Summarizing events for more detailed statistics (they only work with the katina game mod)
+	 */
+	virtual bool weapon_usage(siz min, siz sec, siz num, siz weapon, siz shots);
+	virtual bool mod_damage(siz min, siz sec, siz num, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv, float weightedHits);
+	virtual bool player_stats(siz min, siz sec, siz num,
+		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
+		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
+		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged);
 
 	virtual void close();
 };

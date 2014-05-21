@@ -111,7 +111,7 @@ public:
 	 *  Only with zim@openmafia >= 0.1-beta
 	 * @param has_flag if true this speed record is calculated ONLY whn carrying the flag
 	 */
-	virtual bool speed(siz num, siz dist, siz time, bool has_flag) { return true; }
+	virtual bool speed(siz min, siz sec, siz num, siz dist, siz time, bool has_flag) { return true; }
 
 	/**
 	 * Summarizing events for more detailed statistics (they only work with the katina game mod)

@@ -2,6 +2,7 @@
 #include "KatinaPluginPlayerDb.h"
 
 #include <katina/types.h>
+#include <katina/str.h>
 #include <katina/log.h>
 
 #include <string>
@@ -15,6 +16,7 @@ namespace katina { namespace plugin {
 
 using namespace oastats::log;
 using namespace oastats::types;
+using namespace oastats::string;
 
 KATINA_PLUGIN_TYPE(KatinaPluginPlayerDb);
 KATINA_PLUGIN_INFO("katina::player::db", "Katina Player Database", "0.1-dev");
@@ -105,7 +107,7 @@ void db_add(const player_do& p)
 	if(p.ip == 0)
 	{
 		bug("ZERO: p.ip: " << p.ip);
-				return;
+		return;
 	}
 
 	if(player_cache.count(p))
@@ -173,9 +175,15 @@ str KatinaPluginPlayerDb::get_version() const { return VERSION; }
 
 bool KatinaPluginPlayerDb::client_connect_info(siz min, siz sec, siz num, const GUID& guid, const str& ip)
 {
+	if(trim_copy(ip).empty())
+	{
+		plog("WARN: empty ip address");
+		return true;
+	}
+
 	struct in_addr ip4;
 
-	if(!inet_pton(AF_INET, ip.c_str(), &ip4) || !ip4.s_addr)
+	if(!inet_pton(AF_INET, trim_copy(ip).c_str(), &ip4) || !ip4.s_addr)
 		plog("ERROR: converting IP address: " << ip << " for [" << guid << "]");
 	else
 		ips[num] = ip4.s_addr;

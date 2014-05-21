@@ -27,15 +27,15 @@ KATINA_IRC_FLAGS = -D DEBUG -O0 -g3 -pthread -Iinclude
 KATINA_IRC_LIBS = -lrt -pthread
 KATINA_IRC_OBJS = katina-irc.o rcon.o irc.o message.o
 
-KATINA_VOTES_FLAGS = -O0 -g3 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread -Iinclude
+KATINA_VOTES_FLAGS = -D DEBUG -O0 -g3 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread -Iinclude
 KATINA_VOTES_LIBS = $(MYSQL_LIBS) -lrt -pthread
 KATINA_VOTES_OBJS = katina-votes.o
 
-KATINA_GUID_FIX_FLAGS = -D DEBUG -O0 -g3 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread -Iinclude
-KATINA_GUID_FIX_LIBS = $(MYSQL_LIBS) -lrt -pthread -ldl -L. -lkatina
-KATINA_GUID_FIX_OBJS = katina-guid-fix.o Database.o
+KATINA_WHOIS_FLAGS = -D DEBUG -O0 -g3 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread -Iinclude
+KATINA_WHOIS_LIBS = $(MYSQL_LIBS) -lrt -pthread
+KATINA_WHOIS_OBJS = katina-whois.o
 
-PROGRAMS = katina katina-irc katina-votes katina-guid-fix
+PROGRAMS = katina katina-irc katina-votes katina-whois
 
 PREFIX ?= $(HOME)
 
@@ -83,14 +83,14 @@ katina-votes: $(KATINA_VOTES_OBJS)
 katina-votes.o: $(src_topdir)/katina-votes.cpp $(INCLUDES)
 	$(CXX) -c -I$(src_topdir)/include $(KATINA_VOTES_FLAGS) -o $@ $<
 
-katina-guid-fix: $(KATINA_GUID_FIX_OBJS)
+katina-whois: $(KATINA_WHOIS_OBJS)
 	@echo
 	@echo Compiling $@
-	$(CXX) -o $@ $(KATINA_GUID_FIX_OBJS) $(KATINA_GUID_FIX_LIBS)
+	$(CXX) -o $@ $(KATINA_WHOIS_OBJS) $(KATINA_WHOIS_LIBS)
 	@echo
 
-katina-guid-fix.o: $(src_topdir)/katina-guid-fix.cpp $(INCLUDES)
-	$(CXX) -c -I$(src_topdir)/include $(KATINA_GUID_FIX_FLAGS) -o $@ $<
+katina-whois.o: $(src_topdir)/katina-whois.cpp $(INCLUDES)
+	$(CXX) -c -I$(src_topdir)/include $(KATINA_WHOIS_FLAGS) -o $@ $<
 
 %.o: $(src_topdir)/%.cpp $(src_topdir)/include/katina/%.h
 	@echo -n "AUTO: "

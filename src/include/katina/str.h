@@ -39,6 +39,8 @@ using namespace oastats::types;
 
 // -- STRING -------------------------------------------------
 
+static const char* ws = " \t\n\r\f\v";
+
 /**
  * Remove leading characters from a std::string.
  * @param s The std::string to be modified.
@@ -46,7 +48,7 @@ using namespace oastats::types;
  * of the string.
  * @return The same string passed in as a parameter reference.
  */
-inline std::string& ltrim(std::string& s, const char* t = " \t\n\r\f\v")
+inline std::string& ltrim(std::string& s, const char* t = ws)
 {
 	s.erase(0, s.find_first_not_of(t));
 	return s;
@@ -59,7 +61,7 @@ inline std::string& ltrim(std::string& s, const char* t = " \t\n\r\f\v")
  * of the string.
  * @return The same string passed in as a parameter reference.
  */
-inline std::string& rtrim(std::string& s, const char* t = " \t\n\r\f\v")
+inline std::string& rtrim(std::string& s, const char* t = ws)
 {
 	s.erase(s.find_last_not_of(t) + 1);
 	return s;
@@ -72,15 +74,101 @@ inline std::string& rtrim(std::string& s, const char* t = " \t\n\r\f\v")
  * of the string.
  * @return The same string passed in as a parameter reference.
  */
-inline std::string& trim(std::string& s, const char* t = " \t\n\r\f\v")
+inline str& trim(str& s, const char* t = ws)
 {
 	return ltrim(rtrim(s, t), t);
+}
+
+inline std::string ltrim_copy(std::string s, const char* t = ws)
+{
+	return ltrim(s, t);
+}
+
+inline std::string rtrim_copy(std::string s, const char* t = ws)
+{
+	return rtrim(s, t);
+}
+
+inline std::string trim_copy(std::string s, const char* t = ws)
+{
+	return trim(s, t);
+}
+
+/**
+ * Remove all leading characters of a given value
+ * from a std::string.
+ * @param s The string to be modified.
+ * @param c The character value to delete.
+ * @return The same string passed in as a parameter reference.
+ */
+inline std::string& ltrim(std::string& s, char c)
+{
+	s.erase(0, s.find_first_not_of(c));
+	return s;
+}
+
+/**
+ * Remove all trailing characters of a given value
+ * from a std::string.
+ * @param s The string to be modified.
+ * @param c The character value to delete.
+ * @return The same string passed in as a parameter reference.
+ */
+inline std::string& rtrim(std::string& s, char c)
+{
+	s.erase(s.find_last_not_of(c) + 1);
+	return s;
+}
+
+/**
+ * Remove all surrounding characters of a given value
+ * from a std::string.
+ * @param s The string to be modified.
+ * @param c The character value to delete.
+ * @return The same string passed in as a parameter reference.
+ */
+inline std::string& trim(std::string& s, char c)
+{
+	return ltrim(rtrim(s, c), c);
+}
+
+inline std::string rtrim_copy(std::string s, char c)
+{
+	return rtrim(s, c);
+}
+
+inline std::string ltrim_copy(std::string s, char c)
+{
+	return ltrim(s, c);
+}
+
+inline std::string trim_copy(std::string s, char c)
+{
+	return trim(s, c);
 }
 
 inline str& lower(str& s)
 {
 	std::transform(s.begin(), s.end(), s.begin(), std::ptr_fun<int, int>(std::tolower));
 	return s;
+}
+
+inline str& upper(str& s)
+{
+	std::transform(s.begin(), s.end(), s.begin(), std::ptr_fun<int, int>(std::toupper));
+	return s;
+}
+
+inline
+std::string lower_copy(std::string s)
+{
+	return lower(s);
+}
+
+inline
+std::string upper_copy(std::string s)
+{
+	return upper(s);
 }
 
 template<typename T>
@@ -102,6 +190,20 @@ T to(const str& s)
 	iss >> t;
 	return t;
 }
+
+inline
+str& replace(str& s, const str& from, const str& to)
+{
+	if(from.empty())
+		return s;
+	siz pos = 0;
+	if((pos = s.find(from)) != str::npos)
+		s.replace(pos, from.size(), to);
+	while((pos = s.find(from, pos + to.size())) != str::npos)
+		s.replace(pos, from.size(), to);
+	return s;
+}
+
 
 }} // oastats::string
 

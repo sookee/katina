@@ -835,6 +835,10 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	{
 		fph = (fph * 60 * 60) / sec;
 		cph = (cph * 60 * 60) / sec;
+		// Ranking
+		siz kpc = get_kills_per_cap(mapname);
+		skill = std::sqrt(std::pow(fph, 2) + std::pow(cph * kpc, 2));
+		// - Ranking
 
 		str fpad = fph < 10 ? "00" : (fph < 100 ? "0" : "");
 		str cpad = cph < 10 ? " " : "";
@@ -844,13 +848,9 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 		oss << std::fixed;
 		oss.precision(1);
 		oss << "^3FH^7:^2" << fpad << fph << " ^3CH^7:^2" << cpad << cph << " ^3AC^7:^2" << apad << acc;
-		oss << " ^3SP^7:^2" << spad << ups << "u/s";
+		oss << " ^3SP^7:^2" << spad << ups << "u/s" << " ^3SK^7:^2" << skill;
 		stats = oss.str();
 //		bug_var(stats);
-		// Ranking
-		siz kpc = get_kills_per_cap(mapname);
-		skill = std::sqrt(std::pow(fph, 2) + std::pow(cph * kpc, 2));
-		// - Ranking
 
 	}
 

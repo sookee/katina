@@ -29,6 +29,7 @@ bool KatinaPluginExample::open()
 	katina.add_log_event(this, INIT_GAME);
 	katina.add_log_event(this, WARMUP);
 	katina.add_log_event(this, CLIENT_CONNECT);
+	katina.add_log_event(this, CLIENT_CONNECT_INFO);
 	katina.add_log_event(this, CLIENT_BEGIN);
 	katina.add_log_event(this, CLIENT_DISCONNECT);
 	katina.add_log_event(this, CLIENT_USERINFO_CHANGED);
@@ -84,6 +85,15 @@ bool KatinaPluginExample::client_connect(siz min, siz sec, siz num)
 	if(!active)
 		return true;
 	plog("client_connect(" << num << ")");
+	return true;
+}
+
+bool KatinaPluginExample::client_connect_info(siz min, siz sec, siz num, const GUID& guid, const str& ip)
+{
+	if(!active)
+		return true;
+	plog("client_connect_info(" << num << ", " << guid << ", " << ip << ")");
+	katina.server.chat("BEGIN: " + players[clients[num]]);
 	return true;
 }
 
@@ -186,6 +196,49 @@ bool KatinaPluginExample::unknown(siz min, siz sec, const str& cmd, const str& p
 {
 	if(!active)
 		return true;
+	return true;
+}
+
+bool KatinaPluginExample::speed(siz min, siz sec, siz num, siz dist, siz time, bool has_flag)
+{
+	if(!active)
+		return true;
+	plog("speed(" << num << ", " << dist << ", " << time << ", " << has_flag << ")");
+	return true;
+}
+
+/**
+ * Summarizing events for more detailed statistics (they only work with the katina game mod)
+ */
+bool KatinaPluginExample::weapon_usage(siz min, siz sec, siz num, siz weapon, siz shots)
+{
+	if(!active)
+		return true;
+	plog("weapon_usage(" << num << ", " << weapon << ", " << shots << ")");
+	return true;
+}
+
+bool KatinaPluginExample::mod_damage(siz min, siz sec, siz num, siz mod, siz hits
+		, siz damage, siz hitsRecv, siz damageRecv, float weightedHits)
+{
+	if(!active)
+		return true;
+	plog("mod_damage(" << num << ", " << mod << ", " << hits << ", " << damage
+			 << ", " << hitsRecv  << ", " << damageRecv  << ", " << weightedHits << ")");
+	return true;
+}
+
+bool KatinaPluginExample::player_stats(siz min, siz sec, siz num,
+	siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
+	siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
+	siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged)
+{
+	if(!active)
+		return true;
+	plog("player_stats(" << num << ", " << fragsFace << ", " << fragsBack
+			<< ", " << fraggedInFace << ", " << fraggedInBack << ", " << spawnKills << ", " << spawnKillsRecv
+			<< ", " << pushes << ", " << pushesRecv << ", " << healthPickedUp << ", " << armorPickedUp
+			<< ", " << holyShitFrags << ", " << holyShitFragged << ")");
 	return true;
 }
 

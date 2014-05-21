@@ -30,6 +30,15 @@ using namespace oastats::log;
 using namespace oastats::data;
 using namespace oastats::types;
 
+struct total_ban
+{
+	str_vec guids;
+	str_vec ips;
+};
+
+//typedef std::list<total_ban> total_ban_lst;
+//typedef total_ban_lst::iterator total_ban_lst_iter;
+
 // guid, type, expires
 struct sanction
 {
@@ -70,6 +79,7 @@ private:
 	bool active;
 
 	sanction_lst sanctions;
+	total_ban total_bans;
 
 	str trans(const str& cmd) const;
 
@@ -81,9 +91,11 @@ private:
 	 * !warn a player next time they connect
 	 */
 	bool warn_on_sight(siz num, const str& reason);
+	bool reteam(siz num, char team = 's');
 
 	bool check_admin(const GUID& guid);
 	bool check_slot(siz num);
+	bool load_total_bans();
 	bool load_sanctions();
 	bool save_sanctions();
 
@@ -110,6 +122,7 @@ public:
 	virtual bool init_game(siz min, siz sec, const str_map& cvars);
 	virtual bool warmup(siz min, siz sec);
 	virtual bool client_connect(siz min, siz sec, siz num);
+	virtual bool client_connect_info(siz min, siz sec, siz num, const GUID& guid, const str& ip);
 	virtual bool client_begin(siz min, siz sec, siz num);
 	virtual bool client_disconnect(siz min, siz sec, siz num);
 	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name, siz hc);
