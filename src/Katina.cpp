@@ -1087,7 +1087,7 @@ bool Katina::start(const str& dir)
 			{
 				for(plugin_vec_iter i = events[SPEED].begin()
 					; i != events[SPEED].end(); ++i)
-					(*i)->speed(num, dist, time, flagspeed);
+					(*i)->speed(min, sec, num, dist, time, flagspeed);
 			}
 		}
 		else if(cmd == "Award:")

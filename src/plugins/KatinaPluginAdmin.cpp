@@ -8,6 +8,8 @@
 #include <katina/types.h>
 #include <katina/log.h>
 #include <katina/str.h>
+#include <katina/codes.h>
+
 
 namespace katina { namespace plugin {
 
@@ -25,6 +27,8 @@ KatinaPluginAdmin::KatinaPluginAdmin(Katina& katina)
 , teams(katina.teams)
 , server(katina.server)
 , active(true)
+, total_kills(0)
+, total_caps(0)
 {
 }
 
@@ -131,6 +135,33 @@ enum
 	, S_WARN_ON_SIGHT
 	, S_RETEAM
 };
+
+bool KatinaPluginAdmin::fixteams()
+{
+	siz_mmap rank; // skill -> slot
+
+	double cap_factor = total_caps ? total_kills / total_caps : 1.0;
+
+	for(siz_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
+	{
+		 // 1 = red, 2 = blue, 3 = spec
+		if(teams[i->second] != 1 || teams[i->second] != 2)
+			continue;
+
+		siz skill = sqrt(pow(kills[i->first], 2) + pow(caps[i->first] * cap_factor, 2));
+		rank.insert(siz_mmap_pair(skill, i->first));
+	}
+
+	siz team = (rand() % 2) + 1;
+	for(siz_mmap_citer i = rank.begin(); i != rank.end(); ++i)
+	{
+		if(!server.command("!putteam " + str(team == 1 ? "r" : "b")))
+			server.command("!putteam " + str(team == 1 ? "r" : "b")); // one retry
+		team = team == 1 ? 2 : 1;
+	}
+
+	return true;
+}
 
 bool KatinaPluginAdmin::mutepp(siz num)
 {
@@ -322,6 +353,12 @@ bool KatinaPluginAdmin::client_disconnect(siz min, siz sec, siz num)
 {
 	if(!active)
 		return true;
+
+	{ // !fixteams
+		kills.equal_range(num);
+		caps.equal_range(num);
+	}
+
 	return true;
 }
 
@@ -368,7 +405,11 @@ bool KatinaPluginAdmin::kill(siz min, siz sec, siz num1, siz num2, siz weap)
 {
 	if(!active)
 		return true;
-//	plog("kill(" << num1 << ", " << num2 << ", " << weap << ")");
+
+	{ // !fixteams
+		++kills[num1];
+		++total_kills;
+	}
 	return true;
 }
 
@@ -376,6 +417,12 @@ bool KatinaPluginAdmin::ctf(siz min, siz sec, siz num, siz team, siz act)
 {
 	if(!active)
 		return true;
+
+	if(act == FL_CAPTURED) // !fixteams
+	{
+		++caps[num];
+		++total_caps;
+	}
 //	plog("ctf(" << num << ", " << team << ", " << act << ")");
 	return true;
 }
@@ -589,6 +636,20 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			server.msg_to(say_num, "^7ADMIN: ^3!sanctions <num> = list sanctions for player.");
 			return true;
 		}
+	}
+	else if(cmd == trans("!fixteams") || cmd == trans("?fixteams"))
+	{
+		if(!check_admin(guid))
+			return true;
+
+		if(cmd[0] == '?')
+		{
+			server.msg_to(say_num, "^7ADMIN: ^3Shuffle the players to even the teams.", true);
+			server.msg_to(say_num, "^7ADMIN: ^3!fixteams");
+			return true;
+		}
+
+		fixteams();
 	}
 	else if(cmd == trans("!mute++") || cmd == trans("?mute++"))
 	{

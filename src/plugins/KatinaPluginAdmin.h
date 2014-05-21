@@ -81,7 +81,18 @@ private:
 	sanction_lst sanctions;
 	total_ban total_bans;
 
+	// !fixteams - oneshot team shuffle
+	// used to calculate kills/caps ratio
+	siz total_kills;
+	siz total_caps;
+
+	siz_map kills; // num -> kills
+	siz_map caps; // num -> capss
+	// - /fixteams
+
 	str trans(const str& cmd) const;
+
+	bool fixteams();
 
 	bool mutepp(siz num);
 	bool un_mutepp(siz num);
