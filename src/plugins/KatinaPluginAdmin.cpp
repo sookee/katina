@@ -603,31 +603,31 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		return true;
 
 	// spamkill
-	std::time_t now = std::time(0);
-	if(mutes[say_num] && mutes[say_num] + spamkill_mute_period < now)
-	{
-		if(!server.command("!unmute " + to_string(say_num)))
-			server.command("!unmute " + to_string(say_num));
-		mutes.erase(say_num);
-	}
+//	std::time_t now = std::time(0);
+//	if(mutes[say_num] && mutes[say_num] + spamkill_mute_period < now)
+//	{
+//		if(!server.command("!unmute " + to_string(say_num)))
+//			server.command("!unmute " + to_string(say_num));
+//		mutes.erase(say_num);
+//	}
+//
+//	spam s;
+//	s.num = say_num;
+//	s.when = now;
+//	spam_lst& list = spams[text];
+//	list.push_back(s);
+//
+//	siz count = 0;
+//	for(spam_lst_iter i = list.begin(); i != list.end();)
+//	{
+//		if(i->num != say_num)
+//			{ ++i; continue; }
+//		if(now - i->when > spamkill_period)
+//			{ i = list.erase(i); continue; }
+//		if(++count > spamkill_mute)
+//			{ list.clear(); spamkill(say_num); break; }
+//	}
 
-	spam s;
-	s.num = say_num;
-	s.when = now;
-	spam_lst& list = spams[text];
-	list.push_back(s);
-
-	siz count = 0;
-	for(spam_lst_iter i = list.begin(); i != list.end();)
-	{
-		if(i->num != say_num)
-			{ ++i; continue; }
-		if(now - i->when > spamkill_period)
-			{ i = list.erase(i); continue; }
-		if(++count > spamkill_mute)
-			spamkill(say_num);
-	}
-//	spams[text].insert()
 	// /spamkill
 
 	siss iss(text);

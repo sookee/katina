@@ -650,7 +650,7 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 			server.msg_to(say_num, PREFIX + "^3optionally 1-3 months previously.");
 			server.msg_to(say_num, PREFIX + "^3FH ^7(^2frags^7/^2hour^7)");
 			server.msg_to(say_num, PREFIX + "^3CH ^7(^2caps^7/^2hour^7)");
-			server.msg_to(say_num, PREFIX + "^3SP ^7(^2average u^7/^2second^7)");
+			server.msg_to(say_num, PREFIX + "^3SP ^7(^2average speed in u^7/^2second^7)");
 			server.msg_to(say_num, PREFIX + "^3SK ^7(^2skill rating^7)");
 			return true;
 		}
@@ -670,7 +670,8 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 			str skill = to_string(idx);
 			for(siz i = 0; i < 3; ++i)
 				skill = skill.size() < 4 ? (" " + skill) : skill;
-			server.msg_to_all(stats + "^3SK^7:" + skill +" ^7" + players[guid]);
+//			server.msg_to_all(stats + "^3SK^7:" + skill +" ^7" + players[guid]);
+			server.msg_to_all(stats + " ^7" + players[guid]);
 		}
 		db.off();
 	}
