@@ -90,6 +90,8 @@ typedef std::pair<const siz, siz> siz_map_pair;
 typedef std::multimap<siz, siz> siz_mmap;
 typedef siz_mmap::iterator siz_mmap_iter;
 typedef siz_mmap::const_iterator siz_mmap_citer;
+typedef siz_mmap::reverse_iterator siz_mmap_riter;
+typedef siz_mmap::const_reverse_iterator siz_mmap_criter;
 typedef std::pair<const siz, siz> siz_mmap_pair;
 
 typedef std::map<str, siz> str_siz_map;

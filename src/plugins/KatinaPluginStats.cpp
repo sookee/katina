@@ -585,9 +585,31 @@ bool KatinaPluginStats::sayteam(siz min, siz sec, const GUID& guid, const str& t
 }
 
 
+bool KatinaPluginStats::check_slot(siz num)
+{
+	if(clients.find(num) == clients.end())
+	{
+		plog("WARN: Unknown client number: " << num);
+		server.chat_nobeep("^7!STATS: ^3Unknown client number: ^7" + to_string(num));
+		return false;
+	}
+	return true;
+}
+
 bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 {
 	if(!active)
+		return true;
+
+	siz say_num = katina.getClientNr(guid);
+
+	if(say_num == siz(-1))
+	{
+		plog("ERROR: Unable to get slot number from guid: " << guid);
+		return true;
+	}
+
+	if(!check_slot(say_num))
 		return true;
 
 	str cmd;
@@ -596,30 +618,40 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 	if(!(iss >> cmd))
 		return true;
 
-	if(cmd == "!register")
+	const str PREFIX = "^7STATS: ";
+
+	if(cmd == "!register" || cmd == "?register")
 	{
+		if(cmd[0] == '?')
+		{
+			server.msg_to(say_num, PREFIX + "^3!register = select your current name to dosplay in the web stats", true);
+			server.msg_to(say_num, PREFIX + "^3 The web stats can be found at ^7http:^7/^7/^377.237.250.186^7:^381^7/^3webkatti^7/^3oa-ictf");
+			server.msg_to(say_num, PREFIX + "^3 ^7(^3we hope to get a better URL soon^7)");
+			return true;
+		}
+
 		if(write && players[guid] != "UnnamedPlayer" && players[guid] != "RenamedPlayer")
 		{
 			db.on();
 			if(db.set_preferred_name(guid, players[guid]))
-				server.chat("^7" + players[guid] + "^7: ^3Your preferred name has been registered.");
+				server.chat(PREFIX + players[guid] + "^7: ^3Your preferred name has been registered.");
 			db.off();
 		}
 	}
-	else if(cmd == "!help")
+	else if(cmd == "!help" || cmd == "?help")
 	{
-		server.chat("^7STATS: ^2?stats^7, ^2?boss^7, ^2?champ");
+		server.msg_to(say_num, PREFIX + "^2?stats^7, ^2?boss^7, ^2?champ");
 	}
 	else if(cmd == "!stats" || cmd == "?stats")
 	{
 		if(cmd[0] == '?')
 		{
-			server.chat("^7STATS: ^3!stats <1-3>? = give stats for this month or");
-			server.chat_nobeep("^7STATS: ^3optionally 1-3 months previously.");
-			server.chat_nobeep("^7STATS: ^3FH ^7(^2frags^7/^2hour^7)");
-			server.chat_nobeep("^7STATS: ^3CH ^7(^2caps^7/^2hour^7)");
-			server.chat_nobeep("^7STATS: ^3SP ^7(^2average u^7/^2second^7)");
-			server.chat_nobeep("^7STATS: ^3SK ^7(^2skill rating^7)");
+			server.msg_to(say_num, PREFIX + "^3!stats <1-3>? = give stats for this month or", true);
+			server.msg_to(say_num, PREFIX + "^3optionally 1-3 months previously.");
+			server.msg_to(say_num, PREFIX + "^3FH ^7(^2frags^7/^2hour^7)");
+			server.msg_to(say_num, PREFIX + "^3CH ^7(^2caps^7/^2hour^7)");
+			server.msg_to(say_num, PREFIX + "^3SP ^7(^2average u^7/^2second^7)");
+			server.msg_to(say_num, PREFIX + "^3SK ^7(^2skill rating^7)");
 			return true;
 		}
 
@@ -634,7 +666,12 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 		str stats;
 		siz idx = 0;
 		if(db.get_ingame_stats(guid, mapname, prev, stats, idx))
-			server.msg_to_all("^7S: " + stats + " ^7" + players[guid]);
+		{
+			str skill = to_string(idx);
+			for(siz i = 0; i < 3; ++i)
+				skill = skill.size() < 4 ? (" " + skill) : skill;
+			server.msg_to_all(stats + "^3SK^7:" + skill +" ^7" + players[guid]);
+		}
 		db.off();
 	}
 /*	else if(cmd == "!champ") // last month's champion
@@ -656,7 +693,8 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 	{
 		if(cmd[0] == '?')
 		{
-			server.chat("^7STATS: ^2!boss^7: ^3display this map's best player and their ^2!stats ^3for this month.");
+			server.msg_to(say_num, PREFIX + "^2!boss^7: ^3display this map's best player and their ^2!stats ^3for this month.", true);
+			server.msg_to(say_num, PREFIX + "^2!boss^7: ^3out of all the players currently connected.");
 			return true;
 		}
 
@@ -665,9 +703,9 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 		str stats;
 		GUID guid;
 		if(db.get_ingame_boss(mapname, clients, guid, stats) && guid != null_guid)
-			server.chat("^7BOSS: " + players[guid] + "^7: " + stats);
+			server.msg_to_all("^7BOSS: " + players[guid] + "^7: " + stats, true);
 		else
-			server.chat("^7BOSS: ^3There is no boss on this map");
+			server.msg_to_all("^7BOSS: ^3There is no boss on this map", true);
 		db.off();
 	}
 	return true;

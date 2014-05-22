@@ -29,6 +29,9 @@ KatinaPluginAdmin::KatinaPluginAdmin(Katina& katina)
 , active(true)
 , total_kills(0)
 , total_caps(0)
+, spamkill_warn(3)
+, spamkill_mute(5)
+, spamkill_mute_period(60)
 {
 }
 
@@ -149,12 +152,23 @@ bool KatinaPluginAdmin::fixteams()
 			continue;
 
 		siz skill = sqrt(pow(kills[i->first], 2) + pow(caps[i->first] * cap_factor, 2));
+
+		plog("-------------------------------------------");
+		plog("FIXTEAMS:  slot:" << i->first);
+		plog("FIXTEAMS:  name:" << players[clients[i->first]]);
+		plog("FIXTEAMS: kills:" << kills[i->first]);
+		plog("FIXTEAMS:  caps:" << caps[i->first]);
+		plog("FIXTEAMS: skill:" << skill);
+
 		rank.insert(siz_mmap_pair(skill, i->first));
 	}
 
+	plog("-------------------------------------------");
 	siz team = (rand() % 2) + 1;
-	for(siz_mmap_citer i = rank.begin(); i != rank.end(); ++i)
+	for(siz_mmap_criter i = rank.rbegin(); i != rank.rend(); ++i)
 	{
+		plog("FIXTEAMS: putting: " << i->first << " [" << i->first << "] "
+				<< "on team " << str(team == 1 ? "r" : "b"));
 		if(!server.command("!putteam " + str(team == 1 ? "r" : "b")))
 			server.command("!putteam " + str(team == 1 ? "r" : "b")); // one retry
 		team = team == 1 ? 2 : 1;
@@ -240,21 +254,21 @@ bool KatinaPluginAdmin::open()
 	//katina.add_var_event(this, "flag", "0");
 	bug("Adding log events");
 	katina.add_log_event(this, INIT_GAME);
-	katina.add_log_event(this, WARMUP);
+	//katina.add_log_event(this, WARMUP);
 	katina.add_log_event(this, CLIENT_CONNECT);
 	katina.add_log_event(this, CLIENT_CONNECT_INFO);
-	katina.add_log_event(this, CLIENT_BEGIN);
+	//katina.add_log_event(this, CLIENT_BEGIN);
 	katina.add_log_event(this, CLIENT_DISCONNECT);
 	katina.add_log_event(this, CLIENT_USERINFO_CHANGED);
 	katina.add_log_event(this, KILL);
 	katina.add_log_event(this, CTF);
-	katina.add_log_event(this, CTF_EXIT);
-	katina.add_log_event(this, SCORE_EXIT);
-	katina.add_log_event(this, AWARD);
+	//katina.add_log_event(this, CTF_EXIT);
+	//katina.add_log_event(this, SCORE_EXIT);
+	//katina.add_log_event(this, AWARD);
 	katina.add_log_event(this, SAY);
-	katina.add_log_event(this, SHUTDOWN_GAME);
-	katina.add_log_event(this, EXIT);
-	katina.add_log_event(this, UNKNOWN);
+	//katina.add_log_event(this, SHUTDOWN_GAME);
+	//katina.add_log_event(this, EXIT);
+	//katina.add_log_event(this, UNKNOWN);
 
 	bug("Loading sanctions");
 	load_sanctions();
@@ -559,6 +573,15 @@ void KatinaPluginAdmin::remove_sanctions(const GUID& guid, siz type)
 	save_sanctions();
 }
 
+void KatinaPluginAdmin::spamkill(siz num)
+{
+	if(!server.command("!mute " + to_string(num)))
+		if(!server.command("!mute " + to_string(num))) // 1 retry
+			return;
+	server.msg_to(num, "^2Your ^7SPAM ^2has triggered ^7auto-mute ^2for ^7" + to_string(spamkill_mute_period) + " ^2seconds");
+	mutes[num] = std::time(0);
+}
+
 bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 {
 	if(!active)
@@ -578,6 +601,34 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 
 	if(!check_slot(say_num))
 		return true;
+
+	// spamkill
+	std::time_t now = std::time(0);
+	if(mutes[say_num] && mutes[say_num] + spamkill_mute_period < now)
+	{
+		if(!server.command("!unmute " + to_string(say_num)))
+			server.command("!unmute " + to_string(say_num));
+		mutes.erase(say_num);
+	}
+
+	spam s;
+	s.num = say_num;
+	s.when = now;
+	spam_lst& list = spams[text];
+	list.push_back(s);
+
+	siz count = 0;
+	for(spam_lst_iter i = list.begin(); i != list.end();)
+	{
+		if(i->num != say_num)
+			{ ++i; continue; }
+		if(now - i->when > spamkill_period)
+			{ i = list.erase(i); continue; }
+		if(++count > spamkill_mute)
+			spamkill(say_num);
+	}
+//	spams[text].insert()
+	// /spamkill
 
 	siss iss(text);
 
@@ -648,6 +699,8 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			server.msg_to(say_num, "^7ADMIN: ^3!fixteams");
 			return true;
 		}
+
+		server.cp("^3Fixing Teams");
 
 		fixteams();
 	}

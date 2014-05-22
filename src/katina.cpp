@@ -55,6 +55,7 @@ using namespace oastats::types;
  */
 int main(const int argc, const char* argv[])
 {
+	srand(time(0));
 	log("KATINA REVISION: " << REVISION);
 	Katina katina;
 	katina.start(str(argc == 2 ? argv[1] : "$HOME/.katina"));

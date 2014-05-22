@@ -90,8 +90,31 @@ private:
 	siz_map caps; // num -> capss
 	// - /fixteams
 
+	// spamkill
+	struct spam
+	{
+		siz num; // slot
+		std::time_t when;
+	};
+
+	typedef std::list<spam> spam_lst;
+	typedef spam_lst::iterator spam_lst_iter;
+	typedef spam_lst::const_iterator spam_lst_citer;
+	typedef std::map<str, spam_lst> spam_map;
+	typedef std::map<siz, std::time_t> mute_map;
+
+	spam_map spams;
+	mute_map mutes;
+
+	siz spamkill_warn; // number of identical msgs before !warn
+	siz spamkill_mute; // number of identical msgs before !mute
+	std::time_t spamkill_period; // period
+	std::time_t spamkill_mute_period; // duration of mute
+	// spamkill
+
 	str trans(const str& cmd) const;
 
+	void spamkill(siz num);
 	bool fixteams();
 
 	bool mutepp(siz num);
