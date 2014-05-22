@@ -167,7 +167,7 @@ bool KatinaPluginAdmin::fixteams()
 		bug_var(i->second);
 		bug_var(teams[i->second]);
 		 // 1 = red, 2 = blue, 3 = spec
-		if(teams[i->second] != 1 || teams[i->second] != 2)
+		if(teams[i->second] != 1 && teams[i->second] != 2)
 			continue;
 
 		siz skill = sqrt(pow(kills[i->first], 2) + pow(caps[i->first] * cap_factor, 2));
