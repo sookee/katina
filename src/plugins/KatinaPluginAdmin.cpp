@@ -187,10 +187,10 @@ bool KatinaPluginAdmin::fixteams()
 	bug_var(team);
 	for(siz_mmap_criter i = rank.rbegin(); i != rank.rend(); ++i)
 	{
-		bug("FIXTEAMS: putting: " << i->first << " [" << i->first << "] "
+		bug("FIXTEAMS: putting: " << i->second << " [" << i->first << "] "
 				<< "on team " << str(team == 1 ? "r" : "b"));
-//		if(!server.command("!putteam " + str(team == 1 ? "r" : "b")))
-//			server.command("!putteam " + str(team == 1 ? "r" : "b")); // one retry
+//		if(!server.command("!putteam " + to_string(i->second) + str(team == 1 ? "r" : "b")))
+//			server.command("!putteam " + to_string(i->second) + str(team == 1 ? "r" : "b")); // one retry
 		team = team == 1 ? 2 : 1;
 	}
 
