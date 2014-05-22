@@ -840,10 +840,10 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 		skill = std::sqrt(std::pow(fph, 2) + std::pow(cph * kpc, 2));
 		// - Ranking
 
-		str fpad = fph < 10 ? "00" : (fph < 100 ? "0" : "");
+		str fpad = fph < 10 ? "  " : (fph < 100 ? " " : "");
 		str cpad = cph < 10 ? " " : "";
 		str apad = acc < 10 ? " " : "";
-		str spad = ups < 10 ? "00" : (ups < 100 ? "0" : "");
+		str spad = ups < 10 ? "  " : (ups < 100 ? " " : "");
 		soss oss;
 		oss << std::fixed;
 		oss.precision(1);
