@@ -676,8 +676,8 @@ bool Katina::start(const str& dir)
 	now = get("run.time", std::time_t(-1));
 	std::time_t base_now = now; // rerun base time
 
-//	if(!initial_player_info())
-//		log("ERROR: Unable to get initial player info");
+	if(!initial_player_info())
+		log("ERROR: Unable to get initial player info");
 
 	while(!done)
 	{
