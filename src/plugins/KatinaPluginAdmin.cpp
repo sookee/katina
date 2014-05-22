@@ -481,6 +481,8 @@ str KatinaPluginAdmin::trans(const str& cmd) const
 {
 	static str_map* aliases = 0;
 
+	return cmd; // TODO: remove this
+
 	if(!aliases)
 	{
 		aliases = new str_map;
