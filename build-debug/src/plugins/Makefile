@@ -97,7 +97,7 @@ katina-plugin-player-db.so: $(PLUGIN_PLAYER_DB_OBJS)
 
 install: $(PLUGINS)
 	mkdir -p $(PREFIX)/lib
-	for plugin in $(PLUGINS); do cp $$plugin $(PREFIX)/lib; done
+	for plugin in $(PLUGINS); do cp -f $$plugin $(PREFIX)/lib; done
 
 clean:
 	rm -f *.o *.so $(PLUGINS)

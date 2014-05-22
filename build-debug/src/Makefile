@@ -100,12 +100,12 @@ install: $(PROGRAMS) $(LIBRARIES)
 	mkdir -p $(PREFIX)/bin
 	@for program in $(PROGRAMS); \
 	do \
-		cp $$program $(PREFIX)/bin; \
+		cp -f $$program $(PREFIX)/bin; \
 	done
 	mkdir -p $(PREFIX)/lib
 	@for library in $(LIBRARIES); \
 	do \
-		cp $$library.0.0.0 $(PREFIX)/lib; \
+		cp -f $$library.0.0.0 $(PREFIX)/lib; \
 		cd $(PREFIX)/lib; \
 		ln -f -s $$library.0.0.0 $$library.0.0; \
 		ln -f -s $$library.0.0 $$library.0; \
