@@ -139,6 +139,21 @@ enum
 	, S_RETEAM
 };
 
+//BUG: cap_factor: 1 [../../../src/plugins/KatinaPluginAdmin.cpp] (147)
+//BUG: clients.size(): 5 [../../../src/plugins/KatinaPluginAdmin.cpp] (148)
+//BUG: i->first: 2 [../../../src/plugins/KatinaPluginAdmin.cpp] (151)
+//BUG: i->second: DFADEDA3 [../../../src/plugins/KatinaPluginAdmin.cpp] (152)
+//BUG: i->first: 3 [../../../src/plugins/KatinaPluginAdmin.cpp] (151)
+//BUG: i->second: 7B5DA741 [../../../src/plugins/KatinaPluginAdmin.cpp] (152)
+//BUG: i->first: 8 [../../../src/plugins/KatinaPluginAdmin.cpp] (151)
+//BUG: i->second: 6AAAA58B [../../../src/plugins/KatinaPluginAdmin.cpp] (152)
+//BUG: i->first: 9 [../../../src/plugins/KatinaPluginAdmin.cpp] (151)
+//BUG: i->second: 271D5815 [../../../src/plugins/KatinaPluginAdmin.cpp] (152)
+//BUG: i->first: 11 [../../../src/plugins/KatinaPluginAdmin.cpp] (151)
+//BUG: i->second: E69CED01 [../../../src/plugins/KatinaPluginAdmin.cpp] (152)
+//BUG: ------------------------------------------- [../../../src/plugins/KatinaPluginAdmin.cpp] (169)
+//BUG: team: 2 [../../../src/plugins/KatinaPluginAdmin.cpp] (171)
+
 bool KatinaPluginAdmin::fixteams()
 {
 	siz_mmap rank; // skill -> slot
@@ -150,6 +165,7 @@ bool KatinaPluginAdmin::fixteams()
 	{
 		bug_var(i->first);
 		bug_var(i->second);
+		bug_var(teams[i->second]);
 		 // 1 = red, 2 = blue, 3 = spec
 		if(teams[i->second] != 1 || teams[i->second] != 2)
 			continue;
@@ -659,7 +675,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			return true;
 
 		server.msg_to(say_num, "^7ADMIN: ^2?sanctions^7, ^2?mute++^7, ^2?fixname^7");
-		server.msg_to(say_num, "^7ADMIN: ^2?warnonsight^7");
+		server.msg_to(say_num, "^7ADMIN: ^2?warnonsight^7, ^2?fixteams^7");
 	}
 	else if(cmd == trans("!request") || cmd == trans("?request"))
 	{
