@@ -144,27 +144,31 @@ bool KatinaPluginAdmin::fixteams()
 	siz_mmap rank; // skill -> slot
 
 	double cap_factor = total_caps ? total_kills / total_caps : 1.0;
-
+	bug_var(cap_factor);
+	bug_var(clients.size());
 	for(siz_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
 	{
+		bug_var(i->first);
+		bug_var(i->second);
 		 // 1 = red, 2 = blue, 3 = spec
 		if(teams[i->second] != 1 || teams[i->second] != 2)
 			continue;
 
 		siz skill = sqrt(pow(kills[i->first], 2) + pow(caps[i->first] * cap_factor, 2));
 
-		plog("-------------------------------------------");
-		plog("FIXTEAMS:  slot:" << i->first);
-		plog("FIXTEAMS:  name:" << players[clients[i->first]]);
-		plog("FIXTEAMS: kills:" << kills[i->first]);
-		plog("FIXTEAMS:  caps:" << caps[i->first]);
-		plog("FIXTEAMS: skill:" << skill);
+		bug("-------------------------------------------");
+		bug("FIXTEAMS:  slot:" << i->first);
+		bug("FIXTEAMS:  name:" << players[clients[i->first]]);
+		bug("FIXTEAMS: kills:" << kills[i->first]);
+		bug("FIXTEAMS:  caps:" << caps[i->first]);
+		bug("FIXTEAMS: skill:" << skill);
 
 		rank.insert(siz_mmap_pair(skill, i->first));
 	}
 
-	plog("-------------------------------------------");
+	bug("-------------------------------------------");
 	siz team = (rand() % 2) + 1;
+	bug_var(team);
 	for(siz_mmap_criter i = rank.rbegin(); i != rank.rend(); ++i)
 	{
 		plog("FIXTEAMS: putting: " << i->first << " [" << i->first << "] "
