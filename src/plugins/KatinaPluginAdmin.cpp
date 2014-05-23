@@ -15,6 +15,7 @@ namespace katina { namespace plugin {
 
 using namespace oastats::log;
 using namespace oastats::types;
+using namespace oastats::string;
 
 KATINA_PLUGIN_TYPE(KatinaPluginAdmin);
 KATINA_PLUGIN_INFO("katina::admin", "Katina Admin", "0.1-dev");
@@ -286,6 +287,7 @@ bool KatinaPluginAdmin::open()
 	//katina.add_log_event(this, SCORE_EXIT);
 	//katina.add_log_event(this, AWARD);
 	katina.add_log_event(this, SAY);
+	katina.add_log_event(this, CHAT);
 	//katina.add_log_event(this, SHUTDOWN_GAME);
 	//katina.add_log_event(this, EXIT);
 	//katina.add_log_event(this, UNKNOWN);
@@ -929,6 +931,19 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		sanctions.push_back(s);
 		save_sanctions();
 	}
+
+	return true;
+}
+
+bool KatinaPluginAdmin::chat(siz min, siz sec, const str& text)
+{
+	if(!active)
+		return true;
+
+	plog("chat(" << text << ")");
+
+	if(trim_copy(text) == "!fixteams")
+		fixteams();
 
 	return true;
 }

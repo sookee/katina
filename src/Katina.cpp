@@ -501,7 +501,6 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 			str var, val;
 			if(!(iss >> var >> val))
 			{
-				bug_var(var);
 				bug_var(val);
 				log("Error: parsing builtin command parameters: " << text);
 			}
@@ -1197,8 +1196,6 @@ bool Katina::start(const str& dir)
 			if(events[SAY].empty())
 				continue;
 
-			//bug(cmd << "(" << params << ")");
-
 			str text;
 			GUID guid;
 
@@ -1211,6 +1208,15 @@ bool Katina::start(const str& dir)
 						; i != events[SAY].end(); ++i)
 						(*i)->say(min, sec, guid, text);
 			}
+		}
+		else if(cmd == "chat:")
+		{
+			if(events[CHAT].empty())
+				continue;
+
+			for(plugin_vec_iter i = events[CHAT].begin()
+				; i != events[CHAT].end(); ++i)
+				(*i)->chat(min, sec, params);
 		}
 		else
 		{

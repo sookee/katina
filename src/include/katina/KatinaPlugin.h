@@ -103,6 +103,7 @@ public:
 	virtual bool award(siz min, siz sec, siz num, siz awd) { return true; }
 	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) { return true; }
 	virtual bool sayteam(siz min, siz sec, const GUID& guid, const str& text) { return true; }
+	virtual bool chat(siz min, siz sec, const str& text) { return true; }
 	virtual bool shutdown_game(siz min, siz sec) { return true; }
 	virtual bool exit(siz min, siz sec) { return true; }
 	virtual bool unknown(siz min, siz sec, const str& cmd, const str& params) { return true; }

@@ -76,7 +76,6 @@ enum event_t
 	INIT_GAME
 	, WARMUP
 	, CLIENT_CONNECT
-	, CLIENT_CONNECT_INFO // mod_katina >= 0.1-beta
 	, CLIENT_BEGIN
 	, CLIENT_DISCONNECT
 	, CLIENT_USERINFO_CHANGED
@@ -86,17 +85,19 @@ enum event_t
 	, CTF_EXIT
 	, SCORE_EXIT
 	, AWARD
-	, WEAPON_USAGE // mod_katina >= 0.1-beta
-	, MOD_DAMAGE // mod_katina >= 0.1-beta
-	, PLAYER_STATS // mod_katina >= 0.1-beta
 	, SAY
 	, SAYTEAM
+	, CHAT
 	, SHUTDOWN_GAME
 	, EXIT
 	, UNKNOWN
     , HEARTBEAT
+	, WEAPON_USAGE // mod_katina >= 0.1-beta
+	, MOD_DAMAGE // mod_katina >= 0.1-beta
+	, PLAYER_STATS // mod_katina >= 0.1-beta
     , SPEED //mod_katina >= 0.1-beta
     , PUSH // mod_katina >= 0.1-beta
+	, CLIENT_CONNECT_INFO // mod_katina >= 0.1-beta
 };
 
 typedef std::map<event_t, plugin_vec> event_map;
