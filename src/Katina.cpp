@@ -297,6 +297,27 @@ bool Katina::is_admin(const GUID& guid)
 	for(str_vec_iter i = admins.begin(); i != admins.end(); ++i)
 		if(guid == *i)
 			return true;
+
+	// now try admin.dat file
+	str admin_dat = get("admin.dat.file");
+	if(admin_dat.empty())
+		return false;
+	sifs ifs(expand_env(admin_dat).c_str());
+	if(!ifs)
+	{
+		log("WARN: admin.dat file not found: " << admin_dat);
+		return false;
+	}
+
+	str line;
+	// [admin]
+	// name    = ^1S^2oo^3K^5ee
+	// guid    = 87597A67B5A4E3C79544A72B7B5DA741
+	while(sgl(ifs, line))
+		if(trim(line) == "[admin]")
+			if(sgl(sgl(ifs, line), line))
+				if(trim(line).size() == 32 && guid == line.substr(0, 8))
+					return true;
 	return false;
 }
 

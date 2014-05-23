@@ -675,7 +675,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			return true;
 
 		server.msg_to(say_num, "^7ADMIN: ^2?sanctions^7, ^2?mute++^7, ^2?fixname^7");
-		server.msg_to(say_num, "^7ADMIN: ^2?warnonsight^7, ^2?fixteams^7");
+		server.msg_to(say_num, "^7ADMIN: ^2?warnonsight^7, ^2?fixteams^7, ^2?reteam^7, ^2?spec^7");
 	}
 	else if(cmd == trans("!request") || cmd == trans("?request"))
 	{
@@ -816,17 +816,29 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		sanctions.push_back(s);
 		save_sanctions();
 	}
-	else if(cmd == trans("!reteam") || cmd == trans("?reteam"))
+	else if(cmd == trans("!reteam") || cmd == trans("?reteam")
+			|| cmd == trans("!spec") || cmd == trans("?spec"))
 	{
 		// !reteam <slot> r|b|s (red, blue or spec)
 		if(!check_admin(guid))
 			return true;
 
+		bool spec = cmd.find(trans("!spec").substr(1)) == 1;
+
 		if(cmd[0] == '?')
 		{
-			server.msg_to(say_num, "^7ADMIN: ^3Force a player to a specific team (default to spec).", true);
-			server.msg_to(say_num, "^7ADMIN: ^3!reteam <num> <r|g|b>");
-			server.msg_to(say_num, "^7ADMIN: ^3!reteam <num> remove");
+			if(spec)
+			{
+				server.msg_to(say_num, "^7ADMIN: ^3Force a player to a spectate.", true);
+				server.msg_to(say_num, "^7ADMIN: ^3!spec <num>");
+				server.msg_to(say_num, "^7ADMIN: ^3!spec <num> remove");
+			}
+			else
+			{
+				server.msg_to(say_num, "^7ADMIN: ^3Force a player to a specific team (default to spec).", true);
+				server.msg_to(say_num, "^7ADMIN: ^3!reteam <num> <r|g|b>");
+				server.msg_to(say_num, "^7ADMIN: ^3!reteam <num> remove");
+			}
 			return true;
 		}
 
@@ -834,6 +846,9 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		str team;
 
 		sgl(iss >> num >> std::ws, team);
+
+		if(spec)
+			team = "S";
 
 		if(upper(team) != "R" || team != "G" || team != "S")
 		{
@@ -854,7 +869,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		}
 
 		sanction s;
-		s.type = S_FIXNAME;
+		s.type = S_RETEAM;
 		s.guid = clients[num];
 		s.expires = 0;
 		s.params.push_back(team);
