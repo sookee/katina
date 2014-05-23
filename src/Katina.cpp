@@ -539,31 +539,6 @@ bool Katina::initial_player_info()
 	// 10 R 0   Unknown Player (*45B12012)   XZKTR
 	// 11 S 5  Server Operator (*F587F42F)   a Cold Slug (a.k.a. Ximxim)
 
-	// ����      userinfo
-	// --------
-	// ip                   81.101.111.32
-	// cl_voip              1
-	// cg_predictItems      1
-	// cl_anonymous         0
-	// sex                  male
-	// handicap             100
-	// color2               5
-	// color1               4
-	// team_headmodel       sarge/default
-	// team_model           sarge/default
-	// headmodel            sarge/default
-	// model                sarge/default
-	// snaps                40
-	// rate                 25000
-	// name                 ^1S^2oo^3K^5ee^4|^7AFK
-	// teamtask             0
-	// password             pringles
-	// cl_guid              87597A67B5A4E3C79544A72B7B5DA741
-	// cg_scorePlums        1
-	// cg_delag             1
-	// cg_cmdTimeNudge      0
-	// teamoverlay          0
-
 	str reply;
 	if(!server.command("!listplayers", reply))
 		if(!server.command("!listplayers", reply))
@@ -575,60 +550,66 @@ bool Katina::initial_player_info()
 		return false;
 	}
 
-	siz_map num_to_team;
-
 	siz num;
 	char team; // 1 = red, 2 = blue, 3 = spec
 
 	siss iss(reply);
 
-	str line;
+	str line, skip, guid, name;
 	while(sgl(iss, line))
 	{
 		bug_var(line);
 		siss iss(line);
-		if(iss >> num >> std::ws >> team)
+		if(!sgl(sgl(iss >> num >> std::ws >> team, skip, '*'), guid, ')'))
 		{
-			bug("Adding: " << num << " to team " << team);
-			num_to_team[num] = (team == 'R' ? 1 : (team == 'B' ? 2 : 3));
+			log("ERROR: parsing !listplayers: " << line);
+			continue;
 		}
+		bug("Adding: " << num << " to team " << team);
+		clients[num] = guid;
+		teams[clients[num]] = (team == 'R' ? 1 : (team == 'B' ? 2 : 3));
 	}
 
-	for(siz_map_iter i = num_to_team.begin(); i != num_to_team.end(); ++i)
+	if(!server.command("status", reply))
+		if(!server.command("status", reply))
+			{ log("ERROR: No status"); return false; }
+
+
+	if(reply.find("map:") == str::npos)
 	{
-		bug("Getting info for: " << i->first);
-		num = i->first;
-		if(!server.command("clientinfo " + to_string(num), reply))
-			if(!server.command("clientinfo " + to_string(num), reply))
-				{ log("WARN: No userinfo for client: " << num); continue; }
+		log("ERROR: bad reply from status: " << reply);
+		return false;
+	}
 
-		if(reply.find("userinfo") == str::npos)
-			{ log("ERROR: bad reply from userinfo: " << reply); continue; }
+	// ����      map: am_thornish
+	// num score ping name            lastmsg address               qport rate
+	// --- ----- ---- --------------- ------- --------------------- ----- -----
+	//   2     0   26 ^1S^2oo^3K^5ee^4|^7AFK^7     100 81.101.111.32         61881 25000
+	//   3    46  138 Silent^7             50 96.241.187.112          814  2500
+	//   4    32   98 ^2|<^8MAD^1Kitty Too^7       0 178.66.13.135         14639 25000
 
-		GUID guid;
-		str name;
+	iss.clear();
+	iss.str(reply);
 
-		iss.clear();
-		iss.str(reply);
-		while(sgl(iss, line))
+	const str term = "^7";
+
+	while(sgl(iss, line) && line.find("---"));
+	while(sgl(iss, line))
+	{
+		siss iss(line);
+		if(!sgl(iss >> num >> skip >> skip >> std::ws, line))
 		{
-			bug_var(line);
-			trim(line);
-			if(!line.find("cl_guid") && line.size() == 53)
-				guid = line.substr(53 - 8);
-			else if(!line.find("name") && line.size() > 21)
-				name = line.substr(21);
+			log("ERROR: parsing status: " << line);
+			continue;
 		}
-
-		bug_var(guid);
-		bug_var(name);
-
-		if(!name.empty() && !guid.is_bot())
+		// ^2|<^8MAD^1Kitty Too^7       0 178.66.13.135         14639 25000
+		str_iter f = std::find_end(line.begin(), line.end(), term.begin(), term.end());
+		if(f == line.end())
 		{
-			clients[num] = guid;
-			players[guid] = name;
-		    teams[guid] = i->second; // 1 = red, 2 = blue, 3 = spec
+			log("ERROR: parsing status name: " << line);
+			continue;
 		}
+		players[clients[num]].assign(line.begin(), f).append(term);
 	}
 
     return true;
