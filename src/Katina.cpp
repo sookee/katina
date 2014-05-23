@@ -598,8 +598,8 @@ bool Katina::initial_player_info()
 	{
 		bug("Getting info for: " << i->first);
 		num = i->first;
-		if(!server.command("userinfo " + to_string(num), reply))
-			if(!server.command("userinfo" + to_string(num), reply))
+		if(!server.command("clientinfo " + to_string(num), reply))
+			if(!server.command("clientinfo " + to_string(num), reply))
 				{ log("WARN: No userinfo for client: " << num); continue; }
 
 		if(reply.find("userinfo") == str::npos)
