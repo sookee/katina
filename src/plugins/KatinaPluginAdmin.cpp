@@ -30,6 +30,7 @@ KatinaPluginAdmin::KatinaPluginAdmin(Katina& katina)
 , active(true)
 , total_kills(0)
 , total_caps(0)
+, policy(FT_EVEN_SCATTER)
 , spamkill_warn(3)
 , spamkill_mute(5)
 , spamkill_mute_period(60)
@@ -155,9 +156,14 @@ enum
 //BUG: ------------------------------------------- [../../../src/plugins/KatinaPluginAdmin.cpp] (169)
 //BUG: team: 2 [../../../src/plugins/KatinaPluginAdmin.cpp] (171)
 
-bool KatinaPluginAdmin::fixteams()
+bool KatinaPluginAdmin::fixteams(siz policy)
 {
 	siz_mmap rank; // skill -> slot
+
+	siz skill_r = 0;
+	siz skill_b = 0;
+	siz r = 0;
+	siz b = 0;
 
 	double cap_factor = total_caps ? total_kills / total_caps : 1.0;
 	bug_var(cap_factor);
@@ -173,6 +179,11 @@ bool KatinaPluginAdmin::fixteams()
 
 		siz skill = sqrt(pow(kills[i->first], 2) + pow(caps[i->first] * cap_factor, 2));
 
+		if(teams[i->second] == 1)
+			{ skill_r += skill; ++r; }
+		else
+			{ skill_b += skill; ++b; }
+
 		bug("-------------------------------------------");
 		bug("FIXTEAMS:  slot:" << i->first);
 		bug("FIXTEAMS:  name:" << players[clients[i->first]]);
@@ -184,15 +195,52 @@ bool KatinaPluginAdmin::fixteams()
 	}
 
 	bug("-------------------------------------------");
-	siz team = (rand() % 2) + 1;
-	bug_var(team);
-	for(siz_mmap_criter i = rank.rbegin(); i != rank.rend(); ++i)
+
+	if(policy == FT_EVEN_SCATTER)
 	{
-		bug("FIXTEAMS: putting: " << i->second << " [" << i->first << "] "
-				<< "on team " << str(team == 1 ? "r" : "b"));
-		if(!server.command("!putteam " + to_string(i->second) + " " + str(team == 1 ? "r" : "b")))
-			server.command("!putteam " + to_string(i->second) + " " + str(team == 1 ? "r" : "b")); // one retry
-		team = team == 1 ? 2 : 1;
+		siz team = (rand() % 2) + 1;
+		bug_var(team);
+		for(siz_mmap_criter i = rank.rbegin(); i != rank.rend(); ++i)
+		{
+			bug("FIXTEAMS: putting: " << i->second << " [" << i->first << "] "
+					<< "on team " << str(team == 1 ? "r" : "b"));
+			if(!server.command("!putteam " + to_string(i->second) + " " + str(team == 1 ? "r" : "b")))
+				server.command("!putteam " + to_string(i->second) + " " + str(team == 1 ? "r" : "b")); // one retry
+			team = team == 1 ? 2 : 1;
+		}
+	}
+	else if(policy == FT_NEAREST_DIFFERENCE)
+	{
+//		if(r > b && skill_r >= skill_b) // switch one from r to b
+//		{
+//			const siz diff = (skill_r - skill_b) / 2;
+//			siz_mmap_citer match = rank.begin();
+//			if(match != rank.end())
+//			{
+//				siz match_diff = match->first - diff;
+//				if(match->first < diff)
+//					match_diff = diff = match->first;
+//				for(siz_mmap_citer i = match; i != rank.end(); ++i)
+//				{
+//					if(teams[client[i->second]] != 1) // avoid blue team
+//						continue;
+//					if(i->first < diff && (diff - i->first) < match_diff)
+//						{ match = i; match_diff = diff - i->first; }
+//					else if((i->first - diff) < match_diff)
+//						{ match = i; match_diff = i->first - diff; }
+//				}
+//				if(!server.command("!putteam " + to_string(match->second) + " b"))
+//					server.command("!putteam " + to_string(match->second) + " b"); // one retry
+//			}
+//		}
+//		else if(b > r && skill_b >= skill_r) // switch one from b to r
+//		{
+//
+//		}
+//		else if(r == b) // swap one playerfrom each team
+//		{
+//
+//		}
 	}
 
 	return true;
@@ -549,13 +597,11 @@ bool KatinaPluginAdmin::check_admin(const GUID& guid)
 
 bool KatinaPluginAdmin::check_slot(siz num)
 {
-	if(clients.find(num) == clients.end())
-	{
-		plog("WARN: Unknown client number: " << num);
-		server.chat_nobeep("^7!ADMIN: ^3Unknown client number: ^7" + to_string(num));
-		return false;
-	}
-	return true;
+	if(katina.check_slot(num))
+		return true;
+	plog("WARN: Unknown client number: " << num);
+	server.chat_nobeep("^7!ADMIN: ^3Unknown client number: ^7" + to_string(num));
+	return false;
 }
 
 std::time_t parse_duration(const str& duration, std::time_t dflt)

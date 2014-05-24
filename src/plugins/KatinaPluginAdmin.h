@@ -66,6 +66,12 @@ struct sanction
 typedef std::list<sanction> sanction_lst;
 typedef sanction_lst::iterator sanction_lst_iter;
 
+enum policy
+{
+	FT_EVEN_SCATTER // best to team a, next best to team b etc...
+	, FT_NEAREST_DIFFERENCE // add up teams a and b then switch 1 player to even them
+};
+
 class KatinaPluginAdmin
 : public KatinaPlugin
 {
@@ -88,7 +94,10 @@ private:
 
 	siz_map kills; // num -> kills
 	siz_map caps; // num -> capss
-	// - /fixteams
+
+	siz policy;
+
+// - /fixteams
 
 	// spamkill
 	struct spam
@@ -115,7 +124,7 @@ private:
 	str trans(const str& cmd) const;
 
 	void spamkill(siz num);
-	bool fixteams();
+	bool fixteams(siz policy = FT_EVEN_SCATTER);
 
 	bool mutepp(siz num);
 	bool un_mutepp(siz num);

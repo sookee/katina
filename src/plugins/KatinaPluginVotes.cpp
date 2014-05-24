@@ -107,6 +107,17 @@ bool KatinaPluginVotes::say(siz min, siz sec, const GUID& guid, const str& text)
 	if(!active)
 		return true;
 	
+	siz say_num = katina.getClientNr(guid);
+
+	if(say_num == siz(-1))
+	{
+		plog("ERROR: Unable to get slot number from guid: " << guid);
+		return true;
+	}
+
+	if(!katina.check_slot(say_num))
+		return true;
+
 	// say(3EA47384, would be difficult with a lot of players)
 	str cmd, type;
 	siss iss(text);
@@ -123,24 +134,38 @@ bool KatinaPluginVotes::say(siz min, siz sec, const GUID& guid, const str& text)
 		return false;
 	}
 	
-	if(cmd == "!love") // TODO:
+	if(cmd == "!help" || cmd == "?help")
+	{
+		katina.server.msg_to(say_num, "^7VOTES: ^2?love^7, ^2?hate^7");
+	}
+	else if(cmd == "?love")
+	{
+		katina.server.msg_to(say_num, "^7VOTES: ^3Vote to keep a feature like the current map");
+		katina.server.msg_to(say_num, "^7VOTES: ^3Use^7: !^2love map ^3if you want to keep the current map");
+	}
+	else if(cmd == "?hate")
+	{
+		katina.server.msg_to(say_num, "^7VOTES: ^3Vote to lose a feature like the current map");
+		katina.server.msg_to(say_num, "^7VOTES: ^3Use^7: !^2hate map ^3if you want to lose the current map");
+	}
+	else if(cmd == "!love") // TODO:
 	{
 		if(map_votes.count(guid) && map_votes[guid] == 1)
-			katina.server.chat("^3You have already voted for this map.");
+			katina.server.msg_to(say_num, "^3You have already voted for this map.", true);
 		else if(map_votes.count(guid))
-			katina.server.chat("^3Your vote has changed for this map.");
+			katina.server.msg_to(say_num, "^3Your vote has changed for this map.", true);
 		else
-			katina.server.chat("^7" + katina.players[guid] + "^7: ^3Your vote will be counted.");
+			katina.server.msg_to(say_num, "^7" + katina.players[guid] + "^7: ^3Your vote will be counted.", true);
 		map_votes[guid] = 1;
 	}
 	else if(cmd == "!hate") // TODO:
 	{
 		if(map_votes.count(guid) && map_votes[guid] == -1)
-			katina.server.chat("^3You have already voted for this map.");
+			katina.server.msg_to(say_num, "^3You have already voted for this map.", true);
 		else if(map_votes.count(guid))
-			katina.server.chat("^3Your vote has changed for this map.");
+			katina.server.msg_to(say_num, "^3Your vote has changed for this map.", true);
 		else
-			katina.server.chat("^7" + katina.players[guid] + "^7: ^3Your vote will be counted.");
+			katina.server.msg_to(say_num, "^7" + katina.players[guid] + "^7: ^3Your vote will be counted.", true);
 		map_votes[guid] = -1;
 	}
 	

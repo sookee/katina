@@ -256,6 +256,11 @@ public:
     siz getTeam(siz client);
     str getPlayerName(siz client);
     siz getClientNr(GUID guid);
+    bool check_slot(siz num)
+    {
+    	return clients.find(num) != clients.end();
+    }
+
 
 	str get_version();
 
