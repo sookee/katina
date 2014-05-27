@@ -597,6 +597,8 @@ bool Katina::initial_player_info()
 	iss.clear();
 	iss.str(reply);
 
+	bug_var(reply);
+
 	const str term = "^7";
 
 	while(sgl(iss, line) && line.find("---")) {}
