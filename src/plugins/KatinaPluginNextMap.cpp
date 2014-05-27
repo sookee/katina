@@ -46,6 +46,8 @@ bool KatinaPluginNextMap::open()
 		, katina.get("stats.db.pass", "")
 		, katina.get("stats.db.base"));
 
+	db.on();
+
 	katina.add_var_event(this, "nextmap.active", active);
 	katina.add_log_event(this, INIT_GAME);
 	katina.add_log_event(this, CLIENT_CONNECT_INFO);
@@ -93,8 +95,8 @@ bool KatinaPluginNextMap::client_connect_info(siz min, siz sec, siz num, const G
 
 	// get map stats for this player
 	soss sql;
-	sql << "select `item`, `count` from `votes` where `type` = 'map' and guid = '" << guid << "'";
-
+	sql << "select `item`,`count` from `votes` where `type` = 'map' and guid = '" << guid << "'";
+	bug_var(sql.str());
 	str_vec_vec rows;
 	if(!db.select(sql.str(), rows, 2))
 		return true;
@@ -205,6 +207,6 @@ bool KatinaPluginNextMap::exit(siz min, siz sec)
 
 void KatinaPluginNextMap::close()
 {
-}
+	db.off();}
 
 }} // katina::plugin

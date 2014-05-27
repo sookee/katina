@@ -526,7 +526,7 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 
 bool Katina::initial_player_info()
 {
-	bug_func();
+	//bug_func();
 	// ����      !listplayers: 9 players connected:
 	//  2 S 5  Server Operator (*7B5DA741)   SooKee|AFK (a.k.a. SooKee)
 	//  3 S 0   Unknown Player (*198025FD)   Kiki
@@ -559,14 +559,14 @@ bool Katina::initial_player_info()
 
 	while(sgl(iss, line))
 	{
-		bug_var(line);
+		//bug_var(line);
 		siss iss(line);
 		if(!sgl(sgl(iss >> num >> std::ws >> team, skip, '*'), guid, ')'))
 		{
 			log("ERROR: parsing !listplayers: " << line);
 			continue;
 		}
-		bug("Adding: " << num << " to team " << team);
+		//bug("Adding: " << num << " to team " << team);
 		clients[num] = guid;
 		teams[clients[num]] = (team == 'R' ? 1 : (team == 'B' ? 2 : 3));
 	}
@@ -615,7 +615,7 @@ bool Katina::initial_player_info()
 			continue;
 		}
 		players[clients[num]].assign(line.begin(), f).append(term);
-		bug_var(players[clients[num]]);
+		//bug_var(players[clients[num]]);
 	}
 
     return true;

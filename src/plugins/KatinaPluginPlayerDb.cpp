@@ -19,7 +19,7 @@ using namespace oastats::types;
 using namespace oastats::string;
 
 KATINA_PLUGIN_TYPE(KatinaPluginPlayerDb);
-KATINA_PLUGIN_INFO("katina::player::db", "Katina Player Database", "0.1-dev");
+KATINA_PLUGIN_INFO("katina::playerdb", "Katina Player Database", "0.1-dev");
 
 MYSQL mysql;
 str host;
@@ -102,7 +102,7 @@ bool insert(const str& sql, my_ulonglong& insert_id)
 
 void db_add(const player_do& p)
 {
-	bug("PLAYER DB: add: " << p.guid << " " << p.ip << " " << p.name);
+	//bug("PLAYER DB: add: " << p.guid << " " << p.ip << " " << p.name);
 
 	if(p.ip == 0)
 	{
@@ -112,7 +112,7 @@ void db_add(const player_do& p)
 
 	if(player_cache.count(p))
 	{
-		bug("CACHE HIT DATABASE WRITE AVOIDED");
+		//bug("CACHE HIT DATABASE WRITE AVOIDED");
 		return;
 	}
 
