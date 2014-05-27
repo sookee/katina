@@ -95,7 +95,7 @@ bool KatinaPluginNextMap::client_connect_info(siz min, siz sec, siz num, const G
 
 	// get map stats for this player
 	soss sql;
-	sql << "select `item`,`count` from `votes` where `type` = 'map' and guid = '" << guid << "'";
+	sql << "select `item`,`count` from `votes` where `type` = 'map' and guid = '" << str(guid) << "'";
 	bug_var(sql.str());
 	str_vec_vec rows;
 	if(!db.select(sql.str(), rows, 2))

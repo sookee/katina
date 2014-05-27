@@ -615,6 +615,7 @@ bool Katina::initial_player_info()
 			continue;
 		}
 		players[clients[num]].assign(line.begin(), f).append(term);
+		// TODO: collect IPs in Katina (here too)
 		//bug_var(players[clients[num]]);
 	}
 
