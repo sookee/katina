@@ -134,7 +134,7 @@ bool KatinaPluginNextMap::exit(siz min, siz sec)
 		return true;
 
 	// set nextmap here
-	str_siz_map maps;
+	str_int_map maps;
 
 	for(guid_vote_map_iter i = votes.begin(); i != votes.end(); ++i)
 	{
@@ -146,13 +146,16 @@ bool KatinaPluginNextMap::exit(siz min, siz sec)
 
 	str nextmap; // next mapname
 
-	siz tot = 0;
+	int tot = 0;
 	siz_str_map sort;
-	for(str_siz_map_citer i = maps.begin(); i != maps.end(); ++i)
+	for(str_int_map_citer i = maps.begin(); i != maps.end(); ++i)
 		if(i->second > 0)
 			{ sort[i->second] = i->first; tot += i->second; }
 
 	bug_var(tot);
+
+	if(!tot)
+		return true;
 
 	siz pick = rand() % tot;
 

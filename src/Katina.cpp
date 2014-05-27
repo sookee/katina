@@ -553,8 +553,10 @@ bool Katina::initial_player_info()
 	char team; // 1 = red, 2 = blue, 3 = spec
 
 	siss iss(reply);
-
 	str line, skip, guid, name;
+
+	sgl(iss, line); // ignore first line
+
 	while(sgl(iss, line))
 	{
 		bug_var(line);
@@ -592,9 +594,13 @@ bool Katina::initial_player_info()
 
 	const str term = "^7";
 
-	while(sgl(iss, line) && line.find("---"));
+	while(sgl(iss, line) && line.find("---")) { bug_var(line); }
+	bug("parse proper");
 	while(sgl(iss, line))
 	{
+		if(trim(line).empty())
+			continue;
+		bug_var(line);
 		siss iss(line);
 		if(!sgl(iss >> num >> skip >> skip >> std::ws, line))
 		{
@@ -609,6 +615,7 @@ bool Katina::initial_player_info()
 			continue;
 		}
 		players[clients[num]].assign(line.begin(), f).append(term);
+		bug_var(players[clients[num]]);
 	}
 
     return true;
