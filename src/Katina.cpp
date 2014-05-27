@@ -622,6 +622,14 @@ bool Katina::initial_player_info()
 			continue;
 		}
 		players[clients[num]].assign(line.begin(), f).append(term);
+
+		iss.clear();
+		iss.str(str(f, line.end()));
+
+		str ip;
+		if(iss >> skip >> std::ws >> skip >> std::ws >> ip)
+			bug("IP ADDRESS: " << ip);
+
 		// TODO: collect IPs in Katina (here too)
 		//bug_var(players[clients[num]]);
 	}
