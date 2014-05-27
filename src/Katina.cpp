@@ -594,13 +594,13 @@ bool Katina::initial_player_info()
 
 	const str term = "^7";
 
-	while(sgl(iss, line) && line.find("---")) { bug_var(line); }
-	bug("parse proper");
+	while(sgl(iss, line) && line.find("---")) {}
+//	bug("parse proper");
 	while(sgl(iss, line))
 	{
 		if(trim(line).empty())
 			continue;
-		bug_var(line);
+//		bug_var(line);
 		siss iss(line);
 		if(!sgl(iss >> num >> skip >> skip >> std::ws, line))
 		{

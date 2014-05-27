@@ -4,7 +4,7 @@ DEBUG = 1
 RELEASE = 0
 PREFIX = /use/local
 
-include Makefile.local # override defaults
+-include Makefile.local # override defaults
 
 src = src
 
