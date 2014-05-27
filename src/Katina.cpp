@@ -877,7 +877,7 @@ bool Katina::start(const str& dir)
 			str ip;
 			GUID guid;
 			str skip; // rest of guid needs to be skipped before ip
-			if(!(iss >> num >> guid >> skip >> ip))
+			if(!(iss >> num >> std::ws >> guid >> skip >> std::ws >> ip))
 				log("Error parsing ClientConnectInfo: "  << params);
 			else
 			{

@@ -91,7 +91,7 @@ bool KatinaPluginNextMap::client_connect_info(siz min, siz sec, siz num, const G
 	if(!active)
 		return true;
 
-	bug("Finding votes for player: " << guid << players[guid]);
+	bug("Finding votes for player: " << guid << " " << players[guid]);
 
 	// get map stats for this player
 	soss sql;
