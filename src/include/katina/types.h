@@ -51,6 +51,8 @@ namespace oastats { namespace types {
 
 //-- TYPES ---------------------------------------------
 
+typedef unsigned char byte;
+
 typedef std::size_t siz;
 
 typedef std::string str;

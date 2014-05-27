@@ -113,7 +113,7 @@ bool Database::select(const str& sql, str_vec_vec& rows, siz fields)
 	}
 
 	if(fields == 0)
-		fields = fields = mysql_num_fields(result);
+		fields = mysql_num_fields(result);
 
 	if(fields != mysql_num_fields(result))
 		log("DATABASE: WARNING: parameter fields different from table");

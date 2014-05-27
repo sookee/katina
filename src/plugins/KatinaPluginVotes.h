@@ -38,10 +38,15 @@ private:
 
 	// cvars
 	bool active;
+
+public:
+
+	/**
+	 * The name of the map that map_votes applies to
+	 */
 	str mapname;
 	guid_int_map map_votes; // GUID -> 3
-	
-public:
+
 	KatinaPluginVotes(Katina& katina);
 
 	// API

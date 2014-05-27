@@ -29,7 +29,7 @@ using namespace oastats::log;
 using namespace oastats::data;
 using namespace oastats::types;
 
-class KatinaPluginExample
+class KatinaPluginNextMap
 : public KatinaPlugin
 {
 private:
@@ -41,7 +41,7 @@ private:
 	bool active;
 
 public:
-	KatinaPluginExample(Katina& katina);
+	KatinaPluginNextMap(Katina& katina);
 
 	// INTERFACE: KatinaPlugin
 

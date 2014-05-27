@@ -188,9 +188,7 @@ std::ostream& operator<<(std::ostream& os, const siz_set& s)
 
 class Katina
 {
-	friend void* cvarpoll(void* vp);
-	bool rconset(const str& cvar, str& val);
-
+	//friend void* cvarpoll(void* vp);
 private:
 	bool done;
 	bool active;
@@ -249,6 +247,11 @@ public:
 	std::time_t now;
 
 	str mod_katina; // server enhancements
+
+	/**
+	 * Get a cvar's value using rcon
+	 */
+	bool rconset(const str& cvar, str& val);
 
 	bool initial_player_info();
 	void builtin_command(const GUID& guid, const str& text);

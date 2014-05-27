@@ -35,6 +35,10 @@ KATINA_WHOIS_FLAGS = -D DEBUG -O0 -g3 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread -Iinc
 KATINA_WHOIS_LIBS = $(MYSQL_LIBS) -lrt -pthread
 KATINA_WHOIS_OBJS = katina-whois.o
 
+KATINA_CLIENT_FLAGS = -D DEBUG -O0 -g3 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread -Iinclude
+KATINA_CLIENT_LIBS = $(MYSQL_LIBS) -lrt -pthread
+KATINA_CLIENT_OBJS = katina-client.o
+
 PROGRAMS = katina katina-irc katina-votes katina-whois
 
 PREFIX ?= $(HOME)
@@ -91,6 +95,15 @@ katina-whois: $(KATINA_WHOIS_OBJS)
 
 katina-whois.o: $(src_topdir)/katina-whois.cpp $(INCLUDES)
 	$(CXX) -c -I$(src_topdir)/include $(KATINA_WHOIS_FLAGS) -o $@ $<
+
+#katina-client: $(KATINA_CLIENT_OBJS)
+#	@echo
+#	@echo Compiling $@
+#	$(CXX) -o $@ $(KATINA_CLIENT_OBJS) $(KATINA_CLIENT_LIBS)
+#	@echo
+#
+#katina-client.o: $(src_topdir)/katina-client.cpp $(INCLUDES)
+#	$(CXX) -c -I$(src_topdir)/include $(KATINA_CLIENT_FLAGS) -o $@ $<
 
 %.o: $(src_topdir)/%.cpp $(src_topdir)/include/katina/%.h
 	@echo -n "AUTO: "

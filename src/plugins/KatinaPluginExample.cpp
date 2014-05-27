@@ -9,10 +9,10 @@ namespace katina { namespace plugin {
 using namespace oastats::log;
 using namespace oastats::types;
 
-KATINA_PLUGIN_TYPE(KatinaPluginExample);
+KATINA_PLUGIN_TYPE(KatinaPluginNextMap);
 KATINA_PLUGIN_INFO("katina::example", "Katina Example", "0.1-dev");
 
-KatinaPluginExample::KatinaPluginExample(Katina& katina)
+KatinaPluginNextMap::KatinaPluginNextMap(Katina& katina)
 : KatinaPlugin(katina)
 , mapname(katina.mapname)
 , clients(katina.clients)
@@ -22,7 +22,7 @@ KatinaPluginExample::KatinaPluginExample(Katina& katina)
 {
 }
 
-bool KatinaPluginExample::open()
+bool KatinaPluginNextMap::open()
 {
 	katina.add_var_event(this, "example.active", active);
 	//katina.add_var_event(this, "flag", "0");
@@ -46,22 +46,22 @@ bool KatinaPluginExample::open()
 	return true;
 }
 
-str KatinaPluginExample::get_id() const
+str KatinaPluginNextMap::get_id() const
 {
 	return ID;
 }
 
-str KatinaPluginExample::get_name() const
+str KatinaPluginNextMap::get_name() const
 {
 	return NAME;
 }
 
-str KatinaPluginExample::get_version() const
+str KatinaPluginNextMap::get_version() const
 {
 	return VERSION;
 }
 
-bool KatinaPluginExample::init_game(siz min, siz sec, const str_map& cvars)
+bool KatinaPluginNextMap::init_game(siz min, siz sec, const str_map& cvars)
 {
 	if(!active)
 		return true;
@@ -72,7 +72,7 @@ bool KatinaPluginExample::init_game(siz min, siz sec, const str_map& cvars)
 	return true;
 }
 
-bool KatinaPluginExample::warmup(siz min, siz sec)
+bool KatinaPluginNextMap::warmup(siz min, siz sec)
 {
 	if(!active)
 		return true;
@@ -80,7 +80,7 @@ bool KatinaPluginExample::warmup(siz min, siz sec)
 	return true;
 }
 
-bool KatinaPluginExample::client_connect(siz min, siz sec, siz num)
+bool KatinaPluginNextMap::client_connect(siz min, siz sec, siz num)
 {
 	if(!active)
 		return true;
@@ -88,7 +88,7 @@ bool KatinaPluginExample::client_connect(siz min, siz sec, siz num)
 	return true;
 }
 
-bool KatinaPluginExample::client_connect_info(siz min, siz sec, siz num, const GUID& guid, const str& ip)
+bool KatinaPluginNextMap::client_connect_info(siz min, siz sec, siz num, const GUID& guid, const str& ip)
 {
 	if(!active)
 		return true;
@@ -97,7 +97,7 @@ bool KatinaPluginExample::client_connect_info(siz min, siz sec, siz num, const G
 	return true;
 }
 
-bool KatinaPluginExample::client_begin(siz min, siz sec, siz num)
+bool KatinaPluginNextMap::client_begin(siz min, siz sec, siz num)
 {
 	if(!active)
 		return true;
@@ -106,7 +106,7 @@ bool KatinaPluginExample::client_begin(siz min, siz sec, siz num)
 	return true;
 }
 
-bool KatinaPluginExample::client_disconnect(siz min, siz sec, siz num)
+bool KatinaPluginNextMap::client_disconnect(siz min, siz sec, siz num)
 {
 	if(!active)
 		return true;
@@ -114,7 +114,7 @@ bool KatinaPluginExample::client_disconnect(siz min, siz sec, siz num)
 	return true;
 }
 
-bool KatinaPluginExample::client_userinfo_changed(siz min, siz sec, siz num, siz team
+bool KatinaPluginNextMap::client_userinfo_changed(siz min, siz sec, siz num, siz team
 		, const GUID& guid, const str& name, siz hc)
 {
 	if(!active)
@@ -125,7 +125,7 @@ bool KatinaPluginExample::client_userinfo_changed(siz min, siz sec, siz num, siz
 	return true;
 }
 
-bool KatinaPluginExample::kill(siz min, siz sec, siz num1, siz num2, siz weap)
+bool KatinaPluginNextMap::kill(siz min, siz sec, siz num1, siz num2, siz weap)
 {
 	if(!active)
 		return true;
@@ -133,7 +133,7 @@ bool KatinaPluginExample::kill(siz min, siz sec, siz num1, siz num2, siz weap)
 	return true;
 }
 
-bool KatinaPluginExample::ctf(siz min, siz sec, siz num, siz team, siz act)
+bool KatinaPluginNextMap::ctf(siz min, siz sec, siz num, siz team, siz act)
 {
 	if(!active)
 		return true;
@@ -141,7 +141,7 @@ bool KatinaPluginExample::ctf(siz min, siz sec, siz num, siz team, siz act)
 	return true;
 }
 
-bool KatinaPluginExample::ctf_exit(siz min, siz sec, siz r, siz b)
+bool KatinaPluginNextMap::ctf_exit(siz min, siz sec, siz r, siz b)
 {
 	if(!active)
 		return true;
@@ -149,7 +149,7 @@ bool KatinaPluginExample::ctf_exit(siz min, siz sec, siz r, siz b)
 	return true;
 }
 
-bool KatinaPluginExample::score_exit(siz min, siz sec, int score, siz ping, siz num, const str& name)
+bool KatinaPluginNextMap::score_exit(siz min, siz sec, int score, siz ping, siz num, const str& name)
 {
 	if(!active)
 		return true;
@@ -157,7 +157,7 @@ bool KatinaPluginExample::score_exit(siz min, siz sec, int score, siz ping, siz 
 	return true;	
 }
 
-bool KatinaPluginExample::award(siz min, siz sec, siz num, siz awd)
+bool KatinaPluginNextMap::award(siz min, siz sec, siz num, siz awd)
 {
 	if(!active)
 		return true;
@@ -165,7 +165,7 @@ bool KatinaPluginExample::award(siz min, siz sec, siz num, siz awd)
 	return true;
 }
 
-bool KatinaPluginExample::say(siz min, siz sec, const GUID& guid, const str& text)
+bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& text)
 {
 	if(!active)
 		return true;
@@ -176,7 +176,7 @@ bool KatinaPluginExample::say(siz min, siz sec, const GUID& guid, const str& tex
 	return true;
 }
 
-bool KatinaPluginExample::shutdown_game(siz min, siz sec)
+bool KatinaPluginNextMap::shutdown_game(siz min, siz sec)
 {
 	if(!active)
 		return true;
@@ -184,7 +184,7 @@ bool KatinaPluginExample::shutdown_game(siz min, siz sec)
 	return true;
 }
 
-bool KatinaPluginExample::exit(siz min, siz sec)
+bool KatinaPluginNextMap::exit(siz min, siz sec)
 {
 	if(!active)
 		return true;
@@ -192,14 +192,14 @@ bool KatinaPluginExample::exit(siz min, siz sec)
 	return true;
 }
 
-bool KatinaPluginExample::unknown(siz min, siz sec, const str& cmd, const str& params)
+bool KatinaPluginNextMap::unknown(siz min, siz sec, const str& cmd, const str& params)
 {
 	if(!active)
 		return true;
 	return true;
 }
 
-bool KatinaPluginExample::speed(siz min, siz sec, siz num, siz dist, siz time, bool has_flag)
+bool KatinaPluginNextMap::speed(siz min, siz sec, siz num, siz dist, siz time, bool has_flag)
 {
 	if(!active)
 		return true;
@@ -210,7 +210,7 @@ bool KatinaPluginExample::speed(siz min, siz sec, siz num, siz dist, siz time, b
 /**
  * Summarizing events for more detailed statistics (they only work with the katina game mod)
  */
-bool KatinaPluginExample::weapon_usage(siz min, siz sec, siz num, siz weapon, siz shots)
+bool KatinaPluginNextMap::weapon_usage(siz min, siz sec, siz num, siz weapon, siz shots)
 {
 	if(!active)
 		return true;
@@ -218,7 +218,7 @@ bool KatinaPluginExample::weapon_usage(siz min, siz sec, siz num, siz weapon, si
 	return true;
 }
 
-bool KatinaPluginExample::mod_damage(siz min, siz sec, siz num, siz mod, siz hits
+bool KatinaPluginNextMap::mod_damage(siz min, siz sec, siz num, siz mod, siz hits
 		, siz damage, siz hitsRecv, siz damageRecv, float weightedHits)
 {
 	if(!active)
@@ -228,7 +228,7 @@ bool KatinaPluginExample::mod_damage(siz min, siz sec, siz num, siz mod, siz hit
 	return true;
 }
 
-bool KatinaPluginExample::player_stats(siz min, siz sec, siz num,
+bool KatinaPluginNextMap::player_stats(siz min, siz sec, siz num,
 	siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
 	siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
 	siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged)
@@ -242,7 +242,7 @@ bool KatinaPluginExample::player_stats(siz min, siz sec, siz num,
 	return true;
 }
 
-void KatinaPluginExample::close()
+void KatinaPluginNextMap::close()
 {
 }
 

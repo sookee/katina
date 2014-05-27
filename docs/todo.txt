@@ -1,6 +1,8 @@
-59BCD3D9, Predator kicked me
+
 
 == v 1.0 ==
+
+Mod: finish katina-client
 
 Fix: when katina restarts she looses all player names for flag counting
    : and she looses mapname for !stats !boss etc

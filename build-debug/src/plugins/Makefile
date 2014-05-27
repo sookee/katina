@@ -12,7 +12,7 @@ CXXFLAGS = -fPIC -D DEBUG -O0 -g3 -I$(src_topdir)/include
 PLUGIN_STATS_INCLUDES = -I..
 
 #DL_EXPORT = -Wl,-E
-DL_EXPORT =
+DL_EXPORT = 
 
 PREFIX ?= $(HOME)
 
@@ -31,6 +31,10 @@ PLUGIN_REPORTS_OBJS = KatinaPluginReports.o
 PLUGIN_VOTES_FLAGS = -D DEBUG -O0 -g3 $(DL_EXPORT) -shared -pthread
 PLUGIN_VOTES_LIBS = -pthread -L.. -lkatina
 PLUGIN_VOTES_OBJS = KatinaPluginVotes.o ../Database.o
+
+PLUGIN_NEXTMAP_FLAGS = -D DEBUG -O0 -g3 $(DL_EXPORT) -shared -pthread
+PLUGIN_NEXTMAP_LIBS = -pthread -L.. -lkatina $(MYSQL_LIBS)
+PLUGIN_NEXTMAP_OBJS = KatinaPluginNextMap.o ../Database.o
 
 PLUGIN_WSO_FLAGS = -D DEBUG -O0 -g3 $(DL_EXPORT) -shared -pthread
 PLUGIN_WSO_LIBS = -pthread -L.. -lkatina
@@ -56,6 +60,7 @@ PLUGINS = \
 	katina-plugin-admin.so \
 	katina-plugin-stats.so \
 	katina-plugin-votes.so \
+	katina-plugin-nextmap.so \
 	katina-plugin-reports.so \
 	katina-plugin-wso.so \
 	katina-plugin-votectrl.so \
@@ -76,6 +81,9 @@ katina-plugin-stats.so: $(PLUGIN_STATS_OBJS)
 
 katina-plugin-votes.so: $(PLUGIN_VOTES_OBJS)
 	$(CXX) $(PLUGIN_VOTES_FLAGS) -o $@ $(PLUGIN_VOTES_OBJS) $(PLUGIN_VOTES_LIBS)
+
+katina-plugin-nextmap.so: $(PLUGIN_NEXTMAP_OBJS)
+	$(CXX) $(PLUGIN_NEXTMAP_FLAGS) -o $@ $(PLUGIN_NEXTMAP_OBJS) $(PLUGIN_NEXTMAP_LIBS)
 
 katina-plugin-reports.so: $(PLUGIN_REPORTS_OBJS)
 	$(CXX) $(PLUGIN_REPORTS_FLAGS) -o $@ $(PLUGIN_REPORTS_OBJS) $(PLUGIN_REPORTS_LIBS)
