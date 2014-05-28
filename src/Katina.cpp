@@ -639,6 +639,9 @@ bool Katina::initial_player_info()
 
 bool Katina::start(const str& dir)
 {
+	now = get("run.time", std::time_t(0));
+	std::time_t base_now = now; // rerun base time
+
 	log("Starting Katina:");
 	config_dir = expand_env(dir);
 	log("Setting config dir: " << dir);
@@ -696,9 +699,6 @@ bool Katina::start(const str& dir)
 	siz min, sec;
 	str line, skip, name, cmd;
 	siss iss;
-
-	now = get("run.time", std::time_t(-1));
-	std::time_t base_now = now; // rerun base time
 
 	if(!initial_player_info())
 		log("ERROR: Unable to get initial player info");

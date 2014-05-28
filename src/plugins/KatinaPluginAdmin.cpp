@@ -367,9 +367,11 @@ bool KatinaPluginAdmin::open()
 	active = katina.get("admin.active", false);
 
 	for(siz_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
-		if(teams[i->second] == TEAM_R || teams[i->second] == TEAM_B) // playing
-			if(!time[i->first]) // not being timed
-				time[i->first] = std::time(0); // start timer
+		if((teams[i->second] == TEAM_R || teams[i->second] == TEAM_B) && !time[i->first]) // playing, not being timed
+		{
+			time[i->first] = katina.now; // start timer
+			bug("STARTING TIMER FOR: " << players[clients[i->second]]);
+		}
 
 	return true;
 }
@@ -500,12 +502,16 @@ bool KatinaPluginAdmin::client_switch_team(siz min, siz sec, siz num, siz teamBe
 
 	plog("client_switch_team(" << num << ", " << teamBefore << ", " << teamNow << ")");
 
-	if(teamNow == TEAM_R || teamNow == TEAM_B)
-		time[num] = katina.now; // start timer
+	if((teamNow == TEAM_R || teamNow == TEAM_B) && !time[num])
+	{
+		bug("STARTING TIMER FOR: " << players[clients[num]]);
+		time[num] = katina.now; // start timer if not running
+	}
 	else if(teamNow == TEAM_S && time[num])
 	{
+		bug("STOPPING TIMER FOR: " << players[clients[num]] << " after " << (katina.now - time[num]) << " seconds");
 		secs[num] += (katina.now - time[num]);
-		time[num] = 0; // stop timer
+		time[num] = 0; // stop timer if running
 	}
 	return true;
 }
