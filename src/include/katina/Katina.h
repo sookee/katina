@@ -259,6 +259,19 @@ public:
     siz getTeam(siz client);
     str getPlayerName(siz client);
     siz getClientNr(GUID guid);
+
+    /**
+     * return the slot number os the current player from
+     * user input that is EITHER the slot number, the GUID
+     * OR the name of the player
+     *
+     * @param slot_guid_name The user input to parse
+     * @param num The return parameter.
+     *
+     * @return true on success
+     */
+    bool parse_slot_guid_name(const str& slot_guid_name, siz& num);
+
     bool check_slot(siz num)
     {
     	return clients.find(num) != clients.end();

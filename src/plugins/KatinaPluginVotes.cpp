@@ -83,14 +83,14 @@ bool KatinaPluginVotes::init_game(siz min, siz sec, const str_map& cvars)
 	db.on();
 	for(guid_int_map_iter i = map_votes.begin(); i != map_votes.end(); ++i)
 		db.add_vote("map", mapname, i->first, i->second);
-	db.off();
+//	db.off();
 
 	map_votes.clear();
 
 	mapname = katina.mapname;
 
 	// load map votes for new map
-	db.on();
+//	db.on();
 	db.read_map_votes(mapname, map_votes);
 	db.off();
 
@@ -99,7 +99,7 @@ bool KatinaPluginVotes::init_game(siz min, siz sec, const str_map& cvars)
 
 bool KatinaPluginVotes::sayteam(siz min, siz sec, const GUID& guid, const str& text)
 {
-	say(min, sec, guid, text);
+	return say(min, sec, guid, text);
 }
 
 bool KatinaPluginVotes::say(siz min, siz sec, const GUID& guid, const str& text)

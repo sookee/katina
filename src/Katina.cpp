@@ -644,6 +644,43 @@ bool Katina::initial_player_info()
     return true;
 }
 
+str sanitized(const str& name)
+{
+	return name;
+}
+
+bool Katina::parse_slot_guid_name(const str& slot_guid_name, siz& num)
+{
+	// 12 | A0B65FD9 | wibble
+
+	siz n = 0;
+
+	if(slot_guid_name.size() > 2 && slot_guid_name.size() < 8) // try GUID startswith
+		for(guid_siz_map_citer i = teams.begin(); i != teams.end(); ++i)
+			if(!upper_copy(str(i->first)).find(upper_copy(slot_guid_name)))
+				if((n = getClientNr(i->first)) != siz(-1))
+					return (num = n) != siz(-1);
+
+	if(slot_guid_name.size() > 3) // try name submatch
+		for(guid_str_map_citer i = players.begin(); i != players.end(); ++i)
+			if(sanitized(i->second).find(lower_copy(slot_guid_name)) != str::npos)
+				if((n = getClientNr(i->first)) != siz(-1))
+					return (num = n) != siz(-1);
+
+	siss iss(slot_guid_name);
+	if(slot_guid_name.size() < 3) // try slot match
+		if(iss >> n && check_slot(n))
+			return (num = n) != siz(-1);
+
+	// try exact name match
+	for(guid_str_map_citer i = players.begin(); i != players.end(); ++i)
+		if(sanitized(i->second) == lower_copy(slot_guid_name))
+			if((n = getClientNr(i->first)) != siz(-1))
+				return (num = n) != siz(-1);
+
+	return false;
+}
+
 bool Katina::start(const str& dir)
 {
 	log("Starting Katina:");

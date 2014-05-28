@@ -369,18 +369,6 @@ bool KatinaPluginAdmin::open()
 	bug("setting config");
 	active = katina.get("admin.active", false);
 
-	for(siz_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
-	{
-		if(i->second.is_bot())
-			continue;
-
-		if((teams[i->second] == TEAM_R || teams[i->second] == TEAM_B) && !time[i->first]) // playing, not being timed
-		{
-			time[i->first] = katina.now; // start timer
-			bug("STARTING TIMER FOR: " << players[i->second] << " [" << katina.now << "]");
-		}
-	}
-
 	return true;
 }
 
@@ -411,6 +399,14 @@ bool KatinaPluginAdmin::init_game(siz min, siz sec, const str_map& cvars)
 				if(mutepp(katina.getClientNr(s->guid)))
 					s->applied = true;
 
+	for(siz_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
+	{
+		if((teams[i->second] == TEAM_R || teams[i->second] == TEAM_B))
+		{
+			bug("STARTING TIMER FOR: " << players[i->second] << " [" << katina.now << "]");
+			time[i->first] = katina.now;
+		}
+	}
 	return true;
 }
 
@@ -418,6 +414,11 @@ bool KatinaPluginAdmin::warmup(siz min, siz sec)
 {
 	if(!active)
 		return true;
+
+	// stop all timers
+	for(siz_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
+		time[i->first] = 0;
+
 	return true;
 }
 
@@ -697,6 +698,7 @@ void KatinaPluginAdmin::spamkill(siz num)
 	mutes[num] = std::time(0);
 }
 
+// tODO: make these commands use katina.parse_slot_guid_name()
 bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 {
 	if(!active)
@@ -940,15 +942,6 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 
 		sgl(iss >> num >> std::ws, team);
 
-		if(spec)
-			team = "S";
-
-		if(upper(team) != "R" || team != "G" || team != "S")
-		{
-			server.msg_to(say_num, "^7ADMIN: ^3Bad team. Needs to be: r|g|b", true);
-			return true;
-		}
-
 		if(!check_slot(num))
 			return true;
 
@@ -958,6 +951,15 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			server.msg_to(say_num, "^7ADMIN: ^3Removed fixed team from: ^2" + players[clients[num]], true);
 			if(num != say_num)
 				server.msg_to(num, "^7ADMIN: ^3Removed fixed team from: ^2" + players[clients[num]], true);
+			return true;
+		}
+
+		if(spec)
+			team = "S";
+
+		if(upper(team) != "R" || team != "B" || team != "S")
+		{
+			server.msg_to(say_num, "^7ADMIN: ^3Bad team. Needs to be: r|b|s", true);
 			return true;
 		}
 
@@ -1043,7 +1045,17 @@ bool KatinaPluginAdmin::shutdown_game(siz min, siz sec)
 {
 	if(!active)
 		return true;
-//	plog("shutdown_game()");
+
+	for(siz_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
+	{
+		if((teams[i->second] == TEAM_R || teams[i->second] == TEAM_B) && time[i->first]) // playing, and timed
+		{
+			bug("STOPPING TIMER FOR: " << players[i->second] << " after " << (katina.now - time[i->first]) << " seconds");
+			secs[i->first] += (katina.now - time[i->first]);
+			time[i->first] = 0; // stop
+		}
+	}
+
 	return true;
 }
 
@@ -1051,7 +1063,6 @@ bool KatinaPluginAdmin::exit(siz min, siz sec)
 {
 	if(!active)
 		return true;
-//	plog("exit()");
 	return true;
 }
 
