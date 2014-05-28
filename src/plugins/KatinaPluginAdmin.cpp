@@ -366,6 +366,11 @@ bool KatinaPluginAdmin::open()
 	bug("setting config");
 	active = katina.get("admin.active", false);
 
+	for(siz_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
+		if(teams[i->second] == TEAM_R || teams[i->second] == TEAM_B) // playing
+			if(!time[i->first]) // not being timed
+				time[i->first] = std::time(0); // start timer
+
 	return true;
 }
 
@@ -510,10 +515,10 @@ bool KatinaPluginAdmin::kill(siz min, siz sec, siz num1, siz num2, siz weap)
 	if(!active)
 		return true;
 
-	{ // !fixteams
+	 // !fixteams
+	if(time[num1]) // is the timer running?
 		++kills[num1];
-		++total_kills;
-	}
+	++total_kills;
 	return true;
 }
 
@@ -524,7 +529,8 @@ bool KatinaPluginAdmin::ctf(siz min, siz sec, siz num, siz team, siz act)
 
 	if(act == FL_CAPTURED) // !fixteams
 	{
-		++caps[num];
+		if(time[num]) // is the timer running?
+			++caps[num];
 		++total_caps;
 	}
 //	plog("ctf(" << num << ", " << team << ", " << act << ")");
