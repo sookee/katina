@@ -69,11 +69,11 @@ str Katina::getPlayerName(siz client)
 
 siz Katina::getClientNr(GUID guid)
 {
-	bug_func();
+	//bug_func();
 	for(siz_guid_map_citer it = clients.begin(); it != clients.end(); ++it)
 	{
-		bug_var(it->first);
-		bug_var(it->second);
+		//bug_var(it->first);
+		//bug_var(it->second);
 		if(it->second == guid)
 			return it->first;
 	}
@@ -661,6 +661,7 @@ bool Katina::initial_player_info()
     return true;
 }
 
+// TODO: remove color codes
 str sanitized(const str& name)
 {
 	return name;
@@ -705,6 +706,9 @@ bool Katina::start(const str& dir)
 	log("Setting config dir: " << dir);
 
 	load_config(config_dir, "katina.conf", props);
+
+	name = get("katina.name" , "^1K^7at^3i^7na^7");
+
     if(!init_pki())
     	return false;
     init_rcon();

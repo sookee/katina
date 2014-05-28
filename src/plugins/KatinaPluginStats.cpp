@@ -52,10 +52,6 @@ bool KatinaPluginStats::open()
 	host = katina.get("rcon.host", "localhost");
 	port = katina.get("rcon.port", "27960");
     
-	str db_prefix;
-	if(katina.has("stats.db.host"))
-		db_prefix = "stats.";
-
 	str host = katina.get("stats.db.host", katina.get("db.host", "localhost"));
 	siz port = katina.get("stats.db.port", katina.get("db.port", 3306));
 	str user = katina.get("stats.db.user", katina.get("db.user", ""));

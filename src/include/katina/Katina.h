@@ -204,6 +204,7 @@ private:
 //	pthread_t cvarevts_thread;
 //	pthread_mutex_t cvarevts_mtx;
 
+	str name;
 	str prefix;
 	cvarevt_lst cvarevts;
 	property_map props;
@@ -247,6 +248,8 @@ public:
 	std::time_t now;
 
 	str mod_katina; // server enhancements
+
+	const str& get_name() { return name; }
 
 	/**
 	 * Get a cvar's value using rcon

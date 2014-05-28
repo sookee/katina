@@ -24,19 +24,26 @@ KatinaPluginVotes::KatinaPluginVotes(Katina& katina)
 
 bool KatinaPluginVotes::open()
 {
-	db.config(
-		katina.get("db.host", "localhost")
-		, katina.get("db.port", 3306)
-		, katina.get("db.user")
-		, katina.get("db.pass", "")
-		, katina.get("db.base"));
-	
-	if(!katina.has("db.base") || !katina.has("db.user"))
+	str host = katina.get("votes.db.host", katina.get("db.host", "localhost"));
+	siz port = katina.get("votes.db.port", katina.get("db.port", 3306));
+	str user = katina.get("votes.db.user", katina.get("db.user", ""));
+	str pass = katina.get("votes.db.pass", katina.get("db.pass", ""));
+	str base = katina.get("votes.db.base", katina.get("db.base"));
+
+	if(base.empty())
 	{
-		plog("FATAL: no database config found");
+		plog("FATAL: Database config not found");
 		return false;
 	}
-	
+
+	db.config(host, port, user, pass, base);
+
+	if(!db.check())
+	{
+		plog("FATAL: Database can not connect");
+		return false;
+	}
+
 	katina.add_var_event(this, "votes.active", active, false);
 
 	katina.add_log_event(this, INIT_GAME);
@@ -106,13 +113,13 @@ bool KatinaPluginVotes::init_game(siz min, siz sec, const str_map& cvars)
 		bug_var(num);
 
 		if(i->second > 0)
-			katina.server.msg_to(num, "^3You ^1LOVE ^3this map");
+			katina.server.msg_to(num, katina.get_name() + " ^3You ^1LOVE ^3this map");
 		else if(i->second < 0)
-			katina.server.msg_to(num, "^3You ^1HATE ^3this map");
+			katina.server.msg_to(num, katina.get_name() + " ^3You ^1HATE ^3this map");
 		else
 		{
-			katina.server.msg_to(num, "^3You have not yet voted for this map.", true);
-			katina.server.msg_to(num, "^3You can say ^1!love map ^3 or ^1!hate map ^3 to express a preference.");
+			katina.server.msg_to(num, katina.get_name() + " ^3You have not yet voted for this map.", true);
+			katina.server.msg_to(num, katina.get_name() + " ^3You can say ^1!love map ^3 or ^1!hate map ^3 to express a preference.");
 		}
 	}
 
