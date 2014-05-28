@@ -79,6 +79,7 @@ bool KatinaPluginVotes::init_game(siz min, siz sec, const str_map& cvars)
 {
 	if(!active)
 		return true;
+	bug_func();
 	
 	// NB. This MUST be done before mapname changes
 	db.on();
@@ -98,8 +99,10 @@ bool KatinaPluginVotes::init_game(siz min, siz sec, const str_map& cvars)
 	siz num;
 	for(guid_int_map_citer i = map_votes.begin(); i != map_votes.end(); ++i)
 	{
+		plog("ANNOUNCING VOTE TO: " << katina.players[i->first]);
 		if((num = katina.getClientNr(i->first)) != siz(-1))
 		{
+			bug_var(num);
 			if(i->second > 0)
 				katina.server.msg_to(num, "^3You ^1LOVE ^3this map");
 			else if(i->second < 0)
