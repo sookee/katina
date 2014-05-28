@@ -88,7 +88,6 @@ bool KatinaPluginVotes::init_game(siz min, siz sec, const str_map& cvars)
 //	db.off();
 
 	map_votes.clear();
-
 	mapname = katina.mapname;
 
 	// load map votes for new map
