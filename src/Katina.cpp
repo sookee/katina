@@ -627,6 +627,8 @@ bool Katina::initial_player_info()
 			continue;
 		}
 		players[clients[num]].assign(line.begin(), f).append(term);
+		bug_var(num);
+		bug_var(players[clients[num]]);
 
 		iss.clear();
 		iss.str(str(f, line.end()));
