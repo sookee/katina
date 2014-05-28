@@ -668,6 +668,8 @@ bool Katina::start(const str& dir)
 	now = get("run.time", std::time_t(0));
 	std::time_t base_now = now; // rerun base time
 
+	bug_var(now);
+
     load_plugins();
 
 	std::ios::openmode mode = std::ios::in|std::ios::ate;
