@@ -170,14 +170,14 @@ bool KatinaPluginAdmin::fixteams(siz policy)
 	bug_var(clients.size());
 	for(siz_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
 	{
-		if(i->second.is_bot())
-			continue;
+//		if(i->second.is_bot())
+//			continue;
 
 		bug_var(i->first);
 		bug_var(i->second);
 		bug_var(teams[i->second]);
 		 // 1 = red, 2 = blue, 3 = spec
-		if(teams[i->second] != 1 && teams[i->second] != 2)
+		if(teams[i->second] != TEAM_R && teams[i->second] != TEAM_B)
 			continue;
 
 		siz fph = secs[i->first] ? (kills[i->first] * 60 * 60) / secs[i->first] : 0;
