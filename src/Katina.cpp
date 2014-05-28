@@ -25,6 +25,13 @@
 
 #include <katina/log.h>
 
+#ifndef REVISION
+#define REVISION unset
+#endif
+
+//#define QUOTE(x) #x
+#define REV QUOTE(REVISION)
+
 namespace oastats {
 
 using namespace oastats::log;
@@ -36,6 +43,8 @@ using namespace oastats::string;
 
 const str version = "0.1";
 const str tag = "dev";
+const str revision = REV;
+
 
 
 siz Katina::getTeam(siz client)
@@ -460,9 +469,6 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 	bug_var(guid);
 	bug_var(text);
 
-	str cmd;
-	siss iss(text);
-
 	siz num = getClientNr(guid);
 
 	if(num == siz(-1))
@@ -470,6 +476,12 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 		server.s_chat("ERROR: Cannot locate client number.");
 		return;
 	}
+
+	if(trim_copy(text).empty())
+		server.msg_to(num, "^1K^7at^3i^7na: " + revision);
+
+	str cmd;
+	siss iss(text);
 
 	static str plugin = "";
 

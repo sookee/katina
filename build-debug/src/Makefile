@@ -13,7 +13,7 @@ INCLUDES = $(wildcard $(src_topdir)/include/katina/*.h)
 
 CXXFLAGS = -D DEBUG -O0 -g3 -Iinclude
 
-LIBKATINA_FLAGS = -D DEBUG -O0 -g3 -fPIC -pthread -Iinclude $(LIBGCRYPT_FLAGS)
+LIBKATINA_FLAGS = -D DEBUG $(VER_FLAGS) -O0 -g3 -fPIC -pthread -Iinclude $(LIBGCRYPT_FLAGS)
 LIBKATINA_LIBS = -lrt -pthread -ldl $(LIBGCRYPT_LIBS)
 LIBKATINA_OBJS = rcon.o RemoteClient.o irc.o GUID.o Katina.o PKI.o
 
