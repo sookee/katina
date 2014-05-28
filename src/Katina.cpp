@@ -69,9 +69,14 @@ str Katina::getPlayerName(siz client)
 
 siz Katina::getClientNr(GUID guid)
 {
+	bug_func();
 	for(siz_guid_map_citer it = clients.begin(); it != clients.end(); ++it)
+	{
+		bug_var(it->first);
+		bug_var(it->second);
 		if(it->second == guid)
 			return it->first;
+	}
     return siz(-1);
 }
 

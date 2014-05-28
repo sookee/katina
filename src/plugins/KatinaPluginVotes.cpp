@@ -99,18 +99,20 @@ bool KatinaPluginVotes::init_game(siz min, siz sec, const str_map& cvars)
 	for(guid_int_map_citer i = map_votes.begin(); i != map_votes.end(); ++i)
 	{
 		plog("ANNOUNCING VOTE TO: " << i->first << " " << katina.players[i->first]);
-		if((num = katina.getClientNr(i->first)) != siz(-1))
+
+		if((num = katina.getClientNr(i->first)) == siz(-1))
+			continue;
+
+		bug_var(num);
+
+		if(i->second > 0)
+			katina.server.msg_to(num, "^3You ^1LOVE ^3this map");
+		else if(i->second < 0)
+			katina.server.msg_to(num, "^3You ^1HATE ^3this map");
+		else
 		{
-			bug_var(num);
-			if(i->second > 0)
-				katina.server.msg_to(num, "^3You ^1LOVE ^3this map");
-			else if(i->second < 0)
-				katina.server.msg_to(num, "^3You ^1HATE ^3this map");
-			else
-			{
-				katina.server.msg_to(num, "^3You have not yet voted for this map.", true);
-				katina.server.msg_to(num, "^3You can say ^1!love map ^3 or ^1!hate map ^3 to express a preference.");
-			}
+			katina.server.msg_to(num, "^3You have not yet voted for this map.", true);
+			katina.server.msg_to(num, "^3You can say ^1!love map ^3 or ^1!hate map ^3 to express a preference.");
 		}
 	}
 
