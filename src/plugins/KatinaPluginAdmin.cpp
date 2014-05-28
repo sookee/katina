@@ -377,7 +377,7 @@ bool KatinaPluginAdmin::open()
 		if((teams[i->second] == TEAM_R || teams[i->second] == TEAM_B) && !time[i->first]) // playing, not being timed
 		{
 			time[i->first] = katina.now; // start timer
-			bug("STARTING TIMER FOR: " << players[clients[i->second]] << " [" << katina.now << "]");
+			bug("STARTING TIMER FOR: " << players[i->second] << " [" << katina.now << "]");
 		}
 	}
 
