@@ -125,6 +125,14 @@ bool KatinaPluginNextMap::client_userinfo_changed(siz min, siz sec, siz num, siz
 	return true;
 }
 
+bool KatinaPluginNextMap::client_switch_team(siz min, siz sec, siz num, siz teamBefore, siz teamNow)
+{
+	if(!active)
+		return true;
+	plog("client_switch_team(" << num << ", " << teamBefore << ", " << teamNow << ")");
+	return true;
+}
+
 bool KatinaPluginNextMap::kill(siz min, siz sec, siz num1, siz num2, siz weap)
 {
 	if(!active)

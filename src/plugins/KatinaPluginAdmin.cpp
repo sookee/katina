@@ -177,7 +177,9 @@ bool KatinaPluginAdmin::fixteams(siz policy)
 		if(teams[i->second] != 1 && teams[i->second] != 2)
 			continue;
 
-		siz skill = sqrt(pow(kills[i->first], 2) + pow(caps[i->first] * cap_factor, 2));
+		siz fph = secs[i->first] ? (kills[i->first] * 60 * 60) / secs[i->first] : 0;
+		siz cph = secs[i->first] ? (caps[i->first] * 60 * 60) / secs[i->first] : 0;
+		siz skill = sqrt(pow(fph, 2) + pow(cph * cap_factor, 2));
 
 		if(teams[i->second] == 1)
 			{ skill_r += skill; ++r; }
@@ -185,11 +187,11 @@ bool KatinaPluginAdmin::fixteams(siz policy)
 			{ skill_b += skill; ++b; }
 
 		bug("-------------------------------------------");
-		bug("FIXTEAMS:  slot:" << i->first);
-		bug("FIXTEAMS:  name:" << players[clients[i->first]]);
-		bug("FIXTEAMS: kills:" << kills[i->first]);
-		bug("FIXTEAMS:  caps:" << caps[i->first]);
-		bug("FIXTEAMS: skill:" << skill);
+		bug("FIXTEAMS:  slot: " << i->first);
+		bug("FIXTEAMS:  name: " << players[clients[i->first]]);
+		bug("FIXTEAMS: kills: " << kills[i->first]);
+		bug("FIXTEAMS:  caps: " << caps[i->first]);
+		bug("FIXTEAMS: skill: " << skill);
 
 		rank.insert(siz_mmap_pair(skill, i->first));
 	}
@@ -329,6 +331,7 @@ bool KatinaPluginAdmin::open()
 	//katina.add_log_event(this, CLIENT_BEGIN);
 	katina.add_log_event(this, CLIENT_DISCONNECT);
 	katina.add_log_event(this, CLIENT_USERINFO_CHANGED);
+	katina.add_log_event(this, CLIENT_SWITCH_TEAM);
 	katina.add_log_event(this, KILL);
 	katina.add_log_event(this, CTF);
 	//katina.add_log_event(this, CTF_EXIT);
@@ -482,6 +485,23 @@ bool KatinaPluginAdmin::client_userinfo_changed(siz min, siz sec, siz num, siz t
 		}
 	}
 
+	return true;
+}
+
+bool KatinaPluginAdmin::client_switch_team(siz min, siz sec, siz num, siz teamBefore, siz teamNow)
+{
+	if(!active)
+		return true;
+
+	plog("client_switch_team(" << num << ", " << teamBefore << ", " << teamNow << ")");
+
+	if(teamNow == TEAM_R || teamNow == TEAM_B)
+		time[num] = katina.now; // start timer
+	else if(teamNow == TEAM_S && time[num])
+	{
+		secs[num] += (katina.now - time[num]);
+		time[num] = 0; // stop timer
+	}
 	return true;
 }
 

@@ -93,7 +93,9 @@ private:
 	siz total_caps;
 
 	siz_map kills; // num -> kills
-	siz_map caps; // num -> capss
+	siz_map caps; // num -> caps
+	siz_map secs; // num -> time in seconds
+	siz_map time; // num -> time in seconds
 
 	siz policy;
 
@@ -169,6 +171,7 @@ public:
 	virtual bool client_begin(siz min, siz sec, siz num);
 	virtual bool client_disconnect(siz min, siz sec, siz num);
 	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name, siz hc);
+	virtual bool client_switch_team(siz min, siz sec, siz num, siz teamBefore, siz teamNow);
 	virtual bool kill(siz min, siz sec, siz num1, siz num2, siz weap);
 	virtual bool award(siz min, siz sec, siz num, siz awd);
 	virtual bool ctf(siz min, siz sec, siz num, siz team, siz act);

@@ -115,9 +115,17 @@ enum // WEAPONS
 };
 
 
-const unsigned int TEAM_U = 0;
-const unsigned int TEAM_R = 1;
-const unsigned int TEAM_B = 2;
-const unsigned int TEAM_S = 3;
+//const unsigned int TEAM_U = 0;
+//const unsigned int TEAM_R = 1;
+//const unsigned int TEAM_B = 2;
+//const unsigned int TEAM_S = 3;
+
+enum team_t // 1 = red, 2 = blue, 3 = spec
+{
+	TEAM_U = 0
+	, TEAM_R
+	, TEAM_B
+	, TEAM_S
+};
 
 #endif /* _OASTATS_CODES_H_ */
