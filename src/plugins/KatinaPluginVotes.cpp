@@ -99,7 +99,7 @@ bool KatinaPluginVotes::init_game(siz min, siz sec, const str_map& cvars)
 	siz num;
 	for(guid_int_map_citer i = map_votes.begin(); i != map_votes.end(); ++i)
 	{
-		plog("ANNOUNCING VOTE TO: " << katina.players[i->first]);
+		plog("ANNOUNCING VOTE TO: " << i->first << " " << katina.players[i->first]);
 		if((num = katina.getClientNr(i->first)) != siz(-1))
 		{
 			bug_var(num);
