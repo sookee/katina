@@ -170,6 +170,9 @@ bool KatinaPluginAdmin::fixteams(siz policy)
 	bug_var(clients.size());
 	for(siz_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
 	{
+		if(i->second.is_bot())
+			continue;
+
 		bug_var(i->first);
 		bug_var(i->second);
 		bug_var(teams[i->second]);
@@ -367,11 +370,16 @@ bool KatinaPluginAdmin::open()
 	active = katina.get("admin.active", false);
 
 	for(siz_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
+	{
+		if(i->second.is_bot())
+			continue;
+
 		if((teams[i->second] == TEAM_R || teams[i->second] == TEAM_B) && !time[i->first]) // playing, not being timed
 		{
 			time[i->first] = katina.now; // start timer
-			bug("STARTING TIMER FOR: " << players[clients[i->second]]);
+			bug("STARTING TIMER FOR: " << players[clients[i->second]] << " [" << katina.now << "]");
 		}
+	}
 
 	return true;
 }
@@ -502,9 +510,12 @@ bool KatinaPluginAdmin::client_switch_team(siz min, siz sec, siz num, siz teamBe
 
 	plog("client_switch_team(" << num << ", " << teamBefore << ", " << teamNow << ")");
 
+	if(clients[num].is_bot())
+		return true;
+
 	if((teamNow == TEAM_R || teamNow == TEAM_B) && !time[num])
 	{
-		bug("STARTING TIMER FOR: " << players[clients[num]]);
+		bug("STARTING TIMER FOR: " << players[clients[num]] << " [" << katina.now << "]");
 		time[num] = katina.now; // start timer if not running
 	}
 	else if(teamNow == TEAM_S && time[num])
