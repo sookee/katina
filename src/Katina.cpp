@@ -570,8 +570,13 @@ bool Katina::initial_player_info()
 		bug_var(num);
 		bug_var(team);
 		bug_var(guid);
+
+		if(guid.size() != 8)
+			clients[num] = bot_guid(num);//null_guid;
+		else
+			clients[num] = to<GUID>(guid);
+
 		//bug("Adding: " << num << " to team " << team);
-		clients[num] = guid;
 		bug_var(clients[num]);
 		teams[clients[num]] = (team == 'R' ? 1 : (team == 'B' ? 2 : 3));
 	}
