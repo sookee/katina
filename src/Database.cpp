@@ -46,6 +46,24 @@ void Database::off()
 	log("DATABASE: off");
 }
 
+bool Database::check()
+{
+	const bool was_active = active;
+
+	if(!was_active)
+		on();
+
+	bool alive = !mysql_ping(&mysql);
+
+	if(!alive)
+		log("DATABASE ERROR: " << mysql_error(&mysql));
+
+	if(!was_active)
+		off();
+
+	return alive;
+}
+
 // == DATABASE ==
 //
 //  kills: game_id guid weap count
@@ -57,7 +75,7 @@ bool Database::escape(const str& from, str& to)
 {
 	if(from.size() > 511)
 	{
-		log("ERROR: escape: string too long at line: " << __LINE__);
+		log("DATABASE ERROR: escape: string too long at line: " << __LINE__);
 		return false;
 	}
 	char buff[1024];

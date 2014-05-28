@@ -126,9 +126,20 @@ public:
 		this->base = base;
 	}
 
+	/**
+	 * Open database connection
+	 */
 	void on();
 
+	/**
+	 * Close database connection
+	 */
 	void off();
+
+	/**
+	 * Ensure connection
+	 */
+	bool check();
 
 	bool escape(const str& from, str& to);
     

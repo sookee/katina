@@ -52,16 +52,27 @@ bool KatinaPluginStats::open()
 	host = katina.get("rcon.host", "localhost");
 	port = katina.get("rcon.port", "27960");
     
-	db.config(
-		katina.get("db.host", "localhost")
-		, katina.get("db.port", 3306)
-		, katina.get("db.user")
-		, katina.get("db.pass", "")
-		, katina.get("db.base"));
+	str db_prefix;
+	if(katina.has("stats.db.host"))
+		db_prefix = "stats.";
 
-	if(!katina.has("db.base") || !katina.has("db.user"))
+	str host = katina.get("stats.db.host", katina.get("db.host", "localhost"));
+	siz port = katina.get("stats.db.port", katina.get("db.port", 3306));
+	str user = katina.get("stats.db.user", katina.get("db.user", ""));
+	str pass = katina.get("stats.db.pass", katina.get("db.pass", ""));
+	str base = katina.get("stats.db.base", katina.get("db.base"));
+
+	if(base.empty())
 	{
-		plog("FATAL: no database config found");
+		plog("FATAL: Database config not found");
+		return false;
+	}
+
+	db.config(host, port, user, pass, base);
+
+	if(!db.check())
+	{
+		plog("FATAL: Database can not connect");
 		return false;
 	}
 
