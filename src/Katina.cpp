@@ -669,7 +669,6 @@ bool Katina::start(const str& dir)
 	std::time_t base_now = now; // rerun base time
 
     load_plugins();
-	log("Loaded plugins:");
 
 	std::ios::openmode mode = std::ios::in|std::ios::ate;
 

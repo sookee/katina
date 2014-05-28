@@ -457,8 +457,10 @@ bool KatinaPluginAdmin::client_disconnect(siz min, siz sec, siz num)
 		return true;
 
 	{ // !fixteams
-		kills.equal_range(num);
-		caps.equal_range(num);
+		kills.erase(num);
+		caps.erase(num);
+		secs.erase(num);
+		time[num] = 0;
 	}
 
 	return true;
