@@ -426,7 +426,7 @@ bool KatinaPluginTeamBalancer::ctf(siz min, siz sec, siz client, siz team, siz a
         else if(team == TEAM_R)
             ++scoreBlue;
     
-        siz capturelimit = to<siz>(katina.cvars["capturelimit"]);
+        siz capturelimit = to<siz>(katina.svars["capturelimit"]);
         
         if(scoreRed < capturelimit && scoreBlue < capturelimit)
         {
