@@ -9,6 +9,7 @@
 
 namespace katina { namespace plugin {
 
+using namespace oastats;
 using namespace oastats::log;
 using namespace oastats::types;
 
@@ -93,6 +94,23 @@ bool KatinaPluginVotes::init_game(siz min, siz sec, const str_map& cvars)
 //	db.on();
 	db.read_map_votes(mapname, map_votes);
 	db.off();
+
+	siz num;
+	for(guid_int_map_citer i = map_votes.begin(); i != map_votes.end(); ++i)
+	{
+		if((num = katina.getClientNr(i->first)) != siz(-1))
+		{
+			if(i->second > 0)
+				katina.server.msg_to(num, "^3You ^1LOVE ^3this map");
+			else if(i->second < 0)
+				katina.server.msg_to(num, "^3You ^1HATE ^3this map");
+			else
+			{
+				katina.server.msg_to(num, "^3You have not yet voted for this map.", true);
+				katina.server.msg_to(num, "^3You can say ^1!love map ^3 or ^1!hate map ^3 to express a preference.");
+			}
+		}
+	}
 
 	return true;
 }
