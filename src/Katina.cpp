@@ -639,19 +639,28 @@ bool Katina::initial_player_info()
 
 bool Katina::start(const str& dir)
 {
-	now = get("run.time", std::time_t(0));
-	std::time_t base_now = now; // rerun base time
-
 	log("Starting Katina:");
 	config_dir = expand_env(dir);
 	log("Setting config dir: " << dir);
 
 	load_config(config_dir, "katina.conf", props);
-	log("Config loaded:");
-    if(!init_pki()) return false;
-	log("Initialized PKI:");
+    if(!init_pki())
+    	return false;
     init_rcon();
-	log("Initialized RCon:");
+
+    // everything the plugins need shuld be initialized before loading them
+
+	// Get mod_katina version if available
+	if(!rconset("mod_katina", mod_katina))
+		if(!rconset("mod_katina", mod_katina))
+			mod_katina.clear();
+
+	if(!initial_player_info())
+		log("ERROR: Unable to get initial player info");
+
+	now = get("run.time", std::time_t(0));
+	std::time_t base_now = now; // rerun base time
+
     load_plugins();
 	log("Loaded plugins:");
 
@@ -671,11 +680,6 @@ bool Katina::start(const str& dir)
 		log("FATAL: Logfile not found: " << get("logfile"));
 		return false;
 	}
-
-	// Get mod_katina version if available
-	if(!rconset("mod_katina", mod_katina))
-		if(!rconset("mod_katina", mod_katina))
-			mod_katina.clear();
 
 	std::istream& is = ifs;
 	std::ios::streampos gpos = is.tellg();
@@ -699,9 +703,6 @@ bool Katina::start(const str& dir)
 	siz min, sec;
 	str line, skip, name, cmd;
 	siss iss;
-
-	if(!initial_player_info())
-		log("ERROR: Unable to get initial player info");
 
 	while(!done)
 	{
