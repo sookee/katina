@@ -97,7 +97,7 @@ bool aocom(const str& cmd, str_vec& packets, const str& host, int port
 
 	packets.clear();
 
-	char buf[2048];
+	char buf[4096];
 
 	n = sizeof(buf);
 	while(n == sizeof(buf))
@@ -139,13 +139,19 @@ bool rcon(const str& cmd, str& reply, const str& host, int port, siz wait)
 	reply.clear();
 	for(str_vec_iter packet = packets.begin(); packet != packets.end(); ++packet)
 	{
-		if(packet->find(header) != 0)
+		if(packet == packets.begin())
 		{
-			log("rcon: Unrecognised response.");
-			return false;
+			if(packet->find(header) != 0)
+			{
+				log("rcon: Unrecognised response.");
+				return false;
+			}
+
+			reply.append(packet->substr(header.size()));
+			continue;
 		}
 
-		reply.append(packet->substr(header.size()));
+		reply.append(*packet);
 	}
 
 	return true;
