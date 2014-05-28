@@ -979,18 +979,17 @@ bool Katina::start(const str& dir)
 
 			siz num;
 			if(!(iss >> num))
-				std::cout << "Error parsing ClientConnect: "  << params << '\n';
+				std::cout << "Error parsing ClientDisconnect: "  << params << '\n';
 			else
 			{
-                // Remove the data first, client is not available in event handlers
-                GUID guid = clients[num];
-				teams.erase(guid);
-				//players.erase(guid); // TODO: WHY IS THIS COMMENTED OUT?
-				clients.erase(num);
-                
 				for(plugin_vec_iter i = events[CLIENT_DISCONNECT].begin()
 					; i != events[CLIENT_DISCONNECT].end(); ++i)
 					(*i)->client_disconnect(min, sec, num);
+
+ 				teams.erase(clients[num]);
+				players.erase(clients[num]);
+				clients.erase(num);
+                
 			}
 		}
 		else if(cmd == "Kill:")
@@ -1194,23 +1193,23 @@ bool Katina::start(const str& dir)
 
 			static str key, val;
 
-			clients.clear();
-			players.clear();
-			teams.clear();
-			cvars.clear();
+//			clients.clear();
+//			players.clear();
+//			teams.clear();
+			svars.clear();
 
 			iss.ignore(); // skip initial '\\'
 			while(sgl(sgl(iss, key, '\\'), val, '\\'))
-				cvars[key] = val;
+				svars[key] = val;
 
-			mapname = cvars["mapname"];
+			mapname = svars["mapname"];
 
 			if(rerun)
 			{
 				str skip;
 				siz Y, M, D, h, m, s;
 				char c;
-				siss iss(cvars["g_timestamp"]);
+				siss iss(svars["g_timestamp"]);
 				// g_timestamp 2013-05-24 09:34:32
 				if((iss >> Y >> c >> M >> c >> D >> c >> h >> c >> m >> c >> s))
 				{
@@ -1239,7 +1238,7 @@ bool Katina::start(const str& dir)
 
 			for(plugin_vec_iter i = events[INIT_GAME].begin()
 				; i != events[INIT_GAME].end(); ++i)
-				(*i)->init_game(min, sec, cvars);
+				(*i)->init_game(min, sec, svars);
 		}
 		else if(cmd == "Playerstore:")
 		{

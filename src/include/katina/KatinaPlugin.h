@@ -81,7 +81,7 @@ public:
 	virtual str get_version() const = 0;
 	
 	// Game server log events
-	virtual bool init_game(siz min, siz sec, const str_map& cvars) { return true; }
+	virtual bool init_game(siz min, siz sec, const str_map& svars) { return true; }
 	virtual bool warmup(siz min, siz sec) { return true; }
 	virtual bool client_connect(siz min, siz sec, siz num) { return true; }
 

@@ -242,7 +242,7 @@ public:
 	siz_guid_map clients; // slot -> GUID // cleared when players disconnect and on game_begin()
 	guid_str_map players; // GUID -> name  // cleard before game_begin()
 	guid_siz_map teams; // GUID -> 'R' | 'B' // cleared when players disconnect and on game_begin()
-	str_map cvars;
+	str_map svars; // server variables
 	siz logmode;
 	std::time_t now;
 
