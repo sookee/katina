@@ -127,6 +127,17 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 		pbug("ANNOUNCING VOTE TO: " << i->second << " " << katina.players[i->second]);
 
 		bug_var(i->first);
+		if(i->first == siz(-1))
+		{
+			plog("ERROR: Bad client number: " << i->first);
+			continue;
+		}
+
+		if(i->first > 32)
+		{
+			plog("ERROR: Client number too large: " << i->first);
+			continue;
+		}
 
 		if(map_votes[i->second] > 0)
 			katina.server.msg_to(i->first, katina.get_name() + " ^3You ^1LOVE ^3this map");

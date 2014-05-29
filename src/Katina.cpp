@@ -602,6 +602,12 @@ bool Katina::initial_player_info()
 			continue;
 		}
 
+		if(num > 32)
+		{
+			log("ERROR: Bad client num: " << num);
+			continue;
+		}
+
 		bug_var(num);
 		bug_var(team);
 		bug_var(guid);
@@ -900,6 +906,10 @@ bool Katina::start(const str& dir)
 			siz num, team;
 			if(!(sgl(sgl(sgl(iss >> num, skip, '\\'), name, '\\'), skip, '\\') >> team))
 				std::cout << "Error parsing ClientUserinfoChanged: "  << params << '\n';
+			else if(num > 32)
+			{
+				log("ERROR: Client num too high: " << num);
+			}
 			else
 			{
 				siz pos = line.find("\\id\\");
@@ -932,18 +942,19 @@ bool Katina::start(const str& dir)
                     siz teamBefore = teams[guid];
                     teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
 
-					for(plugin_vec_iter i = events[CLIENT_USERINFO_CHANGED].begin(); i != events[CLIENT_USERINFO_CHANGED].end(); ++i)
+					for(plugin_vec_iter i = events[CLIENT_USERINFO_CHANGED].begin();
+							i != events[CLIENT_USERINFO_CHANGED].end(); ++i)
 						(*i)->client_userinfo_changed(min, sec, num, team, guid, name, hc);
                     
                     if(team != teamBefore && !guid.is_bot())
-                        for(plugin_vec_iter i = events[CLIENT_SWITCH_TEAM].begin(); i != events[CLIENT_SWITCH_TEAM].end(); ++i)
+                        for(plugin_vec_iter i = events[CLIENT_SWITCH_TEAM].begin();
+                        		i != events[CLIENT_SWITCH_TEAM].end(); ++i)
                             (*i)->client_switch_team(min, sec, num, teamBefore, team);
 				}
 			}
 		}
 		else if(cmd == "ClientConnect:")
 		{
-			//bug(cmd << "(" << params << ")");
 			if(events[CLIENT_CONNECT].empty())
 				continue;
 
@@ -959,17 +970,15 @@ bool Katina::start(const str& dir)
 		}
 		else if(cmd == "ClientConnectInfo:")
 		{
-//			bug("==============================================");
-//			bug(cmd << "(" << params << ")");
+			// ClientConnectInfo: 4 87597A67B5A4E3C79544A72B7B5DA741 81.101.111.32
 			if(events[CLIENT_CONNECT_INFO].empty())
 				continue;
 
-			// ClientConnectInfo: 4 87597A67B5A4E3C79544A72B7B5DA741 81.101.111.32
-
 			siz num;
-			str ip;
 			GUID guid;
+			str ip;
 			str skip; // rest of guid needs to be skipped before ip
+
 			if(!(iss >> num >> std::ws >> guid >> skip >> std::ws >> ip))
 				log("Error parsing ClientConnectInfo: "  << params);
 			else
@@ -1002,6 +1011,10 @@ bool Katina::start(const str& dir)
 			siz num;
 			if(!(iss >> num))
 				std::cout << "Error parsing ClientDisconnect: "  << params << '\n';
+			else if(num > 32)
+			{
+				log("ERROR: Client num too high: " << num);
+			}
 			else
 			{
 				for(plugin_vec_iter i = events[CLIENT_DISCONNECT].begin()
@@ -1011,7 +1024,6 @@ bool Katina::start(const str& dir)
  				teams.erase(clients[num]);
 				players.erase(clients[num]);
 				clients.erase(num);
-                
 			}
 		}
 		else if(cmd == "Kill:")
