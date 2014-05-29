@@ -104,9 +104,11 @@ bool KatinaPluginVotes::init_game(siz min, siz sec, const str_map& cvars)
 	db.read_map_votes(mapname, map_votes);
 	db.off();
 
-	announce_time = 30;
-	katina.add_log_event(this, HEARTBEAT);
-
+	if(!announce_time)
+	{
+		announce_time = 30;
+		katina.add_log_event(this, HEARTBEAT);
+	}
 	return true;
 }
 
@@ -114,6 +116,11 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 {
 	if(!announce_time || min || sec < announce_time)
 		return;
+
+	pbug("HEARTBEAT");
+
+	announce_time = 0; // turn off
+	katina.del_log_event(this, HEARTBEAT);
 
 	siz num;
 	for(siz_guid_map_citer i = katina.clients.begin(); i != katina.clients.end(); ++i)
@@ -132,8 +139,6 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 			katina.server.msg_to(num, katina.get_name() + " ^3You can say ^1!love map ^3 or ^1!hate map ^3 to express a preference.");
 		}
 	}
-	announce_time = 0; // turn off
-	katina.del_log_event(this, HEARTBEAT);
 }
 
 bool KatinaPluginVotes::sayteam(siz min, siz sec, const GUID& guid, const str& text)
