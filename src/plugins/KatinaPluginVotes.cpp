@@ -50,7 +50,7 @@ bool KatinaPluginVotes::open()
 	katina.add_log_event(this, INIT_GAME);
 	katina.add_log_event(this, SAY);
 	katina.add_log_event(this, SAYTEAM);
-//	katina.add_log_event(this, HEARTBEAT);
+	katina.add_log_event(this, HEARTBEAT);
 
 	return true;
 }
@@ -107,7 +107,7 @@ bool KatinaPluginVotes::init_game(siz min, siz sec, const str_map& cvars)
 	if(!announce_time)
 	{
 		announce_time = 30;
-		katina.add_log_event(this, HEARTBEAT);
+		//katina.add_log_event(this, HEARTBEAT);
 	}
 	return true;
 }
@@ -120,7 +120,7 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 	pbug("HEARTBEAT");
 
 	announce_time = 0; // turn off
-	katina.del_log_event(this, HEARTBEAT);
+	//katina.del_log_event(this, HEARTBEAT);
 
 	for(siz_guid_map_citer i = katina.clients.begin(); i != katina.clients.end(); ++i)
 	{

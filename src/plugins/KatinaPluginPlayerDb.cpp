@@ -218,7 +218,12 @@ bool KatinaPluginPlayerDb::client_userinfo_changed(siz min, siz sec, siz num, si
 
 	if(!ips[num])
 	{
-		plog("ERROR: ip data not known for: " << guid << ", [" << name << "]");
+		static guid_set guids;
+		if(guids.count(guid))
+		{
+			plog("WARN: ip data not known for: " << guid << ", [" << name << "]");
+			guids.insert(guid); // only once
+		}
 		return true;
 	}
 

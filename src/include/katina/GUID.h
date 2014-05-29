@@ -158,6 +158,10 @@ typedef std::pair<const GUID, int> guid_int_map_pair;
 typedef guid_int_map::iterator guid_int_map_iter;
 typedef guid_int_map::const_iterator guid_int_map_citer;
 
+typedef std::set<GUID> guid_set;
+typedef guid_set::iterator guid_set_iter;
+typedef guid_set::const_iterator guid_set_citer;
+
 extern const GUID null_guid;
 
 /*
