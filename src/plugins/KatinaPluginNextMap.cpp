@@ -134,16 +134,17 @@ bool KatinaPluginNextMap::exit(siz min, siz sec)
 {
 	if(!active)
 		return true;
+	bug_func();
 
 	// set nextmap here
 	str_int_map maps;
 
 	for(guid_vote_map_iter i = votes.begin(); i != votes.end(); ++i)
 	{
-		bug_var(i->first);
-		bug("maps[" << i->second.mapname << "] += " << i->second.count);
+		pbug_var(i->first);
+		pbug("maps[" << i->second.mapname << "] += " << i->second.count);
 		maps[i->second.mapname] += i->second.count;
-		bug_var(maps[i->second.mapname]);
+		pbug_var(maps[i->second.mapname]);
 	}
 
 	str nextmap; // next mapname
@@ -154,14 +155,14 @@ bool KatinaPluginNextMap::exit(siz min, siz sec)
 		if(i->second > 0)
 			{ sort[i->second] = i->first; tot += i->second; }
 
-	bug_var(tot);
+	pbug_var(tot);
 
 	if(!tot)
 		return true;
 
 	siz pick = rand() % tot;
 
-	bug_var(pick);
+	pbug_var(pick);
 
 	tot = 0;
 	siz_str_map_citer i;
@@ -169,7 +170,7 @@ bool KatinaPluginNextMap::exit(siz min, siz sec)
 	{
 		if((tot += i->first) < pick)
 		{
-			bug_var(tot);
+			pbug_var(tot);
 			continue;
 		}
 	}
@@ -185,15 +186,16 @@ bool KatinaPluginNextMap::exit(siz min, siz sec)
 		return true;
 	}
 
-	bug_var(i->first);
-	bug_var(i->second);
+	pbug_var(i->first);
+	pbug_var(i->second);
 
 	nextmap = i->second;
 
-	bug_var(nextmap);
+	pbug_var(nextmap);
 	// set m1 "map oasago2; set nextmap vstr m2"
 
-	server.msg_to_all("^3NEXT MAP SUGGESTS: ^7" + upper_copy(nextmap));
+	//server.msg_to_all("^3NEXT MAP SUGGESTS: ^7" + upper_copy(nextmap));
+	plog("^3NEXTMAP SUGGESTS: ^7" + upper_copy(nextmap));
 
 //	if(server.command("set xmap \"map " + nextmap + "; set nextmap " + rotmap + "\""))
 //		if(server.command("vstr xmap"))

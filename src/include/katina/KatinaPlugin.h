@@ -178,6 +178,8 @@ static const char* VERSION = V
  */
 #define pbug(m) bug(ID << ": " << m)
 #define plog(m) log(ID << ": " << m)
+#define pbug_var(v) pbug(QUOTE(v:) << std::boolalpha << " " << v)
+
 
 } // oastats
 
