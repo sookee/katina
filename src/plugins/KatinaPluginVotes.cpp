@@ -124,6 +124,9 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 
 	for(siz_guid_map_citer i = katina.clients.begin(); i != katina.clients.end(); ++i)
 	{
+		if(i->second.is_bot())
+			continue;
+
 		pbug("ANNOUNCING VOTE TO: " << i->second << " " << katina.players[i->second]);
 
 		bug_var(i->first);

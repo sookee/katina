@@ -47,8 +47,6 @@ const str version = "0.1";
 const str tag = "dev";
 const str revision = REV;
 
-
-
 siz Katina::getTeam(siz client)
 {
     siz_guid_map_citer clientsIt = clients.find(client);
@@ -134,8 +132,6 @@ bool Katina::rconset(const str& cvar, str& val)
 	return true;
 }
 
-
-
 GUID Katina::guid_from_name(const str& name)
 {
 	for(guid_str_map_iter i = players.begin(); i != players.end(); ++i)
@@ -143,8 +139,6 @@ GUID Katina::guid_from_name(const str& name)
 			return i->first;
 	return null_guid;
 }
-
-
 
 bool Katina::extract_name_from_text(const str& line, GUID& guid, str& text)
 {
@@ -439,8 +433,6 @@ bool Katina::init_pki()
     return true;
 }
 
-
-
 void Katina::init_rcon()
 {
 	log("Initializing rcon:");
@@ -455,8 +447,6 @@ void Katina::init_rcon()
     
 	//pthread_create(&cvarevts_thread, 0, &cvarpoll, (void*) this);
 }
-
-
 
 void Katina::load_plugins()
 {

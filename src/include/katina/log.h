@@ -81,7 +81,7 @@ bool log_error(const str& m, bool status = false) { log(m); return status; }
 
 enum
 {
-	LOG_NORMAL, LOG_VERBOSE, LOG_DETAILED
+	LOG_NONE, LOG_NORMAL, LOG_VERBOSE, LOG_DETAILED
 };
 
 }} // oastats::log

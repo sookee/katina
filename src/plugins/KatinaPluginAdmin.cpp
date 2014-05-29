@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <functional>
 
+#include <ctime>
+
 #include <katina/types.h>
 #include <katina/log.h>
 #include <katina/str.h>
@@ -448,11 +450,11 @@ bool KatinaPluginAdmin::client_connect_info(siz min, siz sec, siz num, const GUI
 
 	for(str_vec_iter i = total_bans.ips.begin(); i != total_bans.ips.end(); ++i)
 		if(!ip.find(*i)) // left substring match
-			server.command("!ban " + to_string(num) + "Automated ban ip: " + *i);
+			server.command("!ban " + to_string(num) + "AUTO BAN IP: " + *i);
 
 	for(str_vec_iter i = total_bans.guids.begin(); i != total_bans.guids.end(); ++i)
 		if(guid == *i)
-			server.command("!ban " + to_string(num) + "Automated ban guid: " + *i);
+			server.command("!ban " + to_string(num) + "AUTO BAN GUID: " + *i);
 
 	return true;
 }
@@ -490,28 +492,28 @@ bool KatinaPluginAdmin::client_userinfo_changed(siz min, siz sec, siz num, siz t
 
 	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end();)
 	{
-		if(s->guid == guid)
+		if(s->guid != guid)
+			{ ++s; continue; }
+
+		if(s->type == S_FIXNAME)
 		{
-			if(s->type == S_FIXNAME)
-			{
-				if(!s->params.empty() && name != s->params[0])
-					if(fixname(num, s->params[0]))
-						s->applied = true;
-				++s;
-			}
-			else if(s->type == S_WARN_ON_SIGHT && !s->params.empty())
-			{
-				if(warn_on_sight(num, s->params[0]))
-					{ s = sanctions.erase(s); save_sanctions(); }
-				else
-					++s;
-			}
-			else if(s->type == S_RETEAM && !s->params.empty() && !s->params[0].empty())
-			{
-				if(reteam(num, s->params[0][0]))
+			if(!s->params.empty() && name != s->params[0])
+				if(fixname(num, s->params[0]))
 					s->applied = true;
+			++s;
+		}
+		else if(s->type == S_WARN_ON_SIGHT)
+		{
+			if(warn_on_sight(num, s->reason))
+				{ s = sanctions.erase(s); save_sanctions(); }
+			else
 				++s;
-			}
+		}
+		else if(s->type == S_RETEAM && !s->params.empty() && !s->params[0].empty())
+		{
+			if(reteam(num, s->params[0][0]))
+				s->applied = true;
+			++s;
 		}
 	}
 
@@ -988,6 +990,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 	}
 	else if(cmd == trans("!warnonsight") || cmd == trans("?warnonsight"))
 	{
+		// TODO: contains crasher
 		// !warnonsight <GUID> <reason>
 		if(!check_admin(guid))
 			return true;
@@ -1030,7 +1033,8 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		s.type = S_WARN_ON_SIGHT;
 		s.guid = guid;
 		s.expires = 0;
-		s.params.push_back(reason);
+		s.reason = reason;
+		//s.params.push_back(reason);
 
 		sanctions.push_back(s);
 		save_sanctions();
