@@ -122,21 +122,20 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 	announce_time = 0; // turn off
 	katina.del_log_event(this, HEARTBEAT);
 
-	siz num;
 	for(siz_guid_map_citer i = katina.clients.begin(); i != katina.clients.end(); ++i)
 	{
 		pbug("ANNOUNCING VOTE TO: " << i->second << " " << katina.players[i->second]);
 
-		bug_var(num);
+		bug_var(i->first);
 
 		if(map_votes[i->second] > 0)
-			katina.server.msg_to(num, katina.get_name() + " ^3You ^1LOVE ^3this map");
+			katina.server.msg_to(i->first, katina.get_name() + " ^3You ^1LOVE ^3this map");
 		else if(map_votes[i->second] < 0)
-			katina.server.msg_to(num, katina.get_name() + " ^3You ^1HATE ^3this map");
+			katina.server.msg_to(i->first, katina.get_name() + " ^3You ^1HATE ^3this map");
 		else
 		{
-			katina.server.msg_to(num, katina.get_name() + " ^3You have not yet voted for this map.", true);
-			katina.server.msg_to(num, katina.get_name() + " ^3You can say ^1!love map ^3 or ^1!hate map ^3 to express a preference.");
+			katina.server.msg_to(i->first, katina.get_name() + " ^3You have not yet voted for this map.", true);
+			katina.server.msg_to(i->first, katina.get_name() + " ^3You can say ^1!love map ^3 or ^1!hate map ^3 to express a preference.");
 		}
 	}
 }
