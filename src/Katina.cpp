@@ -516,7 +516,10 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 		}
 		else if(cmd == "set")
 		{
-			// !katina set plugin varname value
+			// !katina plugin pluginid
+			// !katina set varname value
+			// -or-
+			// !katina set pluginid::varname value
 			str var, val;
 			if(!(iss >> var >> val))
 			{
@@ -525,17 +528,30 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 			}
 			else
 			{
-				if(!plugins[plugin])
-					server.msg_to(num, "Plugin " + plugin + " is not loaded");
+				str p = plugin;
+
+				if(siz pos = var.find("::") != str::npos)
+				{
+					p = var.substr(0, pos);
+					if(var.size() < pos + 2)
+					{
+						server.msg_to(num, "ERROR varname not found");
+						return;
+					}
+					var = var.substr(pos + 2);
+				}
+
+				if(!plugins[p])
+					server.msg_to(num, "Plugin " + p + " is not loaded");
 				else
 				{
-					if(!vars[plugins[plugin]][var])
-						server.msg_to(num, "Plugin " + plugin + " does not recognise " + var);
+					if(!vars[plugins[p]][var])
+						server.msg_to(num, "Plugin " + p + " does not recognise " + var);
 					else
 					{
-						vars[plugins[plugin]][var]->set(val);
-						if(vars[plugins[plugin]][var]->get(val))
-							server.msg_to(num, "Variable " + var + " set to: " + val);
+						vars[plugins[p]][var]->set(val);
+						if(vars[plugins[p]][var]->get(val))
+							server.msg_to(num, "Variable " + p + "::" + var + " set to: " + val);
 					}
 				}
 			}

@@ -156,7 +156,7 @@ bool Database::select(const str& sql, str_vec_vec& rows, siz fields)
 
 game_id Database::add_game(const str& host, const str& port, const str& mapname)
 {
-	log("DATABASE: add_game(" << host << ", " << port << ", " << mapname << ")");
+	//log("DATABASE: add_game(" << host << ", " << port << ", " << mapname << ")");
 
 	str safe_mapname;
 	if(!escape(mapname, safe_mapname))
@@ -187,7 +187,7 @@ game_id Database::add_game(const str& host, const str& port, const str& mapname)
  */
 bool Database::add_weaps(game_id id, const str& table, const GUID& guid, siz weap, siz count)
 {
-	log("DATABASE: add_weaps(" << id << ", " << table << ", " << guid << ", " << weap << ", " << count << ")");
+	//log("DATABASE: add_weaps(" << id << ", " << table << ", " << guid << ", " << weap << ", " << count << ")");
 
 	soss oss;
 	oss << "insert into `" << table << "` (`game_id`, `guid`, `weap`, `count`) values (";
@@ -200,7 +200,7 @@ bool Database::add_weaps(game_id id, const str& table, const GUID& guid, siz wea
 
 bool Database::add_caps(game_id id, const GUID& guid, siz count)
 {
-	log("DATABASE: add_caps(" << id << ", " << guid << ", " << count << ")");
+	//log("DATABASE: add_caps(" << id << ", " << guid << ", " << count << ")");
 
 	soss oss;
 	oss << "insert into `caps` (`game_id`, `guid`, `count`) values (";
@@ -213,7 +213,7 @@ bool Database::add_caps(game_id id, const GUID& guid, siz count)
 
 bool Database::add_time(game_id id, const GUID& guid, siz count)
 {
-	log("DATABASE: add_time(" << id << ", " << guid << ", " << count << ")");
+	//log("DATABASE: add_time(" << id << ", " << guid << ", " << count << ")");
 
 	soss oss;
 	oss << "insert into `time` (`game_id`, `guid`, `count`) values (";
@@ -226,7 +226,7 @@ bool Database::add_time(game_id id, const GUID& guid, siz count)
 
 bool Database::add_player(const GUID& guid, const str& name)
 {
-	log("DATABASE: add_player(" << guid << ", " << name << ")");
+	//log("DATABASE: add_player(" << guid << ", " << name << ")");
 
 	str safe_name;
 	if(!escape(name, safe_name))
@@ -246,7 +246,7 @@ bool Database::add_player(const GUID& guid, const str& name)
 
 row_count Database::add_vote(const str& type, const str& item, const GUID& guid, int count)
 {
-	log("DATABASE: add_vote(" << type << ", " << item << ", " << guid << ", " << count << ")");
+	//log("DATABASE: add_vote(" << type << ", " << item << ", " << guid << ", " << count << ")");
 
 	soss oss;
 	oss << "insert into `votes` (`type`,`item`,`guid`,`count`) values ('"
@@ -265,7 +265,7 @@ row_count Database::add_vote(const str& type, const str& item, const GUID& guid,
 
 bool Database::add_ovo(game_id id, const GUID& guid1, const GUID& guid2, siz count)
 {
-	log("DATABASE: add_ovo(" << id << ", " << guid1 << ", " << guid2 << ", " << count << ")");
+	//log("DATABASE: add_ovo(" << id << ", " << guid1 << ", " << guid2 << ", " << count << ")");
 
 	soss oss;
 	oss << "insert into `ovo` (`game_id`,`guid1`,`guid2`,`count`) values ('"
@@ -279,7 +279,7 @@ bool Database::add_ovo(game_id id, const GUID& guid1, const GUID& guid2, siz cou
 
 bool Database::add_weapon_usage(game_id id, const GUID& guid, siz weap, siz shots)
 {
-	log("DATABASE: add_weapon_usage(" << id << ", " << guid << ", " << weap << ", " << shots << ")");
+	//log("DATABASE: add_weapon_usage(" << id << ", " << guid << ", " << weap << ", " << shots << ")");
 
 	soss oss;
 	oss << "insert into `weapon_usage` (`game_id`,`guid`,`weap`,`shots`) values ('"
@@ -292,7 +292,7 @@ bool Database::add_weapon_usage(game_id id, const GUID& guid, siz weap, siz shot
 
 bool Database::add_mod_damage(game_id id, const GUID& guid, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv, float weightedHits)
 {
-	log("DATABASE: add_mod_damage(" << id << ", " << guid << ", " << mod << ", " << hits << ", " << damage << ", " << hitsRecv << ", " << damageRecv << ", " << weightedHits << ")");
+	//log("DATABASE: add_mod_damage(" << id << ", " << guid << ", " << mod << ", " << hits << ", " << damage << ", " << hitsRecv << ", " << damageRecv << ", " << weightedHits << ")");
 
 	soss oss;
 	oss << "insert into `damage` (`game_id`,`guid`,`mod`,`hits`,`dmgDone`,`hitsRecv`,`dmgRecv`,`weightedHits`) values ('"
@@ -309,10 +309,10 @@ bool Database::add_playerstats(game_id id, const GUID& guid,
 	siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,
 	siz carrierFrags, siz carrierFragsRecv)
 {
-	log("DATABASE: add_playerstats(" << id << ", " << guid << ", " << fragsFace << ", " << fragsBack << ", " << fraggedInFace << ", " << fraggedInBack
-		<< ", " << spawnKills << ", " << spawnKillsRecv << ", " << pushes << ", " << pushesRecv
-		<< ", " << healthPickedUp << ", " << armorPickedUp << ", " << holyShitFrags << ", " << holyShitFragged
-		<< ", " << carrierFrags << ", " << carrierFragsRecv << ")");
+//	log("DATABASE: add_playerstats(" << id << ", " << guid << ", " << fragsFace << ", " << fragsBack << ", " << fraggedInFace << ", " << fraggedInBack
+//		<< ", " << spawnKills << ", " << spawnKillsRecv << ", " << pushes << ", " << pushesRecv
+//		<< ", " << healthPickedUp << ", " << armorPickedUp << ", " << holyShitFrags << ", " << holyShitFragged
+//		<< ", " << carrierFrags << ", " << carrierFragsRecv << ")");
 
 
 	soss oss;
@@ -331,7 +331,7 @@ bool Database::add_playerstats(game_id id, const GUID& guid,
 bool Database::add_speed(game_id id, const GUID& guid,
 	siz dist, siz time, bool has_flag)
 {
-	log("DATABASE: add_speed(" << id << ", " << guid << ", " << dist << ", " << time << ", " << has_flag << ")");
+	//log("DATABASE: add_speed(" << id << ", " << guid << ", " << dist << ", " << time << ", " << has_flag << ")");
 
 	soss oss;
 	oss << "insert into `speed` ("
@@ -367,7 +367,7 @@ bool Database::read_map_votes(const str& mapname, guid_int_map& map_votes)
 
 	for(siz i = 0; i < rows.size(); ++i)
 	{
-		log("DATABASE: restoring vote: " << rows[i][0] << ": " << rows[i][1]);
+		//log("DATABASE: restoring vote: " << rows[i][0] << ": " << rows[i][1]);
 		map_votes[GUID(rows[i][0])] = to<int>(rows[i][1]);
 	}
 
@@ -376,7 +376,7 @@ bool Database::read_map_votes(const str& mapname, guid_int_map& map_votes)
 
 bool Database::set_preferred_name(const GUID& guid, const str& name)
 {
-	log("DATABASE: set_preferred_name(" << guid << ", " << name << ")");
+	//log("DATABASE: set_preferred_name(" << guid << ", " << name << ")");
 
 	str safe_name;
 	if(!escape(name, safe_name))
@@ -393,7 +393,7 @@ bool Database::set_preferred_name(const GUID& guid, const str& name)
 
 bool Database::get_preferred_name(const GUID& guid, str& name)
 {
-	log("DATABASE: get_preferred_name(" << guid << ", " << name << ")");
+	//log("DATABASE: get_preferred_name(" << guid << ", " << name << ")");
 
 	soss oss;
 	oss << "select name from user where guid = '" << guid << "'";
@@ -529,7 +529,7 @@ siz Database::get_kills_per_cap(const str& mapname)
 
 bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, GUID& guid, str& stats)
 {
-	log("DATABASE: get_ingame_boss(" << mapname << ", " << clients.size() << ")");
+	//log("DATABASE: get_ingame_boss(" << mapname << ", " << clients.size() << ")");
 	siz syear = 0;
 	siz smonth = 0;
 	siz eyear = 0;
@@ -684,7 +684,7 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 
 bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, str& stats, siz& skill)
 {
-	log("DATABASE: get_ingame_stats(" << guid << ", " << mapname << ", " << prev << ")");
+	//log("DATABASE: get_ingame_stats(" << guid << ", " << mapname << ", " << prev << ")");
 
 	if(mapname.empty())
 		return false;

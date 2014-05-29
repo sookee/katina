@@ -26,25 +26,25 @@ KatinaPluginNextMap::KatinaPluginNextMap(Katina& katina)
 
 bool KatinaPluginNextMap::open()
 {
-//	if(katina.get_plugin("katina::votes", "0.0", votes))
-//		plog("Found: " << votes->get_name());
-//	else
-//	{
-//		plog("WARN: Unable to factor in player votes in map selection.");
-//	}
+	str host = katina.get("votes.db.host", katina.get("db.host", "localhost"));
+	siz port = katina.get("votes.db.port", katina.get("db.port", 3306));
+	str user = katina.get("votes.db.user", katina.get("db.user", ""));
+	str pass = katina.get("votes.db.pass", katina.get("db.pass", ""));
+	str base = katina.get("votes.db.base", katina.get("db.base"));
 
-	if(!katina.has("stats.db.base") || !katina.has("stats.db.user"))
+	if(base.empty())
 	{
-		plog("FATAL: no database config found");
+		plog("FATAL: Database config not found");
 		return false;
 	}
 
-	db.config(
-		katina.get("stats.db.host", "localhost")
-		, katina.get("stats.db.port", 3306)
-		, katina.get("stats.db.user")
-		, katina.get("stats.db.pass", "")
-		, katina.get("stats.db.base"));
+	db.config(host, port, user, pass, base);
+
+	if(!db.check())
+	{
+		plog("FATAL: Database can not connect");
+		return false;
+	}
 
 	db.on();
 
@@ -126,7 +126,7 @@ bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& tex
 {
 	if(!active)
 		return true;
-	plog("say(" << guid << ", " << text << ")");
+	//plog("say(" << guid << ", " << text << ")");
 	return true;
 }
 
@@ -176,11 +176,11 @@ bool KatinaPluginNextMap::exit(siz min, siz sec)
 
 	if(i == sort.end())
 	{
-		plog("WARN: No map delected");
+		plog("WARN: No map detected");
 
-		if(server.command("vstr " + rotmap))
-			if(!katina.rconset("nextmap", rotmap))
-				plog("WARN: Unable to obtain rotation mapname");
+//		if(server.command("vstr " + rotmap))
+//			if(!katina.rconset("nextmap", rotmap))
+//				plog("WARN: Unable to obtain rotation mapname");
 
 		return true;
 	}

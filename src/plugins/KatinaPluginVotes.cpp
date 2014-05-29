@@ -116,18 +116,15 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 		return;
 
 	siz num;
-	for(guid_int_map_citer i = map_votes.begin(); i != map_votes.end(); ++i)
+	for(siz_guid_map_citer i = katina.clients.begin(); i != katina.clients.end(); ++i)
 	{
-		pbug("ANNOUNCING VOTE TO: " << i->first << " " << katina.players[i->first]);
-
-		if((num = katina.getClientNr(i->first)) == siz(-1))
-			continue;
+		pbug("ANNOUNCING VOTE TO: " << i->second << " " << katina.players[i->second]);
 
 		bug_var(num);
 
-		if(i->second > 0)
+		if(map_votes[i->second] > 0)
 			katina.server.msg_to(num, katina.get_name() + " ^3You ^1LOVE ^3this map");
-		else if(i->second < 0)
+		else if(map_votes[i->second] < 0)
 			katina.server.msg_to(num, katina.get_name() + " ^3You ^1HATE ^3this map");
 		else
 		{
