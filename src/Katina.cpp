@@ -73,12 +73,8 @@ siz Katina::getClientNr(GUID guid)
 {
 	//bug_func();
 	for(siz_guid_map_citer it = clients.begin(); it != clients.end(); ++it)
-	{
-		//bug_var(it->first);
-		//bug_var(it->second);
 		if(it->second == guid)
 			return it->first;
-	}
     return siz(-1);
 }
 
@@ -476,9 +472,9 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 	bug_var(guid);
 	bug_var(text);
 
-	siz num = getClientNr(guid);
+	siz num;
 
-	if(num == siz(-1))
+	if((num = getClientNr(guid)) == siz(-1))
 	{
 		server.s_chat("ERROR: Cannot locate client number.");
 		return;

@@ -608,9 +608,9 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 	if(!active)
 		return true;
 
-	siz say_num = katina.getClientNr(guid);
+	siz say_num;
 
-	if(say_num == siz(-1))
+	if((say_num = katina.getClientNr(guid)) == siz(-1))
 	{
 		plog("ERROR: Unable to get slot number from guid: " << guid);
 		return true;

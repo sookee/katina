@@ -350,20 +350,24 @@ bool KatinaPluginAdmin::open()
 	load_sanctions();
 	load_total_bans();
 
+	siz num;
 	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end(); ++s)
 	{
-		if(players.find(s->guid) != players.end())
-		{
-			// !mute++
-			if(s->type == S_MUTEPP)
-				if(mutepp(katina.getClientNr(s->guid)))
-					s->applied = true;
-			// !fixname
-			if(s->type == S_FIXNAME && !s->params.empty()
-			&& s->params[0] == players[s->guid])
-				if(fixname(katina.getClientNr(s->guid), s->params[0]))
-					s->applied = true;
-		}
+		if((num = katina.getClientNr(s->guid)) == siz(-1))
+			continue;
+
+		if(players.find(s->guid) == players.end())
+			continue;
+
+		// !mute++
+		if(s->type == S_MUTEPP)
+			if(mutepp(num))
+				s->applied = true;
+		// !fixname
+		if(s->type == S_FIXNAME && !s->params.empty()
+		&& s->params[0] == players[s->guid])
+			if(fixname(num, s->params[0]))
+				s->applied = true;
 	}
 
 	bug("setting config");
@@ -393,11 +397,19 @@ bool KatinaPluginAdmin::init_game(siz min, siz sec, const str_map& cvars)
 		return true;
 
 	// !muted become unstuck after every game
+	siz num;
 	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end(); ++s)
-		if(players.find(s->guid) != players.end())
-			if(s->type == S_MUTEPP)
-				if(mutepp(katina.getClientNr(s->guid)))
-					s->applied = true;
+	{
+		if((num = katina.getClientNr(s->guid)) == siz(-1))
+			continue;
+
+		if(players.find(s->guid) == players.end())
+			continue;
+
+		if(s->type == S_MUTEPP)
+			if(mutepp(num))
+				s->applied = true;
+	}
 
 	for(siz_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
 	{
@@ -708,9 +720,8 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 
 	// !cmd <parans>
 
-	siz say_num = katina.getClientNr(guid);
-
-	if(say_num == siz(-1))
+	siz say_num;
+	if((say_num = katina.getClientNr(guid)) == siz(-1))
 	{
 		plog("ERROR: Unable to get slot number from guid: " << guid);
 		return true;
@@ -1009,8 +1020,8 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		{
 			remove_sanctions(guid, S_WARN_ON_SIGHT);
 			server.msg_to(say_num, "^7ADMIN: ^3Removed warn-on-sight from: ^2" + guid, true);
-			if(katina.getClientNr(guid) != siz(-1))
-				server.msg_to(say_num, "^7ADMIN: ^3Removed warn-on-sight from: ^2" + guid, true);
+			if(siz num = katina.getClientNr(guid) != siz(-1))
+				server.msg_to(num, "^7ADMIN: ^3Removed warn-on-sight", true);
 
 			return true;
 		}

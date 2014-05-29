@@ -111,15 +111,18 @@ bool DefaultTeamBuilder::buildTeams(siz_float_map playerRatings, siz_map& destTe
     std::vector<siz> ingamePlayers;
     std::vector<float> ratings;
     
-    for(guid_siz_map_citer it = katina.teams.begin(); it != katina.teams.end(); ++it)
-    {
-        if(it->second == TEAM_R || it->second == TEAM_B)
-        {
-            siz client = katina.getClientNr(it->first);
-            ingamePlayers.push_back(client);
-            ratings.push_back(playerRatings[client]);
-        }
-    }
+	siz client;
+	for(guid_siz_map_citer it = katina.teams.begin(); it != katina.teams.end(); ++it)
+	{
+    	if(it->second != TEAM_R && it->second != TEAM_B)
+        	continue;
+
+    	if((client = katina.getClientNr(it->first)) == siz(-1))
+    		continue;
+
+    	ingamePlayers.push_back(client);
+    	ratings.push_back(playerRatings[client]);
+	}
     
     if(ingamePlayers.size() < 3)
         return false;
@@ -214,17 +217,20 @@ bool MinimalChangesTeamBuilder::buildTeams(siz_float_map playerRatings, siz_map&
     std::vector<siz> ingamePlayers;
     std::vector<float> ratings;
     
-    for(guid_siz_map_citer it = katina.teams.begin(); it != katina.teams.end(); ++it)
-    {
-        if(it->second == TEAM_R || it->second == TEAM_B)
-        {
-            siz client = katina.getClientNr(it->first);
-            ingamePlayers.push_back(client);
-            ratings.push_back(playerRatings[client]);
-        }
-    }
-    
-    if(ingamePlayers.size() < 3)
+	siz client;
+	for(guid_siz_map_citer it = katina.teams.begin(); it != katina.teams.end(); ++it)
+	{
+    	if(it->second != TEAM_R && it->second != TEAM_B)
+        	continue;
+
+    	if((client = katina.getClientNr(it->first)) == siz(-1))
+    		continue;
+
+    	ingamePlayers.push_back(client);
+    	ratings.push_back(playerRatings[client]);
+	}
+
+	if(ingamePlayers.size() < 3)
         return false;
     
     bug("building teams for " << ingamePlayers.size() << " players");

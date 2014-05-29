@@ -458,8 +458,12 @@ bool KatinaPluginTeamBalancer::say(siz min, siz sec, const GUID& guid, const str
 	bug_func();
     bug("TB say: " << text);
     
-    siz client = katina.getClientNr(guid);
-	siss iss(text);
+    siz client;
+
+    if((client = katina.getClientNr(guid)) == siz(-1))
+    	return true;
+
+    siss iss(text);
     str cmd;
     
 	if(!(iss >> cmd))
