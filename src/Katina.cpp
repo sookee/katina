@@ -29,6 +29,8 @@
 #define REVISION unset
 #endif
 
+#define ID "katina"
+
 //#define QUOTE(x) #x
 #define REV QUOTE(REVISION)
 

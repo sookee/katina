@@ -176,6 +176,7 @@ static const char* VERSION = V
 /**
  * Please use plog() rather than log() in your plugins
  */
+#define pbug(m) bug(ID << ": " << m)
 #define plog(m) log(ID << ": " << m)
 
 } // oastats

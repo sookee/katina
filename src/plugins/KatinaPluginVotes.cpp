@@ -19,6 +19,7 @@ KATINA_PLUGIN_INFO("katina::votes", "Katina Voting", "0.1");
 KatinaPluginVotes::KatinaPluginVotes(Katina& katina)
 : KatinaPlugin(katina)
 , active(false)
+, announce_time(0)
 {
 }
 
@@ -49,6 +50,7 @@ bool KatinaPluginVotes::open()
 	katina.add_log_event(this, INIT_GAME);
 	katina.add_log_event(this, SAY);
 	katina.add_log_event(this, SAYTEAM);
+//	katina.add_log_event(this, HEARTBEAT);
 
 	return true;
 }
@@ -102,10 +104,21 @@ bool KatinaPluginVotes::init_game(siz min, siz sec, const str_map& cvars)
 	db.read_map_votes(mapname, map_votes);
 	db.off();
 
+	announce_time = 30;
+	katina.add_log_event(this, HEARTBEAT);
+
+	return true;
+}
+
+void KatinaPluginVotes::heartbeat(siz min, siz sec)
+{
+	if(!announce_time || min || sec < announce_time)
+		return;
+
 	siz num;
 	for(guid_int_map_citer i = map_votes.begin(); i != map_votes.end(); ++i)
 	{
-		plog("ANNOUNCING VOTE TO: " << i->first << " " << katina.players[i->first]);
+		pbug("ANNOUNCING VOTE TO: " << i->first << " " << katina.players[i->first]);
 
 		if((num = katina.getClientNr(i->first)) == siz(-1))
 			continue;
@@ -122,8 +135,8 @@ bool KatinaPluginVotes::init_game(siz min, siz sec, const str_map& cvars)
 			katina.server.msg_to(num, katina.get_name() + " ^3You can say ^1!love map ^3 or ^1!hate map ^3 to express a preference.");
 		}
 	}
-
-	return true;
+	announce_time = 0; // turn off
+	katina.del_log_event(this, HEARTBEAT);
 }
 
 bool KatinaPluginVotes::sayteam(siz min, siz sec, const GUID& guid, const str& text)

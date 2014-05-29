@@ -212,7 +212,7 @@ private:
 	plugin_map plugins; // id -> KatinaPlugin*
 	str_map plugin_files; // id -> filename (for reloading))
 
-	event_map events; // event -> KatinaPlugin*
+	event_map events; // event -> plugin_vec
 	cvar_map_map vars; // plugin* -> {name -> cvar*}
 
 	GUID guid_from_name(const str& name);
@@ -356,6 +356,13 @@ public:
 	void add_log_event(class KatinaPlugin* plugin, event_t e)
 	{
 		events[e].push_back(plugin);
+	}
+
+	void del_log_event(class KatinaPlugin* plugin, event_t e)
+	{
+		plugin_vec_iter i = std::find(events[e].begin(), events[e].end(), plugin);
+		if(i != events[e].end())
+			events[e].erase(i);
 	}
 
 	bool is_admin(const GUID& guid);
