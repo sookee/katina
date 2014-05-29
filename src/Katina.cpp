@@ -47,6 +47,8 @@ const str version = "0.1";
 const str tag = "dev";
 const str revision = REV;
 
+const siz bad_slot = siz(-1);
+
 siz Katina::getTeam(siz client)
 {
     siz_guid_map_citer clientsIt = clients.find(client);

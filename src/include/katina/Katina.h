@@ -51,6 +51,8 @@ using namespace oastats::pki;
 using namespace oastats::types;
 using namespace oastats::utils;
 
+extern const siz bad_slot;
+
 struct cvarevt
 {
 	str name;

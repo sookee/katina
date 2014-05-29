@@ -142,6 +142,10 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 			continue;
 		}
 
+		pbug_var(i->first);
+		pbug_var(i->second);
+		pbug_var(map_votes[i->second]);
+
 		if(map_votes[i->second] > 0)
 			katina.server.msg_to(i->first, katina.get_name() + " ^3You ^1LOVE ^3this map");
 		else if(map_votes[i->second] < 0)
