@@ -100,6 +100,7 @@ enum event_t
     , SPEED //mod_katina >= 0.1-beta
     , PUSH // mod_katina >= 0.1-beta
 	, CLIENT_CONNECT_INFO // mod_katina >= 0.1-beta
+	, LOG_CALLVOTE// mod_katina >= 0.1-beta
 };
 
 typedef std::map<event_t, plugin_vec> event_map;

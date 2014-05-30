@@ -277,7 +277,7 @@ void KatinaPluginStats::unstall_clients(siz num)
 }
 
 
-void KatinaPluginStats::check_bots_and_players(std::time_t now, siz num)
+void KatinaPluginStats::check_bots_and_players(siz num)
 {
 	bool had_bots = have_bots;
 	bool human_players_nr_or_nb = !human_players_r || !human_players_b;
@@ -312,7 +312,7 @@ void KatinaPluginStats::check_bots_and_players(std::time_t now, siz num)
         have_bots = true; // TODO: one flag for everything, maybe change its name?
         
         if(had_bots != have_bots)
-            server.chat("^2Stats recording deactivated: ^7Not enough humans or too many bots");
+            server.chat("^2Stats recording deactivated^7");
     }
 	else
     {
@@ -340,13 +340,10 @@ bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, siz num, siz t
 
 	stall_client(num);
 
-	check_bots_and_players(katina.now);
+	check_bots_and_players();
 
 	if(have_bots)
 		return true;
-
-//	if(!human_players_r || !human_players_b)
-//		return true;
 
 	unstall_client(num);
 
@@ -369,7 +366,7 @@ bool KatinaPluginStats::client_disconnect(siz min, siz sec, siz num)
 		return true;
 
 	stall_client(num);
-	check_bots_and_players(katina.now, num);
+	check_bots_and_players(num);
 
 	return true;
 }

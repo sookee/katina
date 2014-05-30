@@ -1294,6 +1294,25 @@ bool Katina::start(const str& dir)
 		else if(cmd == "score:")
 		{
 		}
+		else if(cmd == "Callvote:") // mod_katina >= 0.1-beta
+		{
+			//   2:14 Callvote: 0 custom nobots: ^1S^2oo^3K^5ee^4|^7AFK has called a vote for 'custom nobots'
+			if(events[LOG_CALLVOTE].empty())
+				continue;
+
+			siz num;
+			str type;
+			str info;
+
+			if(!(iss >> num >> std::ws >> type >> std::ws >> info))
+				log("Error parsing Callvote: "  << params);
+			else
+			{
+				for(plugin_vec_iter i = events[LOG_CALLVOTE].begin()
+					; i != events[LOG_CALLVOTE].end(); ++i)
+					(*i)->callvote(min, sec, num, type, info);
+			}
+		}
 		else if(cmd == "sayteam:")
 		{
 			if(events[SAYTEAM].empty())

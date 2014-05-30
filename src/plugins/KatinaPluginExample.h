@@ -29,7 +29,7 @@ using namespace oastats::log;
 using namespace oastats::data;
 using namespace oastats::types;
 
-class KatinaPluginNextMap
+class KatinaPluginExample
 : public KatinaPlugin
 {
 private:
@@ -41,7 +41,7 @@ private:
 	bool active;
 
 public:
-	KatinaPluginNextMap(Katina& katina);
+	KatinaPluginExample(Katina& katina);
 
 	// INTERFACE: KatinaPlugin
 
@@ -70,6 +70,8 @@ public:
 	virtual bool shutdown_game(siz min, siz sec);
 	virtual bool exit(siz min, siz sec);
 	virtual bool unknown(siz min, siz sec, const str& cmd, const str& params);
+
+	virtual bool callvote(siz min, siz sec, siz num, const str& type, const str& info);
 
 	virtual bool speed(siz min, siz sec, siz num, siz dist, siz time, bool has_flag);
 

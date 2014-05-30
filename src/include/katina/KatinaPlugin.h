@@ -109,7 +109,12 @@ public:
 	virtual bool unknown(siz min, siz sec, const str& cmd, const str& params) { return true; }
 	
 	/**
-	 *  Only with zim@openmafia >= 0.1-beta
+	 * Only with mod_katina >= 0.1-beta
+	 */
+	virtual bool callvote(siz min, siz sec, siz num, const str& type, const str& info) { return true; }
+
+	/**
+	 *  Only with mod_katina >= 0.1-beta
 	 * @param has_flag if true this speed record is calculated ONLY whn carrying the flag
 	 */
 	virtual bool speed(siz min, siz sec, siz num, siz dist, siz time, bool has_flag) { return true; }
