@@ -606,6 +606,7 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, siz num, const str& type, con
 		pbug_var(*ci);
 		str t;
 		str i;
+		str reason;
 		siss iss(*ci);
 
 		if(!(iss >> t >> std::ws >> i))
@@ -614,11 +615,18 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, siz num, const str& type, con
 			continue;
 		}
 
+		if(!sgl(iss >> std::ws, reason))
+			plog("WARN: missing reason from admin.ban.vote: " << *ci);
+
 		pbug_var(t);
 		pbug_var(i);
+		pbug_var(reason);
+
+		if(!trim(reason).empty())
+			reason = " ^7[^3" + reason + "^7]";
 
 		if(t == type && i == info)
-			votekill("This vote has been disallowed");
+			votekill(katina.get_name() + "^1: ^5This vote has been disallowed" + reason);
 	}
 
 	if(!katina.check_slot(num))
@@ -626,7 +634,7 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, siz num, const str& type, con
 
 	for(sanction_lst_iter i = sanctions.begin(); i != sanctions.end(); ++i)
 		if(i->guid == clients[num])
-			votekill(players[clients[num]] + " is banned from voting for "
+			votekill(katina.get_name() + "^1: " + players[clients[num]] + " is banned from voting for "
 				+ secs_to_dhms(i->expires - katina.now));
 
 	siz kick_num = to<siz>(info);
@@ -634,7 +642,7 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, siz num, const str& type, con
 	pbug_var(clients[kick_num]);
 	pbug_var(katina.is_admin(clients[kick_num]));
 	if(type == "clientkick" && katina.is_admin(clients[kick_num]))
-		votekill("Not allowed to kick admins");
+		votekill(katina.get_name() + "^1: ^7[^3NOT ALLOWED TO KICK ADMINS^7]");
 
 	return true;
 }
