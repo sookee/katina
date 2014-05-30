@@ -629,7 +629,11 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, siz num, const str& type, con
 			votekill(players[clients[num]] + " is banned from voting for "
 				+ secs_to_dhms(i->expires - katina.now));
 
-	if(type == "clientkick" && check_admin(clients[to<siz>(info)]))
+	siz kick_num = to<siz>(info);
+	pbug_var(kick_num);
+	pbug_var(clients[kick_num]);
+	pbug_var(katina.is_admin(clients[kick_num]));
+	if(type == "clientkick" && katina.is_admin(clients[kick_num]))
 		votekill("Not allowed to kick admins");
 
 	return true;
