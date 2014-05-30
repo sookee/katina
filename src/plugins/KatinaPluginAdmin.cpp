@@ -32,7 +32,7 @@ KatinaPluginAdmin::KatinaPluginAdmin(Katina& katina)
 , active(true)
 , total_kills(0)
 , total_caps(0)
-, policy(FT_EVEN_SCATTER)
+, policy(policy_t::FT_EVEN_SCATTER)
 , spamkill_warn(3)
 , spamkill_mute(5)
 , spamkill_mute_period(60)
@@ -158,7 +158,7 @@ enum
 //BUG: ------------------------------------------- [../../../src/plugins/KatinaPluginAdmin.cpp] (169)
 //BUG: team: 2 [../../../src/plugins/KatinaPluginAdmin.cpp] (171)
 
-bool KatinaPluginAdmin::fixteams(siz policy)
+bool KatinaPluginAdmin::fixteams(policy_t policy)
 {
 	siz_mmap rank; // skill -> slot
 
@@ -191,32 +191,35 @@ bool KatinaPluginAdmin::fixteams(siz policy)
 		else
 			{ skill_b += skill; ++b; }
 
-		bug("-------------------------------------------");
-		bug("FIXTEAMS:  slot: " << i->first);
-		bug("FIXTEAMS:  name: " << players[clients[i->first]]);
-		bug("FIXTEAMS: kills: " << kills[i->first]);
-		bug("FIXTEAMS:  caps: " << caps[i->first]);
-		bug("FIXTEAMS: skill: " << skill);
+		pbug("-------------------------------------------");
+		pbug("FIXTEAMS:  slot: " << i->first);
+		pbug("FIXTEAMS:  name: " << players[clients[i->first]]);
+		pbug("FIXTEAMS: kills: " << kills[i->first]);
+		pbug("FIXTEAMS:  caps: " << caps[i->first]);
+		pbug("FIXTEAMS:  secs: " << secs[i->first]);
+		pbug("FIXTEAMS:   fph: " << fph);
+		pbug("FIXTEAMS:   cph: " << cph);
+		pbug("FIXTEAMS: skill: " << skill);
 
 		rank.insert(siz_mmap_pair(skill, i->first));
 	}
 
-	bug("-------------------------------------------");
+	pbug("-------------------------------------------");
 
-	if(policy == FT_EVEN_SCATTER)
+	if(policy == policy_t::FT_EVEN_SCATTER)
 	{
 		siz team = (rand() % 2) + 1;
 		bug_var(team);
 		for(siz_mmap_criter i = rank.rbegin(); i != rank.rend(); ++i)
 		{
-			bug("FIXTEAMS: putting: " << i->second << " [" << i->first << "] "
+			pbug("FIXTEAMS: putting: " << i->second << " [" << i->first << "] "
 					<< "on team " << str(team == 1 ? "r" : "b"));
-			if(!server.command("!putteam " + to_string(i->second) + " " + str(team == 1 ? "r" : "b")))
-				server.command("!putteam " + to_string(i->second) + " " + str(team == 1 ? "r" : "b")); // one retry
+//			if(!server.command("!putteam " + to_string(i->second) + " " + str(team == 1 ? "r" : "b")))
+//				server.command("!putteam " + to_string(i->second) + " " + str(team == 1 ? "r" : "b")); // one retry
 			team = team == 1 ? 2 : 1;
 		}
 	}
-	else if(policy == FT_NEAREST_DIFFERENCE)
+	else if(policy == policy_t::FT_NEAREST_DIFFERENCE)
 	{
 //		if(r > b && skill_r >= skill_b) // switch one from r to b
 //		{
@@ -325,10 +328,10 @@ bool KatinaPluginAdmin::open()
 {
 	bug_func();
 
-	bug("Adding var events");
+	pbug("Adding var events");
 	katina.add_var_event(this, "admin.active", active);
 	//katina.add_var_event(this, "flag", "0");
-	bug("Adding log events");
+	pbug("Adding log events");
 	katina.add_log_event(this, INIT_GAME);
 	//katina.add_log_event(this, WARMUP);
 	katina.add_log_event(this, CLIENT_CONNECT);
@@ -348,7 +351,7 @@ bool KatinaPluginAdmin::open()
 	//katina.add_log_event(this, EXIT);
 	//katina.add_log_event(this, UNKNOWN);
 
-	bug("Loading sanctions");
+	pbug("Loading sanctions");
 	load_sanctions();
 	load_total_bans();
 
@@ -372,7 +375,7 @@ bool KatinaPluginAdmin::open()
 				s->applied = true;
 	}
 
-	bug("setting config");
+	pbug("setting config");
 	active = katina.get("admin.active", false);
 
 	return true;
@@ -417,7 +420,7 @@ bool KatinaPluginAdmin::init_game(siz min, siz sec, const str_map& cvars)
 	{
 		if((teams[i->second] == TEAM_R || teams[i->second] == TEAM_B))
 		{
-			bug("STARTING TIMER FOR: " << players[i->second] << " [" << katina.now << "]");
+			pbug("STARTING TIMER FOR: " << players[i->second] << " [" << katina.now << "]");
 			time[i->first] = katina.now;
 		}
 	}
@@ -532,12 +535,12 @@ bool KatinaPluginAdmin::client_switch_team(siz min, siz sec, siz num, siz teamBe
 
 	if((teamNow == TEAM_R || teamNow == TEAM_B) && !time[num])
 	{
-		bug("STARTING TIMER FOR: " << players[clients[num]] << " [" << katina.now << "]");
+		pbug("STARTING TIMER FOR: " << players[clients[num]] << " [" << katina.now << "]");
 		time[num] = katina.now; // start timer if not running
 	}
 	else if(teamNow == TEAM_S && time[num])
 	{
-		bug("STOPPING TIMER FOR: " << players[clients[num]] << " after " << (katina.now - time[num]) << " seconds");
+		pbug("STOPPING TIMER FOR: " << players[clients[num]] << " after " << (katina.now - time[num]) << " seconds");
 		secs[num] += (katina.now - time[num]);
 		time[num] = 0; // stop timer if running
 	}
@@ -1065,7 +1068,7 @@ bool KatinaPluginAdmin::shutdown_game(siz min, siz sec)
 	{
 		if((teams[i->second] == TEAM_R || teams[i->second] == TEAM_B) && time[i->first]) // playing, and timed
 		{
-			bug("STOPPING TIMER FOR: " << players[i->second] << " after " << (katina.now - time[i->first]) << " seconds");
+			pbug("STOPPING TIMER FOR: " << players[i->second] << " after " << (katina.now - time[i->first]) << " seconds");
 			secs[i->first] += (katina.now - time[i->first]);
 			time[i->first] = 0; // stop
 		}

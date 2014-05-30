@@ -66,7 +66,7 @@ struct sanction
 typedef std::list<sanction> sanction_lst;
 typedef sanction_lst::iterator sanction_lst_iter;
 
-enum policy
+enum class policy_t : byte
 {
 	FT_EVEN_SCATTER // best to team a, next best to team b etc...
 	, FT_NEAREST_DIFFERENCE // add up teams a and b then switch 1 player to even them
@@ -97,7 +97,7 @@ private:
 	siz_map secs; // num -> time in seconds
 	siz_map time; // num -> time in seconds
 
-	siz policy;
+	policy_t policy;
 
 // - /fixteams
 
@@ -126,7 +126,7 @@ private:
 	str trans(const str& cmd) const;
 
 	void spamkill(siz num);
-	bool fixteams(siz policy = FT_EVEN_SCATTER);
+	bool fixteams(policy_t policy = policy_t::FT_EVEN_SCATTER);
 
 	bool mutepp(siz num);
 	bool un_mutepp(siz num);
