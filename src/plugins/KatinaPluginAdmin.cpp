@@ -81,40 +81,6 @@ bool is_guid(const str& s)
 		&& std::count_if(s.begin(), s.end(), std::ptr_fun<int, int>(isxdigit)) == s.size();
 }
 
-//bool KatinaPluginAdmin::load_total_bans()
-//{
-//	sifs ifs((katina.config_dir + "/total-bans.txt").c_str());
-//
-//	if(!ifs)
-//	{
-//		plog("ERROR: can not open bans file.");
-//		return false;
-//	}
-//
-//	str line;
-//	while(sgl(ifs, line))
-//	{
-//		if(trim(line).empty())
-//			continue;
-//
-//		if(!line.find("callvote"))
-//		{
-//			str skip;
-//			str type;
-//			str info;
-//			siss iss(line);
-//			iss >> skip >> std::ws >> type >> std::ws >> info;
-//			votekills.push_back(std::make_pair(type, info));
-//		}
-//		else if(is_ip(line))
-//			total_bans.ips.push_back(line);
-//		else if(is_guid(line))
-//			total_bans.guids.push_back(line);
-//	}
-//
-//	return true;
-//}
-
 bool KatinaPluginAdmin::load_sanctions()
 {
 	sifs ifs((katina.config_dir + "/sanctions.dat").c_str());
@@ -662,6 +628,9 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, siz num, const str& type, con
 		if(i->guid == clients[num])
 			votekill(players[clients[num]] + " is banned from voting for "
 				+ secs_to_dhms(i->expires - katina.now));
+
+	if(type == "clientkick" && check_admin(clients[to<siz>(info)]))
+		votekill("Not allowed to kick admins");
 
 	return true;
 }
