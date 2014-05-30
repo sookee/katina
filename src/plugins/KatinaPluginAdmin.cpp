@@ -598,29 +598,31 @@ bool KatinaPluginAdmin::votekill(const str& reason)
 
 bool KatinaPluginAdmin::callvote(siz min, siz sec, siz num, const str& type, const str& info)
 {
-	bug_func();
-	pbug_var(type);
-	pbug_var(info);
-	for(str_vec_citer ci = katina.get_vec("admin.ban.vote").begin(); ci != katina.get_vec("admin.ban.vote").end(); ++ci)
+	plog(katina.getPlayerName(num) << " " << type << info);
+//	bug_func();
+//	pbug_var(type);
+//	pbug_var(info);
+	//for(str_vec_citer ci = katina.get_vec("admin.ban.vote").begin(); ci != katina.get_vec("admin.ban.vote").end(); ++ci)
+	for(const str& ci: katina.get_vec("admin.ban.vote"))
 	{
-		pbug_var(*ci);
+		//pbug_var(*ci);
 		str t;
 		str i;
 		str reason;
-		siss iss(*ci);
+		siss iss(ci);
 
 		if(!(iss >> t >> std::ws >> i))
 		{
-			plog("ERROR: parsing admin.ban.vote: " << *ci);
+			plog("ERROR: parsing admin.ban.vote: " << ci);
 			continue;
 		}
 
 		if(!sgl(iss >> std::ws, reason))
-			plog("WARN: missing reason from admin.ban.vote: " << *ci);
+			plog("WARN: missing reason from admin.ban.vote: " << ci);
 
-		pbug_var(t);
-		pbug_var(i);
-		pbug_var(reason);
+//		pbug_var(t);
+//		pbug_var(i);
+//		pbug_var(reason);
 
 		if(!trim(reason).empty())
 			reason = " ^7[^3" + reason + "^7]";
@@ -637,11 +639,11 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, siz num, const str& type, con
 			votekill(katina.get_name() + "^1: " + players[clients[num]] + " is banned from voting for "
 				+ secs_to_dhms(i->expires - katina.now));
 
-	siz kick_num = to<siz>(info);
-	pbug_var(kick_num);
-	pbug_var(clients[kick_num]);
-	pbug_var(katina.is_admin(clients[kick_num]));
-	if(type == "clientkick" && katina.is_admin(clients[kick_num]))
+//	siz kick_num = to<siz>(info);
+//	pbug_var(kick_num);
+//	pbug_var(clients[kick_num]);
+//	pbug_var(katina.is_admin(clients[kick_num]));
+	if(type == "clientkick" && katina.is_admin(clients[to<siz>(info)]))
 		votekill(katina.get_name() + "^1: ^7[^3NOT ALLOWED TO KICK ADMINS^7]");
 
 	return true;
