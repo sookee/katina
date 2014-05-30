@@ -219,8 +219,8 @@ bool KatinaPluginAdmin::fixteams(policy_t policy)
 		{
 			pbug("FIXTEAMS: putting: " << i->second << " [" << i->first << "] "
 					<< "on team " << str(team == 1 ? "r" : "b"));
-//			if(!server.command("!putteam " + to_string(i->second) + " " + str(team == 1 ? "r" : "b")))
-//				server.command("!putteam " + to_string(i->second) + " " + str(team == 1 ? "r" : "b")); // one retry
+			if(!server.command("!putteam " + to_string(i->second) + " " + str(team == 1 ? "r" : "b")))
+				server.command("!putteam " + to_string(i->second) + " " + str(team == 1 ? "r" : "b")); // one retry
 			team = team == 1 ? 2 : 1;
 		}
 	}
@@ -603,22 +603,22 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, siz num, const str& type, con
 //	pbug_var(type);
 //	pbug_var(info);
 	//for(str_vec_citer ci = katina.get_vec("admin.ban.vote").begin(); ci != katina.get_vec("admin.ban.vote").end(); ++ci)
-	for(const str& ci: katina.get_vec("admin.ban.vote"))
+	for(const str& v: katina.get_vec("admin.ban.vote"))
 	{
 		//pbug_var(*ci);
 		str t;
 		str i;
 		str reason;
-		siss iss(ci);
+		siss iss(v);
 
 		if(!(iss >> t >> std::ws >> i))
 		{
-			plog("ERROR: parsing admin.ban.vote: " << ci);
+			plog("ERROR: parsing admin.ban.vote: " << v);
 			continue;
 		}
 
 		if(!sgl(iss >> std::ws, reason))
-			plog("WARN: missing reason from admin.ban.vote: " << ci);
+			plog("WARN: missing reason from admin.ban.vote: " << v);
 
 //		pbug_var(t);
 //		pbug_var(i);
@@ -634,10 +634,10 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, siz num, const str& type, con
 	if(!katina.check_slot(num))
 		return true;
 
-	for(sanction_lst_iter i = sanctions.begin(); i != sanctions.end(); ++i)
-		if(i->guid == clients[num])
+	for(const sanction& s: sanctions)
+		if((!s.expires || s.expires < katina.now) && s.guid == clients[num])
 			votekill(katina.get_name() + "^1: " + players[clients[num]] + " is banned from voting for "
-				+ secs_to_dhms(i->expires - katina.now));
+				+ secs_to_dhms(s.expires - katina.now));
 
 //	siz kick_num = to<siz>(info);
 //	pbug_var(kick_num);
