@@ -611,6 +611,8 @@ bool KatinaPluginAdmin::votekill(const str& reason)
 bool KatinaPluginAdmin::callvote(siz min, siz sec, siz num, const str& type, const str& info)
 {
 	bug_func();
+	pbug_var(type);
+	pbug_var(info);
 	for(str_vec_citer ci = katina.get_vec("admin.ban.vote").begin(); ci != katina.get_vec("admin.ban.vote").end(); ++ci)
 	{
 		pbug_var(*ci);
