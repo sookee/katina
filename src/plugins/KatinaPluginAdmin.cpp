@@ -614,18 +614,16 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, siz num, const str& type, con
 	for(str_vec_citer ci = katina.get_vec("admin.ban.vote").begin(); ci != katina.get_vec("admin.ban.vote").end(); ++ci)
 	{
 		pbug_var(*ci);
-		str s;
 		str t;
 		str i;
 		siss iss(*ci);
 
-		if(!(iss >> s >> std::ws >> t >> std::ws >> i))
+		if(!(iss >> t >> std::ws >> i))
 		{
 			plog("ERROR: parsing admin.ban.vote: " << *ci);
 			continue;
 		}
 
-		pbug_var(s);
 		pbug_var(t);
 		pbug_var(i);
 
