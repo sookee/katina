@@ -354,7 +354,7 @@ bool KatinaPluginAdmin::open()
 	//katina.add_log_event(this, AWARD);
 	katina.add_log_event(this, SAY);
 	katina.add_log_event(this, CHAT);
-	//katina.add_log_event(this, SHUTDOWN_GAME);
+	katina.add_log_event(this, SHUTDOWN_GAME);
 	//katina.add_log_event(this, EXIT);
 	//katina.add_log_event(this, UNKNOWN);
 
@@ -540,9 +540,6 @@ bool KatinaPluginAdmin::client_switch_team(siz min, siz sec, siz num, siz teamBe
 		return true;
 
 	plog("client_switch_team(" << num << ", " << teamBefore << ", " << teamNow << ")");
-
-	if(clients[num].is_bot())
-		return true;
 
 	if((teamNow == TEAM_R || teamNow == TEAM_B) && !time[num])
 	{
