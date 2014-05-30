@@ -1304,7 +1304,7 @@ bool Katina::start(const str& dir)
 			str type;
 			str info;
 
-			if(!(iss >> num >> std::ws >> type >> std::ws >> info))
+			if(!sgl(iss >> num >> std::ws >> type >> std::ws, info, ':'))
 				log("Error parsing Callvote: "  << params);
 			else
 			{
