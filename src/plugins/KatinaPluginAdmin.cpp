@@ -182,6 +182,12 @@ bool KatinaPluginAdmin::fixteams(policy_t policy)
 		if(teams[i->second] != TEAM_R && teams[i->second] != TEAM_B)
 			continue;
 
+		if(time[i->first])
+		{
+			secs[i->first] += time[i->first];
+			time[i->first] = katina.now;
+		}
+
 		siz fph = secs[i->first] ? (kills[i->first] * 60 * 60) / secs[i->first] : 0;
 		siz cph = secs[i->first] ? (caps[i->first] * 60 * 60) / secs[i->first] : 0;
 		siz skill = sqrt(pow(fph, 2) + pow(cph * cap_factor, 2));
