@@ -450,6 +450,10 @@ bool KatinaPluginAdmin::client_connect(siz min, siz sec, siz num)
 {
 	if(!active)
 		return true;
+	kills[num] = 0;
+	caps[num] = 0;
+	secs[num] = 0;
+	time[num] = 0;
 	return true;
 }
 
@@ -482,9 +486,9 @@ bool KatinaPluginAdmin::client_disconnect(siz min, siz sec, siz num)
 		return true;
 
 	{ // !fixteams
-		kills.erase(num);
-		caps.erase(num);
-		secs.erase(num);
+		kills[num] = 0;
+		caps[num] = 0;
+		secs[num] = 0;
 		time[num] = 0;
 	}
 

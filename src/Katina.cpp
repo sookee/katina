@@ -776,6 +776,10 @@ bool Katina::start(const str& dir)
 
 	log("Processing:");
 
+	//===================================================//
+	//= MAIN LOOP                                       =//
+	//===================================================//
+
 	// working variables
 	char c;
 	siz min, sec;
@@ -784,7 +788,6 @@ bool Katina::start(const str& dir)
 
 	while(!done)
 	{
-		//bug("loop:");
 		if(!std::getline(is, line) || is.eof())
 		{
 			if(rerun)
@@ -794,8 +797,6 @@ bool Katina::start(const str& dir)
 			is.seekg(gpos);
 			continue;
 		}
-
-		//bug_var(line);
 
 		gpos = is.tellg();
 
@@ -832,7 +833,11 @@ bool Katina::start(const str& dir)
 		client_userinfo_bug.reset();
 
 		if(!cmd.find("----"))
+		{
+			if(!min && !sec)
+				base_now = now;
 			continue;
+		}
 
 		cmd += ":";
 
@@ -845,10 +850,10 @@ bool Katina::start(const str& dir)
 
 		//lock_guard lock(cvarevts_mtx);
 
-		if(rerun)
+		//if(rerun)
 			now = base_now + (min * 60) + sec;
-		else
-			now = std::time(0);
+		//else
+		//	now = std::time(0);
         
         // Send HEARTBEAT event to plugins
         for(plugin_vec_iter i = events[HEARTBEAT].begin(); i != events[HEARTBEAT].end(); ++i)
