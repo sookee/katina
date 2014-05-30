@@ -59,30 +59,39 @@ bool is_guid(const str& s)
 		&& std::count_if(s.begin(), s.end(), std::ptr_fun<int, int>(isxdigit)) == s.size();
 }
 
-bool KatinaPluginAdmin::load_total_bans()
-{
-	sifs ifs((katina.config_dir + "/total-bans.txt").c_str());
-
-	if(!ifs)
-	{
-		plog("ERROR: can not open bans file.");
-		return false;
-	}
-
-	str line;
-	while(sgl(ifs, line))
-	{
-		if(trim(line).empty())
-			continue;
-
-		if(is_ip(line))
-			total_bans.ips.push_back(line);
-		else if(is_guid(line))
-			total_bans.guids.push_back(line);
-	}
-
-	return true;
-}
+//bool KatinaPluginAdmin::load_total_bans()
+//{
+//	sifs ifs((katina.config_dir + "/total-bans.txt").c_str());
+//
+//	if(!ifs)
+//	{
+//		plog("ERROR: can not open bans file.");
+//		return false;
+//	}
+//
+//	str line;
+//	while(sgl(ifs, line))
+//	{
+//		if(trim(line).empty())
+//			continue;
+//
+//		if(!line.find("callvote"))
+//		{
+//			str skip;
+//			str type;
+//			str info;
+//			siss iss(line);
+//			iss >> skip >> std::ws >> type >> std::ws >> info;
+//			votekills.push_back(std::make_pair(type, info));
+//		}
+//		else if(is_ip(line))
+//			total_bans.ips.push_back(line);
+//		else if(is_guid(line))
+//			total_bans.guids.push_back(line);
+//	}
+//
+//	return true;
+//}
 
 bool KatinaPluginAdmin::load_sanctions()
 {
@@ -141,6 +150,7 @@ enum
 	, S_FIXNAME
 	, S_WARN_ON_SIGHT
 	, S_RETEAM
+	, S_VOTEBAN
 };
 
 //BUG: cap_factor: 1 [../../../src/plugins/KatinaPluginAdmin.cpp] (147)
@@ -347,6 +357,7 @@ bool KatinaPluginAdmin::open()
 	katina.add_log_event(this, CLIENT_DISCONNECT);
 	katina.add_log_event(this, CLIENT_USERINFO_CHANGED);
 	katina.add_log_event(this, CLIENT_SWITCH_TEAM);
+	katina.add_log_event(this, LOG_CALLVOTE);
 	katina.add_log_event(this, KILL);
 	katina.add_log_event(this, CTF);
 	//katina.add_log_event(this, CTF_EXIT);
@@ -360,7 +371,7 @@ bool KatinaPluginAdmin::open()
 
 	pbug("Loading sanctions");
 	load_sanctions();
-	load_total_bans();
+//	load_total_bans();
 
 	siz num;
 	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end(); ++s)
@@ -462,11 +473,11 @@ bool KatinaPluginAdmin::client_connect_info(siz min, siz sec, siz num, const GUI
 	if(!active)
 		return true;
 
-	for(str_vec_iter i = total_bans.ips.begin(); i != total_bans.ips.end(); ++i)
+	for(str_vec_citer i = katina.get_vec("admin.ban.ip").begin(); i != katina.get_vec("admin.ban.ip").end(); ++i)
 		if(!ip.find(*i)) // left substring match
 			server.command("!ban " + to_string(num) + "AUTO BAN IP: " + *i);
 
-	for(str_vec_iter i = total_bans.guids.begin(); i != total_bans.guids.end(); ++i)
+	for(str_vec_citer i = katina.get_vec("admin.ban.guid").begin(); i != katina.get_vec("admin.ban.guid").end(); ++i)
 		if(guid == *i)
 			server.command("!ban " + to_string(num) + "AUTO BAN GUID: " + *i);
 
@@ -552,6 +563,84 @@ bool KatinaPluginAdmin::client_switch_team(siz min, siz sec, siz num, siz teamBe
 		secs[num] += (katina.now - time[num]);
 		time[num] = 0; // stop timer if running
 	}
+	return true;
+}
+
+str secs_to_dhms(siz secs)
+{
+	siz s = secs % 60;
+	siz m = (secs / 60) % 60;
+	siz h = ((secs / 60) / 60) % 24;
+	siz d = (((secs / 60) / 60) / 24) % 365;
+
+	str sep;
+	soss oss;
+
+	if(d)
+		{ oss << sep << d << "d"; sep = " "; }
+	if(h|d)
+		{ oss << sep << h << "h"; sep = " "; }
+	if(m|h|d)
+		{ oss << sep << m << "m"; sep = " "; }
+
+	oss << sep << s << "s";
+
+	return oss.str();
+
+//	 total_seconds = 939000000
+//
+//	seconds = total_seconds % 60
+//	total_minutes = total_seconds / 60
+//	minutes = total_minutes % 60
+//	total_hours = total_minutes / 60
+//	hours = total_hours % 24
+//	total_days = total_hours / 24
+//	days = total_days % 365
+//	years = total_days / 365
+}
+
+bool KatinaPluginAdmin::votekill(const str& reason)
+{
+	if(!server.command("!cancelvote"))
+		if(!server.command("!cancelvote"))
+			return false;
+	server.msg_to_all(reason);
+	return true;
+}
+
+bool KatinaPluginAdmin::callvote(siz min, siz sec, siz num, const str& type, const str& info)
+{
+	bug_func();
+	for(str_vec_citer ci = katina.get_vec("admin.ban.vote").begin(); ci != katina.get_vec("admin.ban.vote").end(); ++ci)
+	{
+		pbug_var(*ci);
+		str s;
+		str t;
+		str i;
+		siss iss(*ci);
+
+		if(!(iss >> s >> std::ws >> t >> std::ws >> i))
+		{
+			plog("ERROR: parsing admin.ban.vote: " << *ci);
+			continue;
+		}
+
+		pbug_var(s);
+		pbug_var(t);
+		pbug_var(i);
+
+		if(t == type && i == info)
+			votekill("This vote has been disallowed");
+	}
+
+	if(!katina.check_slot(num))
+		return true;
+
+	for(sanction_lst_iter i = sanctions.begin(); i != sanctions.end(); ++i)
+		if(i->guid == clients[num])
+			votekill(players[clients[num]] + " is banned from voting for "
+				+ secs_to_dhms(i->expires - katina.now));
+
 	return true;
 }
 
@@ -888,6 +977,47 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 
 		if(mutepp(num))
 			s.applied = true;
+
+		sanctions.push_back(s);
+		save_sanctions();
+	}
+	else if(cmd == trans("!voteban") || cmd == trans("?voteban"))
+	{
+		// !mute++ <num> <duration>? <reason>?
+		if(!check_admin(guid))
+			return true;
+
+		if(cmd[0] == '?')
+		{
+			server.msg_to(say_num, "^7ADMIN: ^3Prevent a player from voting for the specified duration.", true);
+			server.msg_to(say_num, "^7ADMIN: ^3!voteban <num> <duration>? <reason>?");
+			server.msg_to(say_num, "^7ADMIN: ^3        <duration> = N(s|m|h|d|w) [eg, 5w = 5 weeks]");
+			server.msg_to(say_num, "^7ADMIN: ^3!voteban remove = remove ban");
+			return true;
+		}
+
+		siz num = siz(-1);
+		str duration = "5m";
+		str reason;
+
+		sgl(iss >> num >> duration >> std::ws, reason);
+
+		if(!check_slot(num))
+			return true;
+
+		if(duration == "remove")
+		{
+			remove_sanctions(clients[num], S_VOTEBAN);
+			server.msg_to(num, "^7ADMIN: ^3Removed mute from: ^2" + players[clients[num]], true);
+			if(num != say_num)
+				server.msg_to(say_num, "^7ADMIN: ^3Removed mute from: ^2" + players[clients[num]], true);
+			return true;
+		}
+
+		sanction s;
+		s.type = S_VOTEBAN;
+		s.guid = clients[num];
+		s.expires = parse_duration(duration, 5 * 60);
 
 		sanctions.push_back(s);
 		save_sanctions();

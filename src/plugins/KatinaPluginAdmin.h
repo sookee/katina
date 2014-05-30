@@ -85,7 +85,7 @@ private:
 	bool active;
 
 	sanction_lst sanctions;
-	total_ban total_bans;
+//	total_ban total_bans;
 
 	// !fixteams - oneshot team shuffle
 	// used to calculate kills/caps ratio
@@ -108,6 +108,10 @@ private:
 		std::time_t when;
 	};
 
+	typedef std::vector<std::pair<str,str>> str_pair_vec;
+	typedef str_pair_vec::iterator str_pair_vec_iter;
+	typedef str_pair_vec::const_iterator str_pair_vec_citer;
+
 	typedef std::list<spam> spam_lst;
 	typedef spam_lst::iterator spam_lst_iter;
 	typedef spam_lst::const_iterator spam_lst_citer;
@@ -123,12 +127,18 @@ private:
 	std::time_t spamkill_mute_period; // duration of mute
 	// spamkill
 
+	// votekill
+	//str_pair_vec votekills;
+//	guid_str_map votebans; // people banned from voting GUID -> "reason"
+	// ~votekill
+
 	str trans(const str& cmd) const;
 
 	void spamkill(siz num);
 	bool fixteams(policy_t policy = policy_t::FT_EVEN_SCATTER);
 
 	bool mutepp(siz num);
+	bool votekill(const str& reason);
 	bool un_mutepp(siz num);
 	bool fixname(siz num, const str& name);
 
@@ -140,7 +150,7 @@ private:
 
 	bool check_admin(const GUID& guid);
 	bool check_slot(siz num);
-	bool load_total_bans();
+//	bool load_total_bans();
 	bool load_sanctions();
 	bool save_sanctions();
 
@@ -172,6 +182,7 @@ public:
 	virtual bool client_disconnect(siz min, siz sec, siz num);
 	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name, siz hc);
 	virtual bool client_switch_team(siz min, siz sec, siz num, siz teamBefore, siz teamNow);
+	virtual bool callvote(siz min, siz sec, siz num, const str& type, const str& info);
 	virtual bool kill(siz min, siz sec, siz num1, siz num2, siz weap);
 	virtual bool award(siz min, siz sec, siz num, siz awd);
 	virtual bool ctf(siz min, siz sec, siz num, siz team, siz act);

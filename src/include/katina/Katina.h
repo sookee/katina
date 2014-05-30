@@ -314,7 +314,7 @@ public:
 		return props[s].empty() ? dflt : expand_env(props[s][0], WRDE_SHOWERR|WRDE_UNDEF);
 	}
 
-	str_vec get_vec(const str& s)
+	const str_vec& get_vec(const str& s)
 	{
 		return props[s];
 	}
