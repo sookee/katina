@@ -835,7 +835,13 @@ bool Katina::start(const str& dir)
 		if(!cmd.find("----"))
 		{
 			if(!min && !sec)
-				base_now = now;
+			{
+				base_now = std::time(0);
+				//base_now = now;
+				bug("=========================");
+				bug("= BASE_TIME: " << base_now << " =");
+				bug("=========================");
+			}
 			continue;
 		}
 
