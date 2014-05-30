@@ -182,9 +182,10 @@ bool KatinaPluginAdmin::fixteams(policy_t policy)
 		if(teams[i->second] != TEAM_R && teams[i->second] != TEAM_B)
 			continue;
 
+		// accumulate time but keep timer running
 		if(time[i->first])
 		{
-			secs[i->first] += time[i->first];
+			secs[i->first] += (katina.now - time[i->first]);
 			time[i->first] = katina.now;
 		}
 
