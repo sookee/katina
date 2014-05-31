@@ -207,14 +207,10 @@ bool KatinaPluginCallVoteCtrl::say(siz min, siz sec, const GUID& guid, const str
 {
 	siss iss(text);
 	str cmd, param;
-	if(!(iss >> cmd >> param) || cmd.empty() || cmd[0] != '!')
+	if(!(iss >> cmd >> param) || cmd.empty() || (cmd[0] != '!' && cmd[0] != '?'))
 		return true;
 
-	bug("SAY: " << cmd << ' ' << param);
-
-	//	!callvote on|off|enable|disable
-	if(cmd != "!callvote")
-		return true;
+	pbug("SAY: " << cmd << ' ' << param);
 
 	if(!katina.is_admin(guid))
 	{
@@ -222,17 +218,49 @@ bool KatinaPluginCallVoteCtrl::say(siz min, siz sec, const GUID& guid, const str
 		return true;
 	}
 
-	if(param == "on")
-		vote_enable();
-	else if(param == "off")
-		vote_disable();
-	else if(param == "enable")
-		active = true;
-	else if(param == "disable")
-		active = false;
-	else
-		plog("WARN: Unknown !callvote parameter: " << param);
+	siz say_num;
 
+	if((say_num = katina.getClientNr(guid)) == siz(-1))
+	{
+		plog("ERROR: Unable to get slot number from guid: " << guid);
+		return true;
+	}
+
+	//	!callvote on|off|enable|disable
+	if(cmd == "!help" || cmd == "?help")
+	{
+		katina.server.msg_to(say_num, "^7CALLV: ^2?callvote^7");
+	}
+	else if(cmd == "?callvote")
+	{
+		katina.server.msg_to(say_num, "^7CALLV: ^3Adjust callvote control^7");
+		katina.server.msg_to(say_num, "^7CALLV: ^2!callvote on ^3Turn callvotes on");
+		katina.server.msg_to(say_num, "^7CALLV: ^2!callvote off ^3Turn callvotes off");
+		katina.server.msg_to(say_num, "^7CALLV: ^2!callvote enable ^3Enable automatic callvotes");
+		katina.server.msg_to(say_num, "^7CALLV: ^2!callvote disable ^3Disable automatic callvotes");
+		katina.server.msg_to(say_num, "^7CALLV: ^2!callvote <num of secs> ^3Set automatic callvotes timer");
+	}
+	else if(cmd == "!callvote")
+	{
+		if(param == "on")
+			vote_enable();
+		else if(param == "off")
+			vote_disable();
+		else if(param == "enable")
+		{
+			active = true;
+			server.msg_to(say_num, "^5Automatic callvote control enabled");
+		}
+		else if(param == "disable")
+		{
+			active = false;
+			server.msg_to(say_num, "^5Automatic callvote control disabled");
+		}
+		else if(convert(param, wait))
+			server.msg_to(say_num, "^5Callvote wait time set to ^7" + param + " ^5seconds");
+		else
+			plog("WARN: Unknown !callvote parameter: " << param);
+	}
 	return true;
 }
 

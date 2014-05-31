@@ -191,6 +191,33 @@ T to(const str& s)
 	return t;
 }
 
+template<typename F, typename T>
+bool convert(const F& from, T& to)
+{
+	soss oss;
+	if(!(oss << from))
+		return false;
+	siss iss(oss.str());
+	T tmp;
+	if(!(iss >> tmp))
+		return false;
+
+	to = tmp;
+	return true;
+}
+
+template<typename T>
+bool convert(const str& from, T& to)
+{
+	siss iss(from);
+	T tmp;
+	if(!(iss >> tmp))
+		return false;
+
+	to = tmp;
+	return true;
+}
+
 inline
 str& replace(str& s, const str& from, const str& to)
 {

@@ -190,6 +190,13 @@ bool KatinaPluginVotes::say(siz min, siz sec, const GUID& guid, const str& text)
 	if(!active)
 		return true;
 	
+	str cmd, type;
+	siss iss(text);
+
+	// say(3EA47384, would be difficult with a lot of players)
+	if(!(iss >> cmd >> type) || cmd.empty() || (cmd[0] != '!' && cmd[0] != '?'))
+		return true;
+
 	siz say_num;
 
 	if((say_num = katina.getClientNr(guid)) == siz(-1))
@@ -197,16 +204,6 @@ bool KatinaPluginVotes::say(siz min, siz sec, const GUID& guid, const str& text)
 		plog("ERROR: Unable to get slot number from guid: " << guid);
 		return true;
 	}
-
-	if(!katina.check_slot(say_num))
-		return true;
-
-	str cmd, type;
-	siss iss(text);
-	
-	// say(3EA47384, would be difficult with a lot of players)
-	if(!(iss >> cmd >> type) || cmd.empty() || type.empty() || (cmd[0] != '!' && cmd[0] != '?'))
-		return true;
 
 	lower(cmd);
 	lower(type);
