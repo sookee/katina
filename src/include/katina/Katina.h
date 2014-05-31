@@ -267,9 +267,9 @@ public:
 	bool initial_player_info();
 	void builtin_command(const GUID& guid, const str& text);
     
-    siz getTeam(siz client);
-    str getPlayerName(siz client);
-    siz getClientNr(GUID guid);
+    siz getTeam(slot num) const;
+    str getPlayerName(slot num) const;
+    siz getClientNr(const GUID& guid) const;
 
     /**
      * return the slot number os the current player from
@@ -281,15 +281,15 @@ public:
      *
      * @return true on success
      */
-    bool parse_slot_guid_name(const str& slot_guid_name, siz& num);
+    bool parse_slot_guid_name(const str& slot_guid_name, slot& num);
 
-    bool check_slot(siz num)
+    bool check_slot(slot num) const
     {
     	return clients.find(num) != clients.end();
     }
 
 
-	str get_version();
+	str get_version() const;
 
 	KatinaPlugin* get_plugin(const str& id, const str& version);
 

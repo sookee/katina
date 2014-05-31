@@ -70,7 +70,7 @@ const str revision = REV;
 
 const siz bad_slot = siz(-1);
 
-siz Katina::getTeam(siz client)
+siz Katina::getTeam(siz client) const
 {
     siz_guid_map_citer clientsIt = clients.find(client);
     if(clientsIt == clients.end())
@@ -84,25 +84,31 @@ siz Katina::getTeam(siz client)
 }
 
 
-str Katina::getPlayerName(siz client)
+str Katina::getPlayerName(slot num) const
 {
-	return players[clients[client]];
+	siz_guid_map_citer c;
+	if((c = clients.find(num)) == clients.end())
+		return "<unknown>";
+
+	guid_str_map_citer p;
+	if((p = players.find(c->second)) == players.cend())
+		return "<unknown>";
+
+	return p->second;
 }
 
 
-siz Katina::getClientNr(GUID guid)
+siz Katina::getClientNr(const GUID& guid) const
 {
 	//bug_func();
-	for(siz_guid_map_citer it = clients.begin(); it != clients.end(); ++it)
+	for(siz_guid_map_citer it = clients.cbegin(); it != clients.cend(); ++it)
 		if(it->second == guid)
 			return it->first;
-    return siz(-1);
+    return bad_slot;
 }
 
 
-str Katina::get_version() { return version + "-" + tag; }
-
-
+str Katina::get_version() const { return version + (tag.size()?"":"-") + tag; }
 
 Katina::Katina()
 : done(false)
@@ -112,14 +118,10 @@ Katina::Katina()
 {
 }
 
-
-
 Katina::~Katina()
 {
 	done = true;
 }
-
-
 
 bool Katina::rconset(const str& cvar, str& val)
 {

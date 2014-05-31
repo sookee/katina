@@ -55,6 +55,8 @@ typedef unsigned char byte;
 
 typedef std::size_t siz;
 
+typedef siz slot;
+
 typedef std::string str;
 typedef str::iterator str_iter;
 typedef str::const_iterator str_citer;
