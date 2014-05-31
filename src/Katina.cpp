@@ -65,7 +65,7 @@ using namespace oastats::utils;
 using namespace oastats::string;
 
 const str version = "0.1";
-const str tag = "dev";
+const str tag = "";
 const str revision = REV;
 
 const siz bad_slot = siz(-1);
