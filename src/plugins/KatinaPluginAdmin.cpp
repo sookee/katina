@@ -26,6 +26,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <list>
 #include <algorithm>
 #include <functional>
+#include <numeric>
 
 #include <ctime>
 
@@ -156,10 +157,24 @@ enum
 //BUG: ------------------------------------------- [../../../src/plugins/KatinaPluginAdmin.cpp] (169)
 //BUG: team: 2 [../../../src/plugins/KatinaPluginAdmin.cpp] (171)
 
+struct player
+{
+	siz skill;
+	siz num;
+
+	player(siz skill, siz num): skill(skill), num(num) {}
+
+	bool operator<(const player& p) const { return skill < p.skill; }
+	bool operator==(const player& p) const { return skill == p.skill; }
+};
+
+typedef std::list<player> player_lst;
+typedef std::vector<player> player_vec;
+
 bool KatinaPluginAdmin::fixteams(policy_t policy)
 {
-	siz_mmap rank; // skill -> slot
-
+//	siz_mmap rank; // skill -> slot
+	player_vec rank;
 	siz skill_r = 0;
 	siz skill_b = 0;
 	siz r = 0;
@@ -206,8 +221,14 @@ bool KatinaPluginAdmin::fixteams(policy_t policy)
 		pbug("FIXTEAMS:   cph: " << cph);
 		pbug("FIXTEAMS: skill: " << skill);
 
-		rank.insert(siz_mmap_pair(skill, i->first));
+//		rank.insert(siz_mmap_pair(skill, i->first));
+		rank.push_back(player(skill, i->first));
 	}
+
+	if(rank.size() <3)
+		return true;
+
+	std::sort(rank.begin(), rank.end());
 
 	pbug("-------------------------------------------");
 
@@ -215,15 +236,74 @@ bool KatinaPluginAdmin::fixteams(policy_t policy)
 	{
 		siz team = (rand() % 2) + 1;
 		bug_var(team);
-		for(siz_mmap_pair i: rank)
-//		for(siz_mmap_criter i = rank.rbegin(); i != rank.rend(); ++i)
+		for(const player&  i: rank)
 		{
-			pbug("FIXTEAMS: putting: " << i.second << " [" << i.first << "] "
+			pbug("FIXTEAMS: putting: " << i.num << " [" << i.skill << "] "
 					<< "on team " << str(team == 1 ? "r" : "b"));
 
-			if(teams[clients[i.second]] != team)
-				if(!server.command("!putteam " + to_string(i.second) + " " + str(team == 1 ? "r" : "b")))
-					server.command("!putteam " + to_string(i.second) + " " + str(team == 1 ? "r" : "b")); // one retry
+			if(teams[clients[i.num]] != team)
+				if(!server.command("!putteam " + to_string(i.num) + " " + str(team == 1 ? "r" : "b")))
+					server.command("!putteam " + to_string(i.num) + " " + str(team == 1 ? "r" : "b")); // one retry
+			team = team == 1 ? 2 : 1;
+		}
+	}
+	else if(policy == policy_t::FT_BEST_PERMUTATION)
+	{
+		player_vec best_rank;
+		siz best_delta = siz(-1);
+
+		if(rank.size() & 1) // odd
+		{
+			siz total = 0;
+			for(const player& p: rank)
+				total += p.skill;
+
+			rank.push_back(player(total / rank.size(), bad_slot));
+		}
+
+		std::sort(rank.begin(), rank.end());
+
+		siz start_team = (rand() % 2) + 1;
+		siz delta, team;
+		do
+		{
+			siz tot[2] = {0, 0};
+			team = start_team;
+			pbug_var(team);
+
+			str bug_sep;
+			soss bug_out;
+
+			for(siz i = 0; i < rank.size(); ++i)
+			{
+				bug_out << bug_sep << "{" << rank[i].num << ", " << rank[i].skill << "}";
+				bug_sep = " ";
+				tot[team - 1] += rank[i].skill;
+				team = team == 1 ? 2 : 1;
+			}
+
+			pbug_var(bug_out.str());
+
+			delta = tot[0] > tot[1] ? tot[0] - tot[1] : tot[1] - tot[0];
+
+			if(delta < best_delta)
+			{
+				best_rank = rank;
+				best_delta = delta;
+			}
+		}
+		while(delta && std::next_permutation(rank.begin(), rank.end()));
+
+		team = start_team;
+		pbug_var(team);
+		for(siz i = 0; i < best_rank.size(); ++i)
+		{
+			pbug("FIXTEAMS: putting: " << best_rank[i].num << " [" << best_rank[i].skill << "] "
+					<< "on team " << str(team == 1 ? "r" : "b"));
+
+			if(teams[clients[best_rank[i].num]] != team)
+				if(!server.command("!putteam " + to_string(best_rank[i].num) + " " + str(team == 1 ? "r" : "b")))
+					server.command("!putteam " + to_string(best_rank[i].num) + " " + str(team == 1 ? "r" : "b")); // one retry
 			team = team == 1 ? 2 : 1;
 		}
 	}
@@ -601,7 +681,7 @@ bool KatinaPluginAdmin::votekill(const str& reason)
 
 bool KatinaPluginAdmin::callvote(siz min, siz sec, siz num, const str& type, const str& info)
 {
-	plog(katina.getPlayerName(num) << " " << type << info);
+	plog(katina.getPlayerName(num) << " " << type << " " << info);
 //	bug_func();
 //	pbug_var(type);
 //	pbug_var(info);

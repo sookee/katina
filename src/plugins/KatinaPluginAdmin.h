@@ -92,6 +92,7 @@ enum class policy_t : byte
 {
 	FT_EVEN_SCATTER // best to team a, next best to team b etc...
 	, FT_NEAREST_DIFFERENCE // add up teams a and b then switch 1 player to even them
+	, FT_BEST_PERMUTATION
 };
 
 class KatinaPluginAdmin

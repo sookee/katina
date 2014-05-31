@@ -201,21 +201,15 @@ bool KatinaPluginVotes::say(siz min, siz sec, const GUID& guid, const str& text)
 	if(!katina.check_slot(say_num))
 		return true;
 
-	// say(3EA47384, would be difficult with a lot of players)
 	str cmd, type;
 	siss iss(text);
 	
-	if(!(iss >> cmd >> type) || cmd.empty() || type.empty() || cmd[0] != '!')
+	// say(3EA47384, would be difficult with a lot of players)
+	if(!(iss >> cmd >> type) || cmd.empty() || type.empty() || (cmd[0] != '!' && cmd[0] != '?'))
 		return true;
 
 	lower(cmd);
 	lower(type);
-	
-	if(type != "map")
-	{
-		plog("WARNING: Unknown vote type: " << type);
-		return false;
-	}
 	
 	if(cmd == "!help" || cmd == "?help")
 	{
@@ -233,6 +227,12 @@ bool KatinaPluginVotes::say(siz min, siz sec, const GUID& guid, const str& text)
 	}
 	else if(cmd == "!love") // TODO:
 	{
+		if(type != "map")
+		{
+			plog("WARNING: Unknown vote type: " << type);
+			return true;
+		}
+
 		if(map_votes.count(guid) && map_votes[guid] == 1)
 			katina.server.msg_to(say_num, "^3You have already voted for this map.", true);
 		else if(map_votes.count(guid))
@@ -243,6 +243,12 @@ bool KatinaPluginVotes::say(siz min, siz sec, const GUID& guid, const str& text)
 	}
 	else if(cmd == "!hate") // TODO:
 	{
+		if(type != "map")
+		{
+			plog("WARNING: Unknown vote type: " << type);
+			return true;
+		}
+
 		if(map_votes.count(guid) && map_votes[guid] == -1)
 			katina.server.msg_to(say_num, "^3You have already voted for this map.", true);
 		else if(map_votes.count(guid))
