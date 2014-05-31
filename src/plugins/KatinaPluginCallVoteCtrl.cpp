@@ -205,18 +205,12 @@ bool KatinaPluginCallVoteCtrl::init_game(siz min, siz sec, const str_map& cvars)
 
 bool KatinaPluginCallVoteCtrl::say(siz min, siz sec, const GUID& guid, const str& text)
 {
+	str cmd;
 	siss iss(text);
-	str cmd, param;
-	if(!(iss >> cmd >> param) || cmd.empty() || (cmd[0] != '!' && cmd[0] != '?'))
+	if(!(iss >> cmd) || cmd.empty() || (cmd[0] != '!' && cmd[0] != '?'))
 		return true;
 
-	pbug("SAY: " << cmd << ' ' << param);
-
-	if(!katina.is_admin(guid))
-	{
-		plog("INFO: Unauthorized admin attempt from [" << guid << "] " << katina.players[guid] << ": " << text);
-		return true;
-	}
+	pbug_var(cmd);
 
 	siz say_num;
 
@@ -229,10 +223,16 @@ bool KatinaPluginCallVoteCtrl::say(siz min, siz sec, const GUID& guid, const str
 	//	!callvote on|off|enable|disable
 	if(cmd == "!help" || cmd == "?help")
 	{
+		if(!katina.is_admin(guid))
+			return true;
+
 		katina.server.msg_to(say_num, "^7CALLV: ^2?callvote^7");
 	}
 	else if(cmd == "?callvote")
 	{
+		if(!katina.is_admin(guid))
+			return true;
+
 		katina.server.msg_to(say_num, "^7CALLV: ^3Adjust callvote control^7");
 		katina.server.msg_to(say_num, "^7CALLV: ^2!callvote on ^3Turn callvotes on");
 		katina.server.msg_to(say_num, "^7CALLV: ^2!callvote off ^3Turn callvotes off");
@@ -242,6 +242,17 @@ bool KatinaPluginCallVoteCtrl::say(siz min, siz sec, const GUID& guid, const str
 	}
 	else if(cmd == "!callvote")
 	{
+		if(!katina.is_admin(guid))
+		{
+			plog("INFO: Unauthorized admin attempt from [" << guid << "] " << katina.players[guid] << ": " << text);
+			return true;
+		}
+
+		str param;
+		iss >> param;
+
+		pbug_var(param);
+
 		if(param == "on")
 			vote_enable();
 		else if(param == "off")
