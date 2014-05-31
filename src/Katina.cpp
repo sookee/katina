@@ -1290,7 +1290,7 @@ bool Katina::start(const str& dir)
 				}
 			}
 
-			str msg = this->name + " ^3Stats System v^7" + version + "^3-" + tag + ".";
+			str msg = this->name + " ^3Stats System v^7" + version + (tag.size()?"":"^3-^7") + tag;
 			server.cp(msg);
 
 			log("MAP NAME: " << mapname);
