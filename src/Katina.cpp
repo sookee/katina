@@ -108,7 +108,7 @@ siz Katina::getClientNr(const GUID& guid) const
 }
 
 
-str Katina::get_version() const { return version + (tag.size()?"":"-") + tag; }
+str Katina::get_version() const { return version + (tag.size()?"-":"") + tag; }
 
 Katina::Katina()
 : done(false)
@@ -1290,7 +1290,7 @@ bool Katina::start(const str& dir)
 				}
 			}
 
-			str msg = this->name + " ^3Stats System v^7" + version + (tag.size()?"":"^3-^7") + tag;
+			str msg = this->name + " ^3Stats System v^7" + version + (tag.size()?"^3-^7":"") + tag;
 			server.cp(msg);
 
 			log("MAP NAME: " << mapname);
