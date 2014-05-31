@@ -900,13 +900,17 @@ bool Katina::start(const str& dir)
 		}
 		else if(cmd == "ShutdownGame:")
 		{
-			//bug(cmd << "(" << params << ")");
-			if(events[SHUTDOWN_GAME].empty())
-				continue;
-
 			for(plugin_vec_iter i = events[SHUTDOWN_GAME].begin()
 				; i != events[SHUTDOWN_GAME].end(); ++i)
 				(*i)->shutdown_game(min, sec);
+
+			// these are clients that disconnected before the game ended
+			for(const GUID& guid: shutdown_erase)
+			{
+				teams.erase(guid);
+				players.erase(guid);
+			}
+			shutdown_erase.clear();
 		}
 		else if(cmd == "Warmup:")
 		{
@@ -1041,8 +1045,10 @@ bool Katina::start(const str& dir)
 					; i != events[CLIENT_DISCONNECT].end(); ++i)
 					(*i)->client_disconnect(min, sec, num);
 
- 				teams.erase(clients[num]);
-				players.erase(clients[num]);
+				// slot numbers are defunct, but keep GUIDs until ShutdownGame
+				shutdown_erase.push_back(clients[num]);
+ 				//teams.erase(clients[num]);
+				//players.erase(clients[num]);
 				clients.erase(num);
 			}
 		}

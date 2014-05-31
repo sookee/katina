@@ -230,7 +230,8 @@ private:
 	bool unload_plugin(const str& id);
 	bool reload_plugin(const str& id);
     
-    
+	// guid keys are kept until ShutdownGame
+    guid_lst shutdown_erase;
 
 public:
 	Katina();
@@ -243,9 +244,13 @@ public:
 
 	str config_dir;
 	str mapname;
+
+	// We try to keep map keys GUID based as slot numbers are defunct as soon
+	// as a client disconnects.
 	siz_guid_map clients; // slot -> GUID // cleared when players disconnect and on game_begin()
 	guid_str_map players; // GUID -> name  // cleard before game_begin()
 	guid_siz_map teams; // GUID -> 'R' | 'B' // cleared when players disconnect and on game_begin()
+
 	str_map svars; // server variables
 	siz logmode;
 	std::time_t now;

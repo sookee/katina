@@ -35,6 +35,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include "types.h"
 
 #include <inttypes.h>
+#include <list>
 
 namespace oastats {
 
@@ -132,6 +133,10 @@ sis& operator>>(sis& is, GUID& guid)
 		is.get(guid[i]);
 	return is;
 }
+
+typedef std::list<GUID> guid_lst;
+typedef guid_lst::iterator guid_lst_iter;
+typedef guid_lst::const_iterator guid_lst_citer;
 
 typedef std::map<GUID, str> guid_str_map;
 typedef guid_str_map::value_type guid_str_map_pair;
