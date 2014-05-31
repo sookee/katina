@@ -106,6 +106,11 @@ bool Database::escape(const str& from, str& to)
 	return true;
 }
 
+str Database::error()
+{
+	return mysql_error(&mysql);
+}
+
 bool Database::query(const str& sql)
 {
 	if(!active)

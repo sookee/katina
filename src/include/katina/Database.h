@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef _OASTATS_DATABASE_H_
 #define _OASTATS_DATABASE_H_
 /*-----------------------------------------------------------------.
@@ -142,6 +142,8 @@ public:
 	bool check();
 
 	bool escape(const str& from, str& to);
+
+	str error();
     
 	/**
 	 * Perform an "select" sql statement.
