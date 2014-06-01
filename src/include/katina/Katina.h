@@ -230,7 +230,7 @@ private:
 	bool unload_plugin(const str& id);
 	bool reload_plugin(const str& id);
     
-	// guid keys are kept until ShutdownGame
+	// disconnected guid keys are kept here until ShutdownGame
     guid_lst shutdown_erase; // disconnected list
 
 public:
