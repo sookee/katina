@@ -166,7 +166,7 @@ bool KatinaPluginCallVoteCtrl::vote_enable()
 	if(!votes_disabled)
 		return true;
 	plog("CALLVOTE CONTROL: ON");
-	server.cp("Voting on");
+	server.cp("^2V^7oting ^3on");
 	return (votes_disabled = !command("set g_allowVote 1"));
 }
 
@@ -175,7 +175,7 @@ bool KatinaPluginCallVoteCtrl::vote_disable()
 	if(votes_disabled)
 		return true;
 	plog("CALLVOTE CONTROL: OFF");
-	server.cp("Voting off");
+	server.cp("^2V^7oting ^3off");
 	return (votes_disabled = command("set g_allowVote 0"));
 }
 
