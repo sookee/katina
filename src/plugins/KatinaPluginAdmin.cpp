@@ -989,6 +989,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 
 		server.msg_to(say_num, "^7ADMIN: ^2?sanctions^7, ^2?mute++^7, ^2?fixname^7, ^2?voteban^7");
 		server.msg_to(say_num, "^7ADMIN: ^2?warnonsight^7, ^2?fixteams^7, ^2?reteam^7, ^2?spec^7");
+		server.msg_to(say_num, "^7ADMIN: ^2?mapban^7");
 	}
 	else if(cmd == trans("!request") || cmd == trans("?request"))
 	{
