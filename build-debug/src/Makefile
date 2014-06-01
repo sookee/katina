@@ -11,31 +11,31 @@ LIBGCRYPT_LIBS=$(shell libgcrypt-config --libs)
 
 INCLUDES = $(wildcard $(src_topdir)/include/katina/*.h)
 
-CXXFLAGS = -std=c++11 -D DEBUG -O0 -g3 -Iinclude
+CXXFLAGS = -std=c++11 -D DEBUG -O0 -g3 -Iinclude -pthread
 
-LIBKATINA_FLAGS = -D DEBUG $(VER_FLAGS) -O0 -g3 -fPIC -pthread -Iinclude $(LIBGCRYPT_FLAGS)
+LIBKATINA_FLAGS =  $(CXXFLAGS) $(VER_FLAGS) -fPIC -pthread $(LIBGCRYPT_FLAGS)
 LIBKATINA_LIBS = -lrt -pthread -ldl $(LIBGCRYPT_LIBS)
 LIBKATINA_OBJS = rcon.o RemoteClient.o irc.o GUID.o Katina.o PKI.o
 
 LIBRARIES = libkatina.so
 
-KATINA_FLAGS = -D DEBUG $(VER_FLAGS) -O0 -g3 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread -Iinclude
+KATINA_FLAGS =  $(CXXFLAGS) $(VER_FLAGS) $(MYSQL_FLAG) $(MYSQL_INCL)
 KATINA_LIBS = $(MYSQL_LIBS) -lrt -pthread -ldl $(LIBGCRYPT_LIBS) -L. -lkatina
 KATINA_OBJS = katina.o Database.o
 
-KATINA_IRC_FLAGS = -D DEBUG -O0 -g3 -pthread -Iinclude
+KATINA_IRC_FLAGS = $(CXXFLAGS) -pthread
 KATINA_IRC_LIBS = -lrt -pthread
 KATINA_IRC_OBJS = katina-irc.o rcon.o irc.o message.o
 
-KATINA_VOTES_FLAGS = -D DEBUG -O0 -g3 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread -Iinclude
+KATINA_VOTES_FLAGS = $(CXXFLAGS) $(MYSQL_FLAG) $(MYSQL_INCL)
 KATINA_VOTES_LIBS = $(MYSQL_LIBS) -lrt -pthread
 KATINA_VOTES_OBJS = katina-votes.o
 
-KATINA_WHOIS_FLAGS = -D DEBUG -O0 -g3 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread -Iinclude
+KATINA_WHOIS_FLAGS = $(CXXFLAGS) $(MYSQL_FLAG) $(MYSQL_INCL)
 KATINA_WHOIS_LIBS = $(MYSQL_LIBS) -lrt -pthread
 KATINA_WHOIS_OBJS = katina-whois.o
 
-KATINA_CLIENT_FLAGS = -D DEBUG -O0 -g3 $(MYSQL_FLAG) $(MYSQL_INCL) -pthread -Iinclude
+KATINA_CLIENT_FLAGS = $(CXXFLAGS) $(MYSQL_FLAG) $(MYSQL_INCL)
 KATINA_CLIENT_LIBS = $(MYSQL_LIBS) -lrt -pthread
 KATINA_CLIENT_OBJS = katina-client.o
 

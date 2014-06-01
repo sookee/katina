@@ -624,7 +624,7 @@ bool Katina::initial_player_info()
 		bug_var(guid);
 
 		if(guid.size() != 8)
-			clients[num] = bot_guid(num);//null_guid;
+			clients[num] = GUID(num); // bot constructor
 		else
 			clients[num] = to<GUID>(guid);
 
@@ -947,7 +947,7 @@ bool Katina::start(const str& dir)
 					GUID guid;
 
 					if(id.size() != 32)
-						guid = bot_guid(num);//null_guid;
+						guid = GUID(num); // bot constructor
 					else
 						guid = to<GUID>(id.substr(24));
 
@@ -1049,6 +1049,7 @@ bool Katina::start(const str& dir)
 
 				// slot numbers are defunct, but keep GUIDs until ShutdownGame
 				shutdown_erase.push_back(clients[num]);
+
  				//teams.erase(clients[num]);
 				//players.erase(clients[num]);
 				clients.erase(num);

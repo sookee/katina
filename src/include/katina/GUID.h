@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef _OASTATS_GUID_H_
 #define _OASTATS_GUID_H_
 
@@ -44,10 +44,11 @@ using namespace oastats::types;
 class GUID
 {
 	str data;
+	bool bot;
+	mutable bool connected = true;
 
 public:
 	const static siz SIZE = 8;
-	bool bot;
 
 	GUID(): data(SIZE, '0'), bot(false)
 	{
@@ -72,6 +73,18 @@ public:
 		bot = guid.bot;
 		for(siz i = 0; i < SIZE; ++i)
 			this->data[i] = guid.data[i];
+	}
+
+	/**
+	 * bot constructor
+	 */
+	explicit GUID(slot num): data(SIZE, '0'), bot(true)
+	{
+		soss oss;
+		oss << num;
+		data = oss.str();
+		if(data.size() < GUID::SIZE)
+			data = str(GUID::SIZE - data.size(), '0') + data;
 	}
 
 	const GUID& operator=(const GUID& guid)
@@ -113,6 +126,9 @@ public:
 		iss >> std::hex >> i;
 		return i;
 	}
+
+	void disconnect() const { connected = false; }
+	bool is_connected() { return connected; }
 
 	//bool is_bot() const { return data < "00001000"; }
 	bool is_bot() const { return bot; }
@@ -172,18 +188,18 @@ extern const GUID null_guid;
 /*
  * Create a GUID for bots based on their slot number
  */
-inline GUID bot_guid(siz num)
-{
-	soss oss;
-	oss << num;
-	str id = oss.str();
-	if(id.size() < GUID::SIZE)
-		id = str(GUID::SIZE - id.size(), '0') + id;
-
-	GUID guid(id.c_str());
-	guid.bot = true;
-	return guid;
-}
+//inline GUID bot_guid(siz num)
+//{
+//	soss oss;
+//	oss << num;
+//	str id = oss.str();
+//	if(id.size() < GUID::SIZE)
+//		id = str(GUID::SIZE - id.size(), '0') + id;
+//
+//	GUID guid(id.c_str());
+//	guid.bot = true;
+//	return guid;
+//}
 
 } // oastats
 

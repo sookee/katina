@@ -157,6 +157,8 @@ private:
 
 	str trans(const str& cmd) const;
 
+	void tell_perp(slot admin_num, slot perp_num, const str& msg);
+
 	void spamkill(siz num);
 	bool fixteams(policy_t policy = policy_t::FT_EVEN_SCATTER);
 

@@ -115,7 +115,7 @@ bool KatinaPluginExample::client_connect_info(siz min, siz sec, siz num, const G
 	if(!active)
 		return true;
 	plog("client_connect_info(" << num << ", " << guid << ", " << ip << ")");
-	katina.server.chat("BEGIN: " + players[clients[num]]);
+	katina.server.chat("BEGIN: " + katina.getPlayerName(num));
 	return true;
 }
 
@@ -124,7 +124,7 @@ bool KatinaPluginExample::client_begin(siz min, siz sec, siz num)
 	if(!active)
 		return true;
 	plog("client_begin(" << num << ")");
-	katina.server.chat("BEGIN: " + players[clients[num]]);
+	katina.server.chat("BEGIN: " + katina.getPlayerName(num));
 	return true;
 }
 

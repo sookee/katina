@@ -565,12 +565,14 @@ void KatinaPluginTeamBalancer::heartbeat(siz min, siz sec)
 
 bool TeamBuilder::is1vs1() const
 {
-	bug_func();
-   siz r = 0;
+    bug_func();
+    siz r = 0;
     siz b = 0;
     
     for(guid_siz_map_citer it = katina.teams.begin(); it != katina.teams.end(); ++it)
     {
+    	if(!katina.check_slot(it->second)) // connected?
+    		continue;
         if(it->second == TEAM_R)
             ++r;
         else if(it->second == TEAM_B)

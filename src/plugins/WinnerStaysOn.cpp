@@ -216,7 +216,7 @@ bool WinnerStaysOn::client_disconnect(siz min, siz sec, siz num)
 	{
 		if(*i++ != num)
 			continue;
-		server.chat("^3Player ^7" + to_str(pos) + "^3: ^7" + players[clients[num]] + " ^3has left.");
+		server.chat("^3Player ^7" + to_str(pos) + "^3: ^7" + katina.getPlayerName(num) + " ^3has left.");
 		q.erase(i);
 		ensure_teams();
 		announce_queue();
