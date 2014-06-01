@@ -83,6 +83,14 @@ siz Katina::getTeam(siz client) const
     return teamsIt->second;
 }
 
+siz Katina::getTeam(const GUID& guid) const
+{
+     guid_siz_map_citer teamsIt = teams.find(guid);
+    if(teamsIt == teams.end())
+        return TEAM_U;
+
+    return teamsIt->second;
+}
 
 str Katina::getPlayerName(slot num) const
 {
@@ -97,6 +105,14 @@ str Katina::getPlayerName(slot num) const
 	return p->second;
 }
 
+str Katina::getPlayerName(const GUID& guid) const
+{
+	guid_str_map_citer p;
+	if((p = players.find(guid)) == players.cend())
+		return "<unknown>";
+
+	return p->second;
+}
 
 siz Katina::getClientNr(const GUID& guid) const
 {
@@ -961,6 +977,8 @@ bool Katina::start(const str& dir)
 						if(!(siss(line.substr(pos + 4)) >> hc))
 							log("ERROR: Parsing handicap: " << line.substr(pos + 4));
 					}
+
+					shutdown_erase.remove(guid); // must have re-joined
 
 					clients[num] = guid;
 					players[guid] = name;

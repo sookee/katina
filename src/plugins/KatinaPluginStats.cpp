@@ -299,10 +299,10 @@ void KatinaPluginStats::unstall_clients(siz num)
 }
 
 
-void KatinaPluginStats::check_bots_and_players(siz num)
+void KatinaPluginStats::check_bots_and_players(slot num)
 {
 	bool had_bots = have_bots;
-	bool human_players_nr_or_nb = !human_players_r || !human_players_b;
+	//bool human_players_nr_or_nb = !human_players_r || !human_players_b;
 
 	have_bots = false;
 	human_players_r = 0;
@@ -313,14 +313,25 @@ void KatinaPluginStats::check_bots_and_players(siz num)
 
 	for(guid_siz_map_citer ci = teams.begin(); ci != teams.end(); ++ci)
 	{
-		if(num != siz(-1) && ci->first == num)
+		if(num != bad_slot && ci->first == num)
+			continue;
+		if(!katina.is_disconnected(ci->first))
 			continue;
 		if(ci->first.is_bot())
+		{
+			pbug("FOUND A BOT: " << katina.getPlayerName(ci->first));
 			have_bots = true;
+		}
 		else if(ci->second == TEAM_R)
+		{
+			pbug("FOUND A HUMAN R");
 			++human_players_r;
+		}
 		else if(ci->second == TEAM_B)
+		{
+			pbug("FOUND A HUMAN B");
 			++human_players_b;
+		}
 	}
 
 //	bug_var(have_bots);

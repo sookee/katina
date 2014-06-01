@@ -231,7 +231,7 @@ private:
 	bool reload_plugin(const str& id);
     
 	// guid keys are kept until ShutdownGame
-    guid_lst shutdown_erase;
+    guid_lst shutdown_erase; // disconnected list
 
 public:
 	Katina();
@@ -244,6 +244,11 @@ public:
 
 	str config_dir;
 	str mapname;
+
+	bool is_disconnected(const GUID& guid) const
+	{
+		return std::find(shutdown_erase.begin(), shutdown_erase.end(), guid) != shutdown_erase.end();
+	}
 
 	// We try to keep map keys GUID based as slot numbers are defunct as soon
 	// as a client disconnects.
@@ -268,7 +273,9 @@ public:
 	void builtin_command(const GUID& guid, const str& text);
     
     siz getTeam(slot num) const;
+    siz getTeam(const GUID& guid) const;
     str getPlayerName(slot num) const;
+    str getPlayerName(const GUID& guid) const;
     siz getClientNr(const GUID& guid) const;
 
     /**
