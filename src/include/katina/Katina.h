@@ -53,25 +53,25 @@ using namespace oastats::utils;
 
 extern const siz bad_slot;
 
-struct cvarevt
-{
-	str name;
-	str value;
-	KatinaPlugin* plugin;
-
-	bool operator<(const cvarevt& e)
-	{
-		return &plugin < &e.plugin && name < e.name;
-	}
-
-	bool operator==(const cvarevt& e)
-	{
-		return &plugin == &e.plugin && name == e.name;
-	}
-};
-
-typedef std::list<cvarevt> cvarevt_lst;
-typedef std::list<cvarevt>::iterator cvarevt_lst_iter;
+//struct cvarevt
+//{
+//	str name;
+//	str value;
+//	KatinaPlugin* plugin;
+//
+//	bool operator<(const cvarevt& e)
+//	{
+//		return &plugin < &e.plugin && name < e.name;
+//	}
+//
+//	bool operator==(const cvarevt& e)
+//	{
+//		return &plugin == &e.plugin && name == e.name;
+//	}
+//};
+//
+//typedef std::list<cvarevt> cvarevt_lst;
+//typedef std::list<cvarevt>::iterator cvarevt_lst_iter;
 
 enum event_t
 {
@@ -209,7 +209,7 @@ private:
 
 	str name;
 	str prefix;
-	cvarevt_lst cvarevts;
+	//cvarevt_lst cvarevts;
 	property_map props;
 
 	plugin_map plugins; // id -> KatinaPlugin*

@@ -122,7 +122,9 @@ private:
 
 	policy_t policy;
 
-// - /fixteams
+	// - /fixteams
+
+	bool protect_admins = false;
 
 	// spamkill
 	struct spam

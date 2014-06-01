@@ -419,33 +419,26 @@ bool KatinaPluginAdmin::open()
 {
 	bug_func();
 
-	pbug("Adding var events");
-	katina.add_var_event(this, "admin.active", active);
-	//katina.add_var_event(this, "flag", "0");
-	pbug("Adding log events");
+	plog("Adding var events");
+	katina.add_var_event(this, "admin.active", active, false);
+	katina.add_var_event(this, "admin.clientkick.protect", protect_admins, false);
+
+	plog("Adding log events");
 	katina.add_log_event(this, INIT_GAME);
-	//katina.add_log_event(this, WARMUP);
 	katina.add_log_event(this, CLIENT_CONNECT);
 	katina.add_log_event(this, CLIENT_CONNECT_INFO);
-	//katina.add_log_event(this, CLIENT_BEGIN);
 	katina.add_log_event(this, CLIENT_DISCONNECT);
 	katina.add_log_event(this, CLIENT_USERINFO_CHANGED);
 	katina.add_log_event(this, CLIENT_SWITCH_TEAM);
 	katina.add_log_event(this, LOG_CALLVOTE);
 	katina.add_log_event(this, KILL);
 	katina.add_log_event(this, CTF);
-	//katina.add_log_event(this, CTF_EXIT);
-	//katina.add_log_event(this, SCORE_EXIT);
-	//katina.add_log_event(this, AWARD);
 	katina.add_log_event(this, SAY);
 	katina.add_log_event(this, CHAT);
 	katina.add_log_event(this, SHUTDOWN_GAME);
-	//katina.add_log_event(this, EXIT);
-	//katina.add_log_event(this, UNKNOWN);
 
-	pbug("Loading sanctions");
+	plog("Loading sanctions");
 	load_sanctions();
-//	load_total_bans();
 
 	siz num;
 	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end(); ++s)
@@ -466,9 +459,6 @@ bool KatinaPluginAdmin::open()
 			if(fixname(num, s->params[0]))
 				s->applied = true;
 	}
-
-	pbug("setting config");
-	active = katina.get("admin.active", false);
 
 	return true;
 }
@@ -735,8 +725,9 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, siz num, const str& type, con
 //	pbug_var(kick_num);
 //	pbug_var(clients[kick_num]);
 //	pbug_var(katina.is_admin(clients[kick_num]));
-	if(type == "clientkick" && katina.is_admin(clients[to<siz>(info)]))
-		votekill(katina.get_name() + "^1: ^7[^3NOT ALLOWED TO KICK ADMINS^7]");
+	if(protect_admins)
+		if(type == "clientkick" && katina.is_admin(clients[to<siz>(info)]))
+			votekill(katina.get_name() + "^1: ^7[^3NOT ALLOWED TO KICK ADMINS^7]");
 
 	return true;
 }
