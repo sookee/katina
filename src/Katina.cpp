@@ -68,11 +68,11 @@ const str version = "0.1";
 const str tag = "";
 const str revision = REV;
 
-const siz bad_slot = siz(-1);
+const slot bad_slot(-1);
 
-siz Katina::getTeam(siz client) const
+siz Katina::getTeam(slot client) const
 {
-    siz_guid_map_citer clientsIt = clients.find(client);
+    slot_guid_map_citer clientsIt = clients.find(client);
     if(clientsIt == clients.end())
         return TEAM_U;
     
@@ -94,7 +94,7 @@ siz Katina::getTeam(const GUID& guid) const
 
 str Katina::getPlayerName(slot num) const
 {
-	siz_guid_map_citer c;
+	slot_guid_map_citer c;
 	if((c = clients.find(num)) == clients.end())
 		return "<unknown>";
 
@@ -114,10 +114,10 @@ str Katina::getPlayerName(const GUID& guid) const
 	return p->second;
 }
 
-siz Katina::getClientSlot(const GUID& guid) const
+slot Katina::getClientSlot(const GUID& guid) const
 {
 	//bug_func();
-	for(siz_guid_map_citer it = clients.cbegin(); it != clients.cend(); ++it)
+	for(slot_guid_map_citer it = clients.cbegin(); it != clients.cend(); ++it)
 		if(it->second == guid)
 			return it->first;
     return bad_slot;
@@ -125,7 +125,7 @@ siz Katina::getClientSlot(const GUID& guid) const
 
 const GUID&  Katina::getClientGuid(slot num) const
 {
-	for(siz_guid_map_citer it = clients.cbegin(); it != clients.cend(); ++it)
+	for(slot_guid_map_citer it = clients.cbegin(); it != clients.cend(); ++it)
 		if(it->first == num)
 			return it->second;
     return null_guid;
@@ -330,7 +330,7 @@ KatinaPlugin* Katina::get_plugin(const str& id, const str& version)
 	return i->second;
 }
 
-bool Katina::chat_to(siz num, const str& text)
+bool Katina::chat_to(slot num, const str& text)
 {
 	return chat_to(clients[num], text);
 }
@@ -510,9 +510,9 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 	bug_var(guid);
 	bug_var(text);
 
-	siz num;
+	slot num;
 
-	if((num = getClientSlot(guid)) == siz(-1))
+	if((num = getClientSlot(guid)) == bad_slot)
 	{
 		server.s_chat("ERROR: Cannot locate client number.");
 		return;
@@ -725,34 +725,34 @@ str sanitized(const str& name)
 	return name;
 }
 
-bool Katina::parse_slot_guid_name(const str& slot_guid_name, siz& num)
+bool Katina::parse_slot_guid_name(const str& slot_guid_name, slot& num)
 {
 	// 12 | A0B65FD9 | wibble
 
-	siz n = 0;
+	slot n;
 
 	if(slot_guid_name.size() > 2 && slot_guid_name.size() < 8) // try GUID startswith
 		for(guid_siz_map_citer i = teams.begin(); i != teams.end(); ++i)
 			if(!upper_copy(str(i->first)).find(upper_copy(slot_guid_name)))
-				if((n = getClientSlot(i->first)) != siz(-1))
-					return (num = n) != siz(-1);
+				if((n = getClientSlot(i->first)) != bad_slot)
+					return (num = n) != bad_slot;
 
 	if(slot_guid_name.size() > 3) // try name submatch
 		for(guid_str_map_citer i = players.begin(); i != players.end(); ++i)
 			if(sanitized(i->second).find(lower_copy(slot_guid_name)) != str::npos)
-				if((n = getClientSlot(i->first)) != siz(-1))
-					return (num = n) != siz(-1);
+				if((n = getClientSlot(i->first)) != bad_slot)
+					return (num = n) != bad_slot;
 
 	siss iss(slot_guid_name);
 	if(slot_guid_name.size() < 3) // try slot match
 		if(iss >> n && check_slot(n))
-			return (num = n) != siz(-1);
+			return (num = n) != bad_slot;
 
 	// try exact name match
 	for(guid_str_map_citer i = players.begin(); i != players.end(); ++i)
 		if(sanitized(i->second) == lower_copy(slot_guid_name))
-			if((n = getClientSlot(i->first)) != siz(-1))
-				return (num = n) != siz(-1);
+			if((n = getClientSlot(i->first)) != bad_slot)
+				return (num = n) != bad_slot;
 
 	return false;
 }

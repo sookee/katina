@@ -24,7 +24,7 @@ private:
 
 public:
     DefaultTeamBuilder(Katina& katina, KatinaPluginTeamBalancer& plugin) : TeamBuilder(katina, plugin) {}
-    virtual bool buildTeams(siz_float_map playerRatings, siz_map& destTeams, TeamBuilderEvent event=TB_UNKNOWN, void* payload=NULL);
+    virtual bool buildTeams(slot_float_map playerRatings, slot_siz_map& destTeams, TeamBuilderEvent event=TB_UNKNOWN, void* payload=NULL);
 };
 
 
@@ -45,14 +45,14 @@ private:
     typedef proposal_map::iterator proposal_map_iter;
     typedef proposal_map::const_iterator proposal_map_citer;
 
-    siz currentTeamMask(const std::vector<siz>& players) const;
-    siz numChangesNeeded(siz teamMask, const std::vector<siz>& players) const;
-    void insertTeamMask(proposal_map& proposals, siz teamMask, float diff, const std::vector<siz>& players) const;
+    siz currentTeamMask(const std::vector<slot>& players) const;
+    siz numChangesNeeded(siz teamMask, const std::vector<slot>& players) const;
+    void insertTeamMask(proposal_map& proposals, siz teamMask, float diff, const std::vector<slot>& players) const;
     
     
 public:
     MinimalChangesTeamBuilder(Katina& katina, KatinaPluginTeamBalancer& plugin) : TeamBuilder(katina, plugin) {}
-    virtual bool buildTeams(siz_float_map playerRatings, siz_map& destTeams, TeamBuilderEvent event=TB_UNKNOWN, void* payload=NULL);
+    virtual bool buildTeams(slot_float_map playerRatings, slot_siz_map& destTeams, TeamBuilderEvent event=TB_UNKNOWN, void* payload=NULL);
 };
 
 
@@ -63,7 +63,7 @@ private:
     
 public:
     OnJoinTeamBuilder(Katina& katina, KatinaPluginTeamBalancer& plugin) : TeamBuilder(katina, plugin) {}
-    virtual bool buildTeams(siz_float_map playerRatings, siz_map& destTeams, TeamBuilderEvent event=TB_UNKNOWN, void* payload=NULL);
+    virtual bool buildTeams(slot_float_map playerRatings, slot_siz_map& destTeams, TeamBuilderEvent event=TB_UNKNOWN, void* payload=NULL);
 };
 
 

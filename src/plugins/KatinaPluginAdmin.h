@@ -100,7 +100,7 @@ class KatinaPluginAdmin
 {
 private:
 	str& mapname;
-	const siz_guid_map& clients; // slot -> GUID
+	const slot_guid_map& clients; // slot -> GUID
 	const guid_str_map& players; // GUID -> name
 	const guid_siz_map& teams; // GUID -> 'R' | 'B'
 	RCon& server;
@@ -115,10 +115,10 @@ private:
 	siz total_kills;
 	siz total_caps;
 
-	siz_map kills; // num -> kills
-	siz_map caps; // num -> caps
-	siz_map secs; // num -> time in seconds
-	siz_map time; // num -> time in seconds
+	slot_siz_map kills; // num -> kills
+	slot_siz_map caps; // num -> caps
+	slot_siz_map secs; // num -> time in seconds
+	slot_siz_map time; // num -> time in seconds
 
 	policy_t policy;
 
@@ -129,7 +129,7 @@ private:
 	// spamkill
 	struct spam
 	{
-		siz num; // slot
+		slot num; // slot
 		std::time_t when;
 	};
 
@@ -140,8 +140,8 @@ private:
 	typedef std::list<spam> spam_lst;
 	typedef spam_lst::iterator spam_lst_iter;
 	typedef spam_lst::const_iterator spam_lst_citer;
-	typedef std::map<str, spam_lst> spam_map;
-	typedef std::map<siz, std::time_t> mute_map;
+	typedef std::map<slot, spam_lst> spam_map;
+	typedef std::map<slot, std::time_t> mute_map;
 
 	spam_map spams;
 	mute_map mutes;
@@ -161,22 +161,22 @@ private:
 
 	void tell_perp(slot admin_num, slot perp_num, const str& msg);
 
-	void spamkill(siz num);
+	void spamkill(slot num);
 	bool fixteams(policy_t policy = policy_t::FT_EVEN_SCATTER);
 
-	bool mutepp(siz num);
+	bool mutepp(slot num);
 	bool votekill(const str& reason);
-	bool un_mutepp(siz num);
-	bool fixname(siz num, const str& name);
+	bool un_mutepp(slot num);
+	bool fixname(slot num, const str& name);
 
 	/**
 	 * !warn a player next time they connect
 	 */
-	bool warn_on_sight(siz num, const str& reason);
-	bool reteam(siz num, char team = 's');
+	bool warn_on_sight(slot num, const str& reason);
+	bool reteam(slot num, char team = 's');
 
 	bool check_admin(const GUID& guid);
-	bool check_slot(siz num);
+	bool check_slot(slot num);
 //	bool load_total_bans();
 	bool load_sanctions();
 	bool save_sanctions();
@@ -204,18 +204,18 @@ public:
 	
 	virtual bool init_game(siz min, siz sec, const str_map& cvars);
 	virtual bool warmup(siz min, siz sec);
-	virtual bool client_connect(siz min, siz sec, siz num);
-	virtual bool client_connect_info(siz min, siz sec, siz num, const GUID& guid, const str& ip);
-	virtual bool client_begin(siz min, siz sec, siz num);
-	virtual bool client_disconnect(siz min, siz sec, siz num);
-	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name, siz hc);
-	virtual bool client_switch_team(siz min, siz sec, siz num, siz teamBefore, siz teamNow);
-	virtual bool callvote(siz min, siz sec, siz num, const str& type, const str& info);
-	virtual bool kill(siz min, siz sec, siz num1, siz num2, siz weap);
-	virtual bool award(siz min, siz sec, siz num, siz awd);
-	virtual bool ctf(siz min, siz sec, siz num, siz team, siz act);
+	virtual bool client_connect(siz min, siz sec, slot num);
+	virtual bool client_connect_info(siz min, siz sec, slot num, const GUID& guid, const str& ip);
+	virtual bool client_begin(siz min, siz sec, slot num);
+	virtual bool client_disconnect(siz min, siz sec, slot num);
+	virtual bool client_userinfo_changed(siz min, siz sec, slot num, siz team, const GUID& guid, const str& name, siz hc);
+	virtual bool client_switch_team(siz min, siz sec, slot num, siz teamBefore, siz teamNow);
+	virtual bool callvote(siz min, siz sec, slot num, const str& type, const str& info);
+	virtual bool kill(siz min, siz sec, slot num1, slot num2, siz weap);
+	virtual bool award(siz min, siz sec, slot num, siz awd);
+	virtual bool ctf(siz min, siz sec, slot num, siz team, siz act);
 	virtual bool ctf_exit(siz min, siz sec, siz r, siz b);
-	virtual bool score_exit(siz min, siz sec, int score, siz ping, siz num, const str& name);
+	virtual bool score_exit(siz min, siz sec, int score, siz ping, slot num, const str& name);
 	virtual bool say(siz min, siz sec, const GUID& guid, const str& text);
 	virtual bool chat(siz min, siz sec, const str& text);
 	virtual bool shutdown_game(siz min, siz sec);

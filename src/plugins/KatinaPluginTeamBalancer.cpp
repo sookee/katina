@@ -58,12 +58,12 @@ void KatinaPluginTeamBalancer::rateAllPlayers()
 {
 	bug_func();
     playerRatings.clear();
-    for(siz_guid_map_citer it = katina.getClients().begin(); it != katina.getClients().end(); ++it)
+    for(slot_guid_map_citer it = katina.getClients().begin(); it != katina.getClients().end(); ++it)
         ratePlayer(it->first);
 }
 
 
-float KatinaPluginTeamBalancer::ratePlayer(siz client)
+float KatinaPluginTeamBalancer::ratePlayer(slot client)
 {
 	bug_func();
    if(statsPlugin)
@@ -88,7 +88,7 @@ void KatinaPluginTeamBalancer::buildTeams(TeamBuilder* teamBuilder, TeamBuilderE
     if(!activeInBotGames && !force)
     {
         // Leave if there are bots
-        for(siz_guid_map_citer it = katina.getClients().begin(); it != katina.getClients().end(); ++it)
+        for(slot_guid_map_citer it = katina.getClients().begin(); it != katina.getClients().end(); ++it)
         {
             if(it->second.is_bot())
                 return;
@@ -102,13 +102,13 @@ void KatinaPluginTeamBalancer::buildTeams(TeamBuilder* teamBuilder, TeamBuilderE
     botSkill = "2";
     
     // Call team building algorithm
-    siz_map teams;
+    slot_siz_map teams;
     if(!teamBuilder->buildTeams(playerRatings, teams, event, payload))
         return;
     
     // Switch all players via rcon
     siz switched = 0;
-    for(siz_map_citer it = teams.begin(); it != teams.end(); ++it)
+    for(slot_siz_map_citer it = teams.begin(); it != teams.end(); ++it)
     {
         // Skip player if he's already in the right team
         if(it->second == katina.getTeam(it->first))
@@ -195,7 +195,7 @@ void KatinaPluginTeamBalancer::printTeams(bool printBug, bool printChat)
             col2Len = len;
     }
     
-    typedef std::map<float, siz> sorted;
+    typedef std::map<float, slot> sorted;
     sorted red;
     sorted blue;
     
@@ -458,9 +458,9 @@ bool KatinaPluginTeamBalancer::say(siz min, siz sec, const GUID& guid, const str
 	bug_func();
     bug("TB say: " << text);
     
-    siz client;
+    slot client;
 
-    if((client = katina.getClientSlot(guid)) == siz(-1))
+    if((client = katina.getClientSlot(guid)) == bad_slot)
     	return true;
 
     siss iss(text);
@@ -528,7 +528,7 @@ void KatinaPluginTeamBalancer::heartbeat(siz min, siz sec)
     return; /////////////////////////////////////////////////////////////////////////////////////////
 
     static siz waitTime = 1;
-    static std::vector<siz> toDelete;
+    static std::vector<slot> toDelete;
     
     // Resend queued changes that didn't complete (UDP..)
     for(queued_changes_map::iterator it = queuedChanges.begin(); it != queuedChanges.end(); ++it)

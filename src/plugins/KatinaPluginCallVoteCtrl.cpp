@@ -212,9 +212,9 @@ bool KatinaPluginCallVoteCtrl::say(siz min, siz sec, const GUID& guid, const str
 
 	pbug_var(cmd);
 
-	siz say_num;
+	slot say_num;
 
-	if((say_num = katina.getClientSlot(guid)) == siz(-1))
+	if((say_num = katina.getClientSlot(guid)) == bad_slot)
 	{
 		plog("ERROR: Unable to get slot number from guid: " << guid);
 		return true;

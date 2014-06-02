@@ -538,13 +538,14 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 //	if(stats)
 	{
 		typedef std::multimap<siz, GUID> siz_guid_mmap;
-		typedef siz_guid_mmap::reverse_iterator siz_guid_mmap_ritr;
+		typedef siz_guid_mmap::reverse_iterator siz_guid_mmap_riter;
+		typedef siz_guid_mmap::value_type siz_guid_mmap_pair;
 
 		siz_guid_mmap sorted;
 
 		for(guid_siz_map_citer p = caps.begin(); p != caps.end(); ++p)
 			if(p->second)
-				sorted.insert(siz_guid_map_pair(p->second, p->first));
+				sorted.insert(siz_guid_mmap_pair(p->second, p->first));
 
 		if(!sorted.empty())
 		{
@@ -554,7 +555,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 			siz f = 0; // flags
 			str_vec results;
 			std::ostringstream oss;
-			for(siz_guid_mmap_ritr ri = sorted.rbegin(); ri != sorted.rend(); ++ri)
+			for(siz_guid_mmap_riter ri = sorted.rbegin(); ri != sorted.rend(); ++ri)
 			{
 				++i;
 				if(f != ri->first)

@@ -19,10 +19,10 @@ using namespace oastats::data;
 using namespace oastats::types;
 
 
-typedef std::map<siz, float> siz_float_map;
-typedef siz_float_map::iterator siz_float_map_iter;
-typedef siz_float_map::const_iterator siz_float_map_citer;
-typedef std::pair<const siz, float> siz_float_pair;
+typedef std::map<slot, float> slot_float_map;
+typedef slot_float_map::iterator siz_float_map_iter;
+typedef slot_float_map::const_iterator siz_float_map_citer;
+typedef slot_float_map::value_type slot_float_map_pair;
 
 typedef std::list<guid_stat_map> stat_list;
 typedef stat_list::iterator stat_list_iter;
@@ -46,8 +46,9 @@ protected:
 public:
     PlayerEvaluation(Katina& katina, KatinaPluginTeamBalancer& plugin) :
         katina(katina), balancerPlugin(plugin) {}
+    virtual ~PlayerEvaluation() {}
         
-    virtual float calcRating(siz client) = 0;
+    virtual float calcRating(slot client) = 0;
 };
 
 
@@ -84,9 +85,10 @@ protected:
 public:
     TeamBuilder(Katina& katina, KatinaPluginTeamBalancer& plugin) :
         katina(katina), balancerPlugin(plugin) {}
+    virtual ~TeamBuilder() {}
         
     // Returns Mapping: Client Slot -> Team
-    virtual bool buildTeams(siz_float_map playerRatings, siz_map& destTeams, TeamBuilderEvent event=TB_UNKNOWN, void* payload=NULL) = 0;  
+    virtual bool buildTeams(slot_float_map playerRatings, slot_siz_map& destTeams, TeamBuilderEvent event=TB_UNKNOWN, void* payload=NULL) = 0;
 };
 
 
@@ -125,7 +127,7 @@ private:
     TeamBuilder* teamBuilderCapture;
     
     // Mapping: Client Slot -> Rating
-    siz_float_map playerRatings;
+    slot_float_map playerRatings;
     
     siz numLastStats;
     stat_list lastStats;
@@ -146,13 +148,13 @@ private:
         siz targetTeam;
     };
     
-    typedef std::map<siz, QueuedChange> queued_changes_map;
+    typedef std::map<slot, QueuedChange> queued_changes_map;
     queued_changes_map queuedChanges;
     
     
     
     void rateAllPlayers();
-    float ratePlayer(siz client);
+    float ratePlayer(slot client);
     void buildTeams(TeamBuilder* teamBuilder, TeamBuilderEvent event=TB_UNKNOWN, void* payload=NULL, siz waitTime=15, bool force=false);
     
     void printTeams(bool printBug=false, bool printChat=true);

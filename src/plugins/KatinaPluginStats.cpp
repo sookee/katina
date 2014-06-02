@@ -252,7 +252,7 @@ bool KatinaPluginStats::warmup(siz min, siz sec)
 }
 
 
-void KatinaPluginStats::updatePlayerTime(siz num)
+void KatinaPluginStats::updatePlayerTime(slot num)
 {
     struct stats& s = stats[katina.getClientGuid(num)];
     if(s.joined_time > 0)
@@ -263,7 +263,7 @@ void KatinaPluginStats::updatePlayerTime(siz num)
 }
 
 
-void KatinaPluginStats::stall_client(siz num)
+void KatinaPluginStats::stall_client(slot num)
 {
 	if(!stats[katina.getClientGuid(num)].joined_time)
 		return;
@@ -273,7 +273,7 @@ void KatinaPluginStats::stall_client(siz num)
 }
 
 
-void KatinaPluginStats::unstall_client(siz num)
+void KatinaPluginStats::unstall_client(slot num)
 {
 	if(stats[katina.getClientGuid(num)].joined_time)
 		return;
@@ -286,14 +286,14 @@ void KatinaPluginStats::unstall_client(siz num)
 
 void KatinaPluginStats::stall_clients()
 {
-	for(siz_guid_map_citer ci = clients.begin(); ci != clients.end(); ++ci)
+	for(slot_guid_map_citer ci = clients.begin(); ci != clients.end(); ++ci)
 		stall_client(ci->first);
 }
 
 
-void KatinaPluginStats::unstall_clients(siz num)
+void KatinaPluginStats::unstall_clients(slot num)
 {
-	for(siz_guid_map_citer ci = clients.begin(); ci != clients.end(); ++ci)
+	for(slot_guid_map_citer ci = clients.begin(); ci != clients.end(); ++ci)
 		if(num == siz(-1) || num != ci->first)
 			unstall_client(ci->first);
 }
@@ -313,7 +313,7 @@ void KatinaPluginStats::check_bots_and_players(slot num)
 
 	for(guid_siz_map_citer ci = teams.begin(); ci != teams.end(); ++ci)
 	{
-		if(num != bad_slot && ci->first == num)
+		if(num != bad_slot && katina.getClientSlot(ci->first) == num)
 			continue;
 		if(!katina.is_disconnected(ci->first))
 			continue;
@@ -357,7 +357,7 @@ void KatinaPluginStats::check_bots_and_players(slot num)
 }
 
 
-bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name, siz hc)
+bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, slot num, siz team, const GUID& guid, const str& name, siz hc)
 {
 	//bug("KatinaPluginStats::client_userinfo_changed: [" <<  guid << "] " << name << " now: " << katina.now);
 	//bug("in_game: " << in_game);
@@ -384,14 +384,14 @@ bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, siz num, siz t
 }
 
 
-//bool KatinaPluginStats::client_connect(siz min, siz sec, siz num)
+//bool KatinaPluginStats::client_connect(siz min, siz sec, slot num)
 //{
 //	if(!active)
 //		return true;
 //}
 
 
-bool KatinaPluginStats::client_disconnect(siz min, siz sec, siz num)
+bool KatinaPluginStats::client_disconnect(siz min, siz sec, slot num)
 {
 	if(!in_game)
 		return true;
@@ -405,7 +405,7 @@ bool KatinaPluginStats::client_disconnect(siz min, siz sec, siz num)
 }
 
 
-bool KatinaPluginStats::kill(siz min, siz sec, siz num1, siz num2, siz weap)
+bool KatinaPluginStats::kill(siz min, siz sec, slot num1, slot num2, siz weap)
 {
 	if(!in_game)
 		return true;
@@ -446,7 +446,7 @@ bool KatinaPluginStats::kill(siz min, siz sec, siz num1, siz num2, siz weap)
 }
 
 
-bool KatinaPluginStats::ctf(siz min, siz sec, siz num, siz team, siz act)
+bool KatinaPluginStats::ctf(siz min, siz sec, slot num, siz team, siz act)
 {
 	// bug("in_game: " << in_game);
 	if(!in_game)
@@ -454,9 +454,9 @@ bool KatinaPluginStats::ctf(siz min, siz sec, siz num, siz team, siz act)
 
 	// Remember who is carrying the flag
 	if(team == TEAM_R)
-		carrierRed = act == 0 ? num : -1;
+		carrierRed = act == 0 ? num : bad_slot;
 	else if(team == TEAM_B)
-		carrierBlue = act == 0 ? num : -1;
+		carrierBlue = act == 0 ? num : bad_slot;
 
 	if(!active)
 		return true;
@@ -471,7 +471,7 @@ bool KatinaPluginStats::ctf(siz min, siz sec, siz num, siz team, siz act)
 }
 
 
-bool KatinaPluginStats::award(siz min, siz sec, siz num, siz awd)
+bool KatinaPluginStats::award(siz min, siz sec, slot num, siz awd)
 {
 	// bug("in_game: " << in_game);
 	if(!in_game)
@@ -520,7 +520,7 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 }
 
 // zim@openmafia >= 0.1-beta
-bool KatinaPluginStats::speed(siz num, siz dist, siz time, bool has_flag)
+bool KatinaPluginStats::speed(slot num, siz dist, siz time, bool has_flag)
 {
 	// 9:35 Speed: 3 1957 13 : Client 3 ran 1957u in 13s without the flag.
 	// 9:35 SpeedFlag: 3 3704 12 : Client 3 ran 3704u in 12s while holding the flag.
@@ -545,7 +545,7 @@ bool KatinaPluginStats::speed(siz num, siz dist, siz time, bool has_flag)
 	return true;
 }
 
-bool KatinaPluginStats::weapon_usage(siz min, siz sec, siz num, siz weapon, siz shots)
+bool KatinaPluginStats::weapon_usage(siz min, siz sec, slot num, siz weapon, siz shots)
 {
 	if(!in_game)
 		return true;
@@ -562,7 +562,7 @@ bool KatinaPluginStats::weapon_usage(siz min, siz sec, siz num, siz weapon, siz 
 }
 
 
-bool KatinaPluginStats::mod_damage(siz min, siz sec, siz num, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv, float weightedHits)
+bool KatinaPluginStats::mod_damage(siz min, siz sec, slot num, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv, float weightedHits)
 {
 	if(!in_game)
 		return true;
@@ -584,7 +584,7 @@ bool KatinaPluginStats::mod_damage(siz min, siz sec, siz num, siz mod, siz hits,
 }
 
 
-bool KatinaPluginStats::player_stats(siz min, siz sec, siz num,
+bool KatinaPluginStats::player_stats(siz min, siz sec, slot num,
 	siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
 	siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
 	siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged)
@@ -622,7 +622,7 @@ bool KatinaPluginStats::sayteam(siz min, siz sec, const GUID& guid, const str& t
 }
 
 
-bool KatinaPluginStats::check_slot(siz num)
+bool KatinaPluginStats::check_slot(slot num)
 {
 	if(clients.find(num) == clients.end())
 	{
@@ -638,9 +638,9 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 	if(!active)
 		return true;
 
-	siz say_num;
+	slot say_num;
 
-	if((say_num = katina.getClientSlot(guid)) == siz(-1))
+	if((say_num = katina.getClientSlot(guid)) == bad_slot)
 	{
 		plog("ERROR: Unable to get slot number from guid: " << guid);
 		return true;

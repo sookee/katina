@@ -51,7 +51,7 @@ using namespace oastats::pki;
 using namespace oastats::types;
 using namespace oastats::utils;
 
-extern const siz bad_slot;
+extern const slot bad_slot;
 
 //struct cvarevt
 //{
@@ -235,7 +235,7 @@ private:
 
 	// We try to keep map keys GUID based as slot numbers are defunct as soon
 	// as a client disconnects.
-	siz_guid_map clients; // slot -> GUID // cleared when players disconnect and on game_begin()
+	slot_guid_map clients; // slot -> GUID // cleared when players disconnect and on game_begin()
 	guid_str_map players; // GUID -> name  // cleard before game_begin()
 	guid_siz_map teams; // GUID -> 'R' | 'B' // cleared when players disconnect and on game_begin()
 
@@ -264,7 +264,7 @@ public:
 
 	const str& get_name() { return name; }
 
-	const siz_guid_map& getClients() { return clients; }
+	const slot_guid_map& getClients() { return clients; }
 	const guid_str_map& getPlayers() { return players; }
 	const guid_siz_map& getTeams() { return teams; }
 
@@ -280,7 +280,7 @@ public:
     siz getTeam(const GUID& guid) const;
     str getPlayerName(slot num) const;
     str getPlayerName(const GUID& guid) const;
-    siz getClientSlot(const GUID& guid) const;
+    slot getClientSlot(const GUID& guid) const;
     const GUID& getClientGuid(slot num) const;
 
     /**
@@ -352,7 +352,7 @@ public:
 
 	bool have(const str& s) { return has(s); }
 
-	bool chat_to(siz num, const str& text);
+	bool chat_to(slot num, const str& text);
 	bool chat_to(const GUID& guid, const str& text);
 	bool chat_to(const str& name, const str& text);
 

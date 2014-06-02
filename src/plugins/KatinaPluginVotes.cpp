@@ -144,7 +144,7 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 	announce_time = 0; // turn off
 	//katina.del_log_event(this, HEARTBEAT);
 
-	for(siz_guid_map_citer i = katina.getClients().begin(); i != katina.getClients().end(); ++i)
+	for(slot_guid_map_citer i = katina.getClients().begin(); i != katina.getClients().end(); ++i)
 	{
 		if(i->second.is_bot())
 			continue;
@@ -158,11 +158,11 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 			continue;
 		}
 
-		if(i->first > 32)
-		{
-			plog("ERROR: Client number too large: " << i->first);
-			continue;
-		}
+//		if(i->first > 32)
+//		{
+//			plog("ERROR: Client number too large: " << i->first);
+//			continue;
+//		}
 
 		pbug_var(i->first);
 		pbug_var(i->second);
@@ -197,9 +197,9 @@ bool KatinaPluginVotes::say(siz min, siz sec, const GUID& guid, const str& text)
 	if(!(iss >> cmd) || cmd.empty() || (cmd[0] != '!' && cmd[0] != '?'))
 		return true;
 
-	siz say_num;
+	slot say_num;
 
-	if((say_num = katina.getClientSlot(guid)) == siz(-1))
+	if((say_num = katina.getClientSlot(guid)) == bad_slot)
 	{
 		plog("ERROR: Unable to get slot number from guid: " << guid);
 		return true;

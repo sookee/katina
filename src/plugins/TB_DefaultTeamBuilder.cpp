@@ -102,22 +102,22 @@ float difference(siz teamMask, const std::vector<float>& ratings, siz scoreR=0, 
 // This is known as the 'partition problem' which is NP-complete.
 // We're going to find the best solution with a brute force approach.
 // http://www.americanscientist.org/issues/issue.aspx?id=3278&y=0&no=&content=true&page=4&css=print
-bool DefaultTeamBuilder::buildTeams(siz_float_map playerRatings, siz_map& destTeams, TeamBuilderEvent event, void* payload)
+bool DefaultTeamBuilder::buildTeams(slot_float_map playerRatings, slot_siz_map& destTeams, TeamBuilderEvent event, void* payload)
 {
     if(katina.getClients().size() < 3 || is1vs1())
         return false;
     
     // Create list of active players in the game
-    std::vector<siz> ingamePlayers;
+    std::vector<slot> ingamePlayers;
     std::vector<float> ratings;
     
-	siz client;
+	slot client;
 	for(guid_siz_map_citer it = katina.getTeams().begin(); it != katina.getTeams().end(); ++it)
 	{
     	if(it->second != TEAM_R && it->second != TEAM_B)
         	continue;
 
-    	if((client = katina.getClientSlot(it->first)) == siz(-1))
+    	if((client = katina.getClientSlot(it->first)) == bad_slot)
     		continue;
 
     	ingamePlayers.push_back(client);
@@ -159,7 +159,7 @@ bool DefaultTeamBuilder::buildTeams(siz_float_map playerRatings, siz_map& destTe
 // MinimalChangesTeamBuilder
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-siz MinimalChangesTeamBuilder::currentTeamMask(const std::vector<siz>& players) const
+siz MinimalChangesTeamBuilder::currentTeamMask(const std::vector<slot>& players) const
 {
     siz teamMask = 0;
     for(siz i=0; i<players.size(); ++i)
@@ -173,7 +173,7 @@ siz MinimalChangesTeamBuilder::currentTeamMask(const std::vector<siz>& players) 
 
 
 
-siz MinimalChangesTeamBuilder::numChangesNeeded(siz teamMask, const std::vector<siz>& players) const
+siz MinimalChangesTeamBuilder::numChangesNeeded(siz teamMask, const std::vector<slot>& players) const
 {
     siz changes = 0;
     
@@ -193,7 +193,7 @@ siz MinimalChangesTeamBuilder::numChangesNeeded(siz teamMask, const std::vector<
 
 
 
-void MinimalChangesTeamBuilder::insertTeamMask(proposal_map& proposals, siz teamMask, float diff, const std::vector<siz>& players) const
+void MinimalChangesTeamBuilder::insertTeamMask(proposal_map& proposals, siz teamMask, float diff, const std::vector<slot>& players) const
 {
     siz changesNeeded = numChangesNeeded(teamMask, players);
     
@@ -204,7 +204,7 @@ void MinimalChangesTeamBuilder::insertTeamMask(proposal_map& proposals, siz team
 
 
 
-bool MinimalChangesTeamBuilder::buildTeams(siz_float_map playerRatings, siz_map& destTeams, TeamBuilderEvent event, void* payload)
+bool MinimalChangesTeamBuilder::buildTeams(slot_float_map playerRatings, slot_siz_map& destTeams, TeamBuilderEvent event, void* payload)
 {
     if(katina.getClients().size() < 3 || is1vs1())
         return false;
@@ -214,16 +214,16 @@ bool MinimalChangesTeamBuilder::buildTeams(siz_float_map playerRatings, siz_map&
         return false;
     
     // Create list of active players in the game
-    std::vector<siz> ingamePlayers;
+    std::vector<slot> ingamePlayers;
     std::vector<float> ratings;
     
-	siz client;
+	slot client;
 	for(guid_siz_map_citer it = katina.getTeams().begin(); it != katina.getTeams().end(); ++it)
 	{
     	if(it->second != TEAM_R && it->second != TEAM_B)
         	continue;
 
-    	if((client = katina.getClientSlot(it->first)) == siz(-1))
+    	if((client = katina.getClientSlot(it->first)) == bad_slot)
     		continue;
 
     	ingamePlayers.push_back(client);
@@ -304,7 +304,7 @@ bool MinimalChangesTeamBuilder::buildTeams(siz_float_map playerRatings, siz_map&
 // OnJoinTeamBuilder
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool OnJoinTeamBuilder::buildTeams(siz_float_map playerRatings, siz_map& destTeams, TeamBuilderEvent event, void* payload)
+bool OnJoinTeamBuilder::buildTeams(slot_float_map playerRatings, slot_siz_map& destTeams, TeamBuilderEvent event, void* payload)
 {
     if(katina.getClients().size() < 3 || is1vs1())
         return false;

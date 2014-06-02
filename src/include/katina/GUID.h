@@ -34,8 +34,9 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include "types.h"
 
-#include <inttypes.h>
+#include <cinttypes>
 #include <list>
+#include <algorithm>
 
 namespace oastats {
 
@@ -119,12 +120,19 @@ public:
 
 	operator str() const { return data; }
 
-	operator uint32_t() const
+	explicit operator uint32_t() const
 	{
 		uint32_t i = 0;
 		siss iss(data);
 		iss >> std::hex >> i;
 		return i;
+	}
+
+	operator bool() const
+	{
+		if(data.size() != SIZE)
+			return false;
+		return std::count_if(data.begin(), data.end(), std::ptr_fun<int,int>(isxdigit)) == SIZE;
 	}
 
 	void disconnect() const { connected = false; }
@@ -159,10 +167,10 @@ typedef guid_str_map::value_type guid_str_map_pair;
 typedef guid_str_map::iterator guid_str_map_iter;
 typedef guid_str_map::const_iterator guid_str_map_citer;
 
-typedef std::map<siz, GUID> siz_guid_map;
-typedef siz_guid_map::value_type siz_guid_map_pair;
-typedef siz_guid_map::iterator siz_guid_map_iter;
-typedef siz_guid_map::const_iterator siz_guid_map_citer;
+//typedef std::map<siz, GUID> siz_guid_map;
+//typedef siz_guid_map::value_type siz_guid_map_pair;
+//typedef siz_guid_map::iterator siz_guid_map_iter;
+//typedef siz_guid_map::const_iterator siz_guid_map_citer;
 
 typedef std::map<slot, GUID> slot_guid_map;
 typedef slot_guid_map::value_type slot_guid_map_pair;

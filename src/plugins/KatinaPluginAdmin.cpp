@@ -161,9 +161,9 @@ enum
 struct player
 {
 	siz skill;
-	siz num;
+	slot num;
 
-	player(siz skill, siz num): skill(skill), num(num) {}
+	player(siz skill, slot num): skill(skill), num(num) {}
 
 	bool operator<(const player& p) const { return skill < p.skill; }
 	bool operator==(const player& p) const { return skill == p.skill; }
@@ -186,7 +186,7 @@ bool KatinaPluginAdmin::fixteams(policy_t policy)
 	double cap_factor = total_caps ? total_kills / total_caps : 1.0;
 	bug_var(cap_factor);
 	bug_var(clients.size());
-	for(siz_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
+	for(slot_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
 	{
 //		if(i->second.is_bot())
 //			continue;
@@ -347,7 +347,7 @@ bool KatinaPluginAdmin::fixteams(policy_t policy)
 	return true;
 }
 
-bool KatinaPluginAdmin::mutepp(siz num)
+bool KatinaPluginAdmin::mutepp(slot num)
 {
 	str reply;
 	server.command("!mute " + to_string(num), reply);
@@ -358,7 +358,7 @@ bool KatinaPluginAdmin::mutepp(siz num)
 	return false;
 }
 
-bool KatinaPluginAdmin::fixname(siz num, const str& name)
+bool KatinaPluginAdmin::fixname(slot num, const str& name)
 {
 	str reply;
 	server.command("!rename " + to_string(num) + " " + name, reply);
@@ -369,7 +369,7 @@ bool KatinaPluginAdmin::fixname(siz num, const str& name)
 	return false;
 }
 
-bool KatinaPluginAdmin::warn_on_sight(siz num, const str& reason)
+bool KatinaPluginAdmin::warn_on_sight(slot num, const str& reason)
 {
 	str reply;
 	server.command("!warn " + to_string(num) + " " + reason, reply);
@@ -390,7 +390,7 @@ siz char_to_team(char t)
 	return 3;
 }
 
-bool KatinaPluginAdmin::reteam(siz num, char team)
+bool KatinaPluginAdmin::reteam(slot num, char team)
 {
 	if(clients.find(num) == clients.end())
 	{
@@ -440,10 +440,10 @@ bool KatinaPluginAdmin::open()
 	plog("Loading sanctions");
 	load_sanctions();
 
-	siz num;
+	slot num;
 	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end(); ++s)
 	{
-		if((num = katina.getClientSlot(s->guid)) == siz(-1))
+		if((num = katina.getClientSlot(s->guid)) == bad_slot)
 			continue;
 
 		if(players.find(s->guid) == players.end())
@@ -484,10 +484,10 @@ bool KatinaPluginAdmin::init_game(siz min, siz sec, const str_map& cvars)
 		return true;
 
 	// !muted become unstuck after every game
-	siz num;
+	slot num;
 	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end(); ++s)
 	{
-		if((num = katina.getClientSlot(s->guid)) == siz(-1))
+		if((num = katina.getClientSlot(s->guid)) == bad_slot)
 			continue;
 
 		if(players.find(s->guid) == players.end())
@@ -498,7 +498,7 @@ bool KatinaPluginAdmin::init_game(siz min, siz sec, const str_map& cvars)
 				s->applied = true;
 	}
 
-	for(siz_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
+	for(slot_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
 	{
 		if((katina.getTeam(i->second) == TEAM_R || katina.getTeam(i->second) == TEAM_B))
 		{
@@ -515,13 +515,13 @@ bool KatinaPluginAdmin::warmup(siz min, siz sec)
 		return true;
 
 	// stop all timers
-	for(siz_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
+	for(slot_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
 		time[i->first] = 0;
 
 	return true;
 }
 
-bool KatinaPluginAdmin::client_connect(siz min, siz sec, siz num)
+bool KatinaPluginAdmin::client_connect(siz min, siz sec, slot num)
 {
 	if(!active)
 		return true;
@@ -532,7 +532,7 @@ bool KatinaPluginAdmin::client_connect(siz min, siz sec, siz num)
 	return true;
 }
 
-bool KatinaPluginAdmin::client_connect_info(siz min, siz sec, siz num, const GUID& guid, const str& ip)
+bool KatinaPluginAdmin::client_connect_info(siz min, siz sec, slot num, const GUID& guid, const str& ip)
 {
 	if(!active)
 		return true;
@@ -548,14 +548,14 @@ bool KatinaPluginAdmin::client_connect_info(siz min, siz sec, siz num, const GUI
 	return true;
 }
 
-bool KatinaPluginAdmin::client_begin(siz min, siz sec, siz num)
+bool KatinaPluginAdmin::client_begin(siz min, siz sec, slot num)
 {
 	if(!active)
 		return true;
 	return true;
 }
 
-bool KatinaPluginAdmin::client_disconnect(siz min, siz sec, siz num)
+bool KatinaPluginAdmin::client_disconnect(siz min, siz sec, slot num)
 {
 	if(!active)
 		return true;
@@ -570,7 +570,7 @@ bool KatinaPluginAdmin::client_disconnect(siz min, siz sec, siz num)
 	return true;
 }
 
-bool KatinaPluginAdmin::client_userinfo_changed(siz min, siz sec, siz num, siz team
+bool KatinaPluginAdmin::client_userinfo_changed(siz min, siz sec, slot num, siz team
 		, const GUID& guid, const str& name, siz hc)
 {
 	if(!active)
@@ -615,7 +615,7 @@ bool KatinaPluginAdmin::client_userinfo_changed(siz min, siz sec, siz num, siz t
 	return true;
 }
 
-bool KatinaPluginAdmin::client_switch_team(siz min, siz sec, siz num, siz teamBefore, siz teamNow)
+bool KatinaPluginAdmin::client_switch_team(siz min, siz sec, slot num, siz teamBefore, siz teamNow)
 {
 	if(!active)
 		return true;
@@ -678,7 +678,7 @@ bool KatinaPluginAdmin::votekill(const str& reason)
 	return true;
 }
 
-bool KatinaPluginAdmin::callvote(siz min, siz sec, siz num, const str& type, const str& info)
+bool KatinaPluginAdmin::callvote(siz min, siz sec, slot num, const str& type, const str& info)
 {
 	plog(katina.getPlayerName(num) << " " << type << " " << info);
 //	bug_func();
@@ -732,7 +732,7 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, siz num, const str& type, con
 	return true;
 }
 
-bool KatinaPluginAdmin::kill(siz min, siz sec, siz num1, siz num2, siz weap)
+bool KatinaPluginAdmin::kill(siz min, siz sec, slot num1, slot num2, siz weap)
 {
 	if(!active)
 		return true;
@@ -744,7 +744,7 @@ bool KatinaPluginAdmin::kill(siz min, siz sec, siz num1, siz num2, siz weap)
 	return true;
 }
 
-bool KatinaPluginAdmin::ctf(siz min, siz sec, siz num, siz team, siz act)
+bool KatinaPluginAdmin::ctf(siz min, siz sec, slot num, siz team, siz act)
 {
 	if(!active)
 		return true;
@@ -767,7 +767,7 @@ bool KatinaPluginAdmin::ctf_exit(siz min, siz sec, siz r, siz b)
 	return true;
 }
 
-bool KatinaPluginAdmin::score_exit(siz min, siz sec, int score, siz ping, siz num, const str& name)
+bool KatinaPluginAdmin::score_exit(siz min, siz sec, int score, siz ping, slot num, const str& name)
 {
 	if(!active)
 		return true;
@@ -775,7 +775,7 @@ bool KatinaPluginAdmin::score_exit(siz min, siz sec, int score, siz ping, siz nu
 	return true;	
 }
 
-bool KatinaPluginAdmin::award(siz min, siz sec, siz num, siz awd)
+bool KatinaPluginAdmin::award(siz min, siz sec, slot num, siz awd)
 {
 	if(!active)
 		return true;
@@ -844,7 +844,7 @@ bool KatinaPluginAdmin::check_admin(const GUID& guid)
 	return true;
 }
 
-bool KatinaPluginAdmin::check_slot(siz num)
+bool KatinaPluginAdmin::check_slot(slot num)
 {
 	if(katina.check_slot(num))
 		return true;
@@ -902,7 +902,7 @@ bool KatinaPluginAdmin::remove_sanctions(const GUID& guid, siz type)
 	return save_sanctions();
 }
 
-void KatinaPluginAdmin::spamkill(siz num)
+void KatinaPluginAdmin::spamkill(slot num)
 {
 	if(!server.command("!mute " + to_string(num)))
 		if(!server.command("!mute " + to_string(num))) // 1 retry
@@ -929,8 +929,8 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 
 	// !cmd <parans>
 
-	siz say_num;
-	if((say_num = katina.getClientSlot(guid)) == siz(-1))
+	slot say_num;
+	if((say_num = katina.getClientSlot(guid)) == bad_slot)
 	{
 		plog("ERROR: Unable to get slot number from guid: " << guid);
 		return true;
@@ -1055,7 +1055,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			return true;
 		}
 
-		siz num = siz(-1);
+		slot num = bad_slot;
 		str duration = "5m";
 		str reason;
 
@@ -1151,7 +1151,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			return true;
 		}
 
-		siz num = siz(-1);
+		slot num = bad_slot;
 		str duration = "20m";
 		str reason;
 
@@ -1283,7 +1283,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			return true;
 		}
 
-		siz perp = siz(-1);
+		slot perp = bad_slot;
 		str team, reason;
 
 		sgl(iss >> perp >> team >> std::ws, reason);
@@ -1359,19 +1359,19 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 
 		if(!perp)
 		{
-			server.msg_to(say_num, "^7ADMIN: ^1Error: ^3Bad GUID entered: ^2" + perp, true);
+			server.msg_to(say_num, "^7ADMIN: ^1Error: ^3Bad GUID entered: ^2" + str(perp), true);
 			return true;
 		}
 
 		if(trim(reason).empty())
 		{
-			server.msg_to(say_num, "^7ADMIN: ^1Error: ^3Must give reason to warn: ^2" + perp, true);
+			server.msg_to(say_num, "^7ADMIN: ^1Error: ^3Must give reason to warn: ^2" + str(perp), true);
 			return true;
 		}
 
 		if(reason == "remove")
 		{
-			siz num = katina.getClientSlot(perp);
+			slot num = katina.getClientSlot(perp);
 			if(remove_sanctions(perp, S_WARN_ON_SIGHT) && num != bad_slot)
 				tell_perp(say_num, num, "^7" + katina.getPlayerName(perp) + " ^3Removed warn-on-sight from: ^7" + katina.getPlayerName(perp));
 			return true;
@@ -1411,7 +1411,7 @@ bool KatinaPluginAdmin::shutdown_game(siz min, siz sec)
 	if(!active)
 		return true;
 
-	for(siz_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
+	for(slot_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
 	{
 		if((katina.getTeam(i->second) == TEAM_R || katina.getTeam(i->second) == TEAM_B) && time[i->first]) // playing, and timed
 		{
