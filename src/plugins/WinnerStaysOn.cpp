@@ -89,17 +89,17 @@ str WinnerStaysOn::get_version() const
 
 void WinnerStaysOn::ensure_teams()
 {
-	siz_deq_iter i = q.begin();
+	slot_deq_iter i = q.begin();
 	
 	if(i != q.end() && katina.getTeam(*i) != win_team)
-		server.command("!putteam " + to_str(*i++) + " " + get_team(win_team));
+		server.command("!putteam " + str(*i++) + " " + get_team(win_team));
 
 	if(i != q.end() && katina.getTeam(*i) != win_team)
-		server.command("!putteam " + to_str(*i++) + " " + get_team(opp_team));
+		server.command("!putteam " + str(*i++) + " " + get_team(opp_team));
 
 	while(i != q.end())
 		if(katina.getTeam(*i) != TEAM_S)
-			server.command("!putteam " + to_str(*i++) + " s");	
+			server.command("!putteam " + str(*i++) + " s");
 }
 
 void WinnerStaysOn::dump_queue()
@@ -109,7 +109,7 @@ void WinnerStaysOn::dump_queue()
 	
 	con("== QUEUE ============================");
 	
-	siz_deq_iter i = q.begin();
+	slot_deq_iter i = q.begin();
 	if(i != q.end())
 		con("! " + katina.getPlayerName(*i++));
 	if(i != q.end())
@@ -125,7 +125,7 @@ void WinnerStaysOn::announce_queue()
 	
 	server.chat("^1== ^3QUEUE ^1============================");
 	
-	siz_deq_iter i = q.begin();
+	slot_deq_iter i = q.begin();
 	if(i != q.end())
 		con("^3! " + katina.getPlayerName(*i++));
 	if(i != q.end())
@@ -183,9 +183,9 @@ bool WinnerStaysOn::warmup(siz min, siz sec)
 	return true;
 }
 
-bool WinnerStaysOn::client_connect(siz min, siz sec, siz num)
+bool WinnerStaysOn::client_connect(siz min, siz sec, slot num)
 {
-	siz_deq_iter i = std::find(q.begin(), q.end(), num);
+	slot_deq_iter i = std::find(q.begin(), q.end(), num);
 	if(i != q.end())
 		q.erase(i);
 	q.push_back(num);
@@ -196,9 +196,9 @@ bool WinnerStaysOn::client_connect(siz min, siz sec, siz num)
 	return true;
 }
 
-bool WinnerStaysOn::client_disconnect(siz min, siz sec, siz num)
+bool WinnerStaysOn::client_disconnect(siz min, siz sec, slot num)
 {
-	siz_deq_iter i = q.begin();
+	slot_deq_iter i = q.begin();
 	
 	if(i != q.end() && *i++ == num)
 	{
@@ -226,9 +226,9 @@ bool WinnerStaysOn::client_disconnect(siz min, siz sec, siz num)
 	return true;
 }
 
-bool WinnerStaysOn::client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name, siz hc)
+bool WinnerStaysOn::client_userinfo_changed(siz min, siz sec, slot num, siz team, const GUID& guid, const str& name, siz hc)
 {
-	siz_deq_iter i = std::find(q.begin(), q.end(), num);
+	slot_deq_iter i = std::find(q.begin(), q.end(), num);
 	if(i == q.end())
 	{
 		q.push_back(num);
@@ -239,7 +239,7 @@ bool WinnerStaysOn::client_userinfo_changed(siz min, siz sec, siz num, siz team,
 	return true;
 }
 
-bool WinnerStaysOn::ctf(siz min, siz sec, siz num, siz team, siz act)
+bool WinnerStaysOn::ctf(siz min, siz sec, slot num, siz team, siz act)
 {
 	return true;
 }
@@ -248,7 +248,7 @@ bool WinnerStaysOn::ctf_exit(siz min, siz sec, siz r, siz b)
 {
 	siz team = r > b ? TEAM_R : (b > r ? TEAM_B: TEAM_S);
 	
-	siz_deq_iter i = q.begin();
+	slot_deq_iter i = q.begin();
 
 	if(team == TEAM_S || win_team == team)
 	{
@@ -261,9 +261,9 @@ bool WinnerStaysOn::ctf_exit(siz min, siz sec, siz r, siz b)
 		if(++i != q.end())
 		{
 			server.chat("^3The challenger: ^7" + katina.getPlayerName(*i) + " ^3goes to the back of the queue.");
-			siz num = *i;
+			slot num = *i;
 			q.erase(i);
-			q.push_back(*i);
+			q.push_back(num);
 		}
 	}
 	else
@@ -271,9 +271,9 @@ bool WinnerStaysOn::ctf_exit(siz min, siz sec, siz r, siz b)
 		if(i != q.end())
 		{
 			server.chat("^3The defender: ^7" + katina.getPlayerName(*i) + " ^3goes to the back of the queue!");
-			siz num = *i;
+			slot num = *i;
 			q.erase(i);
-			q.push_back(*i);
+			q.push_back(num);
 		}
 		
 		if(++i != q.end())
@@ -287,7 +287,7 @@ bool WinnerStaysOn::ctf_exit(siz min, siz sec, siz r, siz b)
 	return true;
 }
 
-bool WinnerStaysOn::init_game(siz min, siz sec)
+bool WinnerStaysOn::init_game(siz min, siz sec, const str_map& svars)
 {
 	lock_teams();
 

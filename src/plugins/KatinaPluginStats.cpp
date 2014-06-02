@@ -520,7 +520,7 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 }
 
 // zim@openmafia >= 0.1-beta
-bool KatinaPluginStats::speed(slot num, siz dist, siz time, bool has_flag)
+bool KatinaPluginStats::speed(siz min, siz sec, slot num, siz dist, siz time, bool has_flag)
 {
 	// 9:35 Speed: 3 1957 13 : Client 3 ran 1957u in 13s without the flag.
 	// 9:35 SpeedFlag: 3 3704 12 : Client 3 ran 3704u in 12s while holding the flag.
@@ -618,7 +618,7 @@ bool KatinaPluginStats::player_stats(siz min, siz sec, slot num,
 
 bool KatinaPluginStats::sayteam(siz min, siz sec, const GUID& guid, const str& text)
 {
-	say(min, sec, guid, text);
+	return say(min, sec, guid, text);
 }
 
 

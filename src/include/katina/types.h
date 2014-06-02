@@ -159,6 +159,11 @@ public:
 
 	friend sos& operator<<(sos& o, const slot& s) { return o << s.num; }
 	friend sis& operator>>(sis& i, slot& s) { return i >> s.num; }
+
+	explicit operator str() const
+	{
+		return std::to_string(num);
+	}
 };
 
 typedef std::map<slot, siz> slot_siz_map;

@@ -133,6 +133,7 @@ static const std::vector<str_set>& get_chan_params()
 		chan_params[2].insert("353");
 		chan_params[2].insert("441");
 	}
+	return chan_params;
 }
 
 static const str chan_start = "#&+!";

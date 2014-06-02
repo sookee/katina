@@ -68,18 +68,18 @@ public:
 	
 	// INTERFACE: KatinaPlugin
 
-	virtual bool open();
+	virtual bool open() override;
 
-	virtual str get_id() const;
-	virtual str get_name() const;
-	virtual str get_version() const;
+	virtual str get_id() const override;
+	virtual str get_name() const override;
+	virtual str get_version() const override;
 
-	virtual bool init_game(siz min, siz sec, const str_map& cvars);
-	virtual bool shutdown_game(siz min, siz sec);
-	virtual bool say(siz min, siz sec, const GUID& guid, const str& text);
-	virtual bool exit(siz min, siz sec);
+	virtual bool init_game(siz min, siz sec, const str_map& cvars) override;
+	virtual bool shutdown_game(siz min, siz sec) override;
+	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) override;
+	virtual bool exit(siz min, siz sec) override;
 
-	virtual void close();
+	virtual void close() override;
 };
 
 }} // katina::plugin

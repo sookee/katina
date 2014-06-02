@@ -338,7 +338,7 @@ bool KatinaPluginTeamBalancer::init_game(siz min, siz sec, const str_map& cvars)
 }
 
 
-bool KatinaPluginTeamBalancer::client_switch_team(siz min, siz sec, siz num, siz teamBefore, siz teamNow)
+bool KatinaPluginTeamBalancer::client_switch_team(siz min, siz sec, slot num, siz teamBefore, siz teamNow)
 {
 	bug_func();
 	if(!enabled)
@@ -397,7 +397,7 @@ bool KatinaPluginTeamBalancer::client_switch_team(siz min, siz sec, siz num, siz
 }
 
 
-bool KatinaPluginTeamBalancer::client_disconnect(siz min, siz sec, siz client)
+bool KatinaPluginTeamBalancer::client_disconnect(siz min, siz sec, slot client)
 {
 	bug_func();
     bug("TB client_disconnect begin");
@@ -410,7 +410,7 @@ bool KatinaPluginTeamBalancer::client_disconnect(siz min, siz sec, siz client)
 }
 
 
-bool KatinaPluginTeamBalancer::ctf(siz min, siz sec, siz client, siz team, siz act)
+bool KatinaPluginTeamBalancer::ctf(siz min, siz sec, slot client, siz team, siz act)
 {
 	bug_func();
     bug("TB ctf begin");

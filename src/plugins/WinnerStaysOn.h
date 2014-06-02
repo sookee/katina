@@ -57,19 +57,18 @@ private:
 	const guid_siz_map& teams; // GUID -> 'R' | 'B'
 	RCon& server;
 	
-	typedef siz slot;
-	typedef std::deque<siz> siz_deq;
-	typedef siz_deq::iterator siz_deq_iter;
-	typedef siz_deq::const_iterator siz_deq_citer;
-	typedef siz_deq::reverse_iterator siz_deq_riter;
-	typedef siz_deq::const_reverse_iterator siz_deq_criter;
+	typedef std::deque<slot> slot_deq;
+	typedef slot_deq::iterator slot_deq_iter;
+	typedef slot_deq::const_iterator slot_deq_citer;
+	typedef slot_deq::reverse_iterator slot_deq_riter;
+	typedef slot_deq::const_reverse_iterator slot_deq_criter;
 	
 	//KatinaPluginStats* stats;
 	
 	siz win_team;
 	siz opp_team;
 	
-	siz_deq q; // pos 0 = winner, 1 = opponent
+	slot_deq q; // pos 0 = winner, 1 = opponent
 	
 	void ensure_teams();
 	void dump_queue();
@@ -98,25 +97,25 @@ public:
 
 	// INTERFACE: KatinaPlugin
 
-	virtual bool open();
+	virtual bool open() override;
 
-	virtual str get_id() const;
-	virtual str get_name() const;
-	virtual str get_version() const;
+	virtual str get_id() const override;
+	virtual str get_name() const override;
+	virtual str get_version() const override;
 
-	virtual bool exit(siz min, siz sec);
-	virtual bool shutdown_game(siz min, siz sec);
-	virtual bool warmup(siz min, siz sec);
-//	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name, siz hc);
-	virtual bool client_connect(siz min, siz sec, siz num);
-	virtual bool client_disconnect(siz min, siz sec, siz num);
-	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name, siz hc);
-	virtual bool ctf(siz min, siz sec, siz num, siz team, siz act);
-	virtual bool ctf_exit(siz min, siz sec, siz r, siz b);
-	virtual bool init_game(siz min, siz sec);
-	virtual bool say(siz min, siz sec, const GUID& guid, const str& text);
+	virtual bool init_game(siz min, siz sec, const str_map& svars) override;
+	virtual bool warmup(siz min, siz sec) override;
+	virtual bool client_connect(siz min, siz sec, slot num) override;
 
-	virtual void close();
+	virtual bool client_disconnect(siz min, siz sec, slot num) override;
+	virtual bool client_userinfo_changed(siz min, siz sec, slot num, siz team, const GUID& guid, const str& name, siz hc) override;
+	virtual bool ctf(siz min, siz sec, slot num, siz team, siz act) override;
+	virtual bool ctf_exit(siz min, siz sec, siz r, siz b) override;
+	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) override;
+	virtual bool shutdown_game(siz min, siz sec) override;
+	virtual bool exit(siz min, siz sec) override;
+
+	virtual void close() override;
 };
 
 }} // katina::plugin

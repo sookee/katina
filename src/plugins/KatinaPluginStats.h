@@ -179,33 +179,33 @@ public:
     ///////////////////////////////////////////
 	// INTERFACE: KatinaPlugin
 
-	virtual bool open();
+	virtual bool open() override;
 
-	virtual str get_id() const;
-	virtual str get_name() const;
-	virtual str get_version() const;
+	virtual str get_id() const override;
+	virtual str get_name() const override;
+	virtual str get_version() const override;
 
-	virtual bool exit(siz min, siz sec);
-	virtual bool shutdown_game(siz min, siz sec);
-	virtual bool warmup(siz min, siz sec);
-	virtual bool client_userinfo_changed(siz min, siz sec, slot num, siz team, const GUID& guid, const str& name, siz hc);
-//	virtual bool client_connect(siz min, siz sec, slot num);
-	virtual bool client_disconnect(siz min, siz sec, slot num);
-	virtual bool kill(siz min, siz sec, slot num1, slot num2, siz weap);
-	virtual bool ctf(siz min, siz sec, slot num, siz team, siz act);
-	virtual bool award(siz min, siz sec, slot num, siz awd);
-	virtual bool init_game(siz min, siz sec, const str_map& cvars);
-//	virtual bool say(siz min, siz sec, const GUID& guid, const str& text);
-//	virtual bool unknown(siz min, siz sec, const str& cmd, const str& params);
-	virtual bool speed(slot num, siz dist, siz time, bool has_flag); // zim@openmafia >= 0.1-beta
-	virtual bool weapon_usage(siz min, siz sec, slot num, siz weapon, siz shots);
-	virtual bool mod_damage(siz min, siz sec, slot num, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv, float weightedHits);
+	virtual bool exit(siz min, siz sec) override;
+	virtual bool shutdown_game(siz min, siz sec) override;
+	virtual bool warmup(siz min, siz sec) override;
+	virtual bool client_userinfo_changed(siz min, siz sec, slot num, siz team, const GUID& guid, const str& name, siz hc) override;
+//	virtual bool client_connect(siz min, siz sec, slot num) override;
+	virtual bool client_disconnect(siz min, siz sec, slot num) override;
+	virtual bool kill(siz min, siz sec, slot num1, slot num2, siz weap) override;
+	virtual bool ctf(siz min, siz sec, slot num, siz team, siz act) override;
+	virtual bool award(siz min, siz sec, slot num, siz awd) override;
+	virtual bool init_game(siz min, siz sec, const str_map& cvars) override;
+//	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) override;
+//	virtual bool unknown(siz min, siz sec, const str& cmd, const str& params) override;
+	virtual bool speed(siz min, siz sec, slot num, siz dist, siz time, bool has_flag) override; // zim@openmafia >= 0.1-beta
+	virtual bool weapon_usage(siz min, siz sec, slot num, siz weapon, siz shots) override;
+	virtual bool mod_damage(siz min, siz sec, slot num, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv, float weightedHits) override;
 	virtual bool player_stats(siz min, siz sec, slot num,
 		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
 		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
-		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged);
-	virtual bool say(siz min, siz sec, const GUID& guid, const str& text);
-	virtual bool sayteam(siz min, siz sec, const GUID& guid, const str& text);
+		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged) override;
+	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) override;
+	virtual bool sayteam(siz min, siz sec, const GUID& guid, const str& text) override;
 
 	virtual void close();
 };
