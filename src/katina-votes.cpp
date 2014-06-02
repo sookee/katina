@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 http://www.gnu.org/licenses/gpl-2.0.html
 
 '-----------------------------------------------------------------*/
+#undef DEBUG
 
 #include <katina/types.h>
 #include <katina/log.h>
@@ -44,21 +45,62 @@ const str NAME = "katina-votes";
 const str VERSION = "0.2";
 const str TAG = "alpha";
 
-int main()
+void usage(const str& msg)
 {
-	bug_func();
-	MYSQL mysql;
+
+}
+
+int main(int argc, char* argv[])
+{
+	const str_vec args(argv + 1, argv + argc);
 
 	str host = "localhost";
 	siz port = 3306;
 	str user = "katina";
-	str pass = "6B77EA2A";
+	str pass;
+
+	for(str_vec_citer arg = args.begin(); arg != args.end(); ++arg)
+	{
+		if(*arg == "-h" || *arg == "--host")
+		{
+			if(++arg == args.end())
+				usage("Expected host");
+			host = *arg;
+		}
+		else if(*arg == "-P" || *arg == "--port")
+		{
+			if(++arg == args.end())
+				usage("Expected port");
+			port = to<siz>(*arg);
+		}
+		else if(*arg == "-u" || *arg == "--user")
+		{
+			if(++arg == args.end())
+				usage("Expected username");
+			user = *arg;
+		}
+		else if(*arg == "-p" || *arg == "--pass")
+		{
+			if(++arg == args.end())
+				usage("Expected password");
+			pass = *arg;
+		}
+	}
+
+	con("host: " << host);
+	con("port: " << port);
+	con("user: " << user);
+	con("pass: " << pass);
+
+	//bug_func();
+	MYSQL mysql;
+
 	//str base = "oadb";
 
 	str_vec bases;
 	bases.push_back("oadb");
-	bases.push_back("oadb3");
-	bases.push_back("oadb_aw");
+//	bases.push_back("oadb3");
+//	bases.push_back("oadb_aw");
 
 	mysql_init(&mysql);
 
