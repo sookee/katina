@@ -32,6 +32,6 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace oastats {
 
-const GUID null_guid = "00000000";
+const GUID null_guid("00000000");
 
 } // oastats

@@ -542,7 +542,7 @@ bool KatinaPluginAdmin::client_connect_info(siz min, siz sec, slot num, const GU
 			server.command("!ban " + to_string(num) + "AUTO BAN IP: " + *i);
 
 	for(str_vec_citer i = katina.get_vec("admin.ban.guid").begin(); i != katina.get_vec("admin.ban.guid").end(); ++i)
-		if(guid == *i)
+		if(guid == GUID(*i))
 			server.command("!ban " + to_string(num) + "AUTO BAN GUID: " + *i);
 
 	return true;

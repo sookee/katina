@@ -319,17 +319,17 @@ void KatinaPluginStats::check_bots_and_players(slot num)
 			continue;
 		if(ci->first.is_bot())
 		{
-			pbug("FOUND A BOT    : " << katina.getPlayerName(ci->first));
+			//pbug("FOUND A BOT    : " << katina.getPlayerName(ci->first));
 			have_bots = true;
 		}
 		else if(ci->second == TEAM_R)
 		{
-			pbug("FOUND A HUMAN R: " << katina.getPlayerName(ci->first));
+			//pbug("FOUND A HUMAN R: " << katina.getPlayerName(ci->first));
 			++human_players_r;
 		}
 		else if(ci->second == TEAM_B)
 		{
-			pbug("FOUND A HUMAN B: " << katina.getPlayerName(ci->first));
+			//pbug("FOUND A HUMAN B: " << katina.getPlayerName(ci->first));
 			++human_players_b;
 		}
 	}
