@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef _OASTATS_GUID_H_
 #define _OASTATS_GUID_H_
 
@@ -34,8 +34,9 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include "types.h"
 
-#include <inttypes.h>
+#include <cinttypes>
 #include <list>
+#include <algorithm>
 
 namespace oastats {
 
@@ -44,10 +45,11 @@ using namespace oastats::types;
 class GUID
 {
 	str data;
+	bool bot;
+	mutable bool connected = true;
 
 public:
 	const static siz SIZE = 8;
-	bool bot;
 
 	GUID(): data(SIZE, '0'), bot(false)
 	{
@@ -72,6 +74,18 @@ public:
 		bot = guid.bot;
 		for(siz i = 0; i < SIZE; ++i)
 			this->data[i] = guid.data[i];
+	}
+
+	/**
+	 * bot constructor
+	 */
+	explicit GUID(slot num): data(SIZE, '0'), bot(true)
+	{
+		soss oss;
+		oss << num;
+		data = oss.str();
+		if(data.size() < GUID::SIZE)
+			data = str(GUID::SIZE - data.size(), '0') + data;
 	}
 
 	const GUID& operator=(const GUID& guid)
@@ -106,13 +120,23 @@ public:
 
 	operator str() const { return data; }
 
-	operator uint32_t() const
+	explicit operator uint32_t() const
 	{
 		uint32_t i = 0;
 		siss iss(data);
 		iss >> std::hex >> i;
 		return i;
 	}
+
+	operator bool() const
+	{
+		if(data.size() != SIZE)
+			return false;
+		return std::count_if(data.begin(), data.end(), std::ptr_fun<int,int>(isxdigit)) == SIZE;
+	}
+
+	void disconnect() const { connected = false; }
+	bool is_connected() { return connected; }
 
 	//bool is_bot() const { return data < "00001000"; }
 	bool is_bot() const { return bot; }
@@ -143,10 +167,15 @@ typedef guid_str_map::value_type guid_str_map_pair;
 typedef guid_str_map::iterator guid_str_map_iter;
 typedef guid_str_map::const_iterator guid_str_map_citer;
 
-typedef std::map<siz, GUID> siz_guid_map;
-typedef siz_guid_map::value_type siz_guid_map_pair;
-typedef siz_guid_map::iterator siz_guid_map_iter;
-typedef siz_guid_map::const_iterator siz_guid_map_citer;
+//typedef std::map<siz, GUID> siz_guid_map;
+//typedef siz_guid_map::value_type siz_guid_map_pair;
+//typedef siz_guid_map::iterator siz_guid_map_iter;
+//typedef siz_guid_map::const_iterator siz_guid_map_citer;
+
+typedef std::map<slot, GUID> slot_guid_map;
+typedef slot_guid_map::value_type slot_guid_map_pair;
+typedef slot_guid_map::iterator slot_guid_map_iter;
+typedef slot_guid_map::const_iterator slot_guid_map_citer;
 
 typedef std::map<GUID, siz> guid_siz_map;
 typedef guid_siz_map::value_type guid_siz_map_pair;
@@ -172,18 +201,18 @@ extern const GUID null_guid;
 /*
  * Create a GUID for bots based on their slot number
  */
-inline GUID bot_guid(siz num)
-{
-	soss oss;
-	oss << num;
-	str id = oss.str();
-	if(id.size() < GUID::SIZE)
-		id = str(GUID::SIZE - id.size(), '0') + id;
-
-	GUID guid(id.c_str());
-	guid.bot = true;
-	return guid;
-}
+//inline GUID bot_guid(siz num)
+//{
+//	soss oss;
+//	oss << num;
+//	str id = oss.str();
+//	if(id.size() < GUID::SIZE)
+//		id = str(GUID::SIZE - id.size(), '0') + id;
+//
+//	GUID guid(id.c_str());
+//	guid.bot = true;
+//	return guid;
+//}
 
 } // oastats
 

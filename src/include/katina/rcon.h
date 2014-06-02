@@ -137,7 +137,7 @@ public:
 		return y;
 	}
 
-	bool msg_to(siz num, const str& message, bool beep = false)
+	bool msg_to(slot num, const str& message, bool beep = false)
 	{
 		if(!active)
 			return true;

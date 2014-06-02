@@ -96,13 +96,13 @@ std::pair<siz, float> DefaultEvaluation::getShotsHits(stats s)
     
     
     
-float DefaultEvaluation::calcRating(siz client)
+float DefaultEvaluation::calcRating(slot client)
 {
     KatinaPluginStats* statsPlugin = balancerPlugin.getStatsPlugin();
     if(statsPlugin == NULL)
         return 1000.0f;
     
-    GUID guid = katina.clients[client];
+    GUID guid = katina.getClientGuid(client);
     //if(guid.is_bot())
     //    return 1000.0f;
     

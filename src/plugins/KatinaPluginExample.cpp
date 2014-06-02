@@ -37,9 +37,9 @@ KATINA_PLUGIN_INFO("katina::example", "Katina Example", "0.1-dev");
 KatinaPluginExample::KatinaPluginExample(Katina& katina)
 : KatinaPlugin(katina)
 , mapname(katina.mapname)
-, clients(katina.clients)
-, players(katina.players)
-, teams(katina.teams)
+, clients(katina.getClients())
+, players(katina.getPlayers())
+, teams(katina.getTeams())
 , active(true)
 {
 }
@@ -115,7 +115,7 @@ bool KatinaPluginExample::client_connect_info(siz min, siz sec, siz num, const G
 	if(!active)
 		return true;
 	plog("client_connect_info(" << num << ", " << guid << ", " << ip << ")");
-	katina.server.chat("BEGIN: " + players[clients[num]]);
+	katina.server.chat("BEGIN: " + katina.getPlayerName(num));
 	return true;
 }
 
@@ -124,7 +124,7 @@ bool KatinaPluginExample::client_begin(siz min, siz sec, siz num)
 	if(!active)
 		return true;
 	plog("client_begin(" << num << ")");
-	katina.server.chat("BEGIN: " + players[clients[num]]);
+	katina.server.chat("BEGIN: " + katina.getPlayerName(num));
 	return true;
 }
 
@@ -142,8 +142,8 @@ bool KatinaPluginExample::client_userinfo_changed(siz min, siz sec, siz num, siz
 	if(!active)
 		return true;
 	plog("client_userinfo_changed(" << num << ", " << team << ", " << guid << ", " << name << ")");
-	plog("clients[" << num << "]         : " << clients[num]);
-	plog("players[clients[" << num << "]]: " << players[clients[num]]);
+	plog("katina.getClientGuid(" << num << "): " << katina.getClientGuid(num));
+	plog("katina.getPlayerName(" << num << "): " << katina.getPlayerName(num));
 	return true;
 }
 

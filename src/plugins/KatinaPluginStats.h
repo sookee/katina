@@ -136,9 +136,9 @@ public:
 
 private:
 	str& mapname;
-	siz_guid_map& clients; // slot -> GUID
-	guid_str_map& players; // GUID -> name
-	guid_siz_map& teams; // GUID -> 'R' | 'B'
+	const slot_guid_map& clients; // slot -> GUID
+	const guid_str_map& players; // GUID -> name
+	const guid_siz_map& teams; // GUID -> 'R' | 'B'
 	RCon& server;
 
 	Database db;
@@ -157,23 +157,23 @@ private:
 	siz human_players_r; // number of human players on red team
 	siz human_players_b; // number of human players on blue team
 
-	// Current flag carriers (slot number, -1 if nobody carries the flag)
-	int carrierBlue;
-	int carrierRed;
+	// Current flag carriers (slot number, bad_slot if nobody carries the flag)
+	slot carrierBlue;
+	slot carrierRed;
 
 	siz_set db_weaps; // which weapons to record
 
-	void stall_client(siz num);
-	void unstall_client(siz num);
+	void stall_client(slot num);
+	void unstall_client(slot num);
 	void stall_clients();
-	void unstall_clients(siz num = siz(-1));
-	void check_bots_and_players(siz num = siz(-1));
-	bool check_slot(siz num);
+	void unstall_clients(slot num = siz(-1));
+	void check_bots_and_players(slot num = siz(-1));
+	bool check_slot(slot num);
 
 public:
 	KatinaPluginStats(Katina& katina);
 
-	void updatePlayerTime(siz num);
+	void updatePlayerTime(slot num);
     
 
     ///////////////////////////////////////////
@@ -188,19 +188,19 @@ public:
 	virtual bool exit(siz min, siz sec);
 	virtual bool shutdown_game(siz min, siz sec);
 	virtual bool warmup(siz min, siz sec);
-	virtual bool client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name, siz hc);
-//	virtual bool client_connect(siz min, siz sec, siz num);
-	virtual bool client_disconnect(siz min, siz sec, siz num);
-	virtual bool kill(siz min, siz sec, siz num1, siz num2, siz weap);
-	virtual bool ctf(siz min, siz sec, siz num, siz team, siz act);
-	virtual bool award(siz min, siz sec, siz num, siz awd);
+	virtual bool client_userinfo_changed(siz min, siz sec, slot num, siz team, const GUID& guid, const str& name, siz hc);
+//	virtual bool client_connect(siz min, siz sec, slot num);
+	virtual bool client_disconnect(siz min, siz sec, slot num);
+	virtual bool kill(siz min, siz sec, slot num1, slot num2, siz weap);
+	virtual bool ctf(siz min, siz sec, slot num, siz team, siz act);
+	virtual bool award(siz min, siz sec, slot num, siz awd);
 	virtual bool init_game(siz min, siz sec, const str_map& cvars);
 //	virtual bool say(siz min, siz sec, const GUID& guid, const str& text);
 //	virtual bool unknown(siz min, siz sec, const str& cmd, const str& params);
-	virtual bool speed(siz num, siz dist, siz time, bool has_flag); // zim@openmafia >= 0.1-beta
-	virtual bool weapon_usage(siz min, siz sec, siz num, siz weapon, siz shots);
-	virtual bool mod_damage(siz min, siz sec, siz num, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv, float weightedHits);
-	virtual bool player_stats(siz min, siz sec, siz num,
+	virtual bool speed(slot num, siz dist, siz time, bool has_flag); // zim@openmafia >= 0.1-beta
+	virtual bool weapon_usage(siz min, siz sec, slot num, siz weapon, siz shots);
+	virtual bool mod_damage(siz min, siz sec, slot num, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv, float weightedHits);
+	virtual bool player_stats(siz min, siz sec, slot num,
 		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
 		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
 		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged);

@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef _OASTATS_DATABASE_H_
 #define _OASTATS_DATABASE_H_
 /*-----------------------------------------------------------------.
@@ -142,6 +142,8 @@ public:
 	bool check();
 
 	bool escape(const str& from, str& to);
+
+	str error();
     
 	/**
 	 * Perform an "select" sql statement.
@@ -198,7 +200,7 @@ public:
 	bool get_preferred_name(const GUID& guid, str& name);
 
 	siz get_kills_per_cap(const str& mapname);
-	bool get_ingame_boss(const str& mapname, const siz_guid_map& clients, GUID& guid, str& stats);
+	bool get_ingame_boss(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats);
 	bool get_ingame_champ(const str& mapname, GUID& guid, str& stats);
 	bool get_ingame_stats(const GUID& guid, const str& mapname, siz prev, str& stats, siz& skill);
 };

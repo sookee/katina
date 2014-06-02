@@ -51,27 +51,27 @@ using namespace oastats::pki;
 using namespace oastats::types;
 using namespace oastats::utils;
 
-extern const siz bad_slot;
+extern const slot bad_slot;
 
-struct cvarevt
-{
-	str name;
-	str value;
-	KatinaPlugin* plugin;
-
-	bool operator<(const cvarevt& e)
-	{
-		return &plugin < &e.plugin && name < e.name;
-	}
-
-	bool operator==(const cvarevt& e)
-	{
-		return &plugin == &e.plugin && name == e.name;
-	}
-};
-
-typedef std::list<cvarevt> cvarevt_lst;
-typedef std::list<cvarevt>::iterator cvarevt_lst_iter;
+//struct cvarevt
+//{
+//	str name;
+//	str value;
+//	KatinaPlugin* plugin;
+//
+//	bool operator<(const cvarevt& e)
+//	{
+//		return &plugin < &e.plugin && name < e.name;
+//	}
+//
+//	bool operator==(const cvarevt& e)
+//	{
+//		return &plugin == &e.plugin && name == e.name;
+//	}
+//};
+//
+//typedef std::list<cvarevt> cvarevt_lst;
+//typedef std::list<cvarevt>::iterator cvarevt_lst_iter;
 
 enum event_t
 {
@@ -209,7 +209,7 @@ private:
 
 	str name;
 	str prefix;
-	cvarevt_lst cvarevts;
+	//cvarevt_lst cvarevts;
 	property_map props;
 
 	plugin_map plugins; // id -> KatinaPlugin*
@@ -230,8 +230,14 @@ private:
 	bool unload_plugin(const str& id);
 	bool reload_plugin(const str& id);
     
-	// guid keys are kept until ShutdownGame
-    guid_lst shutdown_erase;
+	// disconnected guid keys are kept here until ShutdownGame
+    guid_lst shutdown_erase; // disconnected list
+
+	// We try to keep map keys GUID based as slot numbers are defunct as soon
+	// as a client disconnects.
+	slot_guid_map clients; // slot -> GUID // cleared when players disconnect and on game_begin()
+	guid_str_map players; // GUID -> name  // cleard before game_begin()
+	guid_siz_map teams; // GUID -> 'R' | 'B' // cleared when players disconnect and on game_begin()
 
 public:
 	Katina();
@@ -245,11 +251,10 @@ public:
 	str config_dir;
 	str mapname;
 
-	// We try to keep map keys GUID based as slot numbers are defunct as soon
-	// as a client disconnects.
-	siz_guid_map clients; // slot -> GUID // cleared when players disconnect and on game_begin()
-	guid_str_map players; // GUID -> name  // cleard before game_begin()
-	guid_siz_map teams; // GUID -> 'R' | 'B' // cleared when players disconnect and on game_begin()
+	bool is_disconnected(const GUID& guid) const
+	{
+		return std::find(shutdown_erase.begin(), shutdown_erase.end(), guid) != shutdown_erase.end();
+	}
 
 	str_map svars; // server variables
 	siz logmode;
@@ -259,6 +264,10 @@ public:
 
 	const str& get_name() { return name; }
 
+	const slot_guid_map& getClients() { return clients; }
+	const guid_str_map& getPlayers() { return players; }
+	const guid_siz_map& getTeams() { return teams; }
+
 	/**
 	 * Get a cvar's value using rcon
 	 */
@@ -267,9 +276,12 @@ public:
 	bool initial_player_info();
 	void builtin_command(const GUID& guid, const str& text);
     
-    siz getTeam(siz client);
-    str getPlayerName(siz client);
-    siz getClientNr(GUID guid);
+    siz getTeam(slot num) const;
+    siz getTeam(const GUID& guid) const;
+    str getPlayerName(slot num) const;
+    str getPlayerName(const GUID& guid) const;
+    slot getClientSlot(const GUID& guid) const;
+    const GUID& getClientGuid(slot num) const;
 
     /**
      * return the slot number os the current player from
@@ -281,15 +293,15 @@ public:
      *
      * @return true on success
      */
-    bool parse_slot_guid_name(const str& slot_guid_name, siz& num);
+    bool parse_slot_guid_name(const str& slot_guid_name, slot& num);
 
-    bool check_slot(siz num)
+    bool check_slot(slot num) const
     {
     	return clients.find(num) != clients.end();
     }
 
 
-	str get_version();
+	str get_version() const;
 
 	KatinaPlugin* get_plugin(const str& id, const str& version);
 
@@ -340,7 +352,7 @@ public:
 
 	bool have(const str& s) { return has(s); }
 
-	bool chat_to(siz num, const str& text);
+	bool chat_to(slot num, const str& text);
 	bool chat_to(const GUID& guid, const str& text);
 	bool chat_to(const str& name, const str& text);
 

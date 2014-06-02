@@ -147,6 +147,24 @@ typedef std::stringstream sss;
 
 typedef long milliseconds;
 
+class slot
+{
+	siz num;
+public:
+	slot(siz num = 0): num(num) {}
+
+	bool operator<(const slot& s) const { return num < s.num; }
+	bool operator==(const slot& s) const { return num == s.num; }
+	bool operator!=(const slot& s) const { return num != s.num; }
+
+	friend sos& operator<<(sos& o, const slot& s) { return o << s.num; }
+	friend sis& operator>>(sis& i, slot& s) { return i >> s.num; }
+};
+
+typedef std::map<slot, siz> slot_siz_map;
+typedef slot_siz_map::iterator slot_siz_map_iter;
+typedef slot_siz_map::const_iterator slot_siz_map_citer;
+
 }} // oastats::types
 
 #endif /* _OASTATS_TYPES_H_ */

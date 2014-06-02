@@ -106,6 +106,11 @@ bool Database::escape(const str& from, str& to)
 	return true;
 }
 
+str Database::error()
+{
+	return mysql_error(&mysql);
+}
+
 bool Database::query(const str& sql)
 {
 	if(!active)
@@ -550,7 +555,7 @@ siz Database::get_kills_per_cap(const str& mapname)
 	return c ? (k / c) : 1;
 }
 
-bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, GUID& guid, str& stats)
+bool Database::get_ingame_boss(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats)
 {
 	//log("DATABASE: get_ingame_boss(" << mapname << ", " << clients.size() << ")");
 	siz syear = 0;
@@ -573,7 +578,7 @@ bool Database::get_ingame_boss(const str& mapname, const siz_guid_map& clients, 
 	str sep;
 	oss.clear();
 	oss.str("");
-	for(siz_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
+	for(slot_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
 		if(!i->second.is_bot())
 			{ oss << sep << "'" << i->second << "'"; sep = ",";}
 	str insql = oss.str();

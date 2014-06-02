@@ -29,7 +29,7 @@ private:
     
 public:
     DefaultEvaluation(Katina& katina, KatinaPluginTeamBalancer& plugin);
-    virtual float calcRating(siz client);
+    virtual float calcRating(slot client);
 };
 
 

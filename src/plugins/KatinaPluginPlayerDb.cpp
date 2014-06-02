@@ -158,9 +158,9 @@ KatinaPluginPlayerDb::KatinaPluginPlayerDb(Katina& katina)
 : KatinaPlugin(katina)
 , server(katina.server)
 , mapname(katina.mapname)
-, clients(katina.clients)
-, players(katina.players)
-, teams(katina.teams)
+, clients(katina.getClients())
+, players(katina.getPlayers())
+, teams(katina.getTeams())
 , active(true)
 {
 	mysql_init(&mysql);

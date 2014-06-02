@@ -166,7 +166,7 @@ bool KatinaPluginCallVoteCtrl::vote_enable()
 	if(!votes_disabled)
 		return true;
 	plog("CALLVOTE CONTROL: ON");
-	server.cp("Voting on");
+	server.cp("^2V^7oting ^3on");
 	return (votes_disabled = !command("set g_allowVote 1"));
 }
 
@@ -175,7 +175,7 @@ bool KatinaPluginCallVoteCtrl::vote_disable()
 	if(votes_disabled)
 		return true;
 	plog("CALLVOTE CONTROL: OFF");
-	server.cp("Voting off");
+	server.cp("^2V^7oting ^3off");
 	return (votes_disabled = command("set g_allowVote 0"));
 }
 
@@ -212,9 +212,9 @@ bool KatinaPluginCallVoteCtrl::say(siz min, siz sec, const GUID& guid, const str
 
 	pbug_var(cmd);
 
-	siz say_num;
+	slot say_num;
 
-	if((say_num = katina.getClientNr(guid)) == siz(-1))
+	if((say_num = katina.getClientSlot(guid)) == bad_slot)
 	{
 		plog("ERROR: Unable to get slot number from guid: " << guid);
 		return true;
@@ -244,7 +244,7 @@ bool KatinaPluginCallVoteCtrl::say(siz min, siz sec, const GUID& guid, const str
 	{
 		if(!katina.is_admin(guid))
 		{
-			plog("INFO: Unauthorized admin attempt from [" << guid << "] " << katina.players[guid] << ": " << text);
+			plog("INFO: Unauthorized admin attempt from [" << guid << "] " << katina.getPlayerName(guid) << ": " << text);
 			return true;
 		}
 

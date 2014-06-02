@@ -38,9 +38,9 @@ KatinaPluginNextMap::KatinaPluginNextMap(Katina& katina)
 : KatinaPlugin(katina)
 //, votes(0)
 , mapname(katina.mapname)
-, clients(katina.clients)
-, players(katina.players)
-, teams(katina.teams)
+, clients(katina.getClients())
+, players(katina.getPlayers())
+, teams(katina.getTeams())
 , server(katina.server)
 , active(true)
 {
@@ -113,20 +113,22 @@ bool KatinaPluginNextMap::client_connect_info(siz min, siz sec, siz num, const G
 	if(!active)
 		return true;
 
-	bug("Finding votes for player: " << guid << " " << players[guid]);
+	pbug("Finding votes for player: " << guid << " " << katina.getPlayerName(guid));
 
 	// get map stats for this player
 	soss sql;
 	sql << "select `item`,`count` from `votes` where `type` = 'map' and guid = '" << str(guid) << "'";
-	bug_var(sql.str());
+	pbug_var(sql.str());
 	str_vec_vec rows;
 	if(!db.select(sql.str(), rows, 2))
+	{
+		pbug("UNREPORTED DATABASE ERROR: " << db.error());
 		return true;
-
+	}
 	// guid -> {mapname, count}
 	for(siz row = 0; row < rows.size(); ++row)
 	{
-		bug("vote: " << rows[row][0] << " [" << rows[row][1] << "]");
+		pbug("vote: " << rows[row][0] << " [" << rows[row][1] << "]");
 		votes[guid] = vote(rows[row][0], to<int>(rows[row][1]));
 	}
 
@@ -139,7 +141,7 @@ bool KatinaPluginNextMap::client_disconnect(siz min, siz sec, siz num)
 		return true;
 
 	// drop map stats
-	votes.erase(clients[num]);
+	votes.erase(katina.getClientGuid(num));
 
 	return true;
 }
