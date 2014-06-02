@@ -102,7 +102,7 @@ bool KatinaPluginOldHag::warmup(siz min, siz sec)
 	return true;
 }
 
-bool KatinaPluginOldHag::client_connect(siz min, siz sec, siz num)
+bool KatinaPluginOldHag::client_connect(siz min, siz sec, slot num)
 {
 	if(!active)
 		return true;
@@ -110,7 +110,7 @@ bool KatinaPluginOldHag::client_connect(siz min, siz sec, siz num)
 	return true;
 }
 
-bool KatinaPluginOldHag::client_begin(siz min, siz sec, siz num)
+bool KatinaPluginOldHag::client_begin(siz min, siz sec, slot num)
 {
 	if(!active)
 		return true;
@@ -119,7 +119,7 @@ bool KatinaPluginOldHag::client_begin(siz min, siz sec, siz num)
 	return true;
 }
 
-bool KatinaPluginOldHag::client_disconnect(siz min, siz sec, siz num)
+bool KatinaPluginOldHag::client_disconnect(siz min, siz sec, slot num)
 {
 	if(!active)
 		return true;
@@ -127,7 +127,7 @@ bool KatinaPluginOldHag::client_disconnect(siz min, siz sec, siz num)
 	return true;
 }
 
-bool KatinaPluginOldHag::client_userinfo_changed(siz min, siz sec, siz num, siz team, const GUID& guid, const str& name)
+bool KatinaPluginOldHag::client_userinfo_changed(siz min, siz sec, slot num, siz team, const GUID& guid, const str& name)
 {
 	if(!active)
 		return true;
@@ -137,7 +137,7 @@ bool KatinaPluginOldHag::client_userinfo_changed(siz min, siz sec, siz num, siz 
 	return true;
 }
 
-bool KatinaPluginOldHag::kill(siz min, siz sec, siz num1, siz num2, siz weap)
+bool KatinaPluginOldHag::kill(siz min, siz sec, slot num1, slot num2, siz weap)
 {
 	if(!active)
 		return true;
@@ -145,7 +145,7 @@ bool KatinaPluginOldHag::kill(siz min, siz sec, siz num1, siz num2, siz weap)
 	return true;
 }
 
-bool KatinaPluginOldHag::ctf(siz min, siz sec, siz num, siz team, siz act)
+bool KatinaPluginOldHag::ctf(siz min, siz sec, slot num, siz team, siz act)
 {
 	if(!active)
 		return true;
@@ -161,7 +161,7 @@ bool KatinaPluginOldHag::ctf_exit(siz min, siz sec, siz r, siz b)
 	return true;
 }
 
-bool KatinaPluginOldHag::score_exit(siz min, siz sec, int score, siz ping, siz num, const str& name)
+bool KatinaPluginOldHag::score_exit(siz min, siz sec, int score, siz ping, slot num, const str& name)
 {
 	if(!active)
 		return true;
@@ -169,7 +169,7 @@ bool KatinaPluginOldHag::score_exit(siz min, siz sec, int score, siz ping, siz n
 	return true;	
 }
 
-bool KatinaPluginOldHag::award(siz min, siz sec, siz num, siz awd)
+bool KatinaPluginOldHag::award(siz min, siz sec, slot num, siz awd)
 {
 	if(!active)
 		return true;

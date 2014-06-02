@@ -102,7 +102,7 @@ bool KatinaPluginExample::warmup(siz min, siz sec)
 	return true;
 }
 
-bool KatinaPluginExample::client_connect(siz min, siz sec, siz num)
+bool KatinaPluginExample::client_connect(siz min, siz sec, slot num)
 {
 	if(!active)
 		return true;
@@ -110,7 +110,7 @@ bool KatinaPluginExample::client_connect(siz min, siz sec, siz num)
 	return true;
 }
 
-bool KatinaPluginExample::client_connect_info(siz min, siz sec, siz num, const GUID& guid, const str& ip)
+bool KatinaPluginExample::client_connect_info(siz min, siz sec, slot num, const GUID& guid, const str& ip)
 {
 	if(!active)
 		return true;
@@ -119,7 +119,7 @@ bool KatinaPluginExample::client_connect_info(siz min, siz sec, siz num, const G
 	return true;
 }
 
-bool KatinaPluginExample::client_begin(siz min, siz sec, siz num)
+bool KatinaPluginExample::client_begin(siz min, siz sec, slot num)
 {
 	if(!active)
 		return true;
@@ -128,7 +128,7 @@ bool KatinaPluginExample::client_begin(siz min, siz sec, siz num)
 	return true;
 }
 
-bool KatinaPluginExample::client_disconnect(siz min, siz sec, siz num)
+bool KatinaPluginExample::client_disconnect(siz min, siz sec, slot num)
 {
 	if(!active)
 		return true;
@@ -136,7 +136,7 @@ bool KatinaPluginExample::client_disconnect(siz min, siz sec, siz num)
 	return true;
 }
 
-bool KatinaPluginExample::client_userinfo_changed(siz min, siz sec, siz num, siz team
+bool KatinaPluginExample::client_userinfo_changed(siz min, siz sec, slot num, siz team
 		, const GUID& guid, const str& name, siz hc)
 {
 	if(!active)
@@ -147,7 +147,7 @@ bool KatinaPluginExample::client_userinfo_changed(siz min, siz sec, siz num, siz
 	return true;
 }
 
-bool KatinaPluginExample::client_switch_team(siz min, siz sec, siz num, siz teamBefore, siz teamNow)
+bool KatinaPluginExample::client_switch_team(siz min, siz sec, slot num, siz teamBefore, siz teamNow)
 {
 	if(!active)
 		return true;
@@ -155,7 +155,7 @@ bool KatinaPluginExample::client_switch_team(siz min, siz sec, siz num, siz team
 	return true;
 }
 
-bool KatinaPluginExample::callvote(siz min, siz sec, siz num, const str& type, const str& info)
+bool KatinaPluginExample::callvote(siz min, siz sec, slot num, const str& type, const str& info)
 {
 	if(!active)
 		return true;
@@ -163,7 +163,7 @@ bool KatinaPluginExample::callvote(siz min, siz sec, siz num, const str& type, c
 	return true;
 }
 
-bool KatinaPluginExample::kill(siz min, siz sec, siz num1, siz num2, siz weap)
+bool KatinaPluginExample::kill(siz min, siz sec, slot num1, slot num2, siz weap)
 {
 	if(!active)
 		return true;
@@ -171,7 +171,7 @@ bool KatinaPluginExample::kill(siz min, siz sec, siz num1, siz num2, siz weap)
 	return true;
 }
 
-bool KatinaPluginExample::ctf(siz min, siz sec, siz num, siz team, siz act)
+bool KatinaPluginExample::ctf(siz min, siz sec, slot num, siz team, siz act)
 {
 	if(!active)
 		return true;
@@ -187,7 +187,7 @@ bool KatinaPluginExample::ctf_exit(siz min, siz sec, siz r, siz b)
 	return true;
 }
 
-bool KatinaPluginExample::score_exit(siz min, siz sec, int score, siz ping, siz num, const str& name)
+bool KatinaPluginExample::score_exit(siz min, siz sec, int score, siz ping, slot num, const str& name)
 {
 	if(!active)
 		return true;
@@ -195,7 +195,7 @@ bool KatinaPluginExample::score_exit(siz min, siz sec, int score, siz ping, siz 
 	return true;	
 }
 
-bool KatinaPluginExample::award(siz min, siz sec, siz num, siz awd)
+bool KatinaPluginExample::award(siz min, siz sec, slot num, siz awd)
 {
 	if(!active)
 		return true;
@@ -237,7 +237,7 @@ bool KatinaPluginExample::unknown(siz min, siz sec, const str& cmd, const str& p
 	return true;
 }
 
-bool KatinaPluginExample::speed(siz min, siz sec, siz num, siz dist, siz time, bool has_flag)
+bool KatinaPluginExample::speed(siz min, siz sec, slot num, siz dist, siz time, bool has_flag)
 {
 	if(!active)
 		return true;
@@ -248,7 +248,7 @@ bool KatinaPluginExample::speed(siz min, siz sec, siz num, siz dist, siz time, b
 /**
  * Summarizing events for more detailed statistics (they only work with the katina game mod)
  */
-bool KatinaPluginExample::weapon_usage(siz min, siz sec, siz num, siz weapon, siz shots)
+bool KatinaPluginExample::weapon_usage(siz min, siz sec, slot num, siz weapon, siz shots)
 {
 	if(!active)
 		return true;
@@ -256,7 +256,7 @@ bool KatinaPluginExample::weapon_usage(siz min, siz sec, siz num, siz weapon, si
 	return true;
 }
 
-bool KatinaPluginExample::mod_damage(siz min, siz sec, siz num, siz mod, siz hits
+bool KatinaPluginExample::mod_damage(siz min, siz sec, slot num, siz mod, siz hits
 		, siz damage, siz hitsRecv, siz damageRecv, float weightedHits)
 {
 	if(!active)
@@ -266,7 +266,7 @@ bool KatinaPluginExample::mod_damage(siz min, siz sec, siz num, siz mod, siz hit
 	return true;
 }
 
-bool KatinaPluginExample::player_stats(siz min, siz sec, siz num,
+bool KatinaPluginExample::player_stats(siz min, siz sec, slot num,
 	siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
 	siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
 	siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged)

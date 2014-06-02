@@ -117,7 +117,7 @@ private:
 
 	str_vec notspam; // spam exceptions
 
-	str get_nums_team(siz num);
+	str get_nums_team(slot num);
 	str get_nums_team(const GUID& guid);
 
 	guid_str_map names;
@@ -127,20 +127,20 @@ public:
 
 	// INTERFACE: KatinaPlugin
 
-	virtual bool open();
+	virtual bool open() override;
 
-	virtual str get_id() const;
-	virtual str get_name() const;
-	virtual str get_version() const;
+	virtual str get_id() const override;
+	virtual str get_name() const override;
+	virtual str get_version() const override;
 
-	virtual bool init_game(siz min, siz sec, const str_map& cvars);
-	virtual bool kill(siz min, siz sec, siz num1, siz num2, siz weap);
-	virtual bool push(siz min, siz sec, siz num1, siz num2);
-	virtual bool ctf(siz min, siz sec, siz num, siz team, siz act);
-	virtual bool say(siz min, siz sec, const GUID& guid, const str& text);
-	virtual bool exit(siz min, siz sec);
+	virtual bool init_game(siz min, siz sec, const str_map& cvars) override;
+	virtual bool kill(siz min, siz sec, slot num1, slot num2, siz weap) override;
+	virtual bool push(siz min, siz sec, slot num1, slot num2) override;
+	virtual bool ctf(siz min, siz sec, slot num, siz team, siz act) override;
+	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) override;
+	virtual bool exit(siz min, siz sec) override;
 
-	virtual void close();
+	virtual void close() override;
 };
 
 }} // katina::plugin

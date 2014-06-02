@@ -114,6 +114,7 @@ struct cvar
 	virtual bool set(const str& s) = 0;
 };
 
+
 template<typename T>
 class cvar_t
 : public cvar

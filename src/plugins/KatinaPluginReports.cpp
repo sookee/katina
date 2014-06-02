@@ -263,7 +263,7 @@ bool KatinaPluginReports::init_game(siz min, siz sec, const str_map& cvars)
 	return true;
 }
 
-bool KatinaPluginReports::kill(siz min, siz sec, siz num1, siz num2, siz weap)
+bool KatinaPluginReports::kill(siz min, siz sec, slot num1, slot num2, siz weap)
 {
 	if(!active)
 		return true;
@@ -286,7 +286,7 @@ bool KatinaPluginReports::kill(siz min, siz sec, siz num1, siz num2, siz weap)
 	return true;
 }
 
-bool KatinaPluginReports::push(siz min, siz sec, siz num1, siz num2)
+bool KatinaPluginReports::push(siz min, siz sec, slot num1, slot num2)
 {
 //	bug_func();
 //	bug_var(num1);
@@ -317,7 +317,7 @@ bool KatinaPluginReports::push(siz min, siz sec, siz num1, siz num2)
 	return true;
 }
 
-str KatinaPluginReports::get_nums_team(siz num)
+str KatinaPluginReports::get_nums_team(slot num)
 {
 	return get_nums_team(katina.getClientGuid(num));
 }
@@ -333,7 +333,7 @@ str KatinaPluginReports::get_nums_team(const GUID& guid)
 	return "^7[^2U^7]";
 }
 
-bool KatinaPluginReports::ctf(siz min, siz sec, siz num, siz team, siz act)
+bool KatinaPluginReports::ctf(siz min, siz sec, slot num, siz team, siz act)
 {
 	bug_func();
 	pbug_var(num);

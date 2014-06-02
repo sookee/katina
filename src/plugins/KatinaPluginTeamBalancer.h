@@ -97,7 +97,7 @@ public:
  */
 struct TB_JoinData
 {
-    siz client;
+    slot client;
     siz teamBefore;
     siz teamNow;
 };
@@ -175,9 +175,9 @@ public:
 	// INTERFACE: KatinaPlugin
     //
 
-	virtual str get_id() const;
-	virtual str get_name() const;
-	virtual str get_version() const;
+	virtual str get_id() const override;
+	virtual str get_name() const override;
+	virtual str get_version() const override;
     
 	/**
 	 * This provides an opportunity for a plugin to initialise
@@ -185,51 +185,28 @@ public:
 	 *
 	 * @return false on failure
 	 */
-	virtual bool open();
+	virtual bool open() override;
     
 	// Game server log events
-	virtual bool init_game(siz min, siz sec, const str_map& cvars);
-	//virtual bool warmup(siz min, siz sec) {}
-	//virtual bool client_connect(siz min, siz sec, siz client) {}
-	//virtual bool client_begin(siz min, siz sec, siz client) {}
-	virtual bool client_disconnect(siz min, siz sec, siz client);
-	//virtual bool client_userinfo_changed(siz min, siz sec, siz client, siz team, const GUID& guid, const str& name) {}
-    virtual bool client_switch_team(siz min, siz sec, siz num, siz teamBefore, siz teamNow);
-	//virtual bool kill(siz min, siz sec, siz client1, siz client2, siz weap) {}
-	virtual bool ctf(siz min, siz sec, siz client, siz team, siz act);
+	virtual bool init_game(siz min, siz sec, const str_map& cvars) override;
+	virtual bool client_disconnect(siz min, siz sec, slot client) override;
+    virtual bool client_switch_team(siz min, siz sec, slot num, siz teamBefore, siz teamNow) override;
+	virtual bool ctf(siz min, siz sec, slot client, siz team, siz act) override;
 	
 	/**
 	 * Final score of complete CTF game
 	 */
-	//virtual bool ctf_exit(siz min, siz sec, siz r, siz b) {}
-	//virtual bool score_exit(siz min, siz sec, int score, siz ping, siz client, const str& name) {}
-	//virtual bool award(siz min, siz sec, siz client, siz awd) {}
-	virtual bool say(siz min, siz sec, const GUID& guid, const str& text);
-	//virtual bool sayteam(siz min, siz sec, const GUID& guid, const str& text);
-	//virtual bool shutdown_game(siz min, siz sec) {}
-	virtual bool exit(siz min, siz sec);
-	//virtual bool unknown(siz min, siz sec, const str& cmd, const str& params) {}
-	
-	/**
-	 * Summarizing events for more detailed statistics (they only work with the katina game mod)
-	 */
-	/*virtual bool weapon_usage(siz min, siz sec, siz client, siz weapon, siz shots) {}
-	virtual bool mod_damage(siz min, siz sec, siz client, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv, float weightedHits) {}
-	virtual bool player_stats(siz min, siz sec, siz client,
-		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
-		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
-		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged) {}
-     */
-	 
-	 
+	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) override;
+	virtual bool exit(siz min, siz sec) override;
+
 	/**
 	 * This provides an opportunity for a plugin to clean
 	 * itself up. It is called before the plugin is removed/reloaded.
 	 * This is a good place to clean up any threads, close files etc.
 	 */
-	virtual void close();
+	virtual void close() override;
     
-    virtual void heartbeat(siz min, siz sec);
+    virtual void heartbeat(siz min, siz sec) override;
 };
 
 

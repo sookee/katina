@@ -108,7 +108,7 @@ bool KatinaPluginNextMap::init_game(siz min, siz sec, const str_map& cvars)
 	return true;
 }
 
-bool KatinaPluginNextMap::client_connect_info(siz min, siz sec, siz num, const GUID& guid, const str& ip)
+bool KatinaPluginNextMap::client_connect_info(siz min, siz sec, slot num, const GUID& guid, const str& ip)
 {
 	if(!active)
 		return true;
@@ -135,7 +135,7 @@ bool KatinaPluginNextMap::client_connect_info(siz min, siz sec, siz num, const G
 	return true;
 }
 
-bool KatinaPluginNextMap::client_disconnect(siz min, siz sec, siz num)
+bool KatinaPluginNextMap::client_disconnect(siz min, siz sec, slot num)
 {
 	if(!active)
 		return true;

@@ -76,7 +76,7 @@ typedef player_set::iterator player_set_iter;
 
 player_set player_cache;
 
-typedef std::map<siz, uint32_t> ip_map; // num -> ip
+typedef std::map<slot, uint32_t> ip_map; // slot -> ip
 ip_map ips;
 
 bool is_ip(const str& s)
@@ -195,7 +195,7 @@ str KatinaPluginPlayerDb::get_id() const { return ID; }
 str KatinaPluginPlayerDb::get_name() const { return NAME; }
 str KatinaPluginPlayerDb::get_version() const { return VERSION; }
 
-bool KatinaPluginPlayerDb::client_connect_info(siz min, siz sec, siz num, const GUID& guid, const str& ip)
+bool KatinaPluginPlayerDb::client_connect_info(siz min, siz sec, slot num, const GUID& guid, const str& ip)
 {
 	if(trim_copy(ip).empty())
 	{
@@ -213,7 +213,7 @@ bool KatinaPluginPlayerDb::client_connect_info(siz min, siz sec, siz num, const 
 	return true;
 }
 
-bool KatinaPluginPlayerDb::client_disconnect(siz min, siz sec, siz num)
+bool KatinaPluginPlayerDb::client_disconnect(siz min, siz sec, slot num)
 {
 	player_set_iter i, p;
 	for(i = player_cache.begin(); i != player_cache.end();)
@@ -227,7 +227,7 @@ bool KatinaPluginPlayerDb::client_disconnect(siz min, siz sec, siz num)
 	return true;
 }
 
-bool KatinaPluginPlayerDb::client_userinfo_changed(siz min, siz sec, siz num, siz team
+bool KatinaPluginPlayerDb::client_userinfo_changed(siz min, siz sec, slot num, siz team
 		, const GUID& guid, const str& name, siz hc)
 {
 //	if(!active)
