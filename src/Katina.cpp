@@ -64,8 +64,8 @@ using namespace oastats::types;
 using namespace oastats::utils;
 using namespace oastats::string;
 
-const str version = "0.1";
-const str tag = "";
+const str version = "0.2";
+const str tag = "dev";
 const str revision = REV;
 
 const slot bad_slot(-1);
@@ -349,7 +349,7 @@ bool Katina::is_admin(const GUID& guid)
 {
 	str_vec admins = get_vec("admin.guid");
 	for(str_vec_iter i = admins.begin(); i != admins.end(); ++i)
-		if(guid == *i)
+		if(guid == GUID(*i))
 			return true;
 
 	// now try admin.dat file
@@ -370,7 +370,7 @@ bool Katina::is_admin(const GUID& guid)
 	while(sgl(ifs, line))
 		if(trim(line) == "[admin]")
 			if(sgl(sgl(ifs, line), line))
-				if(trim(line).size() == 32 && guid == line.substr(0, 8))
+				if(trim(line).size() == 32 && guid == GUID(line.substr(0, 8)))
 					return true;
 	return false;
 }
@@ -649,7 +649,7 @@ bool Katina::initial_player_info()
 		if(guid.size() != 8)
 			clients[num] = GUID(num); // bot constructor
 		else
-			clients[num] = to<GUID>(guid);
+			clients[num] = GUID(guid);
 
 		//bug("Adding: " << num << " to team " << team);
 		bug_var(clients[num]);
@@ -1022,6 +1022,7 @@ bool Katina::start(const str& dir)
 		else if(cmd == "ClientConnectInfo:")
 		{
 			// ClientConnectInfo: 4 87597A67B5A4E3C79544A72B7B5DA741 81.101.111.32
+			log("ClientConnectInfo: " << params);
 			if(events[CLIENT_CONNECT_INFO].empty())
 				continue;
 

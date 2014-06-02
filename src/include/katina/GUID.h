@@ -33,6 +33,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 '-----------------------------------------------------------------*/
 
 #include "types.h"
+#include "log.h"
 
 #include <cinttypes>
 #include <list>
@@ -40,6 +41,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace oastats {
 
+using namespace oastats::log;
 using namespace oastats::types;
 
 class GUID
@@ -57,13 +59,13 @@ public:
 			this->data[i] = '0';
 	}
 
-	GUID(const char data[SIZE]): data(SIZE, '0'), bot(false)
+	explicit GUID(const char data[SIZE]): data(SIZE, '0'), bot(false)
 	{
 		for(siz i = 0; i < SIZE; ++i)
 			this->data[i] = data[i];
 	}
 
-	GUID(const str& data): data(SIZE, '0'), bot(false)
+	explicit GUID(const str& data): data(SIZE, '0'), bot(false)
 	{
 		for(siz i = 0; i < SIZE && i < data.size(); ++i)
 			this->data[i] = data[i];

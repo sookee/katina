@@ -335,6 +335,11 @@ str KatinaPluginReports::get_nums_team(const GUID& guid)
 
 bool KatinaPluginReports::ctf(siz min, siz sec, slot num, siz team, siz act)
 {
+	bug_func();
+	pbug_var(num);
+	pbug_var(team);
+	pbug_var(act);
+	pbug_var(active);
 	if(!active)
 		return true;
 
