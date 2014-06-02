@@ -233,6 +233,12 @@ private:
 	// disconnected guid keys are kept here until ShutdownGame
     guid_lst shutdown_erase; // disconnected list
 
+	// We try to keep map keys GUID based as slot numbers are defunct as soon
+	// as a client disconnects.
+	siz_guid_map clients; // slot -> GUID // cleared when players disconnect and on game_begin()
+	guid_str_map players; // GUID -> name  // cleard before game_begin()
+	guid_siz_map teams; // GUID -> 'R' | 'B' // cleared when players disconnect and on game_begin()
+
 public:
 	Katina();
 	~Katina();
@@ -250,12 +256,6 @@ public:
 		return std::find(shutdown_erase.begin(), shutdown_erase.end(), guid) != shutdown_erase.end();
 	}
 
-	// We try to keep map keys GUID based as slot numbers are defunct as soon
-	// as a client disconnects.
-	siz_guid_map clients; // slot -> GUID // cleared when players disconnect and on game_begin()
-	guid_str_map players; // GUID -> name  // cleard before game_begin()
-	guid_siz_map teams; // GUID -> 'R' | 'B' // cleared when players disconnect and on game_begin()
-
 	str_map svars; // server variables
 	siz logmode;
 	std::time_t now;
@@ -263,6 +263,10 @@ public:
 	str mod_katina; // server enhancements
 
 	const str& get_name() { return name; }
+
+	const siz_guid_map& getClients() { return clients; }
+	const guid_str_map& getPlayers() { return players; }
+	const guid_siz_map& getTeams() { return teams; }
 
 	/**
 	 * Get a cvar's value using rcon
@@ -276,7 +280,8 @@ public:
     siz getTeam(const GUID& guid) const;
     str getPlayerName(slot num) const;
     str getPlayerName(const GUID& guid) const;
-    siz getClientNr(const GUID& guid) const;
+    siz getClientSlot(const GUID& guid) const;
+    const GUID& getClientGuid(slot num) const;
 
     /**
      * return the slot number os the current player from

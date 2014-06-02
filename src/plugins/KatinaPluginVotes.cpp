@@ -144,15 +144,15 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 	announce_time = 0; // turn off
 	//katina.del_log_event(this, HEARTBEAT);
 
-	for(siz_guid_map_citer i = katina.clients.begin(); i != katina.clients.end(); ++i)
+	for(siz_guid_map_citer i = katina.getClients().begin(); i != katina.getClients().end(); ++i)
 	{
 		if(i->second.is_bot())
 			continue;
 
-		pbug("ANNOUNCING VOTE TO: " << i->second << " " << katina.players[i->second]);
+		pbug("ANNOUNCING VOTE TO: " << i->second << " " << katina.getPlayerName(i->second));
 
 		bug_var(i->first);
-		if(i->first == siz(-1))
+		if(i->first == bad_slot)
 		{
 			plog("ERROR: Bad client number: " << i->first);
 			continue;
@@ -199,7 +199,7 @@ bool KatinaPluginVotes::say(siz min, siz sec, const GUID& guid, const str& text)
 
 	siz say_num;
 
-	if((say_num = katina.getClientNr(guid)) == siz(-1))
+	if((say_num = katina.getClientSlot(guid)) == siz(-1))
 	{
 		plog("ERROR: Unable to get slot number from guid: " << guid);
 		return true;
@@ -237,7 +237,7 @@ bool KatinaPluginVotes::say(siz min, siz sec, const GUID& guid, const str& text)
 		else if(map_votes.count(guid))
 			katina.server.msg_to(say_num, "^3Your vote has changed for this map.", true);
 		else
-			katina.server.msg_to(say_num, "^7" + katina.players[guid] + "^7: ^3Your vote will be counted.", true);
+			katina.server.msg_to(say_num, "^7" + katina.getPlayerName(guid) + "^7: ^3Your vote will be counted.", true);
 		map_votes[guid] = 1;
 	}
 	else if(cmd == "!hate") // TODO:
@@ -253,7 +253,7 @@ bool KatinaPluginVotes::say(siz min, siz sec, const GUID& guid, const str& text)
 		else if(map_votes.count(guid))
 			katina.server.msg_to(say_num, "^3Your vote has changed for this map.", true);
 		else
-			katina.server.msg_to(say_num, "^7" + katina.players[guid] + "^7: ^3Your vote will be counted.", true);
+			katina.server.msg_to(say_num, "^7" + katina.getPlayerName(guid) + "^7: ^3Your vote will be counted.", true);
 		map_votes[guid] = -1;
 	}
 	

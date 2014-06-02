@@ -102,7 +102,7 @@ float DefaultEvaluation::calcRating(siz client)
     if(statsPlugin == NULL)
         return 1000.0f;
     
-    GUID guid = katina.clients[client];
+    GUID guid = katina.getClientGuid(client);
     //if(guid.is_bot())
     //    return 1000.0f;
     

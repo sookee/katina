@@ -114,7 +114,7 @@ str Katina::getPlayerName(const GUID& guid) const
 	return p->second;
 }
 
-siz Katina::getClientNr(const GUID& guid) const
+siz Katina::getClientSlot(const GUID& guid) const
 {
 	//bug_func();
 	for(siz_guid_map_citer it = clients.cbegin(); it != clients.cend(); ++it)
@@ -123,6 +123,13 @@ siz Katina::getClientNr(const GUID& guid) const
     return bad_slot;
 }
 
+const GUID&  Katina::getClientGuid(slot num) const
+{
+	for(siz_guid_map_citer it = clients.cbegin(); it != clients.cend(); ++it)
+		if(it->first == num)
+			return it->second;
+    return null_guid;
+}
 
 str Katina::get_version() const { return version + (tag.size()?"-":"") + tag; }
 
@@ -505,7 +512,7 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 
 	siz num;
 
-	if((num = getClientNr(guid)) == siz(-1))
+	if((num = getClientSlot(guid)) == siz(-1))
 	{
 		server.s_chat("ERROR: Cannot locate client number.");
 		return;
@@ -727,13 +734,13 @@ bool Katina::parse_slot_guid_name(const str& slot_guid_name, siz& num)
 	if(slot_guid_name.size() > 2 && slot_guid_name.size() < 8) // try GUID startswith
 		for(guid_siz_map_citer i = teams.begin(); i != teams.end(); ++i)
 			if(!upper_copy(str(i->first)).find(upper_copy(slot_guid_name)))
-				if((n = getClientNr(i->first)) != siz(-1))
+				if((n = getClientSlot(i->first)) != siz(-1))
 					return (num = n) != siz(-1);
 
 	if(slot_guid_name.size() > 3) // try name submatch
 		for(guid_str_map_citer i = players.begin(); i != players.end(); ++i)
 			if(sanitized(i->second).find(lower_copy(slot_guid_name)) != str::npos)
-				if((n = getClientNr(i->first)) != siz(-1))
+				if((n = getClientSlot(i->first)) != siz(-1))
 					return (num = n) != siz(-1);
 
 	siss iss(slot_guid_name);
@@ -744,7 +751,7 @@ bool Katina::parse_slot_guid_name(const str& slot_guid_name, siz& num)
 	// try exact name match
 	for(guid_str_map_citer i = players.begin(); i != players.end(); ++i)
 		if(sanitized(i->second) == lower_copy(slot_guid_name))
-			if((n = getClientNr(i->first)) != siz(-1))
+			if((n = getClientSlot(i->first)) != siz(-1))
 				return (num = n) != siz(-1);
 
 	return false;

@@ -164,6 +164,11 @@ typedef siz_guid_map::value_type siz_guid_map_pair;
 typedef siz_guid_map::iterator siz_guid_map_iter;
 typedef siz_guid_map::const_iterator siz_guid_map_citer;
 
+typedef std::map<slot, GUID> slot_guid_map;
+typedef slot_guid_map::value_type slot_guid_map_pair;
+typedef slot_guid_map::iterator slot_guid_map_iter;
+typedef slot_guid_map::const_iterator slot_guid_map_citer;
+
 typedef std::map<GUID, siz> guid_siz_map;
 typedef guid_siz_map::value_type guid_siz_map_pair;
 typedef guid_siz_map::iterator guid_siz_map_iter;

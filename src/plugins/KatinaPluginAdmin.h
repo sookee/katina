@@ -100,9 +100,9 @@ class KatinaPluginAdmin
 {
 private:
 	str& mapname;
-	siz_guid_map& clients; // slot -> GUID
-	guid_str_map& players; // GUID -> name
-	guid_siz_map& teams; // GUID -> 'R' | 'B'
+	const siz_guid_map& clients; // slot -> GUID
+	const guid_str_map& players; // GUID -> name
+	const guid_siz_map& teams; // GUID -> 'R' | 'B'
 	RCon& server;
 	
 	bool active;
@@ -183,8 +183,9 @@ private:
 
 	/**
 	 * Remove all sanctions of a given type.
+	 * @return true on success
 	 */
-	void remove_sanctions(const GUID& guid, siz type);
+	bool remove_sanctions(const GUID& guid, siz type);
 //	bool apply_sanction(sanction_lst_iter& s);
 //	bool apply_sanctions();
 

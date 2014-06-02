@@ -136,9 +136,9 @@ public:
 
 private:
 	str& mapname;
-	siz_guid_map& clients; // slot -> GUID
-	guid_str_map& players; // GUID -> name
-	guid_siz_map& teams; // GUID -> 'R' | 'B'
+	const siz_guid_map& clients; // slot -> GUID
+	const guid_str_map& players; // GUID -> name
+	const guid_siz_map& teams; // GUID -> 'R' | 'B'
 	RCon& server;
 
 	Database db;

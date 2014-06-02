@@ -214,7 +214,7 @@ bool KatinaPluginCallVoteCtrl::say(siz min, siz sec, const GUID& guid, const str
 
 	siz say_num;
 
-	if((say_num = katina.getClientNr(guid)) == siz(-1))
+	if((say_num = katina.getClientSlot(guid)) == siz(-1))
 	{
 		plog("ERROR: Unable to get slot number from guid: " << guid);
 		return true;
@@ -244,7 +244,7 @@ bool KatinaPluginCallVoteCtrl::say(siz min, siz sec, const GUID& guid, const str
 	{
 		if(!katina.is_admin(guid))
 		{
-			plog("INFO: Unauthorized admin attempt from [" << guid << "] " << katina.players[guid] << ": " << text);
+			plog("INFO: Unauthorized admin attempt from [" << guid << "] " << katina.getPlayerName(guid) << ": " << text);
 			return true;
 		}
 

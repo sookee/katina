@@ -38,9 +38,9 @@ KatinaPluginNextMap::KatinaPluginNextMap(Katina& katina)
 : KatinaPlugin(katina)
 //, votes(0)
 , mapname(katina.mapname)
-, clients(katina.clients)
-, players(katina.players)
-, teams(katina.teams)
+, clients(katina.getClients())
+, players(katina.getPlayers())
+, teams(katina.getTeams())
 , server(katina.server)
 , active(true)
 {
@@ -113,7 +113,7 @@ bool KatinaPluginNextMap::client_connect_info(siz min, siz sec, siz num, const G
 	if(!active)
 		return true;
 
-	pbug("Finding votes for player: " << guid << " " << players[guid]);
+	pbug("Finding votes for player: " << guid << " " << katina.getPlayerName(guid));
 
 	// get map stats for this player
 	soss sql;
@@ -141,7 +141,7 @@ bool KatinaPluginNextMap::client_disconnect(siz min, siz sec, siz num)
 		return true;
 
 	// drop map stats
-	votes.erase(clients[num]);
+	votes.erase(katina.getClientGuid(num));
 
 	return true;
 }

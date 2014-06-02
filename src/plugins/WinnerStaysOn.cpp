@@ -91,14 +91,14 @@ void WinnerStaysOn::ensure_teams()
 {
 	siz_deq_iter i = q.begin();
 	
-	if(i != q.end() && teams[clients[*i]] != win_team)
+	if(i != q.end() && katina.getTeam(*i) != win_team)
 		server.command("!putteam " + to_str(*i++) + " " + get_team(win_team));
 
-	if(i != q.end() && teams[clients[*i]] != win_team)
+	if(i != q.end() && katina.getTeam(*i) != win_team)
 		server.command("!putteam " + to_str(*i++) + " " + get_team(opp_team));
 
 	while(i != q.end())
-		if(teams[clients[*i]] != TEAM_S)
+		if(katina.getTeam(*i) != TEAM_S)
 			server.command("!putteam " + to_str(*i++) + " s");	
 }
 
@@ -111,11 +111,11 @@ void WinnerStaysOn::dump_queue()
 	
 	siz_deq_iter i = q.begin();
 	if(i != q.end())
-		con("! " + players[clients[*i++]]);
+		con("! " + katina.getPlayerName(*i++));
 	if(i != q.end())
-		con("? " + players[clients[*i++]]);
+		con("? " + katina.getPlayerName(*i++));
 	for(siz pos = 1; i != q.end(); ++pos)
-		con(to_str(pos) + " " + players[clients[*i++]]);
+		con(to_str(pos) + " " + katina.getPlayerName(*i++));
 }
 
 void WinnerStaysOn::announce_queue()
@@ -127,11 +127,11 @@ void WinnerStaysOn::announce_queue()
 	
 	siz_deq_iter i = q.begin();
 	if(i != q.end())
-		con("^3! " + players[clients[*i++]]);
+		con("^3! " + katina.getPlayerName(*i++));
 	if(i != q.end())
-		con("^3? " + players[clients[*i++]]);
+		con("^3? " + katina.getPlayerName(*i++));
 	for(siz pos = 1; i != q.end(); ++pos)
-		con("^3" + to_str(pos) + " ^7" + players[clients[*i++]]);
+		con("^3" + to_str(pos) + " ^7" + katina.getPlayerName(*i++));
 }
 
 bool WinnerStaysOn::command(const str& cmd)
@@ -254,13 +254,13 @@ bool WinnerStaysOn::ctf_exit(siz min, siz sec, siz r, siz b)
 	{
 		if(i != q.end())
 		{
-			server.cp("^7" + players[clients[*i]] + " ^3wins!");
-			server.chat("^3The defender: ^7" + players[clients[*i]] + " ^3stays on!");
+			server.cp("^7" + katina.getPlayerName(*i) + " ^3wins!");
+			server.chat("^3The defender: ^7" + katina.getPlayerName(*i) + " ^3stays on!");
 		}
 		
 		if(++i != q.end())
 		{
-			server.chat("^3The challenger: ^7" + players[clients[*i]] + " ^3goes to the back of the queue.");
+			server.chat("^3The challenger: ^7" + katina.getPlayerName(*i) + " ^3goes to the back of the queue.");
 			siz num = *i;
 			q.erase(i);
 			q.push_back(*i);
@@ -270,7 +270,7 @@ bool WinnerStaysOn::ctf_exit(siz min, siz sec, siz r, siz b)
 	{
 		if(i != q.end())
 		{
-			server.chat("^3The defender: ^7" + players[clients[*i]] + " ^3goes to the back of the queue!");
+			server.chat("^3The defender: ^7" + katina.getPlayerName(*i) + " ^3goes to the back of the queue!");
 			siz num = *i;
 			q.erase(i);
 			q.push_back(*i);
@@ -278,8 +278,8 @@ bool WinnerStaysOn::ctf_exit(siz min, siz sec, siz r, siz b)
 		
 		if(++i != q.end())
 		{
-			server.cp("^7" + players[clients[*i]] + " ^3wins!");
-			server.chat("^3The winner: ^7" + players[clients[*i]] + " ^3stays on!");
+			server.cp("^7" + katina.getPlayerName(*i) + " ^3wins!");
+			server.chat("^3The winner: ^7" + katina.getPlayerName(*i) + " ^3stays on!");
 		}
 	}
 

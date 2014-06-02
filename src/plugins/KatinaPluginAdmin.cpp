@@ -48,9 +48,9 @@ KATINA_PLUGIN_INFO("katina::admin", "Katina Admin", "0.1-dev");
 KatinaPluginAdmin::KatinaPluginAdmin(Katina& katina)
 : KatinaPlugin(katina)
 , mapname(katina.mapname)
-, clients(katina.clients)
-, players(katina.players)
-, teams(katina.teams)
+, clients(katina.getClients())
+, players(katina.getPlayers())
+, teams(katina.getTeams())
 , server(katina.server)
 , active(true)
 , total_kills(0)
@@ -193,9 +193,9 @@ bool KatinaPluginAdmin::fixteams(policy_t policy)
 
 		bug_var(i->first);
 		bug_var(i->second);
-		bug_var(teams[i->second]);
+		bug_var(katina.getTeam(i->second));
 		 // 1 = red, 2 = blue, 3 = spec
-		if(teams[i->second] != TEAM_R && teams[i->second] != TEAM_B)
+		if(katina.getTeam(i->second) != TEAM_R && katina.getTeam(i->second) != TEAM_B)
 			continue;
 
 		// accumulate time but keep timer running
@@ -209,14 +209,14 @@ bool KatinaPluginAdmin::fixteams(policy_t policy)
 		siz cph = secs[i->first] ? (caps[i->first] * 60 * 60) / secs[i->first] : 0;
 		siz skill = sqrt(pow(fph, 2) + pow(cph * cap_factor, 2));
 
-		if(teams[i->second] == 1)
+		if(katina.getTeam(i->second) == TEAM_R)
 			{ skill_r += skill; ++r; }
 		else
 			{ skill_b += skill; ++b; }
 
 		pbug("-------------------------------------------");
 		pbug("FIXTEAMS:  slot: " << i->first);
-		pbug("FIXTEAMS:  name: " << players[clients[i->first]]);
+		pbug("FIXTEAMS:  name: " << katina.getPlayerName(i->first));
 		pbug("FIXTEAMS: kills: " << kills[i->first]);
 		pbug("FIXTEAMS:  caps: " << caps[i->first]);
 		pbug("FIXTEAMS:  secs: " << secs[i->first]);
@@ -244,7 +244,7 @@ bool KatinaPluginAdmin::fixteams(policy_t policy)
 			pbug("FIXTEAMS: putting: " << i.num << " [" << i.skill << "] "
 					<< "on team " << str(team == 1 ? "r" : "b"));
 
-			if(teams[clients[i.num]] != team)
+			if(katina.getTeam(i.num) != team)
 				if(!server.command("!putteam " + to_string(i.num) + " " + str(team == 1 ? "r" : "b")))
 					server.command("!putteam " + to_string(i.num) + " " + str(team == 1 ? "r" : "b")); // one retry
 			team = team == 1 ? 2 : 1;
@@ -304,7 +304,7 @@ bool KatinaPluginAdmin::fixteams(policy_t policy)
 			pbug("FIXTEAMS: putting: " << best_rank[i].num << " [" << best_rank[i].skill << "] "
 					<< "on team " << str(team == 1 ? "r" : "b"));
 
-			if(teams[clients[best_rank[i].num]] != team)
+			if(katina.getTeam(best_rank[i].num) != team)
 				if(!server.command("!putteam " + to_string(best_rank[i].num) + " " + str(team == 1 ? "r" : "b")))
 					server.command("!putteam " + to_string(best_rank[i].num) + " " + str(team == 1 ? "r" : "b")); // one retry
 			team = team == 1 ? 2 : 1;
@@ -397,12 +397,12 @@ bool KatinaPluginAdmin::reteam(siz num, char team)
 		plog("ERROR: can't find client num: " << num);
 		return true;
 	}
-	if(teams.find(clients[num]) == teams.end())
+	if(teams.find(katina.getClientGuid(num)) == teams.end())
 	{
-		plog("ERROR: can't find team guid: " << clients[num]);
+		plog("ERROR: can't find team guid: " << katina.getClientGuid(num));
 		return true;
 	}
-	if(teams[clients[num]] == char_to_team(team))
+	if(katina.getTeam(num) == char_to_team(team))
 		return true;
 
 	str reply;
@@ -443,7 +443,7 @@ bool KatinaPluginAdmin::open()
 	siz num;
 	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end(); ++s)
 	{
-		if((num = katina.getClientNr(s->guid)) == siz(-1))
+		if((num = katina.getClientSlot(s->guid)) == siz(-1))
 			continue;
 
 		if(players.find(s->guid) == players.end())
@@ -455,7 +455,7 @@ bool KatinaPluginAdmin::open()
 				s->applied = true;
 		// !fixname
 		if(s->type == S_FIXNAME && !s->params.empty()
-		&& s->params[0] == players[s->guid])
+		&& s->params[0] == katina.getPlayerName(s->guid))
 			if(fixname(num, s->params[0]))
 				s->applied = true;
 	}
@@ -487,7 +487,7 @@ bool KatinaPluginAdmin::init_game(siz min, siz sec, const str_map& cvars)
 	siz num;
 	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end(); ++s)
 	{
-		if((num = katina.getClientNr(s->guid)) == siz(-1))
+		if((num = katina.getClientSlot(s->guid)) == siz(-1))
 			continue;
 
 		if(players.find(s->guid) == players.end())
@@ -500,9 +500,9 @@ bool KatinaPluginAdmin::init_game(siz min, siz sec, const str_map& cvars)
 
 	for(siz_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
 	{
-		if((teams[i->second] == TEAM_R || teams[i->second] == TEAM_B))
+		if((katina.getTeam(i->second) == TEAM_R || katina.getTeam(i->second) == TEAM_B))
 		{
-			pbug("STARTING TIMER FOR: " << players[i->second] << " [" << katina.now << "]");
+			pbug("STARTING TIMER FOR: " << katina.getPlayerName(i->second) << " [" << katina.now << "]");
 			time[i->first] = katina.now;
 		}
 	}
@@ -717,7 +717,7 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, siz num, const str& type, con
 		return true;
 
 	for(const sanction& s: sanctions)
-		if((!s.expires || s.expires < katina.now) && s.guid == clients[num])
+		if((!s.expires || s.expires < katina.now) && s.guid == katina.getClientGuid(num))
 			votekill(katina.get_name() + "^1: " + katina.getPlayerName(num) + " is banned from voting for "
 				+ secs_to_dhms(s.expires - katina.now));
 
@@ -726,7 +726,7 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, siz num, const str& type, con
 //	pbug_var(clients[kick_num]);
 //	pbug_var(katina.is_admin(clients[kick_num]));
 	if(protect_admins)
-		if(type == "clientkick" && katina.is_admin(clients[to<siz>(info)]))
+		if(type == "clientkick" && katina.is_admin(katina.getClientGuid(to<siz>(info))))
 			votekill(katina.get_name() + "^1: ^7[^3NOT ALLOWED TO KICK ADMINS^7]");
 
 	return true;
@@ -837,7 +837,8 @@ bool KatinaPluginAdmin::check_admin(const GUID& guid)
 {
 	if(!katina.is_admin(guid))
 	{
-		plog("WARN: Admin attempt by non admin player: [" << guid << "] " << players[guid]);
+		plog("WARN: Admin attempt by non admin player: [" << guid << "] "
+			<< katina.getPlayerName(guid));
 		return false;
 	}
 	return true;
@@ -881,14 +882,24 @@ std::time_t parse_duration(const str& duration, std::time_t dflt)
 	return t;
 }
 
-void KatinaPluginAdmin::remove_sanctions(const GUID& guid, siz type)
+bool KatinaPluginAdmin::remove_sanctions(const GUID& guid, siz type)
 {
+	if(guid == null_guid)
+	{
+		plog("ERROR: null guid");
+		return false;
+	}
+	bool done = false;
 	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end();)
 		if(s->guid == guid && s->type == type)
-			s = sanctions.erase(s);
+			{ s = sanctions.erase(s); done = true; }
 		else
 			++s;
-	save_sanctions();
+
+	if(!done)
+		return false;
+
+	return save_sanctions();
 }
 
 void KatinaPluginAdmin::spamkill(siz num)
@@ -919,7 +930,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 	// !cmd <parans>
 
 	siz say_num;
-	if((say_num = katina.getClientNr(guid)) == siz(-1))
+	if((say_num = katina.getClientSlot(guid)) == siz(-1))
 	{
 		plog("ERROR: Unable to get slot number from guid: " << guid);
 		return true;
@@ -995,10 +1006,10 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		sgl(iss >> std::ws, request);
 
 		sofs ofs((katina.config_dir + "/requests.txt").c_str(), sofs::app);
-		if(ofs << clients[say_num] << ": " << request << " [" << katina.getPlayerName(say_num) << "]"<< '\n')
+		if(ofs << guid << ": " << request << " [" << katina.getPlayerName(guid) << "]"<< '\n')
 		{
 			server.msg_to(say_num, "^7ADMIN: "
-					+  players[guid]
+					+   katina.getPlayerName(guid)
 					           + "^3, your request has been logged.", true);
 		}
 	}
@@ -1055,17 +1066,22 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 
 		if(duration == "remove")
 		{
-			remove_sanctions(clients[num], S_MUTEPP);
-			if(un_mutepp(num))
+			if(remove_sanctions(katina.getClientGuid(num), S_MUTEPP) && un_mutepp(num))
 				tell_perp(say_num, num, "^3Removed mute from: ^7" + katina.getPlayerName(num));
-
 			return true;
 		}
 
 		sanction s;
 		s.type = S_MUTEPP;
-		s.guid = clients[num];
+		s.guid = katina.getClientGuid(num);
 		s.expires = parse_duration(duration, 5 * 60);
+		s.reason = reason;
+
+		if(s.guid == null_guid)
+		{
+			plog("ERROR: Null guid");
+			return true;
+		}
 
 		if(mutepp(num))
 			s.applied = true;
@@ -1088,32 +1104,37 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			return true;
 		}
 
-		siz num = siz(-1);
+		slot perp = bad_slot;
 		str duration = "5m";
 		str reason;
 
-		sgl(iss >> num >> duration >> std::ws, reason);
+		sgl(iss >> perp >> duration >> std::ws, reason);
 
-		if(!check_slot(num))
+		if(!check_slot(perp))
 			return true;
 
 		if(duration == "remove")
 		{
-			remove_sanctions(clients[num], S_VOTEBAN);
-			tell_perp(say_num, num, "^3Removed vote ban from: ^2" + katina.getPlayerName(num));
+			if(remove_sanctions(katina.getClientGuid(perp), S_VOTEBAN))
+				tell_perp(say_num, perp, "^3Removed vote ban from: ^2" + katina.getPlayerName(perp));
 			return true;
 		}
 
 		sanction s;
 		s.type = S_VOTEBAN;
-		s.guid = clients[num];
+		s.guid = katina.getClientGuid(perp);
 		s.expires = parse_duration(duration, 5 * 60);
 		s.reason = reason;
 
-		sanctions.push_back(s);
-		save_sanctions();
+		if(s.guid == null_guid)
+		{
+			plog("ERROR: Null guid");
+			return true;
+		}
 
-		tell_perp(say_num, num, "^7" + katina.getPlayerName(num) + "^3BANNED from voting by ^7" +  katina.getPlayerName(say_num));
+		sanctions.push_back(s);
+		if(save_sanctions())
+			tell_perp(say_num, perp, "^7" + katina.getPlayerName(s.guid) + "^3BANNED from voting by ^7" +  katina.getPlayerName(say_num));
 	}
 	else if(cmd == trans("!mapban") || cmd == trans("?mapban"))
 	{
@@ -1126,7 +1147,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			server.msg_to(say_num, "^7ADMIN: ^3Force a player to spec on a specific map for the specified duration.", true);
 			server.msg_to(say_num, "^7ADMIN: ^3!mapban <num> <duration>? <reason>?");
 			server.msg_to(say_num, "^7ADMIN: ^3        <duration> = N(s|m|h|d|w) [eg, 5w = 5 weeks]");
-			server.msg_to(say_num, "^7ADMIN: ^3!mapban remove = remove ban");
+			server.msg_to(say_num, "^7ADMIN: ^3!mapban <num> remove = remove ban");
 			return true;
 		}
 
@@ -1134,24 +1155,36 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		str duration = "20m";
 		str reason;
 
-		sgl(iss >> num >> duration >> std::ws, reason);
+		if(!(iss >> num >> std::ws))
+		{
+			plog("ERROR parsing !mapban command.");
+			return true;
+		}
 
 		if(!check_slot(num))
 			return true;
 
+		sgl(iss >> duration >> std::ws, reason);
+
 		if(duration == "remove")
 		{
-			remove_sanctions(clients[num], S_MAPBAN);
-			tell_perp(num, say_num, "^3Removed ^1map ban ^3from: ^7" + katina.getPlayerName(num));
+			if(remove_sanctions(katina.getClientGuid(num), S_MAPBAN))
+				tell_perp(num, say_num, "^3Removed ^1map ban ^3from: ^7" + katina.getPlayerName(num));
 			return true;
 		}
 
 		sanction s;
 		s.type = S_MAPBAN;
-		s.guid = clients[num];
+		s.guid = katina.getClientGuid(num);
 		s.expires = parse_duration(duration, 20 * 60);
 		s.reason = reason;
 		s.params.push_back(katina.mapname);
+
+		if(s.guid == null_guid)
+		{
+			plog("ERROR: Null guid");
+			return true;
+		}
 
 		sanctions.push_back(s);
 		save_sanctions();
@@ -1177,31 +1210,37 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			return true;
 		}
 
-		slot num = bad_slot;
+		slot perp = bad_slot;
 		str name;
 
-		sgl(iss >> num >> std::ws, name);
+		sgl(iss >> perp >> std::ws, name);
 
-		if(!check_slot(num))
+		if(!check_slot(perp))
 			return true;
 
 		if(name == "remove")
 		{
-			remove_sanctions(clients[num], S_FIXNAME);
-			tell_perp(say_num, num, "^7" + katina.getPlayerName(say_num) + " ^3Removed ^1fixed name^3 from: ^7" + katina.getPlayerName(num));
+			if(remove_sanctions(katina.getClientGuid(perp), S_FIXNAME))
+				tell_perp(say_num, perp, "^7" + katina.getPlayerName(say_num) + " ^3Removed ^1fixed name^3 from: ^7" + katina.getPlayerName(perp));
 			return true;
 		}
 
 		sanction s;
 		s.type = S_FIXNAME;
-		s.guid = clients[num];
+		s.guid = katina.getClientGuid(perp);
 		s.expires = 0;
 		s.params.push_back(name);
 
-		if(fixname(num, name))
+		if(s.guid == null_guid)
+		{
+			plog("ERROR: Null guid");
+			return true;
+		}
+
+		if(fixname(perp, name))
 		{
 			s.applied = true;
-			tell_perp(say_num, num, "^3FIXED NAME given to ^7" + katina.getPlayerName(num) + " ^3by ^7" +  katina.getPlayerName(say_num));
+			tell_perp(say_num, perp, "^3FIXED NAME given to ^7" + katina.getPlayerName(s.guid) + " ^3by ^7" +  katina.getPlayerName(say_num));
 		}
 
 		sanctions.push_back(s);
@@ -1210,42 +1249,61 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 	else if(cmd == trans("!reteam") || cmd == trans("?reteam")
 			|| cmd == trans("!spec") || cmd == trans("?spec"))
 	{
+		// TODO: fix these bugs
+
+//		1401672351 ^1S^2oo^3K^5ee^7: ^2!spec 2
+//		1401672351 ^7ADMIN: ^3Bad team. Needs to be: r|b|s
+
+//		1401672395 ^1S^2oo^3K^5ee^7: ^2!reteam 2 s
+//		1401672395 ^7ADMIN: ^3Bad team. Needs to be: r|b|s
+
+
 		// !reteam <slot> r|b|s (red, blue or spec)
 		if(!check_admin(guid))
 			return true;
 
-		bool spec = cmd.find(trans("!spec").substr(1)) == 1;
+		bool spec = (cmd == "!spec" || cmd == "?spec");
+
+		pbug_var(spec);
 
 		if(cmd[0] == '?')
 		{
 			if(spec)
 			{
 				server.msg_to(say_num, "^7ADMIN: ^3Force a player to a spectate.", true);
-				server.msg_to(say_num, "^7ADMIN: ^3!spec <num>");
+				server.msg_to(say_num, "^7ADMIN: ^3!spec <num> [<reason>]");
 				server.msg_to(say_num, "^7ADMIN: ^3!spec <num> remove");
 			}
 			else
 			{
 				server.msg_to(say_num, "^7ADMIN: ^3Force a player to a specific team (default to spec).", true);
-				server.msg_to(say_num, "^7ADMIN: ^3!reteam <num> <r|g|b>");
+				server.msg_to(say_num, "^7ADMIN: ^3!reteam <num> <r|g|b> [<reason>]");
 				server.msg_to(say_num, "^7ADMIN: ^3!reteam <num> remove");
 			}
 			return true;
 		}
 
-		siz num = siz(-1);
-		str team;
+		siz perp = siz(-1);
+		str team, reason;
 
-		sgl(iss >> num >> std::ws, team);
+		sgl(iss >> perp >> team >> std::ws, reason);
 
-		if(!check_slot(num))
+		pbug_var(perp);
+		pbug_var(team);
+		pbug_var(reason);
+
+		trim(reason);
+
+		pbug_var(trim(reason));
+
+		if(!check_slot(perp))
 			return true;
 
 		if(team == "remove")
 		{
-			remove_sanctions(clients[num], S_RETEAM);
 			str sanct = spec ? "^1spec":"^1fixed team";
-			tell_perp(say_num, num, "^7" + katina.getPlayerName(say_num) + " ^3Removed " + sanct + " ^3from: ^7" + katina.getPlayerName(num));
+			if(remove_sanctions(katina.getClientGuid(perp), S_RETEAM))
+				tell_perp(say_num, perp, "^7" + katina.getPlayerName(guid) + " ^3Removed " + sanct + " ^3from: ^7" + katina.getPlayerName(perp));
 			return true;
 		}
 
@@ -1260,19 +1318,25 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 
 		sanction s;
 		s.type = S_RETEAM;
-		s.guid = clients[num];
+		s.guid = katina.getClientGuid(perp);
 		s.expires = 0;
 		s.params.push_back(team);
+		s.reason = reason;
 
-		if(reteam(num, team[0]))
+		if(s.guid == null_guid)
 		{
-			s.applied = true;
-			str sanct = spec ? "^3FORCED SPEC":"^3FORCED TEAM";
-			tell_perp(say_num, num, sanct + " ^3given to ^7" + katina.getPlayerName(num) + " ^3by ^7" +  katina.getPlayerName(say_num));
+			plog("ERROR: Null guid");
+			return true;
 		}
 
 		sanctions.push_back(s);
-		save_sanctions();
+
+		if(save_sanctions() && reteam(perp, team[0]))
+		{
+			s.applied = true;
+			str sanct = spec ? "^3FORCED SPEC":"^3FORCED TEAM";
+			tell_perp(say_num, perp, sanct + " ^3given to ^7" + katina.getPlayerName(s.guid) + " ^3by ^7" +  katina.getPlayerName(say_num));
+		}
 	}
 	else if(cmd == trans("!warnonsight") || cmd == trans("?warnonsight"))
 	{
@@ -1288,42 +1352,42 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			return true;
 		}
 
-		GUID guid;
+		GUID perp;
 		str reason;
 
-		sgl(iss >> guid >> std::ws, reason);
+		sgl(iss >> perp >> std::ws, reason);
 
-		if(!guid)
+		if(!perp)
 		{
-			server.msg_to(say_num, "^7ADMIN: ^1Error: ^3Bad GUID entered: ^2" + guid, true);
+			server.msg_to(say_num, "^7ADMIN: ^1Error: ^3Bad GUID entered: ^2" + perp, true);
 			return true;
 		}
 
 		if(trim(reason).empty())
 		{
-			server.msg_to(say_num, "^7ADMIN: ^1Error: ^3Must give reason to warn: ^2" + guid, true);
+			server.msg_to(say_num, "^7ADMIN: ^1Error: ^3Must give reason to warn: ^2" + perp, true);
 			return true;
 		}
 
 		if(reason == "remove")
 		{
-			remove_sanctions(guid, S_WARN_ON_SIGHT);
-			server.msg_to(say_num, "^7ADMIN: ^3Removed warn-on-sight from: ^2" + guid, true);
-			if(siz num = katina.getClientNr(guid) != siz(-1))
-				server.msg_to(num, "^7ADMIN: ^3Removed warn-on-sight", true);
-
+			siz num = katina.getClientSlot(perp);
+			if(remove_sanctions(perp, S_WARN_ON_SIGHT) && num != bad_slot)
+				tell_perp(say_num, num, "^7" + katina.getPlayerName(perp) + " ^3Removed warn-on-sight from: ^7" + katina.getPlayerName(perp));
 			return true;
 		}
 
 		sanction s;
 		s.type = S_WARN_ON_SIGHT;
-		s.guid = guid;
+		s.guid = perp;
 		s.expires = 0;
 		s.reason = reason;
 		//s.params.push_back(reason);
 
 		sanctions.push_back(s);
-		save_sanctions();
+
+		if(save_sanctions())
+			server.msg_to(say_num, "^3Warning set for ^1" + str(s.guid), true);
 	}
 
 	return true;
@@ -1349,9 +1413,9 @@ bool KatinaPluginAdmin::shutdown_game(siz min, siz sec)
 
 	for(siz_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
 	{
-		if((teams[i->second] == TEAM_R || teams[i->second] == TEAM_B) && time[i->first]) // playing, and timed
+		if((katina.getTeam(i->second) == TEAM_R || katina.getTeam(i->second) == TEAM_B) && time[i->first]) // playing, and timed
 		{
-			pbug("STOPPING TIMER FOR: " << players[i->second] << " after " << (katina.now - time[i->first]) << " seconds");
+			pbug("STOPPING TIMER FOR: " << katina.getPlayerName(i->second) << " after " << (katina.now - time[i->first]) << " seconds");
 			secs[i->first] += (katina.now - time[i->first]);
 			time[i->first] = 0; // stop
 		}

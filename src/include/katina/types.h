@@ -55,8 +55,6 @@ typedef unsigned char byte;
 
 typedef std::size_t siz;
 
-typedef siz slot;
-
 typedef std::string str;
 typedef str::iterator str_iter;
 typedef str::const_iterator str_citer;
@@ -148,6 +146,18 @@ typedef std::ofstream sofs;
 typedef std::stringstream sss;
 
 typedef long milliseconds;
+
+typedef siz slot;
+
+//class slot
+//{
+//	siz num;
+//public:
+//	slot(siz num): num(num) {}
+//
+//	friend sos& operator<<(sos& o, const slot& s) { return o << s.num; }
+//	friend sis& operator>>(sis& i, slot& s) { return i >> s.num; }
+//};
 
 }} // oastats::types
 

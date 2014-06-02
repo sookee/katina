@@ -58,7 +58,7 @@ void KatinaPluginTeamBalancer::rateAllPlayers()
 {
 	bug_func();
     playerRatings.clear();
-    for(siz_guid_map_citer it = katina.clients.begin(); it != katina.clients.end(); ++it)
+    for(siz_guid_map_citer it = katina.getClients().begin(); it != katina.getClients().end(); ++it)
         ratePlayer(it->first);
 }
 
@@ -88,7 +88,7 @@ void KatinaPluginTeamBalancer::buildTeams(TeamBuilder* teamBuilder, TeamBuilderE
     if(!activeInBotGames && !force)
     {
         // Leave if there are bots
-        for(siz_guid_map_citer it = katina.clients.begin(); it != katina.clients.end(); ++it)
+        for(siz_guid_map_citer it = katina.getClients().begin(); it != katina.getClients().end(); ++it)
         {
             if(it->second.is_bot())
                 return;
@@ -118,7 +118,7 @@ void KatinaPluginTeamBalancer::buildTeams(TeamBuilder* teamBuilder, TeamBuilderE
         
         // Don't move bots, but remove and re-add them
         // Moving bots with !putteam is buggy: http://openarena.ws/board/index.php?topic=3578.msg36081#msg36081
-        if(katina.clients[it->first].is_bot())
+        if(katina.getClientGuid(it->first).is_bot())
         {
             str botname = katina.getPlayerName(it->first);
             
@@ -185,13 +185,13 @@ void KatinaPluginTeamBalancer::printTeams(bool printBug, bool printChat)
     siz col2Len = 12;
     static siz pad = 7;
     
-    for(guid_str_map_citer it = katina.players.begin(); it != katina.players.end(); ++it)
+    for(guid_str_map_citer it = katina.getPlayers().begin(); it != katina.getPlayers().end(); ++it)
     {
         siz len = nameLength(it->second) + 8;
         
-        if(katina.teams[it->first] == TEAM_R && col1Len < len)
+        if(katina.getTeam(it->first) == TEAM_R && col1Len < len)
             col1Len = len;
-        else if(katina.teams[it->first] == TEAM_B && col2Len < len)
+        else if(katina.getTeam(it->first) == TEAM_B && col2Len < len)
             col2Len = len;
     }
     
@@ -231,7 +231,7 @@ void KatinaPluginTeamBalancer::printTeams(bool printBug, bool printChat)
         if(itRed != red.rend())
         {
             siz rating = round(itRed->first);
-            str name = katina.players[katina.clients[itRed->second]];
+            str name = katina.getPlayerName(itRed->second);
             oss << name;
             
             for(int i=nameLength(name); i<col1Len-8; ++i)
@@ -259,7 +259,7 @@ void KatinaPluginTeamBalancer::printTeams(bool printBug, bool printChat)
         if(itBlue != blue.rend())
         {
             siz rating = round(itBlue->first);
-            str name = katina.players[katina.clients[itBlue->second]];
+            str name = katina.getPlayerName(itBlue->second);
             oss << name;
             
             for(int i=nameLength(name); i<col2Len-8; ++i)
@@ -460,7 +460,7 @@ bool KatinaPluginTeamBalancer::say(siz min, siz sec, const GUID& guid, const str
     
     siz client;
 
-    if((client = katina.getClientNr(guid)) == siz(-1))
+    if((client = katina.getClientSlot(guid)) == siz(-1))
     	return true;
 
     siss iss(text);
@@ -482,7 +482,7 @@ bool KatinaPluginTeamBalancer::say(siz min, siz sec, const GUID& guid, const str
     {
         rateAllPlayers();
         
-        for(siz_guid_map_citer it = katina.clients.begin(); it != katina.clients.end(); ++it)
+        for(siz_guid_map_citer it = katina.getClients().begin(); it != katina.getClients().end(); ++it)
         {
             soss oss;
             oss << "Rating for '" << katina.getPlayerName(it->first) << "': " << playerRatings[it->first];
@@ -507,13 +507,13 @@ bool KatinaPluginTeamBalancer::say(siz min, siz sec, const GUID& guid, const str
     else if(cmd == "!tb-on" and katina.is_admin(guid))
     {
         enabled = true;
-        plog("TEAMBALANCER ENABLED BY: " << katina.players[guid]);
+        plog("TEAMBALANCER ENABLED BY: [" << guid << "] " << katina.getPlayerName(guid));
     }
 
     else if(cmd == "!tb-off" and katina.is_admin(guid))
     {
         enabled = false;
-        plog("TEAMBALANCER DISABLED BY: " << katina.players[guid]);
+        plog("TEAMBALANCER DISABLED BY: [" << guid << "] " << katina.getPlayerName(guid));
     }
 
     bug("TB say end");
@@ -536,7 +536,7 @@ void KatinaPluginTeamBalancer::heartbeat(siz min, siz sec)
         if(katina.now - it->second.timestamp >= waitTime)
         {
             // Check if player somehow already is in target team
-            if(katina.teams[katina.clients[it->first]] == it->second.targetTeam)
+            if(katina.getTeam(it->first) == it->second.targetTeam)
             {
                 toDelete.push_back(it->first);
                 continue;
@@ -569,7 +569,7 @@ bool TeamBuilder::is1vs1() const
     siz r = 0;
     siz b = 0;
     
-    for(guid_siz_map_citer it = katina.teams.begin(); it != katina.teams.end(); ++it)
+    for(guid_siz_map_citer it = katina.getTeams().begin(); it != katina.getTeams().end(); ++it)
     {
     	if(!katina.check_slot(it->second)) // connected?
     		continue;

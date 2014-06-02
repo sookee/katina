@@ -104,7 +104,7 @@ float difference(siz teamMask, const std::vector<float>& ratings, siz scoreR=0, 
 // http://www.americanscientist.org/issues/issue.aspx?id=3278&y=0&no=&content=true&page=4&css=print
 bool DefaultTeamBuilder::buildTeams(siz_float_map playerRatings, siz_map& destTeams, TeamBuilderEvent event, void* payload)
 {
-    if(katina.clients.size() < 3 || is1vs1())
+    if(katina.getClients().size() < 3 || is1vs1())
         return false;
     
     // Create list of active players in the game
@@ -112,12 +112,12 @@ bool DefaultTeamBuilder::buildTeams(siz_float_map playerRatings, siz_map& destTe
     std::vector<float> ratings;
     
 	siz client;
-	for(guid_siz_map_citer it = katina.teams.begin(); it != katina.teams.end(); ++it)
+	for(guid_siz_map_citer it = katina.getTeams().begin(); it != katina.getTeams().end(); ++it)
 	{
     	if(it->second != TEAM_R && it->second != TEAM_B)
         	continue;
 
-    	if((client = katina.getClientNr(it->first)) == siz(-1))
+    	if((client = katina.getClientSlot(it->first)) == siz(-1))
     		continue;
 
     	ingamePlayers.push_back(client);
@@ -164,7 +164,7 @@ siz MinimalChangesTeamBuilder::currentTeamMask(const std::vector<siz>& players) 
     siz teamMask = 0;
     for(siz i=0; i<players.size(); ++i)
     {
-        if(katina.teams[ katina.clients[players[i]] ] == TEAM_B)
+        if(katina.getTeam(players[i]) == TEAM_B)
             teamMask |= (1 << i);
     }
     
@@ -181,10 +181,10 @@ siz MinimalChangesTeamBuilder::numChangesNeeded(siz teamMask, const std::vector<
     {
         if(teamMask & 1)
         {
-            if(katina.teams[ katina.clients[players[i]] ] == TEAM_R)
+            if(katina.getTeam(players[i]) == TEAM_R)
                 ++changes;
         }
-        else if(katina.teams[ katina.clients[players[i]] ] == TEAM_B)
+        else if(katina.getTeam(players[i]) == TEAM_B)
             ++changes;
     }
     
@@ -206,7 +206,7 @@ void MinimalChangesTeamBuilder::insertTeamMask(proposal_map& proposals, siz team
 
 bool MinimalChangesTeamBuilder::buildTeams(siz_float_map playerRatings, siz_map& destTeams, TeamBuilderEvent event, void* payload)
 {
-    if(katina.clients.size() < 3 || is1vs1())
+    if(katina.getClients().size() < 3 || is1vs1())
         return false;
     
     KatinaPluginStats* statsPlugin = balancerPlugin.getStatsPlugin();
@@ -218,12 +218,12 @@ bool MinimalChangesTeamBuilder::buildTeams(siz_float_map playerRatings, siz_map&
     std::vector<float> ratings;
     
 	siz client;
-	for(guid_siz_map_citer it = katina.teams.begin(); it != katina.teams.end(); ++it)
+	for(guid_siz_map_citer it = katina.getTeams().begin(); it != katina.getTeams().end(); ++it)
 	{
     	if(it->second != TEAM_R && it->second != TEAM_B)
         	continue;
 
-    	if((client = katina.getClientNr(it->first)) == siz(-1))
+    	if((client = katina.getClientSlot(it->first)) == siz(-1))
     		continue;
 
     	ingamePlayers.push_back(client);
@@ -306,7 +306,7 @@ bool MinimalChangesTeamBuilder::buildTeams(siz_float_map playerRatings, siz_map&
 
 bool OnJoinTeamBuilder::buildTeams(siz_float_map playerRatings, siz_map& destTeams, TeamBuilderEvent event, void* payload)
 {
-    if(katina.clients.size() < 3 || is1vs1())
+    if(katina.getClients().size() < 3 || is1vs1())
         return false;
     
     if(event != TB_JOIN || payload == NULL)
@@ -317,7 +317,7 @@ bool OnJoinTeamBuilder::buildTeams(siz_float_map playerRatings, siz_map& destTea
     // Count players in teams
     siz numRed  = 0;
     siz numBlue = 0;
-    for(guid_siz_map_citer it = katina.teams.begin(); it != katina.teams.end(); ++it)
+    for(guid_siz_map_citer it = katina.getTeams().begin(); it != katina.getTeams().end(); ++it)
     {
         if(it->second == TEAM_R)
             ++numRed;
@@ -329,7 +329,7 @@ bool OnJoinTeamBuilder::buildTeams(siz_float_map playerRatings, siz_map& destTea
     if(numRed == numBlue)
         return false;
     
-    str playerName = katina.players[ katina.clients[data.client] ];
+    str playerName = katina.getPlayerName(data.client);
     
     // Player joined the game from spectators
     //if(data.teamBefore == TEAM_S)
