@@ -450,6 +450,7 @@ bool KatinaPluginTeamBalancer::exit(siz min, siz sec)
         lastStats.erase(lastStats.begin());
     
     printTeams(true);
+    return true;
 }
 
 

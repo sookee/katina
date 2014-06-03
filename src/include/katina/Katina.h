@@ -42,6 +42,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include <list>
 #include <pthread.h>
+#include <memory>
 
 namespace oastats {
 
@@ -114,6 +115,8 @@ struct cvar
 	virtual bool set(const str& s) = 0;
 };
 
+sis& operator>>(sis& i, siz_set& s);
+sos& operator<<(sos& o, const siz_set& s);
 
 template<typename T>
 class cvar_t
@@ -164,30 +167,35 @@ public:
 	}
 };
 
-typedef std::map<str, cvar*> cvar_map;
+typedef std::shared_ptr<cvar> cvar_sptr;
+typedef std::unique_ptr<cvar> cvar_uptr;
+
+typedef std::map<str, cvar_uptr> cvar_map;
 typedef cvar_map::iterator cvar_map_iter;
 typedef cvar_map::const_iterator cvar_map_citer;
+typedef cvar_map::value_type cvar_map_pair;
 
 typedef std::map<KatinaPlugin*, cvar_map> cvar_map_map;
 typedef cvar_map_map::iterator cvar_map_map_iter;
 typedef cvar_map_map::const_iterator cvar_map_map_citer;
+typedef cvar_map_map::value_type cvar_map_map_pair;
 
 inline
-std::istream& operator>>(std::istream& is, siz_set& s)
+sis& operator>>(sis& i, siz_set& s)
 {
 	siz v;
-	while(is >> v)
+	while(i >> v)
 		s.insert(v);
-	return is;
+	return i;
 }
 
 inline
-std::ostream& operator<<(std::ostream& os, const siz_set& s)
+sos& operator<<(sos& o, const siz_set& s)
 {
 	str sep;
 	for(siz_set_citer i = s.begin(); i != s.end(); ++i)
-		{ os << sep << *i; sep = " "; }
-	return os;
+		{ o << sep << *i; sep = " "; }
+	return o;
 }
 
 class Katina
@@ -209,7 +217,8 @@ private:
 //	pthread_mutex_t cvarevts_mtx;
 
 	str name;
-	str prefix;
+//	str prefix;
+	str plugin;
 	//cvarevt_lst cvarevts;
 	property_map props;
 
@@ -369,7 +378,7 @@ public:
 	void add_var_event(class KatinaPlugin* plugin, const str& name, T& var, const T& dflt = T())
 	{
 		var = get(name, dflt);
-		vars[plugin][name] = new cvar_t<T>(var);
+		vars[plugin][name].reset(new cvar_t<T>(var));
 		if(logmode > LOG_NORMAL)
 			log("CVAR: " << plugin->get_id() << ": " << name << " = " << var);
 	}

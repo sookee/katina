@@ -64,8 +64,8 @@ using namespace oastats::types;
 using namespace oastats::utils;
 using namespace oastats::string;
 
-const str version = "0.2";
-const str tag = "dev";
+const str version = "0.1";
+const str tag = "";
 const str revision = REV;
 
 const slot bad_slot(-1);
@@ -267,6 +267,11 @@ bool Katina::unload_plugin(const str& id)
 		return false;
 	}
 
+	// remove vars
+	cvar_map_map_iter v = vars.find(i->second);
+	if(v != vars.end())
+		vars.erase(v);
+
 	i->second->close();
 	void* dl = i->second->dl;
 	delete i->second;
@@ -318,13 +323,13 @@ KatinaPlugin* Katina::get_plugin(const str& id, const str& version)
 	if(i == plugins.end())
 	{
 		log("ERROR: plugin not found: " << id);
-		return 0;
+		return nullptr;
 	}
 
 	if(i->second->get_version() < version)
 	{
 		log("ERROR: wrong version found: " << i->second->get_version() << " expected " << version);
-		return 0;
+		return nullptr;
 	}
 
 	return i->second;
@@ -489,9 +494,9 @@ void Katina::init_rcon()
 	if(get("rcon.active") == "true")
 		server.on();
     
-	prefix = get("rcon.cvar.prefix");
-	if(!prefix.empty())
-		prefix += ".";
+//	prefix = get("rcon.cvar.prefix");
+//	if(!prefix.empty())
+//		prefix += ".";
     
 	//pthread_create(&cvarevts_thread, 0, &cvarpoll, (void*) this);
 }
@@ -524,17 +529,32 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 	str cmd;
 	siss iss(text);
 
-	static str plugin = "";
-
-	if(!(iss >> cmd >> cmd))
+	if(!(iss >> cmd >> cmd >> std::ws))
 		log("Error: parsing builtin command: " << text);
 	else
 	{
 		bug_var(cmd);
 		if(cmd == "plugin")
 		{
-			if(iss >> plugin)
-				server.msg_to(num, "plugin is now: " + plugin);
+			if(!(iss >> plugin))
+			{
+				// list plugins
+				server.msg_to(num, "available plugins:");
+				for(const plugin_map_vt& p: plugins)
+					server.msg_to(num, " " + p.first);
+				return;
+			}
+
+			if(plugins.find(plugin) == plugins.end())
+			{
+				// list plugins
+				server.msg_to(num, "unknown plugin: ^1" + plugin + "^7:");
+				for(const plugin_map_vt& p: plugins)
+					server.msg_to(num, " " + p.first);
+				return;
+			}
+
+			server.msg_to(num, "plugin is now: " + plugin);
 		}
 		else if(cmd == "reconfigure")
 		{
@@ -551,42 +571,101 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 		else if(cmd == "set")
 		{
 			// !katina plugin pluginid
-			// !katina set varname value
-			// -or-
-			// !katina set pluginid::varname value
+			//
+			// !katina set [pluginid::]varname value // set variable
+			// !katina set [pluginid::]varname     // display value
+			// !katina set [pluginid::]            // display list of variables
+
+			bool show_list = false;
+			bool show_value = false;
+
+			str p = plugin;
+
 			str var, val;
-			if(!(iss >> var >> val))
+			if(!(iss >> var)) // list selected plugin (p)
+				show_list = true;
+			else
 			{
-				bug_var(val);
-				log("Error: parsing builtin command parameters: " << text);
+				// resolve plugin p & variable var
+				if(plugins.find(var) != plugins.end())
+				{
+					p = var;
+					var.clear();
+					show_list = true;
+				}
+				else
+				{
+					siz pos;
+					if((pos = var.rfind("::")) != str::npos)
+					{
+						con("pos: " << pos);
+						p = var.substr(0, pos);
+						if(var.size() < pos + 2)
+							show_list = true; // list plugin p
+						else
+							var = var.substr(pos + 2);
+					}
+
+					if(plugins.find(p) == plugins.end())
+					{
+						server.msg_to(num, "Plugin " + p + " is not registered");
+						return;;
+					}
+
+					if(!plugins[p])
+					{
+						server.msg_to(num, "Plugin " + p + " is not loaded");
+						return;
+					}
+
+					// recognize variable var
+					if(vars.find(plugins[p]) == vars.end())
+					{
+						server.msg_to(num, "Plugin " + p + " is not registered");
+						return;
+					}
+
+					if(vars[plugins[p]].find(var) == vars[plugins[p]].end())
+					{
+						server.msg_to(num, "Plugin " + p + " does not recognize variable '" + var + "'");
+						return;
+					}
+
+					if(!(iss >> val)) // list || display
+						show_value = true;
+				}
+			}
+
+			if(plugins.find(p) == plugins.end())
+			{
+				server.msg_to(num, "Plugin " + p + " is not registered");
+				return;
+			}
+
+			if(!plugins[p])
+			{
+				server.msg_to(num, "Plugin " + p + " is not loaded");
+				return;
+			}
+
+			if(show_list)
+			{
+				for(const cvar_map_pair& v: vars[plugins[p]])
+					if(v.second && v.second->get(val))
+						server.msg_to(num, v.first + ": " + val);
+			}
+			else if(show_value)
+			{
+				if(vars[plugins[p]][var]->get(val))
+					server.msg_to(num, var + ": " + val);
 			}
 			else
 			{
-				str p = plugin;
-
-				if(siz pos = var.find("::") != str::npos)
+				vars[plugins[p]][var]->set(val);
+				if(vars[plugins[p]][var]->get(val))
 				{
-					p = var.substr(0, pos);
-					if(var.size() < pos + 2)
-					{
-						server.msg_to(num, "ERROR varname not found");
-						return;
-					}
-					var = var.substr(pos + 2);
-				}
-
-				if(!plugins[p])
-					server.msg_to(num, "Plugin " + p + " is not loaded");
-				else
-				{
-					if(!vars[plugins[p]][var])
-						server.msg_to(num, "Plugin " + p + " does not recognise " + var);
-					else
-					{
-						vars[plugins[p]][var]->set(val);
-						if(vars[plugins[p]][var]->get(val))
-							server.msg_to(num, "Variable " + p + "::" + var + " set to: " + val);
-					}
+					server.msg_to(num, p + "::" + var + ": " + val);
+					log("set cvar: " << p << "::" << var << ": " << val << " [" << getPlayerName(guid) << "]");
 				}
 			}
 		}

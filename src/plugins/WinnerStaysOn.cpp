@@ -156,14 +156,12 @@ bool WinnerStaysOn::vote_disable()
 
 bool WinnerStaysOn::lock_teams()
 {
-	command("!lock r");
-	command("!lock b");
+	return command("!lock r") && command("!lock b");
 }
 
 bool WinnerStaysOn::unlock_teams()
 {
-	command("!unlock r");
-	command("!unlock b");
+	return command("!unlock r") && command("!unlock b");
 }
 
 bool WinnerStaysOn::warmup(siz min, siz sec)

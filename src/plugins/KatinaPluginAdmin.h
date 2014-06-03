@@ -87,14 +87,32 @@ typedef sanction_lst::iterator sanction_lst_iter;
 enum class policy_t : byte
 {
 	FT_EVEN_SCATTER // best to team a, next best to team b etc...
+	, FT_EVEN_SCATTER_DB // even scatter usinf mysql db info`
 	, FT_NEAREST_DIFFERENCE // add up teams a and b then switch 1 player to even them
 	, FT_BEST_PERMUTATION
+	, FT_MAX
 };
+
+sos& operator<<(sos& o, const policy_t& p) { return o << static_cast<siz>(p); }
+sis& operator>>(sis& i, policy_t& p)
+{
+	siz b;
+
+	if(i >> b && b >= static_cast<siz>(policy_t::FT_MAX))
+		i.setstate(std::ios::failbit);
+
+	if(i)
+		p = static_cast<policy_t>(b);
+
+	return i;
+}
 
 class KatinaPluginAdmin
 : public KatinaPlugin
 {
 private:
+	KatinaPlugin* stats = nullptr;
+
 	str& mapname;
 	const slot_guid_map& clients; // slot -> GUID
 	const guid_str_map& players; // GUID -> name

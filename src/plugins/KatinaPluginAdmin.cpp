@@ -55,9 +55,10 @@ KatinaPluginAdmin::KatinaPluginAdmin(Katina& katina)
 , active(true)
 , total_kills(0)
 , total_caps(0)
-, policy(policy_t::FT_EVEN_SCATTER)
+, policy(policy_t::FT_EVEN_SCATTER_DB)
 , spamkill_warn(3)
 , spamkill_mute(5)
+, spamkill_period(10)
 , spamkill_mute_period(60)
 {
 }
@@ -198,16 +199,28 @@ bool KatinaPluginAdmin::fixteams(policy_t policy)
 		if(katina.getTeam(i->second) != TEAM_R && katina.getTeam(i->second) != TEAM_B)
 			continue;
 
-		// accumulate time but keep timer running
-		if(time[i->first])
+		siz skill, fph,cph;
+		if(stats && policy == policy_t::FT_EVEN_SCATTER_DB)
 		{
-			secs[i->first] += (katina.now - time[i->first]);
-			time[i->first] = katina.now;
+			// get skill from database
+			str res = stats->api("get_skill " + str(i->second) + " " + mapname);
+			if(!res.find("ERROR"))
+				continue;
+			skill = to<siz>(res);
 		}
+		else
+		{
+			// accumulate time but keep timer running
+			if(time[i->first])
+			{
+				secs[i->first] += (katina.now - time[i->first]);
+				time[i->first] = katina.now;
+			}
 
-		siz fph = secs[i->first] ? (kills[i->first] * 60 * 60) / secs[i->first] : 0;
-		siz cph = secs[i->first] ? (caps[i->first] * 60 * 60) / secs[i->first] : 0;
-		siz skill = sqrt(pow(fph, 2) + pow(cph * cap_factor, 2));
+			fph = secs[i->first] ? (kills[i->first] * 60 * 60) / secs[i->first] : 0;
+			cph = secs[i->first] ? (caps[i->first] * 60 * 60) / secs[i->first] : 0;
+			skill = sqrt(pow(fph, 2) + pow(cph * cap_factor, 2));
+		}
 
 		if(katina.getTeam(i->second) == TEAM_R)
 			{ skill_r += skill; ++r; }
@@ -228,14 +241,14 @@ bool KatinaPluginAdmin::fixteams(policy_t policy)
 		rank.push_back(player(skill, i->first));
 	}
 
-	if(rank.size() <3)
+	if(rank.size() < 3)
 		return true;
 
 	std::sort(rank.begin(), rank.end());
 
 	pbug("-------------------------------------------");
 
-	if(policy == policy_t::FT_EVEN_SCATTER)
+	if(policy == policy_t::FT_EVEN_SCATTER || policy == policy_t::FT_EVEN_SCATTER_DB)
 	{
 		siz team = (rand() % 2) + 1;
 		bug_var(team);
@@ -419,9 +432,12 @@ bool KatinaPluginAdmin::open()
 {
 	bug_func();
 
+	stats = katina.get_plugin("katina::stats", "0.1");
+
 	plog("Adding var events");
 	katina.add_var_event(this, "admin.active", active, false);
 	katina.add_var_event(this, "admin.clientkick.protect", protect_admins, false);
+	katina.add_var_event(this, "admin.fixteams.policy", policy, policy_t::FT_EVEN_SCATTER);
 
 	plog("Adding log events");
 	katina.add_log_event(this, INIT_GAME);

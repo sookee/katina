@@ -177,9 +177,16 @@ public:
     
 
     ///////////////////////////////////////////
+	// API
+
+	siz get_skill(const GUID& guid, const str& mapname);
+
+    ///////////////////////////////////////////
 	// INTERFACE: KatinaPlugin
 
 	virtual bool open() override;
+
+	virtual str api(const str& cmd) override;
 
 	virtual str get_id() const override;
 	virtual str get_name() const override;

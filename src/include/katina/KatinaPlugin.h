@@ -80,6 +80,11 @@ public:
 	 */
 	virtual str get_version() const = 0;
 	
+	/**
+	 * Interface for other plugins to use
+	 */
+	virtual str api(const str& cmd) { return "ERROR: unknown request"; }
+
 	// Game server log events
 	virtual bool init_game(siz min, siz sec, const str_map& svars) { return true; }
 	virtual bool warmup(siz min, siz sec) { return true; }
@@ -140,7 +145,11 @@ public:
     virtual void heartbeat(siz min, siz sec) {}
 };
 
-//typedef boost::shared_ptr<KatinaPlugin> KatinaPluginSPtr;
+typedef std::shared_ptr<KatinaPlugin> KatinaPluginSPtr;
+typedef std::unique_ptr<KatinaPlugin> KatinaPluginUPtr;
+
+// TODO: make plugin_vec and plugin_map use KatinaPluginSptr
+
 typedef std::vector<KatinaPlugin*> plugin_vec;
 typedef plugin_vec::iterator plugin_vec_iter;
 typedef plugin_vec::const_iterator plugin_vec_citer;
@@ -168,7 +177,7 @@ typedef plugin_map::const_iterator plugin_map_citer;
 extern "C" KatinaPlugin* katina_plugin_factory(Katina& katina) \
 { \
 	return new type(katina); \
-} extern int _missing_semicolon_()
+} struct _missing_semicolon_{}
 /**
  * Plugins should use this macro which provides
  * an interface to plugin loaders.

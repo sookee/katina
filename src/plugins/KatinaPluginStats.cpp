@@ -749,6 +749,36 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 	return true;
 }
 
+str KatinaPluginStats::api(const str& cmd)
+{
+	bug("API CALL: " << cmd);
+	siss iss(cmd);
+	str c;
+	if(!(iss >> c))
+		return "ERROR: bad request";
+
+	if(c == "get_skill")
+	{
+		str guid, mapname;
+		if(!(iss >> guid >> mapname))
+			return "ERROR: bad parameters: " + cmd;
+
+		return std::to_string(get_skill(GUID(guid), mapname));
+	}
+
+	return KatinaPlugin::api(cmd);//"ERROR: unknown request";
+}
+
+siz KatinaPluginStats::get_skill(const GUID& guid, const str& mapname)
+{
+	static str stats;
+	static siz skill;
+	db.on();
+	if(!db.get_ingame_stats(guid, mapname, 0, stats, skill))
+		skill = 0;
+	db.off();
+	return skill;
+}
 
 void KatinaPluginStats::close()
 {
