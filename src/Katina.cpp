@@ -64,8 +64,8 @@ using namespace oastats::types;
 using namespace oastats::utils;
 using namespace oastats::string;
 
-const str version = "0.1";
-const str tag = "";
+const str version = "0.2";
+const str tag = "dev";
 const str revision = REV;
 
 const slot bad_slot(-1);
