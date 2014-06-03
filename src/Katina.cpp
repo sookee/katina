@@ -556,6 +556,13 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 
 			server.msg_to(num, "plugin is now: " + plugin);
 		}
+		else if(cmd == "plugins")
+		{
+			server.msg_to(num, "available plugins:");
+			for(const plugin_map_vt& p: plugins)
+				server.msg_to(num, " " + p.first);
+			return;
+		}
 		else if(cmd == "reconfigure")
 		{
 			property_map new_props;
