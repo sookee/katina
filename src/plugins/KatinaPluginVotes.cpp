@@ -101,7 +101,7 @@ void KatinaPluginVotes::get_votes(siz& love, siz& hate)
 	{
 		if(i->second > 0)
 			++love;
-		else
+		else if(i->second < 0)
 			++hate;
 	}
 }

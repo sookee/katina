@@ -1531,7 +1531,7 @@ int main(const int argc, const char* argv[])
 		if(cmd == "say:")
 		{
 			// 0:23 say: ^5A^6lien ^5S^6urf ^5G^6irl: yes, 3-4 players max
-			bug("line: " << line);
+			//bug("line: " << line);
 
 			if(sk_cfg.do_chats)
 			{

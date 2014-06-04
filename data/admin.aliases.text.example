@@ -4,6 +4,6 @@
 ?help: #help
 !request: !idea
 ?request: ?idea
-!sanctions: !bans // you can dd comments here too
+!sanctions: !bans // you can add comments here too
 ?sanctions: ?bans
 

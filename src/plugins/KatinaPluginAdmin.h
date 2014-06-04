@@ -87,7 +87,7 @@ typedef sanction_lst::iterator sanction_lst_iter;
 enum class policy_t : byte
 {
 	FT_EVEN_SCATTER // best to team a, next best to team b etc...
-	, FT_EVEN_SCATTER_DB // even scatter usinf mysql db info`
+	, FT_EVEN_SCATTER_DB // even scatter using mysql db info`
 	, FT_NEAREST_DIFFERENCE // add up teams a and b then switch 1 player to even them
 	, FT_BEST_PERMUTATION
 	, FT_MAX

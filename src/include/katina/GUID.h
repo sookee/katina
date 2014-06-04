@@ -53,17 +53,9 @@ class GUID
 public:
 	const static siz SIZE = 8;
 
-	GUID(): data(SIZE, '0'), bot(false)
-	{
-		for(siz i = 0; i < SIZE; ++i)
-			this->data[i] = '0';
-	}
+	GUID(): data(SIZE, '0'), bot(false) {}
 
-	explicit GUID(const char data[SIZE]): data(SIZE, '0'), bot(false)
-	{
-		for(siz i = 0; i < SIZE; ++i)
-			this->data[i] = data[i];
-	}
+	explicit GUID(const char data[SIZE]): data(data), bot(false) {}
 
 	explicit GUID(const str& data): data(SIZE, '0'), bot(false)
 	{
@@ -71,9 +63,8 @@ public:
 			this->data[i] = data[i];
 	}
 
-	GUID(const GUID& guid): data(SIZE, '0'), bot(guid.bot)
+	GUID(const GUID& guid): bot(guid.bot)
 	{
-		bot = guid.bot;
 		for(siz i = 0; i < SIZE; ++i)
 			this->data[i] = guid.data[i];
 	}
