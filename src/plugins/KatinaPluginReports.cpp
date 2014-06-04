@@ -423,9 +423,7 @@ bool KatinaPluginReports::say(siz min, siz sec, const GUID& guid, const str& tex
 		str nums_team = get_nums_team(guid);
 
 		if(do_flags && do_flags_hud)
-		{
 			hud = get_hud(min, sec, hud_flag);
-		}
 
 		if(!spamkill || ++spam[text] < spam_limit || std::find(notspam.begin(), notspam.end(), text) != notspam.end())
 			client.raw_chat('c', hud + oa_to_IRC(nums_team + " ^7" + katina.getPlayerName(guid) + "^7: ^2" + text));
