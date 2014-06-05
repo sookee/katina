@@ -96,6 +96,7 @@ private:
 	bool active;
 	bool do_flags;
 	bool do_flags_hud;
+	bool do_caps;
 	bool do_chats;
 	bool do_kills;
 	bool do_pushes;
@@ -126,6 +127,8 @@ public:
 	KatinaPluginReports(Katina& katina);
 
 	// INTERFACE: KatinaPlugin
+
+	virtual str api(const str& cmd) override;
 
 	virtual bool open() override;
 

@@ -213,13 +213,8 @@ private:
 	typedef std::pair<property_map_iter, property_map_iter> property_map_iter_pair;
 	typedef std::pair<property_map_iter, property_map_iter> property_map_range;
 
-//	pthread_t cvarevts_thread;
-//	pthread_mutex_t cvarevts_mtx;
-
 	str name;
-//	str prefix;
 	str plugin;
-	//cvarevt_lst cvarevts;
 	property_map props;
 
 	plugin_map plugins; // id -> KatinaPlugin*
@@ -240,6 +235,9 @@ private:
 	bool unload_plugin(const str& id);
 	bool reload_plugin(const str& id);
     
+	bool initial_player_info();
+	void builtin_command(const GUID& guid, const str& text);
+
 	// disconnected guid keys are kept here until ShutdownGame
     guid_lst shutdown_erase; // disconnected list
 
@@ -255,12 +253,31 @@ public:
 
 	// API
 
+	/**
+	 * General purpose encryption/decryption signatures etc...
+	 */
 	PKI pki;
+
+	/**
+	 * Send rcon commands to the game server
+	 */
 	RCon server;
 
+	/**
+	 * Location of the configuration folder.
+	 * Typically something like $HOME/.katina
+	 */
 	str config_dir;
+
+	/**
+	 * The current map name
+	 */
 	str mapname;
 
+	/**
+	 * Find out if the player with the given GUID
+	 * recently disconnected from the server.
+	 */
 	bool is_disconnected(const GUID& guid) const
 	{
 		return std::find(shutdown_erase.begin(), shutdown_erase.end(), guid) != shutdown_erase.end();
@@ -272,10 +289,29 @@ public:
 
 	str mod_katina; // server enhancements
 
+	/**
+	 * Get the name of the bot (default Katina)
+	 */
 	const str& get_name() { return name; }
 
+	/**
+	 * Get a read-only reference to the clients data
+	 * structure that maps slot numbers to gUIDs.
+	 */
 	const slot_guid_map& getClients() { return clients; }
+
+	/**
+	 * Get a read-only reference to the players data
+	 * structure that maps GUIDs to player names.
+	 */
 	const guid_str_map& getPlayers() { return players; }
+
+	/**
+	 * Get a read-only reference to the teams data
+	 * structure that maps GUIDs to player's team.
+	 *
+	 * 0 = TEAM_U (unknown), 1 = TEAM_R (red), 2 = TEAM_B (blue), 3 = TEAM_S (specs)
+	 */
 	const guid_siz_map& getTeams() { return teams; }
 
 	/**
@@ -283,9 +319,6 @@ public:
 	 */
 	bool rconset(const str& cvar, str& val);
 
-	bool initial_player_info();
-	void builtin_command(const GUID& guid, const str& text);
-    
     siz getTeam(slot num) const;
     siz getTeam(const GUID& guid) const;
     str getPlayerName(slot num) const;
@@ -294,7 +327,7 @@ public:
     const GUID& getClientGuid(slot num) const;
 
     /**
-     * return the slot number os the current player from
+     * return the slot number of the current player from
      * user input that is EITHER the slot number, the GUID
      * OR the name of the player
      *
@@ -310,17 +343,38 @@ public:
     	return clients.find(num) != clients.end();
     }
 
-
 	str get_version() const;
 
+	/**
+	 * Get a generic plugin pointer, else nullptr if not found.
+	 *
+	 * @return A pointer to the plugin with the supplied id
+	 * else nullptr if not loaded or id not recognized.
+	 */
 	KatinaPlugin* get_plugin(const str& id, const str& version);
 
+	/**
+	 * Get a fully qualified typed pointer to a plugin, else
+	 * nullptr if not found or id is not recognized.
+	 *
+	 * @throws May throw a std::bad_cast if dynamic_cast() fails.
+	 */
 	template<typename Plugin>
 	bool get_plugin(const str& id, const str& version, Plugin*& plugin)
 	{
 		return (plugin = dynamic_cast<Plugin*>(get_plugin(id, version)));
 	}
 
+	/**
+	 * Get a type-converted config variable's value.
+	 *
+	 * @param s The config variable whose value is sought.
+	 * @param dflt A default value to use if the variable was not
+	 * found in the config file.
+	 *
+	 * @return The value that the variable s is set to in the config
+	 * file else dflt if not present.
+	 */
 	template<typename T>
 	T get(const str& s, const T& dflt = T())
 	{
@@ -331,21 +385,65 @@ public:
 		return t;
 	}
 
+	/**
+	 * Get the native string config variable's value.
+	 *
+	 * @param s The config variable whose value is sought.
+	 * @param dflt A default value to use if the variable was not
+	 * found in the config file.
+	 *
+	 * @return The value that the variable s is set to in the config
+	 * file else dflt if not present.
+	 */
 	str get(const str& s, const str& dflt = "")
 	{
 		return props[s].empty() ? dflt : props[s][0];
 	}
 
+	/**
+	 * Get a file-path converted config variable's value.
+	 *
+	 * @param s The config variable whose value is sought.
+	 * @param dflt A default value to use if the variable was not
+	 * found in the config file.
+	 *
+	 * @return The value that the variable s is set to in the config
+	 * file after file glob explnsion has been applied else dflt if
+	 * not present.
+	 */
 	str get_exp(const str& s, const str& dflt = "")
 	{
 		return props[s].empty() ? dflt : expand_env(props[s][0], WRDE_SHOWERR|WRDE_UNDEF);
 	}
 
+	/**
+	 * Get the native string vector config variable's values
+	 * when the same variable is provided several times in the
+	 * config file.
+	 *
+	 * @param s The config variable whose values are sought.
+	 *
+	 * @return All the values that the variable s is set to in the config
+	 * file as a vector of strings (str_vec). May be empty if variable is
+	 * not present.
+	 */
 	const str_vec& get_vec(const str& s)
 	{
 		return props[s];
 	}
 
+	/**
+	 * Get the native string vector config variable's file-name
+	 * exanded values when the same variable is provided several
+	 * times in the config file.
+	 *
+	 * @param s The config variable whose values are sought.
+	 *
+	 * @return All the file-name expanded  values that the
+	 * variable s is set to in the config file as a vector
+	 * of strings (str_vec). May be empty if variable is
+	 * not present.
+	 */
 	str_vec get_exp_vec(const str& s)
 	{
 		str_vec v = get_vec(s);
@@ -354,20 +452,61 @@ public:
 		return v;
 	}
 
+	/**
+	 * Check if the config file has a given variable set.
+	 */
 	bool has(const str& s)
 	{
 		property_map_range i = props.equal_range(s);
 		return i.first != i.second;
 	}
 
+	/**
+	 * Synonym forbool has(const str& s).
+	 */
 	bool have(const str& s) { return has(s); }
 
+	/**
+	 * Send public chat (via rcon) to a given player
+	 * with slot number num.
+	 *
+	 * @param num The slot number of the player you want
+	 * to mark chat for.
+	 *
+	 * @text The message to be printed.
+	 *
+	 * @return true if rcon succeeded or false if it failed.
+	 */
 	bool chat_to(slot num, const str& text);
+
+	/**
+	 * Send public chat (via rcon) to a given player
+	 * with the given GUID.
+	 *
+	 * @param guid The GUID of the player you want
+	 * to mark chat for.
+	 *
+	 * @text The message to be printed.
+	 *
+	 * @return true if rcon succeeded or false if it failed.
+	 */
 	bool chat_to(const GUID& guid, const str& text);
+
+	/**
+	 * Send public chat (via rcon) to a given player
+	 * with the given name.
+	 *
+	 * @param name The name of the player you want
+	 * to mark chat for.
+	 *
+	 * @text The message to be printed.
+	 *
+	 * @return true if rcon succeeded or false if it failed.
+	 */
 	bool chat_to(const str& name, const str& text);
 
 	/**
-	 * Set a variable to be auto-updated from a cvar. The variable is set to a supplied
+	 * Set a variable to be auto-updated from builtin commands. The variable is set to a supplied
 	 * default value if a default value can not be found in the config file.
 	 * @param plugin pointer to the calling plugin
 	 * @param name variable name. A configurable prefix is added to this name for the cvar lookup.
@@ -395,12 +534,20 @@ public:
 			events[e].erase(i);
 	}
 
+	/**
+	 * Find out if the player with the GUID is a server admin.
+	 *
+	 * This function checks the config file for admin.guid: entries
+	 * and also the admin.dat config file of the running server if
+	 * specified by the admin.dat.file: variable in the config file.
+	 */
 	bool is_admin(const GUID& guid);
 
 	/**
+	 *	Start the logfile scanning.
 	 *
      * @param config path to config directory [$HOME/.katina]
-     * @return
+     * @return true if terminated normally else false;
      */
 	bool start(const str& dir);
 };

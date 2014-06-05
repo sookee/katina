@@ -1000,7 +1000,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 
 	if(cmd == trans("!help") || cmd == trans("?help"))
 	{
-		server.msg_to(say_num, "^7ADMIN: ^2?request^7", true);
+		server.msg_to(say_num, "^7ADMIN: ^2?request^7, ^2?alert^7", true);
 
 		if(!check_admin(guid))
 			return true;
@@ -1008,6 +1008,26 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		server.msg_to(say_num, "^7ADMIN: ^2?sanctions^7, ^2?mute++^7, ^2?fixname^7, ^2?voteban^7");
 		server.msg_to(say_num, "^7ADMIN: ^2?warnonsight^7, ^2?fixteams^7, ^2?reteam^7, ^2?spec^7");
 		server.msg_to(say_num, "^7ADMIN: ^2?mapban^7");
+	}
+	else if(cmd == trans("!alert") || cmd == trans("?alert"))
+	{
+		if(cmd[0] == '?')
+		{
+			server.msg_to(say_num, "^7ADMIN: ^3Request an admin to attend the server.", true);
+			server.msg_to(say_num, "^7ADMIN: ^3!alert");
+			return true;
+		}
+
+		str request;
+		sgl(iss >> std::ws, request);
+
+		sofs ofs((katina.config_dir + "/requests.txt").c_str(), sofs::app);
+		if(ofs << guid << ": " << request << " [" << katina.getPlayerName(guid) << "]"<< '\n')
+		{
+			server.msg_to(say_num, "^7ADMIN: "
+					+   katina.getPlayerName(guid)
+					           + "^3, your request has been logged.", true);
+		}
 	}
 	else if(cmd == trans("!request") || cmd == trans("?request"))
 	{

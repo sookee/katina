@@ -358,10 +358,10 @@ bool Katina::is_admin(const GUID& guid)
 			return true;
 
 	// now try admin.dat file
-	str admin_dat = get("admin.dat.file");
+	str admin_dat = get_exp("admin.dat.file");
 	if(admin_dat.empty())
 		return false;
-	sifs ifs(expand_env(admin_dat).c_str());
+	sifs ifs(admin_dat.c_str());
 	if(!ifs)
 	{
 		log("WARN: admin.dat file not found: " << admin_dat);
