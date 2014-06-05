@@ -36,14 +36,14 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <katina/log.h>
 #include <katina/str.h>
 #include <katina/codes.h>
-#include <katina/utils.h>
+#include <katina/time.h>
 
 
 namespace katina { namespace plugin {
 
 using namespace oastats::log;
 using namespace oastats::types;
-using namespace oastats::utils;
+using namespace oastats::time;
 using namespace oastats::string;
 
 KATINA_PLUGIN_TYPE(KatinaPluginAdmin);

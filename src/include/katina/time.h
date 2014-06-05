@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef _OASTATS_TIME_H_
 #define _OASTATS_TIME_H_
 /*
@@ -39,6 +39,20 @@ http://www.gnu.org/licenses/gpl-2.0.html
 namespace oastats { namespace time {
 
 using namespace oastats::types;
+
+inline
+void thread_sleep_millis(siz msecs)
+{
+	usleep(msecs * 1000);
+}
+
+inline
+milliseconds get_millitime()
+{
+	timespec ts;
+	clock_gettime(CLOCK_REALTIME, &ts);
+	return (ts.tv_sec * 1000) + (ts.tv_nsec / 1000000);
+}
 
 }} // oastats::time
 
