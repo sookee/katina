@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef _OASTATS_REMOTECLIENT_H_
 #define _OASTATS_REMOTECLIENT_H_
 /*
@@ -143,7 +143,7 @@ class InsecureClient
 {
 	net::socketstream ss;
 	str host;
-	siz port;
+	siz port = 7334;
 
 public:
 	InsecureClient(Katina& katina): RemoteClient(katina) {}

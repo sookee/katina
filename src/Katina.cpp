@@ -352,16 +352,19 @@ bool Katina::chat_to(const str& name, const str& text)
 
 bool Katina::is_admin(const GUID& guid)
 {
+	bug_func();
+	bug_var(guid);
+	bug_var(getPlayerName(guid));
 	str_vec admins = get_vec("admin.guid");
 	for(str_vec_iter i = admins.begin(); i != admins.end(); ++i)
 		if(guid == GUID(*i))
 			return true;
 
 	// now try admin.dat file
-	str admin_dat = get("admin.dat.file");
+	str admin_dat = get_exp("admin.dat.file");
 	if(admin_dat.empty())
 		return false;
-	sifs ifs(expand_env(admin_dat).c_str());
+	sifs ifs(admin_dat.c_str());
 	if(!ifs)
 	{
 		log("WARN: admin.dat file not found: " << admin_dat);
@@ -524,7 +527,16 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 	}
 
 	if(trim_copy(text).empty())
-		server.msg_to(num, "^1K^7at^3i^7na: " + revision);
+	{
+		server.msg_to(num, name + "^7: " + revision);
+		return;
+	}
+
+	if(!is_admin(guid))
+	{
+		server.msg_to(num, name + "^7: " + "^3You need to be admin to use this");
+		return;
+	}
 
 	str cmd;
 	siss iss(text);

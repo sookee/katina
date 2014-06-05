@@ -4,24 +4,12 @@
 
 Mod: finish katina-client
 
-Fix: when katina restarts she looses all player names for flag counting
-   : and she looses mapname for !stats !boss etc
 Add: team of player? If player switch then log as "unaligned"? Or last team joined?
-
-Add: Old Hag Contest plugin
-	!set_players n
-	!set_bots n
-	!add <num> // add player to game
-	!rem <num>|"all" // remove player(s)
-	!begin // start game
-
-Mod: remove svars, use say interface !setvar <name> <value> AUTH on GUID (read !admin file?)
 
 Mod: fix GUIDs in database {1.0}
 Add: make test-harness {1.0}
 Fix: finish PKI key loading (Katina) {1.0}
 Fix: finish PKI remote client {1.0}
-Add: incorporate silent chats (aka wing's mod) {1.0}
 Mod: make each table update in the stats plugin optional {1.0}
 Mod: finish katina-irc client incl PKI interface {1.0}
 Fix: == RESULTS == 0 RED 0 BLUE  == <= flags always zero

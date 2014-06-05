@@ -2,7 +2,7 @@
 
 DEBUG = 1
 RELEASE = 0
-PREFIX = /use/local
+PREFIX = /usr/local
 
 -include Makefile.local # override defaults
 

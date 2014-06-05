@@ -129,7 +129,12 @@ int main(int argc, char* argv[])
 			return false;
 		}
 
-		std::map<str, std::pair<siz, siz> > votes; // mapname -> { loves, hates }
+		struct opine
+		{
+			siz love, hate, soso;
+			opine(): love(0), hate(0), soso(0) {}
+		};
+		std::map<str,opine> votes; // mapname -> { love, hate, soso }
 
 		MYSQL_RES* result = mysql_store_result(&mysql);
 
@@ -142,16 +147,18 @@ int main(int argc, char* argv[])
 			{
 				int vote = to<int>(row[1]);
 				if(vote > 0)
-					votes[row[0]].first += vote;
+					++votes[row[0]].love;
 				else if(vote < 0)
-					votes[row[0]].second -= vote;
+					++votes[row[0]].hate;
+				else
+					++votes[row[0]].soso;
 			}
 
 			mysql_free_result(result);
 
-			for(std::map<str, std::pair<siz, siz> >::iterator i = votes.begin(); i != votes.end(); ++i)
+			for(std::map<str,opine>::iterator i = votes.begin(); i != votes.end(); ++i)
 			{
-				con(i->first << ": " << i->second.first << ", " << i->second.second);
+				con(i->first << ": " << i->second.love << ", " << i->second.hate << ", " << i->second.soso);
 
 //				oss.str("");
 //				oss << "insert into `polls` (`type`,`item`,`love`,`hate`) values (";

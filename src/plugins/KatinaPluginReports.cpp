@@ -153,9 +153,11 @@ KatinaPluginReports::KatinaPluginReports(Katina& katina)
 , active(false)
 , do_flags(false)
 , do_flags_hud(false)
+, do_caps(false)
 , do_chats(false)
 , do_kills(false)
 , do_pushes(false)
+, do_announce_pushes(false)
 , do_infos(false)
 , do_stats(false)
 //, stats_cols(0)
@@ -197,6 +199,7 @@ bool KatinaPluginReports::open()
 	katina.add_var_event(this, "reports.active", active, false);
 	katina.add_var_event(this, "reports.flags", do_flags, false);
 	katina.add_var_event(this, "reports.flags.hud", do_flags_hud, false);
+	katina.add_var_event(this, "reports.caps", do_caps, false);
 	katina.add_var_event(this, "reports.chats", do_chats, false);
 	katina.add_var_event(this, "reports.kills", do_kills, false);
 	katina.add_var_event(this, "reports.pushes", do_pushes, false);
@@ -216,6 +219,21 @@ bool KatinaPluginReports::open()
 	katina.add_log_event(this, SAY);
 
 	return true;
+}
+
+str KatinaPluginReports::api(const str& cmd)
+{
+	if(!cmd.find("alert:"))
+	{
+		str line;
+		siss iss(cmd);
+		if(!sgl(sgl(iss, line, ':') >> std::ws, line))
+			return "ERROR: parsing alert message";
+
+		if(!client.chat('a', line))
+			return "ERROR: sending to client";
+	}
+	return "OK";
 }
 
 str KatinaPluginReports::get_id() const
@@ -242,22 +260,40 @@ bool KatinaPluginReports::init_game(siz min, siz sec, const str_map& cvars)
 	if(!active)
 		return true;
 
-	if(do_infos && katina.mapname != old_mapname)
+	if(do_infos && katina.get_mapname() != old_mapname)
 	{
 		str vote;
 
 		if(votes)
 		{
-			siz love, hate;
-			votes->get_votes(love, hate);
+			siz love, hate, soso;
+//			votes->get_votes(love, hate);
+
+			str ret = votes->api("get_votes");
+			siss iss(ret);
+
+			str status;
+			if(!(iss >> status >> love >> hate >> soso))
+			{
+				plog("ERROR: bad results from api call: " + ret);
+				return true;
+			}
+
+			if(status != "OK:")
+			{
+				plog(status);
+				return true;
+			}
+
 			soss oss;
-			oss << " ^7" << love << " ^1LOVE ^7" << hate << " ^2HATE ^3==";
+//			oss << " ^7" << love << " ^1LOVE ^7" << hate << " ^2HATE ^7" << soso << " ^5SOSO ^3==";
+			oss << " ^1LOVE^7: " << love << " ^2HATE^7: " << hate << " ^5SOSO^7: " << soso << " ^3==";
 			vote = oss.str();
 		}
 
-		client.chat('i', "^3===" + vote + " ^4map: ^7" + katina.mapname);
+		client.chat('i', "^3===" + vote + " ^4map: ^7" + katina.get_mapname());
 
-		old_mapname = katina.mapname;
+		old_mapname = katina.get_mapname();
 	}
 
 	return true;
@@ -335,11 +371,6 @@ str KatinaPluginReports::get_nums_team(const GUID& guid)
 
 bool KatinaPluginReports::ctf(siz min, siz sec, slot num, siz team, siz act)
 {
-	bug_func();
-	pbug_var(num);
-	pbug_var(team);
-	pbug_var(act);
-	pbug_var(active);
 	if(!active)
 		return true;
 
@@ -373,7 +404,7 @@ bool KatinaPluginReports::ctf(siz min, siz sec, slot num, siz team, siz act)
 			hud_flag[pcol] = HUD_FLAG_NONE;
 			hud = get_hud(min, sec, hud_flag);
 		}
-		if(do_flags)
+		if(do_flags || do_caps)
 			client.raw_chat('f', hud + oa_to_IRC("^7[ ] ^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED])));
 	}
 	else if(act == FL_TAKEN)
@@ -423,9 +454,7 @@ bool KatinaPluginReports::say(siz min, siz sec, const GUID& guid, const str& tex
 		str nums_team = get_nums_team(guid);
 
 		if(do_flags && do_flags_hud)
-		{
 			hud = get_hud(min, sec, hud_flag);
-		}
 
 		if(!spamkill || ++spam[text] < spam_limit || std::find(notspam.begin(), notspam.end(), text) != notspam.end())
 			client.raw_chat('c', hud + oa_to_IRC(nums_team + " ^7" + katina.getPlayerName(guid) + "^7: ^2" + text));
@@ -576,10 +605,10 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 
 			if(max < 23)
 				max = 23;
-			katina.server.chat_nobeep("^5== ^6RESULTS ^5" + str(max - 23, '='));
+			katina.server.msg_to_all("^5== ^6RESULTS ^5" + str(max - 23, '='));
 			for(siz i = 0; i < results.size(); ++i)
-				katina.server.chat_nobeep(results[i]);
-			katina.server.chat_nobeep("^5" + str(max - 12, '-'));
+				katina.server.msg_to_all(results[i]);
+			katina.server.msg_to_all("^5" + str(max - 12, '-'));
 
 			if(do_infos)
 			{

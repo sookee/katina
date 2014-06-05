@@ -43,6 +43,9 @@ namespace oastats {
 
 using namespace oastats::types;
 
+/**
+ * This is the abstract base class for all plugins.
+ */
 class KatinaPlugin
 {
 	friend class Katina;
@@ -90,7 +93,9 @@ public:
 	virtual bool warmup(siz min, siz sec) { return true; }
 	virtual bool client_connect(siz min, siz sec, slot num) { return true; }
 
-	/** zim@openmafia.org mod >= 0.1-beta */
+	/**
+	 * Only with mod_katina >= 0.1-beta
+	 */
 	virtual bool client_connect_info(siz min, siz sec, slot num, const GUID& guid, const str& ip) { return true; }
 	virtual bool client_begin(siz min, siz sec, slot num) { return true; }
 	virtual bool client_disconnect(siz min, siz sec, slot num) { return true; }
@@ -190,8 +195,16 @@ static const char* VERSION = V
 /**
  * Please use plog() rather than log() in your plugins
  */
-#define pbug(m) bug(ID << ": " << m)
 #define plog(m) log(ID << ": " << m)
+
+/**
+ * Please use pbug() rather than bug() in your plugins
+ */
+#define pbug(m) bug(ID << ": " << m)
+
+/**
+ * Please use pbug_var() rather than bug_var() in your plugins
+ */
 #define pbug_var(v) pbug(QUOTE(v:) << std::boolalpha << " " << v)
 
 
