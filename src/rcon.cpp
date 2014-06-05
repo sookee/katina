@@ -32,6 +32,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <katina/str.h>
 #include <katina/log.h>
 #include <katina/time.h>
+#include <katina/utils.h>
 
 // rcon
 #include <cerrno>
@@ -47,6 +48,7 @@ namespace oastats { namespace net {
 using namespace oastats::log;
 using namespace oastats::time;
 using namespace oastats::types;
+using namespace oastats::utils;
 using namespace oastats::string;
 
 // -- RCON ----------------------------------------------
