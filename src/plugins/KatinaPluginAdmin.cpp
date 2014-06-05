@@ -604,6 +604,16 @@ bool KatinaPluginAdmin::client_connect_info(siz min, siz sec, slot num, const GU
 		if(guid == GUID(*i))
 			server.command("!ban " + to_string(num) + "AUTO BAN GUID: " + *i);
 
+	for(str_vec_citer i = katina.get_vec("admin.alert.ip").begin(); i != katina.get_vec("admin.alert.ip").end(); ++i)
+		if(!ip.find(*i)) // left substring match
+			if(irc)
+				irc->chat('a', "^1!^3ALERT^1! ^7[^2" + str(guid) + "^7] " + katina.getPlayerName(guid) + " ^3has joined the server");
+
+	for(str_vec_citer i = katina.get_vec("admin.alert.guid").begin(); i != katina.get_vec("admin.alert.guid").end(); ++i)
+		if(guid == GUID(*i))
+			if(irc)
+				irc->chat('a', "^1!^3ALERT^1! ^7[^2" + str(guid) + "^7] " + katina.getPlayerName(guid) + " ^3has joined the server");
+
 	return true;
 }
 
@@ -1081,7 +1091,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		if(cmd[0] == '?')
 		{
 			server.msg_to(say_num, "^7ADMIN: ^3Request an admin to attend the server.", true);
-			server.msg_to(say_num, "^7ADMIN: ^3!alert");
+			server.msg_to(say_num, "^7ADMIN: ^3!alert <reason>");
 			return true;
 		}
 
@@ -1089,7 +1099,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		sgl(iss >> std::ws, request);
 
 		if(irc)
-			if(irc->chat('a', "^3!^1AERT^3! ^7" + katina.get("admin.alert.irc.admins") + " ^1" + request))
+			if(irc->chat('a', "^3!^1AERT^3! ^7" + katina.get("admin.alert.irc.admins") + " ^3" + request))
 				server.msg_to(say_num, katina.get_name() + "^7: "
 						+   katina.getPlayerName(guid)
 								   + "^3, admin have been alerted.", true);
