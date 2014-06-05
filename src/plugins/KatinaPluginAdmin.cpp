@@ -735,7 +735,7 @@ bool KatinaPluginAdmin::votekill(const str& reason)
 
 bool KatinaPluginAdmin::callvote(siz min, siz sec, slot num, const str& type, const str& info)
 {
-	plog(katina.getPlayerName(num) << " " << type << " " << info);
+	plog("callvote: " << katina.getPlayerName(num) << " " << type << " " << info);
 //	bug_func();
 //	pbug_var(type);
 //	pbug_var(info);
@@ -786,11 +786,16 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, slot num, const str& type, co
 //	pbug_var(clients[kick_num]);
 //	pbug_var(katina.is_admin(clients[kick_num]));
 	if(protect_admins)
+	{
+		pbug("VOTEKILL: PROTECTING ADMINS: " << info);
+		pbug("VOTEKILL: PROTECTING ADMINS: " << katina.getClientGuid(to<siz>(info)));
+		pbug("VOTEKILL: PROTECTING ADMINS: " << katina.is_admin(katina.getClientGuid(to<siz>(info))));
 		if(type == "clientkick" && katina.is_admin(katina.getClientGuid(to<siz>(info))))
 		{
 			votekill(katina.get_name() + "^1: ^7[^3NOT ALLOWED TO KICK ADMINS^7]");
 			plog("VOTEKILL: admin protection for: " << katina.getPlayerName(to<siz>(info)));
 		}
+	}
 	return true;
 }
 
