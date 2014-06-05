@@ -724,10 +724,12 @@ str secs_to_dhms(siz secs)
 
 bool KatinaPluginAdmin::votekill(const str& reason)
 {
+	pbug("VOTEKILL ACTIVATED: " << reason);
 	if(!server.command("!cancelvote"))
 		if(!server.command("!cancelvote"))
 			return false;
 	server.msg_to_all(reason);
+	plog("VOTEKILL ACTIVATED: " << reason);
 	return true;
 }
 
@@ -763,7 +765,10 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, slot num, const str& type, co
 			reason = " ^7[^3" + reason + "^7]";
 
 		if(t == type && i == info)
+		{
 			votekill(katina.get_name() + "^1: ^5This vote has been disallowed" + reason);
+			plog("VOTEKILL: admin.ban.vote: " << v);
+		}
 	}
 
 	if(!katina.check_slot(num))
@@ -771,17 +776,21 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, slot num, const str& type, co
 
 	for(const sanction& s: sanctions)
 		if((!s.expires || s.expires < katina.now) && s.guid == katina.getClientGuid(num))
+		{
 			votekill(katina.get_name() + "^1: " + katina.getPlayerName(num) + " is banned from voting for "
 				+ secs_to_dhms(s.expires - katina.now));
-
+			plog("VOTEKILL: prevented " << katina.getClientGuid(num) << ": banned: " << s.reason);
+		}
 //	siz kick_num = to<siz>(info);
 //	pbug_var(kick_num);
 //	pbug_var(clients[kick_num]);
 //	pbug_var(katina.is_admin(clients[kick_num]));
 	if(protect_admins)
 		if(type == "clientkick" && katina.is_admin(katina.getClientGuid(to<siz>(info))))
+		{
 			votekill(katina.get_name() + "^1: ^7[^3NOT ALLOWED TO KICK ADMINS^7]");
-
+			plog("VOTEKILL: admin protection for: " << katina.getPlayerName(to<siz>(info)));
+		}
 	return true;
 }
 
