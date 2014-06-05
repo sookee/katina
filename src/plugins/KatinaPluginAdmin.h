@@ -86,7 +86,8 @@ typedef sanction_lst::iterator sanction_lst_iter;
 
 enum class policy_t : byte
 {
-	FT_EVEN_SCATTER // best to team a, next best to team b etc...
+	FT_NONE
+	, FT_EVEN_SCATTER // best to team a, next best to team b etc...
 	, FT_EVEN_SCATTER_DB // even scatter using mysql db info`
 	, FT_NEAREST_DIFFERENCE // add up teams a and b then switch 1 player to even them
 	, FT_BEST_PERMUTATION
@@ -154,16 +155,21 @@ private:
 	typedef std::list<spam> spam_lst;
 	typedef spam_lst::iterator spam_lst_iter;
 	typedef spam_lst::const_iterator spam_lst_citer;
-	typedef std::map<slot, spam_lst> spam_map;
+	typedef std::map<str, spam_lst> spam_map;
 	typedef std::map<slot, std::time_t> mute_map;
 
 	spam_map spams;
 	mute_map mutes;
 
-	siz spamkill_warn; // number of identical msgs before !warn
-	siz spamkill_mute; // number of identical msgs before !mute
-	std::time_t spamkill_period; // period
-	std::time_t spamkill_mute_period; // duration of mute
+	//siz spamkill_warn; // number of identical msgs before !warn
+
+	// allows spamkill_spams / spamkill_period
+	// otherwise !mute for spamkill_mute_period
+
+	bool do_spamkill = false;
+	siz spamkill_spams; // number of identical msgs / period before !mute
+	siz spamkill_period; // period (seconds)
+	siz spamkill_mute; // duration of mute (seconds)
 	// spamkill
 
 	// votekill
@@ -176,7 +182,7 @@ private:
 	void tell_perp(slot admin_num, slot perp_num, const str& msg);
 
 	void spamkill(slot num);
-	bool fixteams(policy_t policy = policy_t::FT_EVEN_SCATTER);
+	bool fixteams();
 
 	bool mutepp(slot num);
 	bool votekill(const str& reason);
@@ -235,7 +241,7 @@ public:
 	virtual bool shutdown_game(siz min, siz sec) override;
 	virtual bool exit(siz min, siz sec) override;
 	virtual bool unknown(siz min, siz sec, const str& cmd, const str& params) override;
-
+	virtual void heartbeat(siz min, siz sec) override;
 	virtual void close() override;
 };
 

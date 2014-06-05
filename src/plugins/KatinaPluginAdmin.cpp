@@ -56,10 +56,10 @@ KatinaPluginAdmin::KatinaPluginAdmin(Katina& katina)
 , total_kills(0)
 , total_caps(0)
 , policy(policy_t::FT_EVEN_SCATTER_DB)
-, spamkill_warn(3)
-, spamkill_mute(5)
+//, spamkill_warn(3)
+, spamkill_spams(5)
 , spamkill_period(10)
-, spamkill_mute_period(60)
+, spamkill_mute(60)
 {
 }
 
@@ -173,8 +173,13 @@ struct player
 typedef std::list<player> player_lst;
 typedef std::vector<player> player_vec;
 
-bool KatinaPluginAdmin::fixteams(policy_t policy)
+bool KatinaPluginAdmin::fixteams()
 {
+	if(policy == policy_t::FT_NONE)
+	{
+		server.msg_to_all(katina.get_name() + "^7: ^3 FIXTEAMS is turned off");
+		return true;
+	}
 //	siz_mmap rank; // skill -> slot
 	player_vec rank;
 	siz skill_r = 0;
@@ -437,7 +442,14 @@ bool KatinaPluginAdmin::open()
 	plog("Adding var events");
 	katina.add_var_event(this, "admin.active", active, false);
 	katina.add_var_event(this, "admin.clientkick.protect", protect_admins, false);
-	katina.add_var_event(this, "admin.fixteams.policy", policy, policy_t::FT_EVEN_SCATTER);
+	katina.add_var_event(this, "admin.fixteams.policy", policy, policy_t::FT_NONE);
+
+	// allows spamkill_spams / spamkill_period else !mute for spamkill_mute
+	katina.add_var_event(this, "admin.spamkill.active", do_spamkill, false);
+	katina.add_var_event(this, "admin.spamkill.spams", spamkill_spams, siz(2));
+	katina.add_var_event(this, "admin.spamkill.period", spamkill_period, siz(6));
+	katina.add_var_event(this, "admin.spamkill.mute", spamkill_mute, siz(60));
+	//katina.add_var_event(this, "admin.active", spamkill_warn, 20); // not implemented
 
 	plog("Adding log events");
 	katina.add_log_event(this, INIT_GAME);
@@ -494,6 +506,27 @@ str KatinaPluginAdmin::get_version() const
 	return VERSION;
 }
 
+void KatinaPluginAdmin::heartbeat(siz min, siz sec)
+{
+	// once a minute only
+	static siz last_min = min;
+
+	if(!do_spamkill || last_min == min)
+		return;
+
+	last_min = min;
+
+	for(slot_guid_map_pair client: katina.getClients())
+	{
+		if(mutes[client.first] && mutes[client.first] + spamkill_mute < katina.now)
+		{
+			if(!server.command("!unmute " + to_string(client.first)))
+				server.command("!unmute " + to_string(client.first));
+			mutes.erase(client.first);
+		}
+	}
+}
+
 bool KatinaPluginAdmin::init_game(siz min, siz sec, const str_map& cvars)
 {
 	if(!active)
@@ -529,6 +562,8 @@ bool KatinaPluginAdmin::warmup(siz min, siz sec)
 {
 	if(!active)
 		return true;
+
+	// TODO: consider !fixteams on warmup
 
 	// stop all timers
 	for(slot_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
@@ -920,11 +955,17 @@ bool KatinaPluginAdmin::remove_sanctions(const GUID& guid, siz type)
 
 void KatinaPluginAdmin::spamkill(slot num)
 {
+	if(!do_spamkill)
+		return;
+
+	pbug("SPAMKILL ACTIVATED FOR: " << katina.getPlayerName(num) << " [" << katina.getClientGuid(num) << "] (" << num << ")");
+	return;
+
 	if(!server.command("!mute " + to_string(num)))
 		if(!server.command("!mute " + to_string(num))) // 1 retry
 			return;
-	server.msg_to(num, "^2Your ^7SPAM ^2has triggered ^7auto-mute ^2for ^7" + to_string(spamkill_mute_period) + " ^2seconds");
-	mutes[num] = std::time(0);
+	server.msg_to(num, "^2Your ^7SPAM ^2has triggered ^7auto-mute ^2for ^7" + to_string(spamkill_mute) + " ^2seconds");
+	mutes[num] = katina.now;
 }
 
 void KatinaPluginAdmin::tell_perp(slot admin_num, slot perp_num, const str& msg)
@@ -956,31 +997,26 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		return true;
 
 	// spamkill
-//	std::time_t now = std::time(0);
-//	if(mutes[say_num] && mutes[say_num] + spamkill_mute_period < now)
-//	{
-//		if(!server.command("!unmute " + to_string(say_num)))
-//			server.command("!unmute " + to_string(say_num));
-//		mutes.erase(say_num);
-//	}
-//
-//	spam s;
-//	s.num = say_num;
-//	s.when = now;
-//	spam_lst& list = spams[text];
-//	list.push_back(s);
-//
-//	siz count = 0;
-//	for(spam_lst_iter i = list.begin(); i != list.end();)
-//	{
-//		if(i->num != say_num)
-//			{ ++i; continue; }
-//		if(now - i->when > spamkill_period)
-//			{ i = list.erase(i); continue; }
-//		if(++count > spamkill_mute)
-//			{ list.clear(); spamkill(say_num); break; }
-//	}
 
+	if(do_spamkill)
+	{
+		spam s;
+		s.num = say_num;
+		s.when = katina.now;
+		spam_lst& list = spams[text];
+		list.push_back(s);
+
+		siz count = 0;
+		for(spam_lst_iter i = list.begin(); i != list.end();)
+		{
+			if(i->num != say_num)
+				{ ++i; continue; }
+			if(katina.now - i->when > spamkill_period)
+				{ i = list.erase(i); continue; }
+			if(++count > spamkill_spams)
+				{ list.clear(); spamkill(say_num); break; }
+		}
+	}
 	// /spamkill
 
 	siss iss(text);
@@ -989,7 +1025,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 
 	if(!(iss >> cmd >> std::ws))
 	{
-		plog("ERROR parsing admin command.");
+//		plog("ERROR parsing admin command.");
 		return true;
 	}
 
@@ -1018,16 +1054,9 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			return true;
 		}
 
-		str request;
-		sgl(iss >> std::ws, request);
-
-		sofs ofs((katina.get_config_dir() + "/requests.txt").c_str(), sofs::app);
-		if(ofs << guid << ": " << request << " [" << katina.getPlayerName(guid) << "]"<< '\n')
-		{
-			server.msg_to(say_num, "^7ADMIN: "
-					+   katina.getPlayerName(guid)
-					           + "^3, your request has been logged.", true);
-		}
+		server.msg_to(say_num, "^7ADMIN: "
+				+   katina.getPlayerName(guid)
+				           + "^3, this feature is not yet implemented.", true);
 	}
 	else if(cmd == trans("!request") || cmd == trans("?request"))
 	{
