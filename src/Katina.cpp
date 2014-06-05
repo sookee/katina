@@ -352,6 +352,9 @@ bool Katina::chat_to(const str& name, const str& text)
 
 bool Katina::is_admin(const GUID& guid)
 {
+	bug_func();
+	bug_var(guid);
+	bug_var(getPlayerName(guid));
 	str_vec admins = get_vec("admin.guid");
 	for(str_vec_iter i = admins.begin(); i != admins.end(); ++i)
 		if(guid == GUID(*i))
