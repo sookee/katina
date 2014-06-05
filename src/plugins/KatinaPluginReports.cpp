@@ -265,10 +265,27 @@ bool KatinaPluginReports::init_game(siz min, siz sec, const str_map& cvars)
 
 		if(votes)
 		{
-			siz love, hate;
-			votes->get_votes(love, hate);
+			siz love, hate, soso;
+//			votes->get_votes(love, hate);
+
+			str ret = votes->api("get_votes");
+			siss iss(ret);
+
+			str status;
+			if(!(iss >> status >> love >> hate >> soso))
+			{
+				plog("ERROR: bad results from api call: " + ret);
+				return true;
+			}
+
+			if(status != "OK:")
+			{
+				plog(status);
+				return true;
+			}
+
 			soss oss;
-			oss << " ^7" << love << " ^1LOVE ^7" << hate << " ^2HATE ^3==";
+			oss << " ^7" << love << " ^1LOVE ^7" << hate << " ^2HATE ^7" << soso << " ^5SOSO ^3==";
 			vote = oss.str();
 		}
 

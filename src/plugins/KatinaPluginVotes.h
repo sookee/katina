@@ -75,9 +75,11 @@ public:
 
 	// API
 	
-	void get_votes(siz& love, siz& hate);
+	void get_votes(siz& love, siz& hate, siz& soso);
 
 	// INTERFACE: KatinaPlugin
+
+	virtual str api(const str& call) override;
 
 	virtual bool open() override;
 
