@@ -527,7 +527,16 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 	}
 
 	if(trim_copy(text).empty())
-		server.msg_to(num, "^1K^7at^3i^7na: " + revision);
+	{
+		server.msg_to(num, name + "^7: " + revision);
+		return;
+	}
+
+	if(!is_admin(guid))
+	{
+		server.msg_to(num, name + "^7: " + "^3You need to be admin to use this");
+		return;
+	}
 
 	str cmd;
 	siss iss(text);

@@ -175,6 +175,9 @@ typedef std::vector<player> player_vec;
 
 bool KatinaPluginAdmin::fixteams()
 {
+	pbug("-------------------------------------------");
+	pbug("FIXTEAMS:policy: " << policy);
+	pbug("-------------------------------------------");
 	if(policy == policy_t::FT_NONE)
 	{
 		server.msg_to_all(katina.get_name() + "^7: ^3 FIXTEAMS is turned off");
@@ -204,6 +207,9 @@ bool KatinaPluginAdmin::fixteams()
 		if(katina.getTeam(i->second) != TEAM_R && katina.getTeam(i->second) != TEAM_B)
 			continue;
 
+		pbug("FIXTEAMS:  slot: " << i->first);
+		pbug("FIXTEAMS:  name: " << katina.getPlayerName(i->first));
+
 		siz skill, fph,cph;
 		if(stats && policy == policy_t::FT_EVEN_SCATTER_DB)
 		{
@@ -224,23 +230,22 @@ bool KatinaPluginAdmin::fixteams()
 
 			fph = secs[i->first] ? (kills[i->first] * 60 * 60) / secs[i->first] : 0;
 			cph = secs[i->first] ? (caps[i->first] * 60 * 60) / secs[i->first] : 0;
+
+			pbug("FIXTEAMS: kills: " << kills[i->first]);
+			pbug("FIXTEAMS:  caps: " << caps[i->first]);
+			pbug("FIXTEAMS:  secs: " << secs[i->first]);
+			pbug("FIXTEAMS:   fph: " << fph);
+			pbug("FIXTEAMS:   cph: " << cph);
+
 			skill = sqrt(pow(fph, 2) + pow(cph * cap_factor, 2));
 		}
+
+		pbug("FIXTEAMS: skill: " << skill);
 
 		if(katina.getTeam(i->second) == TEAM_R)
 			{ skill_r += skill; ++r; }
 		else
 			{ skill_b += skill; ++b; }
-
-		pbug("-------------------------------------------");
-		pbug("FIXTEAMS:  slot: " << i->first);
-		pbug("FIXTEAMS:  name: " << katina.getPlayerName(i->first));
-		pbug("FIXTEAMS: kills: " << kills[i->first]);
-		pbug("FIXTEAMS:  caps: " << caps[i->first]);
-		pbug("FIXTEAMS:  secs: " << secs[i->first]);
-		pbug("FIXTEAMS:   fph: " << fph);
-		pbug("FIXTEAMS:   cph: " << cph);
-		pbug("FIXTEAMS: skill: " << skill);
 
 //		rank.insert(siz_mmap_pair(skill, i->first));
 		rank.push_back(player(skill, i->first));
@@ -751,7 +756,7 @@ bool KatinaPluginAdmin::votekill(const str& reason)
 
 bool KatinaPluginAdmin::callvote(siz min, siz sec, slot num, const str& type, const str& info)
 {
-	plog("callvote: " << katina.getPlayerName(num) << " " << type << " " << info);
+	plog("CALLVOTE: " << katina.getPlayerName(num) << " " << type << " " << info);
 //	bug_func();
 //	pbug_var(type);
 //	pbug_var(info);
