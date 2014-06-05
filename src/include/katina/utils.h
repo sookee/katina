@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef _OASTATS_UTILS_H_
 #define _OASTATS_UTILS_H_
 /*
@@ -131,6 +131,20 @@ public:
 	lock_guard(pthread_mutex_t& mtx): mtx(mtx) { pthread_mutex_lock(&mtx); }
 	~lock_guard() { pthread_mutex_unlock(&mtx); }
 };
+
+inline
+void thread_sleep_millis(siz msecs)
+{
+	usleep(msecs * 1000);
+}
+
+inline
+milliseconds get_millitime()
+{
+	timespec ts;
+	clock_gettime(CLOCK_REALTIME, &ts);
+	return (ts.tv_sec * 1000) + (ts.tv_nsec / 1000000);
+}
 
 }} // oastats::utils
 

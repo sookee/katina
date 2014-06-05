@@ -40,20 +40,6 @@ namespace oastats { namespace time {
 
 using namespace oastats::types;
 
-inline
-void thread_sleep_millis(siz msecs)
-{
-	usleep(msecs * 1000);
-}
-
-inline
-milliseconds get_millitime()
-{
-	timespec ts;
-	clock_gettime(CLOCK_REALTIME, &ts);
-	return (ts.tv_sec * 1000) + (ts.tv_nsec / 1000000);
-}
-
 }} // oastats::time
 
 #endif /* _OASTATS_TIME_H_ */
