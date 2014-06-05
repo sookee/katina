@@ -47,7 +47,7 @@ KATINA_PLUGIN_INFO("katina::admin", "Katina Admin", "0.1-dev");
 
 KatinaPluginAdmin::KatinaPluginAdmin(Katina& katina)
 : KatinaPlugin(katina)
-, mapname(katina.mapname)
+, mapname(katina.get_mapname())
 , clients(katina.getClients())
 , players(katina.getPlayers())
 , teams(katina.getTeams())
@@ -85,7 +85,7 @@ bool is_guid(const str& s)
 
 bool KatinaPluginAdmin::load_sanctions()
 {
-	sifs ifs((katina.config_dir + "/sanctions.dat").c_str());
+	sifs ifs((katina.get_config_dir() + "/sanctions.dat").c_str());
 
 	if(!ifs)
 	{
@@ -119,7 +119,7 @@ bool KatinaPluginAdmin::load_sanctions()
 
 bool KatinaPluginAdmin::save_sanctions()
 {
-	sofs ofs((katina.config_dir + "/sanctions.dat").c_str());
+	sofs ofs((katina.get_config_dir() + "/sanctions.dat").c_str());
 
 	if(!ofs)
 	{
@@ -620,7 +620,7 @@ bool KatinaPluginAdmin::client_userinfo_changed(siz min, siz sec, slot num, siz 
 				s->applied = true;
 			++s;
 		}
-		else if(s->type == S_MAPBAN && !s->params.empty() && s->params[0] == katina.mapname)
+		else if(s->type == S_MAPBAN && !s->params.empty() && s->params[0] == katina.get_mapname())
 		{
 			if(reteam(num, 's'))
 				s->applied = true;
@@ -817,7 +817,7 @@ str KatinaPluginAdmin::trans(const str& cmd) const
 	{
 		aliases = new str_map;
 
-		sifs ifs((katina.config_dir + "/"
+		sifs ifs((katina.get_config_dir() + "/"
 				+ katina.get(ADMIN_ALIASES_FILE_KEY, ADMIN_ALIASES_FILE_VAL)).c_str());
 
 		if(!ifs)
@@ -1021,7 +1021,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		str request;
 		sgl(iss >> std::ws, request);
 
-		sofs ofs((katina.config_dir + "/requests.txt").c_str(), sofs::app);
+		sofs ofs((katina.get_config_dir() + "/requests.txt").c_str(), sofs::app);
 		if(ofs << guid << ": " << request << " [" << katina.getPlayerName(guid) << "]"<< '\n')
 		{
 			server.msg_to(say_num, "^7ADMIN: "
@@ -1041,7 +1041,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		str request;
 		sgl(iss >> std::ws, request);
 
-		sofs ofs((katina.config_dir + "/requests.txt").c_str(), sofs::app);
+		sofs ofs((katina.get_config_dir() + "/requests.txt").c_str(), sofs::app);
 		if(ofs << guid << ": " << request << " [" << katina.getPlayerName(guid) << "]"<< '\n')
 		{
 			server.msg_to(say_num, "^7ADMIN: "
@@ -1214,7 +1214,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		s.guid = katina.getClientGuid(num);
 		s.expires = parse_duration(duration, 20 * 60);
 		s.reason = reason;
-		s.params.push_back(katina.mapname);
+		s.params.push_back(katina.get_mapname());
 
 		if(s.guid == null_guid)
 		{
@@ -1228,7 +1228,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		if(reteam(num, 's'))
 		{
 			s.applied = true;
-			tell_perp(say_num, num, "^3BANNED ^7" + katina.getPlayerName(num) + " ^3from ^1" + katina.mapname + " ^3by ^7" +  katina.getPlayerName(say_num));
+			tell_perp(say_num, num, "^3BANNED ^7" + katina.getPlayerName(num) + " ^3from ^1" + katina.get_mapname() + " ^3by ^7" +  katina.getPlayerName(say_num));
 			tell_perp(say_num, num, "^3BANNED for ^7" + duration);
 		}
 	}

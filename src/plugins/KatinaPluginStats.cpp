@@ -50,7 +50,7 @@ siz map_get(const siz_map& m, siz key)
 
 KatinaPluginStats::KatinaPluginStats(Katina& katina)
 : KatinaPlugin(katina)
-, mapname(katina.mapname)
+, mapname(katina.get_mapname())
 , clients(katina.getClients())
 , players(katina.getPlayers())
 , teams(katina.getTeams())

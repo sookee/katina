@@ -43,6 +43,9 @@ namespace oastats {
 
 using namespace oastats::types;
 
+/**
+ * This is the abstract base class for all plugins.
+ */
 class KatinaPlugin
 {
 	friend class Katina;

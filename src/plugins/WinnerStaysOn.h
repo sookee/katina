@@ -51,7 +51,7 @@ class WinnerStaysOn
 : public KatinaPlugin
 {
 private:
-	str& mapname;
+	const str& mapname;
 	const slot_guid_map& clients; // slot -> GUID
 	const guid_str_map& players; // GUID -> name
 	const guid_siz_map& teams; // GUID -> 'R' | 'B'
@@ -83,7 +83,7 @@ private:
 public:
 	WinnerStaysOn(Katina& katina)
 	: KatinaPlugin(katina)
-	, mapname(katina.mapname)
+	, mapname(katina.get_mapname())
 	, clients(katina.getClients())
 	, players(katina.getPlayers())
 	, teams(katina.getTeams())

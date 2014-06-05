@@ -198,6 +198,9 @@ sos& operator<<(sos& o, const siz_set& s)
 	return o;
 }
 
+/**
+ * This is the main log-file processing class.
+ */
 class Katina
 {
 	//friend void* cvarpoll(void* vp);
@@ -247,6 +250,17 @@ private:
 	guid_str_map players; // GUID -> name  // cleard before game_begin()
 	guid_siz_map teams; // GUID -> 'R' | 'B' // cleared when players disconnect and on game_begin()
 
+	/**
+	 * Location of the configuration folder.
+	 * Typically something like $HOME/.katina
+	 */
+	str config_dir;
+
+	/**
+	 * The current map name
+	 */
+	str mapname;
+
 public:
 	Katina();
 	~Katina();
@@ -264,15 +278,14 @@ public:
 	RCon server;
 
 	/**
-	 * Location of the configuration folder.
-	 * Typically something like $HOME/.katina
+	 * Directory of the configuration file.
 	 */
-	str config_dir;
+	const str& get_config_dir() { return config_dir; }
 
 	/**
-	 * The current map name
+	 * Current map being played.
 	 */
-	str mapname;
+	const str& get_mapname() { return mapname; }
 
 	/**
 	 * Find out if the player with the given GUID

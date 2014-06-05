@@ -37,7 +37,7 @@ KATINA_PLUGIN_INFO("katina::nextmap", "Katina NextMap", "0.1-dev");
 KatinaPluginNextMap::KatinaPluginNextMap(Katina& katina)
 : KatinaPlugin(katina)
 //, votes(0)
-, mapname(katina.mapname)
+, mapname(katina.get_mapname())
 , clients(katina.getClients())
 , players(katina.getPlayers())
 , teams(katina.getTeams())

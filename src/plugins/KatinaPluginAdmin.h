@@ -113,7 +113,7 @@ class KatinaPluginAdmin
 private:
 	KatinaPlugin* stats = nullptr;
 
-	str& mapname;
+	const str& mapname;
 	const slot_guid_map& clients; // slot -> GUID
 	const guid_str_map& players; // GUID -> name
 	const guid_siz_map& teams; // GUID -> 'R' | 'B'

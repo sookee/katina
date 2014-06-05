@@ -36,7 +36,7 @@ KATINA_PLUGIN_INFO("katina::example", "Katina Example", "0.1-dev");
 
 KatinaPluginExample::KatinaPluginExample(Katina& katina)
 : KatinaPlugin(katina)
-, mapname(katina.mapname)
+, mapname(katina.get_mapname())
 , clients(katina.getClients())
 , players(katina.getPlayers())
 , teams(katina.getTeams())

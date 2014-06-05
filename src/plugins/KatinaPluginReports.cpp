@@ -259,7 +259,7 @@ bool KatinaPluginReports::init_game(siz min, siz sec, const str_map& cvars)
 	if(!active)
 		return true;
 
-	if(do_infos && katina.mapname != old_mapname)
+	if(do_infos && katina.get_mapname() != old_mapname)
 	{
 		str vote;
 
@@ -272,9 +272,9 @@ bool KatinaPluginReports::init_game(siz min, siz sec, const str_map& cvars)
 			vote = oss.str();
 		}
 
-		client.chat('i', "^3===" + vote + " ^4map: ^7" + katina.mapname);
+		client.chat('i', "^3===" + vote + " ^4map: ^7" + katina.get_mapname());
 
-		old_mapname = katina.mapname;
+		old_mapname = katina.get_mapname();
 	}
 
 	return true;
