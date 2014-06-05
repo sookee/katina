@@ -285,7 +285,8 @@ bool KatinaPluginReports::init_game(siz min, siz sec, const str_map& cvars)
 			}
 
 			soss oss;
-			oss << " ^7" << love << " ^1LOVE ^7" << hate << " ^2HATE ^7" << soso << " ^5SOSO ^3==";
+//			oss << " ^7" << love << " ^1LOVE ^7" << hate << " ^2HATE ^7" << soso << " ^5SOSO ^3==";
+			oss << " ^1LOVE^7: " << love << " ^2HATE^7: " << hate << " ^5SOSO^7: " << soso << " ^3==";
 			vote = oss.str();
 		}
 
