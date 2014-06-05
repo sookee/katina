@@ -439,10 +439,11 @@ bool KatinaPluginAdmin::open()
 
 	stats = katina.get_plugin("katina::stats", "0.1");
 
-	str_vec clients = katina.get_vec("remote.irc.client");
+	//str_vec clients = katina.get_vec("remote.irc.client");
 	// remote.irc.client: insecure 127.0.0.1:7334 #zimsnew(*)
 	if(katina.has("admin.alert.irc.client"))
-		irc = RemoteClient::create(katina, katina.get("admin.alert.irc.client"));
+		if((irc = RemoteClient::create(katina, katina.get("admin.alert.irc.client"))))
+			irc->on();
 
 	plog("Adding var events");
 	katina.add_var_event(this, "admin.active", active, false);

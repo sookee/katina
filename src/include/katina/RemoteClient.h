@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef _OASTATS_REMOTECLIENT_H_
 #define _OASTATS_REMOTECLIENT_H_
 /*
