@@ -516,12 +516,14 @@ void KatinaPluginAdmin::heartbeat(siz min, siz sec)
 
 	last_min = min;
 
+	pbug("SPAMKILL HEARTBEAT check:");
 	for(slot_guid_map_pair client: katina.getClients())
 	{
 		if(mutes[client.first] && mutes[client.first] + spamkill_mute < katina.now)
 		{
-			if(!server.command("!unmute " + to_string(client.first)))
-				server.command("!unmute " + to_string(client.first));
+			pbug("SPAMKILL DEACTIVATED FOR: " << katina.getPlayerName(client.first) << " [" << katina.getClientGuid(client.first) << "] (" << client.first << ")");
+//			if(!server.command("!unmute " + to_string(client.first)))
+//				server.command("!unmute " + to_string(client.first));
 			mutes.erase(client.first);
 		}
 	}
@@ -959,12 +961,11 @@ void KatinaPluginAdmin::spamkill(slot num)
 		return;
 
 	pbug("SPAMKILL ACTIVATED FOR: " << katina.getPlayerName(num) << " [" << katina.getClientGuid(num) << "] (" << num << ")");
-	return;
 
-	if(!server.command("!mute " + to_string(num)))
-		if(!server.command("!mute " + to_string(num))) // 1 retry
-			return;
-	server.msg_to(num, "^2Your ^7SPAM ^2has triggered ^7auto-mute ^2for ^7" + to_string(spamkill_mute) + " ^2seconds");
+//	if(!server.command("!mute " + to_string(num)))
+//		if(!server.command("!mute " + to_string(num))) // 1 retry
+//			return;
+//	server.msg_to(num, "^2Your ^7SPAM ^2has triggered ^7auto-mute ^2for ^7" + to_string(spamkill_mute) + " ^2seconds");
 	mutes[num] = katina.now;
 }
 
@@ -998,7 +999,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 
 	// spamkill
 
-	if(do_spamkill)
+	if(do_spamkill && !mutes.count(say_num))
 	{
 		spam s;
 		s.num = say_num;
@@ -1014,7 +1015,17 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			if(katina.now - i->when > spamkill_period)
 				{ i = list.erase(i); continue; }
 			if(++count > spamkill_spams)
-				{ list.clear(); spamkill(say_num); break; }
+			{
+				for(spam_lst_iter i = list.begin(); i != list.end();)
+				{
+					if(i->num == say_num)
+						i = list.erase(i);
+					else
+						++i;
+				}
+				spamkill(say_num);
+				break;
+			}
 		}
 	}
 	// /spamkill
