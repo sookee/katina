@@ -439,6 +439,11 @@ bool KatinaPluginAdmin::open()
 
 	stats = katina.get_plugin("katina::stats", "0.1");
 
+	str_vec clients = katina.get_vec("remote.irc.client");
+	// remote.irc.client: insecure 127.0.0.1:7334 #zimsnew(*)
+	if(katina.has("admin.alert.irc.client"))
+		irc = RemoteClient::create(katina, katina.get("admin.alert.irc.client"));
+
 	plog("Adding var events");
 	katina.add_var_event(this, "admin.active", active, false);
 	katina.add_var_event(this, "admin.clientkick.protect", protect_admins, false);
@@ -1079,9 +1084,14 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			return true;
 		}
 
-		server.msg_to(say_num, "^7ADMIN: "
-				+   katina.getPlayerName(guid)
-				           + "^3, this feature is not yet implemented.", true);
+		str request;
+		sgl(iss >> std::ws, request);
+
+		if(irc)
+			if(irc->chat('a', "^3!^1AERT^3! ^7" + katina.get("admin.alert.irc.admins") + " ^1" + request))
+				server.msg_to(say_num, katina.get_name() + "^7: "
+						+   katina.getPlayerName(guid)
+								   + "^3, admin have been alerted.", true);
 	}
 	else if(cmd == trans("!request") || cmd == trans("?request"))
 	{

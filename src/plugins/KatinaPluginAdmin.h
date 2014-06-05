@@ -39,9 +39,12 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include <katina/Database.h>
 #include <katina/GUID.h>
+#include <katina/RemoteClient.h>
 
 #include <katina/types.h>
 #include <katina/log.h>
+
+#include <katina/PKI.h>
 
 #include <pthread.h>
 
@@ -49,6 +52,7 @@ namespace katina { namespace plugin {
 
 using namespace oastats;
 using namespace oastats::log;
+using namespace oastats::pki;
 using namespace oastats::data;
 using namespace oastats::types;
 
@@ -113,6 +117,7 @@ class KatinaPluginAdmin
 {
 private:
 	KatinaPlugin* stats = nullptr;
+	RemoteClient* irc = nullptr;
 
 	const str& mapname;
 	const slot_guid_map& clients; // slot -> GUID
