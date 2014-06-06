@@ -56,6 +56,7 @@ protected:
 	typedef std::map<str, std::set<char> > chan_map;
 	typedef chan_map::iterator chan_map_iter;
 	typedef chan_map::const_iterator chan_map_citer;
+	typedef chan_map::value_type chan_map_vt;
 
 	chan_map chans; // #channel -> {'c','f','k'}
 
@@ -68,6 +69,14 @@ public:
 
 	void set_chans(const str& chans);
 	bool say(char f, const str& text);
+
+	str_vec get_chans_vec() const
+	{
+		str_vec v;
+		for(const chan_map_vt& c: chans)
+			v.push_back(c.first);
+		return v;
+	}
 
 	void add_flag(const str& chan, char f) { chans[chan].insert(f); }
 	void del_flag(const str& chan, char f) { chans[chan].erase(f); }

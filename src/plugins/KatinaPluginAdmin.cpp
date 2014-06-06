@@ -1112,7 +1112,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		sgl(iss >> std::ws, request);
 
 		if(irc)
-			if(irc->chat('a', "^3!^1AERT^3! ^7" + katina.get("admin.alert.irc.admins") + " ^3" + request))
+			if(irc->chat('a', "^3!^1ALERT^3! ^7" + katina.get("admin.alert.irc.admins") + " ^3" + request))
 				server.msg_to(say_num, katina.get_name() + "^7: "
 						+   katina.getPlayerName(guid)
 								   + "^3, admin have been alerted.", true);
@@ -1410,7 +1410,13 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		slot perp = bad_slot;
 		str team, reason;
 
-		sgl(iss >> perp >> team >> std::ws, reason);
+		if(spec)
+			sgl(iss >> perp >> std::ws, reason);
+		else
+			sgl(iss >> perp >> team >> std::ws, reason);
+
+		if(spec)
+			team = "S";
 
 		pbug_var(perp);
 		pbug_var(team);
@@ -1430,9 +1436,6 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 				tell_perp(say_num, perp, "^7" + katina.getPlayerName(guid) + " ^3Removed " + sanct + " ^3from: ^7" + katina.getPlayerName(perp));
 			return true;
 		}
-
-		if(spec)
-			team = "S";
 
 		if(upper(team) != "R" || team != "B" || team != "S")
 		{
