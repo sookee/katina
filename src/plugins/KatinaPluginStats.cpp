@@ -727,7 +727,8 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 			db.off();
 		}
 	}
-*/	else if(cmd == "!boss" || cmd == "?boss") // best player in this game (from current months stats)
+*/
+	else if(cmd == "!boss" || cmd == "?boss") // best player in this game (from current months stats)
 	{
 		if(cmd[0] == '?')
 		{
@@ -744,6 +745,25 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 			server.msg_to_all("^7BOSS: " + katina.getPlayerName(guid) + "^7: " + stats, true);
 		else
 			server.msg_to_all("^7BOSS: ^3There is no boss on this map", true);
+		db.off();
+	}
+	else if(cmd == "!crap" || cmd == "?crap") // best player in this game (from current months stats)
+	{
+		if(cmd[0] == '?')
+		{
+			server.msg_to(say_num, PREFIX + "^2!crap^7: ^3display this map's crappiest player (who cause the most holy-craps).", true);
+			server.msg_to(say_num, PREFIX + "^2!crap^7: ^3out of all the players currently connected.");
+			return true;
+		}
+
+		bug("getting crappiest");
+		db.on();
+		str stats;
+		GUID guid;
+		if(db.get_ingame_crap(mapname, clients, guid, stats) && guid != null_guid)
+			server.msg_to_all("^7CRAPPIEST: " + katina.getPlayerName(guid) + "^7: " + stats, true);
+		else
+			server.msg_to_all("^7CRAPPIEST: ^3There is no crappiest on this map", true);
 		db.off();
 	}
 	return true;

@@ -903,4 +903,117 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	return true;
 }
 
+bool Database::get_ingame_crap(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats)
+{
+	log("DATABASE: get_ingame_crap(" << mapname << ", " << clients.size() << ")");
+	siz syear = 0;
+	siz smonth = 0;
+	siz eyear = 0;
+	siz emonth = 0;
+
+	if(!calc_period(syear, smonth, eyear, emonth))
+		return false;
+
+	stat_map stat_cs;
+	str_set guids;
+
+	soss oss;
+	oss << "select `game_id` from `game` where `map` = '" << mapname << "'";
+	oss << " and `date` >= TIMESTAMP('" << syear << '-' << (smonth < 10 ? "0":"") << smonth << '-' << "01" << "')";
+	oss << " and `date` <  TIMESTAMP('" << eyear << '-' << (emonth < 10 ? "0":"") << emonth << '-' << "01" << "')";
+	str subsql = oss.str();
+
+	str sep;
+	oss.clear();
+	oss.str("");
+	for(slot_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
+		if(!i->second.is_bot())
+			{ oss << sep << "'" << i->second << "'"; sep = ",";}
+	str insql = oss.str();
+
+	guid = null_guid;
+	stats = "^3Craps/Hour^7: ^20.0";
+
+	if(insql.empty())
+		return true;
+
+	oss.clear();
+	oss.str("");
+	oss << "select distinct `guid`,sum(`playerstats`.`holyShitFrags`) from `playerstats` where `playerstats`.`guid` in (" << insql << ")";
+	oss << " and `game_id` in (" << subsql << ") group by `guid` order by sum(`playerstats`.`holyShitFrags`) desc";
+
+	str sql = oss.str();
+
+//	bug_var(sql);
+
+	str_vec_vec rows;
+
+	if(!select(sql, rows, 2))
+		return false;
+
+	for(siz i = 0; i < rows.size(); ++i)
+	{
+		if(rows[i][0].empty() || rows[i][1].empty())
+			continue;
+		stat_cs[rows[i][0]].kills = to<siz>(rows[i][1]);
+		guids.insert(rows[i][0]);
+	}
+
+	oss.clear();
+	oss.str("");
+	oss << "select distinct `guid`,sum(`time`.`count`) from `time` where `time`.`guid` in (" << insql << ")";
+	oss << " and `game_id` in (" << subsql << ") group by `guid` order by sum(`time`.`count`) desc";
+
+	sql = oss.str();
+
+//	bug_var(sql);
+
+	if(!select(sql, rows, 2))
+		return false;
+
+	for(siz i = 0; i < rows.size(); ++i)
+	{
+		if(rows[i][0].empty() || rows[i][1].empty())
+			continue;
+		stat_cs[rows[i][0]].secs = to<siz>(rows[i][1]);
+		guids.insert(rows[i][0]);
+	}
+
+	if(guids.empty())
+		return true;
+
+	str_set_iter maxi = guids.end();
+	double maxv = 0.0;
+
+	for(str_set_iter g = guids.begin(); g != guids.end(); ++g)
+	{
+		if(stat_cs[*g].secs)
+		{
+			stat_cs[*g].fph = stat_cs[*g].kills * 60 * 60 / stat_cs[*g].secs;
+			if(stat_cs[*g].fph > maxv)
+			{
+				maxv = stat_cs[*g].fph;
+				maxi = g;
+			}
+		}
+	}
+
+	if(maxi != guids.end())
+	{
+		guid = GUID(*maxi);
+		if(!guid.is_bot())
+		{
+			str fpad = stat_cs[*maxi].fph < 10 ? "00" : (stat_cs[*maxi].fph < 100 ? "0" : "");
+			str cpad = stat_cs[*maxi].cph < 10 ? "00" : (stat_cs[*maxi].cph < 100 ? "0" : "");
+			str spad = stat_cs[*maxi].idx < 10 ? "00" : (stat_cs[*maxi].idx < 100 ? "0" : "");
+			soss oss;
+			oss << "^3FCraps/Hour^7:^2" << stat_cs[*maxi].fph;
+			stats = oss.str();
+//			bug_var(stats);
+		}
+	}
+
+	return true;
+}
+
 }} // oastats::data
