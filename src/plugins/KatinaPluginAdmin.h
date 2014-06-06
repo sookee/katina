@@ -74,15 +74,8 @@ struct sanction
 
 	sanction(): type(0), expires(0), applied(false) {}
 
-	friend sis& operator>>(sis& i, sanction& s)
-	{
-		return sgl(i >> s.guid >> s.type >> s.expires >> std::ws, s.reason);
-	}
-
-	friend sos& operator<<(sos& o, const sanction& s)
-	{
-		return o << s.guid << ' ' << s.type << ' ' << s.expires << ' ' << s.reason;
-	}
+	friend sis& operator>>(sis& i, sanction& s);
+	friend sos& operator<<(sos& o, const sanction& s);
 };
 
 typedef std::list<sanction> sanction_lst;

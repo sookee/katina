@@ -49,6 +49,41 @@ using namespace oastats::string;
 KATINA_PLUGIN_TYPE(KatinaPluginAdmin);
 KATINA_PLUGIN_INFO("katina::admin", "Katina Admin", "0.1-dev");
 
+sis& operator>>(sis& i, sanction& s)
+{
+	i >> s.guid >> s.type;
+
+	str params;
+	if(!sgl(sgl(i, params, '('), params, ')'))
+	{
+		plog("ERROR parsing sanction, missing parameters");
+		i.setstate(std::ios::failbit);
+		return i;
+	}
+
+	str param;
+	s.params.clear();
+	siss iss(params);
+	while(iss >> param)
+		s.params.push_back(param);
+
+	sgl(i >> s.expires >> std::ws, s.reason);
+
+	return i;
+}
+
+sos& operator<<(sos& o, const sanction& s)
+{
+	o << s.guid << ' ' << s.type << "(";
+	str sep;
+	for(const str& param: s.params)
+		{ o << sep << param; sep = " "; }
+	o << ")";
+	o << ' ' << s.expires << ' ' << s.reason;
+
+	return o;
+}
+
 KatinaPluginAdmin::KatinaPluginAdmin(Katina& katina)
 : KatinaPlugin(katina)
 , mapname(katina.get_mapname())
