@@ -696,6 +696,8 @@ bool KatinaPluginAdmin::client_userinfo_changed(siz min, siz sec, slot num, siz 
 				s->applied = true;
 			++s;
 		}
+		else
+			++s;
 	}
 
 	return true;
