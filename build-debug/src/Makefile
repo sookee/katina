@@ -11,7 +11,7 @@ LIBGCRYPT_LIBS=$(shell libgcrypt-config --libs)
 
 INCLUDES = $(wildcard $(src_topdir)/include/katina/*.h)
 
-CXXFLAGS = -std=c++11 -D DEBUG -O0 -g3 -Iinclude -pthread
+CXXFLAGS = -std=c++11 $(DEBUG_FLAGS) -Iinclude -pthread
 
 LIBKATINA_FLAGS =  $(CXXFLAGS) $(VER_FLAGS) -fPIC -pthread $(LIBGCRYPT_FLAGS)
 LIBKATINA_LIBS = -lrt -pthread -ldl $(LIBGCRYPT_LIBS)

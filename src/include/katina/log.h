@@ -50,6 +50,8 @@ str get_stamp()
 	return str(buffer);
 }
 
+#define QUOTE(s) #s
+
 #ifndef DEBUG
 #define bug(m)
 #define bug_var(v)
@@ -58,7 +60,6 @@ str get_stamp()
 #define log(m) do{std::cout << oastats::log::get_stamp() << ": " << m << std::endl;}while(false)
 #else
 #define bug(m) do{std::cout << "BUG: " << m << " [" << __FILE__ << "]" << " (" << __LINE__ << ")" << std::endl;}while(false)
-#define QUOTE(s) #s
 #define bug_var(v) bug(QUOTE(v:) << std::boolalpha << " " << v)
 struct _
 {

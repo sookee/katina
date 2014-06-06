@@ -749,6 +749,7 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 	}
 	else if(cmd == "!crap" || cmd == "?crap") // best player in this game (from current months stats)
 	{
+		// TODO: add ?crap to help
 		if(cmd[0] == '?')
 		{
 			server.msg_to(say_num, PREFIX + "^2!crap^7: ^3display this map's crappiest player (who cause the most holy-craps).", true);
