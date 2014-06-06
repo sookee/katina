@@ -27,6 +27,8 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <algorithm>
 #include <functional>
 #include <numeric>
+#include <thread>
+#include <future>
 
 #include <ctime>
 
@@ -34,12 +36,14 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <katina/log.h>
 #include <katina/str.h>
 #include <katina/codes.h>
+#include <katina/time.h>
 
 
 namespace katina { namespace plugin {
 
 using namespace oastats::log;
 using namespace oastats::types;
+using namespace oastats::time;
 using namespace oastats::string;
 
 KATINA_PLUGIN_TYPE(KatinaPluginAdmin);
@@ -813,8 +817,12 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, slot num, const str& type, co
 		pbug("VOTEKILL: PROTECTING ADMINS: " << katina.is_admin(katina.getClientGuid(to<siz>(info))));
 		if(type == "clientkick" && katina.is_admin(katina.getClientGuid(to<siz>(info))))
 		{
-			votekill(katina.get_name() + "^1: ^7[^3NOT ALLOWED TO KICK ADMINS^7]");
-			plog("VOTEKILL: admin protection for: " << katina.getPlayerName(to<siz>(info)));
+			std::async(std::launch::async, [&]
+			{
+				thread_sleep_millis(1000);
+				votekill(katina.get_name() + "^1: ^7[^3NOT ALLOWED TO KICK ADMINS^7]");
+				plog("VOTEKILL: admin protection for: " << katina.getPlayerName(to<siz>(info)));
+			});
 		}
 	}
 	return true;
