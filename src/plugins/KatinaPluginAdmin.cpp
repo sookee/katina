@@ -51,7 +51,11 @@ KATINA_PLUGIN_INFO("katina::admin", "Katina Admin", "0.1-dev");
 
 sis& operator>>(sis& i, sanction& s)
 {
+	// 96BBD43E 4(S) 0
 	i >> s.guid >> s.type;
+
+	pbug_var(s.guid);
+	pbug_var(s.type);
 
 	str params;
 	if(!sgl(sgl(i, params, '('), params, ')'))
@@ -61,13 +65,25 @@ sis& operator>>(sis& i, sanction& s)
 		return i;
 	}
 
+	pbug_var(params);
+
 	str param;
 	s.params.clear();
 	siss iss(params);
 	while(iss >> param)
+	{
+		pbug_var(param);
 		s.params.push_back(param);
+	}
 
-	sgl(i >> s.expires >> std::ws, s.reason);
+	if(!(i >> s.expires))
+	{
+		plog("ERROR parsing sanction expires date");
+		return i;
+	}
+
+	sgl(i >> std::ws, s.reason);
+	i.clear(); // optional reason
 
 	return i;
 }
