@@ -693,6 +693,9 @@ bool KatinaPluginAdmin::client_userinfo_changed(siz min, siz sec, slot num, siz 
 	if(!active)
 		return true;
 
+	if(guid.is_bot() || !guid.is_connected())
+		return true;
+
 	bug("SANCTION CHECK FOR: " << guid);
 	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end();)
 	{

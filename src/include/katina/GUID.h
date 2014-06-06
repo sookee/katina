@@ -138,7 +138,7 @@ public:
 	}
 
 	void disconnect() const { connected = false; }
-	bool is_connected() { return connected; }
+	bool is_connected() const { return connected; }
 
 	//bool is_bot() const { return data < "00001000"; }
 	bool is_bot() const { return bot; }
