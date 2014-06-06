@@ -156,6 +156,7 @@ KatinaPluginReports::KatinaPluginReports(Katina& katina)
 , do_caps(false)
 , do_chats(false)
 , do_kills(false)
+, do_fc_kills(false)
 , do_pushes(false)
 , do_announce_pushes(false)
 , do_infos(false)
@@ -202,6 +203,7 @@ bool KatinaPluginReports::open()
 	katina.add_var_event(this, "reports.caps", do_caps, false);
 	katina.add_var_event(this, "reports.chats", do_chats, false);
 	katina.add_var_event(this, "reports.kills", do_kills, false);
+	katina.add_var_event(this, "reports.fc_kills", do_fc_kills, false);
 	katina.add_var_event(this, "reports.pushes", do_pushes, false);
 	katina.add_var_event(this, "reports.announce.pushes", do_announce_pushes, false);
 	katina.add_var_event(this, "reports.infos", do_infos, false);
@@ -304,7 +306,10 @@ bool KatinaPluginReports::kill(siz min, siz sec, slot num1, slot num2, siz weap)
 	if(!active)
 		return true;
 
-	if(!do_kills)
+	// kill involves the Flag Carrier?
+	bool fc_kill = (fc[0] == num1 || fc[0] == num2 || fc[1] == num1 || fc[1] == num2);
+
+	if(!do_kills  && (!do_fc_kills || !fc_kill))
 		return true;
 
 	str hud;
@@ -406,9 +411,12 @@ bool KatinaPluginReports::ctf(siz min, siz sec, slot num, siz team, siz act)
 		}
 		if(do_flags || do_caps)
 			client.raw_chat('f', hud + oa_to_IRC("^7[ ] ^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED])));
+
+		fc[team - 1] = bad_slot;
 	}
 	else if(act == FL_TAKEN)
 	{
+		fc[team - 1] = num;
 		if(do_flags && do_flags_hud)
 		{
 			hud_flag[pcol] = HUD_FLAG_P;
@@ -427,6 +435,7 @@ bool KatinaPluginReports::ctf(siz min, siz sec, slot num, siz team, siz act)
 		}
 		if(do_flags)
 			client.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + katina.getPlayerName(num) + "^3 has killed the " + flag[ncol] + " ^3flag carrier!"));
+		fc[team - 1] = bad_slot;
 	}
 	else if(act == FL_RETURNED)
 	{

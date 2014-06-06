@@ -855,10 +855,7 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, slot num, const str& type, co
 				+ secs_to_dhms(s.expires - katina.now));
 			plog("VOTEKILL: prevented " << katina.getClientGuid(num) << ": banned: " << s.reason);
 		}
-//	siz kick_num = to<siz>(info);
-//	pbug_var(kick_num);
-//	pbug_var(clients[kick_num]);
-//	pbug_var(katina.is_admin(clients[kick_num]));
+
 	if(protect_admins)
 	{
 		pbug("VOTEKILL: PROTECTING ADMINS: " << info);
@@ -1419,7 +1416,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		sanctions.push_back(s);
 		save_sanctions();
 	}
-	else if(cmd == trans("!reteam") || cmd == trans("?reteam")
+	else if(cmd == trans("!reteam") || cmd == trans("?reteam") // working
 			|| cmd == trans("!spec") || cmd == trans("?spec"))
 	{
 		// TODO: fix these bugs
