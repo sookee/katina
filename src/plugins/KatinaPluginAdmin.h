@@ -74,14 +74,14 @@ struct sanction
 
 	sanction(): type(0), expires(0), applied(false) {}
 
-	friend sis& operator>>(sis& is, sanction& s)
+	friend sis& operator>>(sis& i, sanction& s)
 	{
-		return sgl(is >> s.guid >> s.type >> s.expires >> std::ws, s.reason);
+		return sgl(i >> s.guid >> s.type >> s.expires >> std::ws, s.reason);
 	}
 
-	friend sos& operator<<(sos& os, const sanction& s)
+	friend sos& operator<<(sos& o, const sanction& s)
 	{
-		return os << s.guid << ' ' << s.type << ' ' << s.expires << s.reason;
+		return o << s.guid << ' ' << s.type << ' ' << s.expires << ' ' << s.reason;
 	}
 };
 

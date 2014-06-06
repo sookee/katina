@@ -99,7 +99,7 @@ bool KatinaPluginAdmin::load_sanctions()
 
 	siz n = 0;
 	str line;
-	katina::plugin::sanction s;
+	sanction s;
 	while(sgl(ifs, line))
 	{
 		++n;
