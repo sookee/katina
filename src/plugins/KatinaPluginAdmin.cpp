@@ -1430,7 +1430,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		if(!check_slot(perp))
 			return true;
 
-		if(team == "remove")
+		if((spec && reason == "remove") || team == "remove")
 		{
 			str sanct = spec ? "^1spec":"^1fixed team";
 			if(remove_sanctions(katina.getClientGuid(perp), S_RETEAM))
