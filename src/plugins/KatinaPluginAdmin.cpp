@@ -143,7 +143,7 @@ bool KatinaPluginAdmin::load_sanctions()
 		siss iss(line);
 		if(!(iss >> s))
 		{
-			plog("ERROR: parsing sanction file line: " << n);
+			plog("ERROR: parsing sanction file: [" << n << "] " << line);
 			return false;
 		}
 
