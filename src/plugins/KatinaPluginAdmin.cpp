@@ -1422,6 +1422,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		pbug_var(team);
 		pbug_var(reason);
 
+		trim(team);
 		trim(reason);
 
 		pbug_var(trim(reason));
@@ -1437,7 +1438,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			return true;
 		}
 
-		if(upper(team) != "R" || team != "B" || team != "S")
+		if(upper(team) != "R" && team != "B" && team != "S")
 		{
 			server.msg_to(say_num, "^7ADMIN: ^3Bad team. Needs to be: r|b|s", true);
 			return true;
