@@ -486,25 +486,26 @@ bool KatinaPluginAdmin::open()
 	plog("Loading sanctions");
 	load_sanctions();
 
-	slot num;
-	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end(); ++s)
-	{
-		if((num = katina.getClientSlot(s->guid)) == bad_slot)
-			continue;
-
-		if(players.find(s->guid) == players.end())
-			continue;
-
-		// !mute++
-		if(s->type == S_MUTEPP)
-			if(mutepp(num))
-				s->applied = true;
-		// !fixname
-		if(s->type == S_FIXNAME && !s->params.empty()
-		&& s->params[0] == katina.getPlayerName(s->guid))
-			if(fixname(num, s->params[0]))
-				s->applied = true;
-	}
+// TODO: how to apply sanctions on startup?
+//	slot num;
+//	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end(); ++s)
+//	{
+//		if((num = katina.getClientSlot(s->guid)) == bad_slot)
+//			continue;
+//
+//		if(players.find(s->guid) == players.end())
+//			continue;
+//
+//		// !mute++
+//		if(s->type == S_MUTEPP)
+//			if(mutepp(num))
+//				s->applied = true;
+//		// !fixname
+//		if(s->type == S_FIXNAME && !s->params.empty()
+//		&& s->params[0] == katina.getPlayerName(s->guid))
+//			if(fixname(num, s->params[0]))
+//				s->applied = true;
+//	}
 
 	return true;
 }
@@ -656,15 +657,19 @@ bool KatinaPluginAdmin::client_userinfo_changed(siz min, siz sec, slot num, siz 
 {
 	if(!active)
 		return true;
-//	plog("client_userinfo_changed(" << num << ", " << team << ", " << guid << ", " << name << ")");
-//	plog("clients[" << num << "]         : " << clients[num]);
-//	plog("players[clients[" << num << "]]: " << katina.getPlayerName(num));
 
+	bug("SANCTION CHECK FOR: " << guid);
 	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end();)
 	{
+		bug("SANCTION FOUND: " << s->type);
+		if(s->expires && s->expires >= katina.now)
+			{ s = sanctions.erase(s); save_sanctions(); continue; }
+
+		bug("SANCTION CURRENT: " << (s->expires ? ctime(&s->expires):"PERMANENT"));
 		if(s->guid != guid)
 			{ ++s; continue; }
 
+		bug("SANCTION APPLICABLE: " << s->guid);
 		if(s->type == S_FIXNAME)
 		{
 			if(!s->params.empty() && name != s->params[0])
@@ -714,6 +719,7 @@ bool KatinaPluginAdmin::client_switch_team(siz min, siz sec, slot num, siz teamB
 		secs[num] += (katina.now - time[num]);
 		time[num] = 0; // stop timer if running
 	}
+
 	return true;
 }
 

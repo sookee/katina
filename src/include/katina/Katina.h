@@ -248,7 +248,7 @@ private:
 	// as a client disconnects.
 	slot_guid_map clients; // slot -> GUID // cleared when players disconnect and on game_begin()
 	guid_str_map players; // GUID -> name  // cleard before game_begin()
-	guid_siz_map teams; // GUID -> 'R' | 'B' // cleared when players disconnect and on game_begin()
+	guid_siz_map teams; // GUID -> 0,1,2,3 // cleared when players disconnect and on game_begin()
 
 	/**
 	 * Location of the configuration folder.
