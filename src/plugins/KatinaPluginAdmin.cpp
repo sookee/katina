@@ -115,7 +115,9 @@ bool KatinaPluginAdmin::load_sanctions()
 		if(s.expires && s.expires < katina.now)
 			continue;
 
-		plog("SANCTION LOAD: [" << ctime(&s.expires) << ": " << s.type << "] " << katina.getPlayerName(s.guid));
+		str expires = s.expires ? ctime(&s.expires) : "PERMANENT";
+
+		plog("SANCTION LOAD: [" << expires << ": " << s.type << "] " << katina.getPlayerName(s.guid));
 		sanctions.push_back(s);
 	}
 
