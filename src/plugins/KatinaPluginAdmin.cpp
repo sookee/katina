@@ -112,9 +112,10 @@ bool KatinaPluginAdmin::load_sanctions()
 			return false;
 		}
 
-		if(s.expires && s.expires < std::time(0))
+		if(s.expires && s.expires < katina.now)
 			continue;
 
+		plog("SANCTION LOAD: [" << ctime(&s.expires) << ": " << s.type << "] " << katina.getPlayerName(s.guid));
 		sanctions.push_back(s);
 	}
 
