@@ -572,7 +572,7 @@ bool TeamBuilder::is1vs1() const
     
     for(guid_siz_map_citer it = katina.getTeams().begin(); it != katina.getTeams().end(); ++it)
     {
-    	if(!katina.check_slot(it->second)) // connected?
+    	if(!it->first.is_connected()) // connected?
     		continue;
         if(it->second == TEAM_R)
             ++r;

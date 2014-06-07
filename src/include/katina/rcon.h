@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef _OASTATS_RCON_H_
 #define _OASTATS_RCON_H_
 /*
@@ -155,7 +155,7 @@ public:
 
 	bool msg_to_all(const str& message, bool beep = false)
 	{
-		return msg_to(-1, message, beep);
+		return msg_to(slot(-1), message, beep);
 	}
 
 	str chat_nobeep(const str& msg) const

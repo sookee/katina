@@ -106,13 +106,13 @@ public:
 		return true;
 	}
 
-	bool operator==(const str& guid) const
-	{
-		for(siz i = 0; i < SIZE; ++i)
-			if(this->data[i] != guid[i])
-				return false;
-		return guid.size() == SIZE;
-	}
+//	bool operator==(const str& guid) const
+//	{
+//		for(siz i = 0; i < SIZE; ++i)
+//			if(this->data[i] != guid[i])
+//				return false;
+//		return guid.size() == SIZE;
+//	}
 
 	bool operator!=(const GUID& guid) const
 	{

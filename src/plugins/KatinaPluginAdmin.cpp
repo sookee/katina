@@ -875,15 +875,15 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, slot num, const str& type, co
 	if(protect_admins)
 	{
 		pbug("VOTEKILL: PROTECTING ADMINS: " << info);
-		pbug("VOTEKILL: PROTECTING ADMINS: " << katina.getClientGuid(to<siz>(info)));
-		pbug("VOTEKILL: PROTECTING ADMINS: " << katina.is_admin(katina.getClientGuid(to<siz>(info))));
-		if(type == "clientkick" && katina.is_admin(katina.getClientGuid(to<siz>(info))))
+		pbug("VOTEKILL: PROTECTING ADMINS: " << katina.getClientGuid(to<slot>(info)));
+		pbug("VOTEKILL: PROTECTING ADMINS: " << katina.is_admin(katina.getClientGuid(to<slot>(info))));
+		if(type == "clientkick" && katina.is_admin(katina.getClientGuid(to<slot>(info))))
 		{
 			std::async(std::launch::async, [&]
 			{
 				thread_sleep_millis(1000);
 				votekill(katina.get_name() + "^1: ^7[^3NOT ALLOWED TO KICK ADMINS^7]");
-				plog("VOTEKILL: admin protection for: " << katina.getPlayerName(to<siz>(info)));
+				plog("VOTEKILL: admin protection for: " << katina.getPlayerName(to<slot>(info)));
 			});
 		}
 	}

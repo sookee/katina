@@ -416,7 +416,7 @@ bool KatinaPluginStats::kill(siz min, siz sec, slot num1, slot num2, siz weap)
 	if(clients.find(num1) == clients.end() || clients.find(num2) == clients.end())
 		return true;
 
-	if(num1 == 1022) // no killer
+	if(num1 == slot(1022)) // no killer
 		++stats[katina.getClientGuid(num2)].deaths[weap];
     
     // Don't add killed bots to player stats

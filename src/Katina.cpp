@@ -545,7 +545,7 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 		{
 			str type;
 
-			if(!(iss >> type))
+			if(!(iss >> type) || trim(type).empty())
 				type = "data";
 
 			if(type == "clients" || type == "data")
@@ -743,7 +743,7 @@ bool Katina::initial_player_info()
 		return false;
 	}
 
-	siz num;
+	slot num;
 	char team; // 1 = red, 2 = blue, 3 = spec
 
 	siss iss(reply);
@@ -761,7 +761,7 @@ bool Katina::initial_player_info()
 			continue;
 		}
 
-		if(num > 32)
+		if(num > slot(32))
 		{
 			log("ERROR: Bad client num: " << num);
 			continue;
@@ -892,6 +892,160 @@ bool Katina::parse_slot_guid_name(const str& slot_guid_name, slot& num)
 	return false;
 }
 
+// Sometimes the ClientUserinfoChanged message is split over
+// two lines. This is a fudge to compensate for that bug
+struct client_userinfo_bug_t
+{
+	str params;
+	void set(const str& params) { this->params = params; }
+	void reset() { params.clear(); }
+	operator bool() { return !params.empty(); }
+};
+
+
+bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
+{
+	sifs ifs(logname);
+
+	client_userinfo_bug_t client_userinfo_bug;
+
+	siss iss;
+	siz min, sec;
+	char c;
+	str cmd;
+	str skip;
+
+	str line;
+	while(sgl(ifs, line))
+	{
+		if(ifs.tellg() >= pos)
+			return true;
+
+		iss.clear();
+		iss.str(line);
+
+		if(!(sgl(iss >> min >> c >> sec >> std::ws, cmd, ':') >> std::ws))
+		{
+			if(!client_userinfo_bug)
+			{
+				log("ERROR: parsing logfile command: " << line);
+				continue;
+			}
+			log("WARN: possible ClientUserinfoChanged bug");
+			if(line.find("\\id\\") == str::npos)
+			{
+				log("ERROR: parsing logfile command: " << line);
+				client_userinfo_bug.reset();
+				continue;
+			}
+			else
+			{
+				log("INFO: ClientUserinfoChanged bug detected");
+				cmd = "ClientUserinfoChanged";
+				iss.clear();
+				iss.str(client_userinfo_bug.params + line);
+				log("INFO: params: " << client_userinfo_bug.params << line);
+			}
+		}
+
+		client_userinfo_bug.reset();
+
+		cmd += ":";
+
+		str params;
+
+		sgl(iss, params); // not all commands have params
+
+		iss.clear();
+		iss.str(params);
+
+		if(cmd == "ClientUserinfoChanged:")
+		{
+			slot num;
+			siz team;
+			if(!(sgl(sgl(sgl(iss >> num, skip, '\\'), name, '\\'), skip, '\\') >> team))
+				std::cout << "Error parsing ClientUserinfoChanged: "  << params << '\n';
+			else if(num > slot(32))
+			{
+				log("ERROR: Client num too high: " << num);
+			}
+			else
+			{
+				siz pos = line.find("\\id\\");
+				if(pos == str::npos)
+					client_userinfo_bug.set(params);
+				else
+				{
+					str id = line.substr(pos + 4, 32);
+					GUID guid;
+
+					if(id.size() != 32)
+						guid = GUID(num); // bot constructor
+					else
+						guid = to<GUID>(id.substr(24));
+
+					siz hc = 100;
+					if((pos = line.find("\\hc\\")) == str::npos)
+					{
+						log("WARN: no handicap info found: " << line);
+					}
+					else
+					{
+						if(!(siss(line.substr(pos + 4)) >> hc))
+							log("ERROR: Parsing handicap: " << line.substr(pos + 4));
+					}
+
+					shutdown_erase.remove(guid); // must have re-joined
+
+					clients[num] = guid;
+					players[guid] = name;
+
+					siz teamBefore = teams[guid];
+					teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
+				}
+			}
+		}
+		else if(cmd == "ShutdownGame:")
+		{
+			// these are clients that disconnected before the game ended
+			for(const GUID& guid: shutdown_erase)
+			{
+				teams.erase(guid);
+				players.erase(guid);
+			}
+			shutdown_erase.clear();
+		}
+		else if(cmd == "ClientDisconnect:")
+		{
+			slot num;
+			if(!(iss >> num))
+				std::cout << "Error parsing ClientDisconnect: "  << params << '\n';
+			else if(num > slot(32))
+			{
+				log("ERROR: Client num too high: " << num);
+			}
+			else
+			{
+				// slot numbers are defunct, but keep GUIDs until ShutdownGame
+				GUID guid = getClientGuid(num);
+
+				if(guid == null_guid)
+				{
+					log("ERROR: nul GUID");
+				}
+
+				clients[num].disconnect();
+				shutdown_erase.push_back(guid);
+				teams[guid] = TEAM_U;
+
+				clients.erase(num);
+			}
+		}
+	}
+
+	return true;
+}
+
 bool Katina::start(const str& dir)
 {
 	log("Starting Katina:");
@@ -912,9 +1066,6 @@ bool Katina::start(const str& dir)
 	if(!rconset("mod_katina", mod_katina))
 		if(!rconset("mod_katina", mod_katina))
 			mod_katina.clear();
-
-	if(!initial_player_info())
-		log("ERROR: Unable to get initial player info");
 
 	now = get("run.time", std::time(0));
 	std::time_t base_now = now; // rerun base time
@@ -943,17 +1094,19 @@ bool Katina::start(const str& dir)
 	std::istream& is = ifs;
 	std::ios::streampos gpos = is.tellg();
 
-	// Sometimes the ClientUserinfoChanged message is split over
-	// two lines. This is a fudge to compensate for that bug
-	struct client_userinfo_bug_t
-	{
-		str params;
-		void set(const str& params) { this->params = params; }
-		void reset() { params.clear(); }
-		operator bool() { return !params.empty(); }
-	} client_userinfo_bug;
+	//	if(!initial_player_info())
+	//		log("ERROR: Unable to get initial player info");
 
-	client_userinfo_bug.reset();
+
+	// read back through log file to build up current player
+	// info
+	std::time_t rbt = std::time(0);
+	log("Initializing data structures");
+	if(!rerun && log_read_back(get_exp("logfile"), gpos))
+		log("WARN: Unable to get initial player info");
+	log("DONE: " << (std::time(0) - rbt) << " seconds");
+
+	client_userinfo_bug_t client_userinfo_bug;
 
 	log("Processing:");
 
@@ -1087,10 +1240,11 @@ bool Katina::start(const str& dir)
 			//bug(cmd << "(" << params << ")");
 			// 0 n\Merman\t\2\model\merman\hmodel\merman\c1\1\c2\1\hc\70\w\0\l\0\skill\ 2.00\tt\0\tl\0\id\
 			// 2 \n\^1S^2oo^3K^5ee\t\3\c2\d\hc\100\w\0\l\0\tt\0\tl\0\id\041BD1732752BCC408FAF45616A8F64B
-			siz num, team;
+			slot num;
+			siz team;
 			if(!(sgl(sgl(sgl(iss >> num, skip, '\\'), name, '\\'), skip, '\\') >> team))
 				std::cout << "Error parsing ClientUserinfoChanged: "  << params << '\n';
-			else if(num > 32)
+			else if(num > slot(32))
 			{
 				log("ERROR: Client num too high: " << num);
 			}
@@ -1144,7 +1298,7 @@ bool Katina::start(const str& dir)
 			if(events[CLIENT_CONNECT].empty())
 				continue;
 
-			siz num;
+			slot num;
 			if(!(iss >> num))
 				log("Error parsing ClientConnect: "  << params);
 			else
@@ -1161,7 +1315,7 @@ bool Katina::start(const str& dir)
 			if(events[CLIENT_CONNECT_INFO].empty())
 				continue;
 
-			siz num;
+			slot num;
 			GUID guid;
 			str ip;
 			str skip; // rest of guid needs to be skipped before ip
@@ -1181,7 +1335,7 @@ bool Katina::start(const str& dir)
 			if(events[CLIENT_BEGIN].empty())
 				continue;
 
-			siz num;
+			slot num;
 			if(!(iss >> num))
 				log("Error parsing ClientBegin: "  << params);
 			else
@@ -1195,24 +1349,37 @@ bool Katina::start(const str& dir)
 		{
 			//bug(cmd << "(" << params << ")");
 
-			siz num;
+			slot num;
 			if(!(iss >> num))
 				std::cout << "Error parsing ClientDisconnect: "  << params << '\n';
-			else if(num > 32)
+			else if(num > slot(32))
 			{
 				log("ERROR: Client num too high: " << num);
 			}
 			else
 			{
 				// slot numbers are defunct, but keep GUIDs until ShutdownGame
-				clients[num].disconnect();
-				shutdown_erase.push_back(clients[num]);
+				GUID guid = getClientGuid(num);
+
+				if(guid == null_guid)
+				{
+					log("ERROR: nul GUID");
+				}
+
+				shutdown_erase.push_back(guid);
+                siz teamBefore = teams[getClientGuid(num)];
+                teams[guid] = TEAM_U;
 
 				for(plugin_vec_iter i = events[CLIENT_DISCONNECT].begin()
 					; i != events[CLIENT_DISCONNECT].end(); ++i)
 					(*i)->client_disconnect(min, sec, num);
 
- 				//teams.erase(clients[num]);
+	               if(teamBefore != TEAM_U && !guid.is_bot())
+	                    for(plugin_vec_iter i = events[CLIENT_SWITCH_TEAM].begin();
+	                    		i != events[CLIENT_SWITCH_TEAM].end(); ++i)
+	                        (*i)->client_switch_team(min, sec, num, teamBefore, TEAM_U);
+
+				//teams.erase(clients[num]);
 				//players.erase(clients[num]);
 				clients.erase(num);
 			}
@@ -1223,7 +1390,8 @@ bool Katina::start(const str& dir)
 			if(events[KILL].empty())
 				continue;
 
-			siz num1, num2, weap;
+			slot num1, num2;
+			siz weap;
 			if(!(iss >> num1 >> num2 >> weap))
 				log("Error parsing Kill:" << params);
 			else
@@ -1239,7 +1407,7 @@ bool Katina::start(const str& dir)
 			if(events[PUSH].empty())
 				continue;
 
-			siz num1, num2;
+			slot num1, num2;
 			if(!(iss >> num1 >> num2))
 				log("Error parsing Push:" << params);
 			else
@@ -1255,7 +1423,8 @@ bool Katina::start(const str& dir)
 
 			// Weapon Usage Update
 			// WeaponUsage: <client#> <weapon#> <#shotsFired>
-			siz num, weap, shots;
+			slot num;
+			siz weap, shots;
 
 			if(iss >> num >> weap >> shots)
 			{
@@ -1271,7 +1440,8 @@ bool Katina::start(const str& dir)
 
 			// MOD (Means of Death = Damage Type) Damage Update
 			// MODDamage: <client#> <mod#> <#hits> <damageDone> <#hitsRecv> <damageRecv> <weightedHits>
-			siz num, mod, hits, dmg, hitsRecv, dmgRecv;
+			slot num;
+			siz mod, hits, dmg, hitsRecv, dmgRecv;
 			float weightedHits;
 			if(iss >> num >> mod >> hits >> dmg >> hitsRecv >> dmgRecv >> weightedHits)
 			{
@@ -1292,7 +1462,8 @@ bool Katina::start(const str& dir)
 			// 			    <pushesDone> <pushesRecv>
 			// 			    <healthPickedUp> <armorPickedUp>
 			//				<holyShitFrags> <holyShitFragged>
-			siz num, fragsFace, fragsBack, fraggedFace, fraggedBack, spawnKills, spawnKillsRecv;
+			slot num;
+			siz fragsFace, fragsBack, fraggedFace, fraggedBack, spawnKills, spawnKillsRecv;
 			siz pushes, pushesRecv, health, armor, holyShitFrags, holyShitFragged;
 			if(iss >> num >> fragsFace >> fragsBack >> fraggedFace >> fraggedBack >> spawnKills >> spawnKillsRecv
 			       >> pushes >> pushesRecv >> health >> armor >> holyShitFrags >> holyShitFragged)
@@ -1315,7 +1486,8 @@ bool Katina::start(const str& dir)
 
 			//bug(cmd << "(" << params << ")");
 
-			siz num, col, act;
+			slot num;
+			siz col, act;
 			if(!(iss >> num >> col >> act) || col < 1 || col > 2)
 				log("Error parsing CTF:" << params);
 			else
@@ -1355,7 +1527,7 @@ bool Katina::start(const str& dir)
 
 			int score = 0;
 			siz ping = 0;
-			siz num = 0;
+			slot num;
 			str name;
 			// 18:38 score: 200  ping: 7  client: 0 ^5A^6lien ^5S^6urf ^5G^6irl
 			// 18:38 score: 196  ping: 65  client: 5 ^1Lord ^2Zeus
@@ -1386,7 +1558,8 @@ bool Katina::start(const str& dir)
 			if(events[SPEED].empty())
 				continue;
 
-			siz num, dist, time;
+			slot num;
+			siz dist, time;
 			if(!(iss >> num >> dist >> time))
 				log("Error parsing Speed:" << params);
 			else
@@ -1402,7 +1575,8 @@ bool Katina::start(const str& dir)
 			if(events[AWARD].empty())
 				continue;
 
-			siz num, awd;
+			slot num;
+			siz awd;
 			if(!(iss >> num >> awd))
 				log("Error parsing Award:" << params);
 			else
@@ -1492,7 +1666,7 @@ bool Katina::start(const str& dir)
 			if(events[LOG_CALLVOTE].empty())
 				continue;
 
-			siz num;
+			slot num;
 			str type;
 			str info;
 

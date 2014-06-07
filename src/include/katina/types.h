@@ -151,9 +151,11 @@ class slot
 {
 	siz num;
 public:
-	slot(siz num = 0): num(num) {}
+	slot(): num(0) {}
+	explicit slot(siz num): num(num) {}
 
 	bool operator<(const slot& s) const { return num < s.num; }
+	bool operator>(const slot& s) const { return num > s.num; }
 	bool operator==(const slot& s) const { return num == s.num; }
 	bool operator!=(const slot& s) const { return num != s.num; }
 
