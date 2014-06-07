@@ -85,7 +85,7 @@ public:
 	{
 		soss oss;
 		oss << num;
-		data = oss.str();
+		data = "B" + oss.str();
 		if(data.size() < GUID::SIZE)
 			data = str(GUID::SIZE - data.size(), '0') + data;
 	}
