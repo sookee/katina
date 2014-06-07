@@ -85,7 +85,7 @@ public:
 		data = oss.str();
 		if(data.size() < GUID::SIZE)
 			data = "B" + str(GUID::SIZE - data.size() - 1, '0') + data;
-		bug_var(data);
+		//bug_var(data);
 	}
 
 	const GUID& operator=(const GUID& guid)
