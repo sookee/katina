@@ -31,6 +31,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <dlfcn.h>
 #include <cassert>
 #include <ctime>
+#include <string>
 
 #include <katina/Katina.h>
 #include <katina/KatinaPlugin.h>
@@ -540,7 +541,39 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 	else
 	{
 		bug_var(cmd);
-		if(cmd == "plugin")
+		if(cmd == "debug" || cmd == "-d")
+		{
+			str type;
+
+			if(!(iss >> type))
+				type = "data";
+
+			if(type == "clients" || type == "data")
+			{
+				server.msg_to(num, "clients:");
+				for(slot_guid_map_pair p: clients)
+					server.msg_to(num, "\t{" + str(p.first) + ", " + str(p.second) + "}"
+						+ (p.second.is_bot()?" (BOT)":"")
+						+ (p.second.is_connected()?"":" (Disconnected)"));
+			}
+			else if(type == "teams" || type == "data")
+			{
+				server.msg_to(num, "teams:");
+				for(guid_siz_map_pair p: teams)
+					server.msg_to(num, "\t{" + str(p.first) + ", " + std::to_string(p.second) + "}"
+						+ (p.first.is_bot()?" (BOT)":"")
+						+ (p.first.is_connected()?"":" (Disconnected)"));
+			}
+			else if(type == "players" || type == "data")
+			{
+				server.msg_to(num, "players:");
+				for(guid_str_map_pair p: players)
+					server.msg_to(num, "\t{" + str(p.first) + ", " + p.second + "}"
+						+ (p.first.is_bot()?" (BOT)":"")
+						+ (p.first.is_connected()?"":" (Disconnected)"));
+			}
+		}
+		else if(cmd == "plugin")
 		{
 			if(!(iss >> plugin))
 			{
@@ -739,9 +772,19 @@ bool Katina::initial_player_info()
 		bug_var(guid);
 
 		if(guid.size() != 8)
+		{
+			bug("BOT FOUND: " << num);
 			clients[num] = GUID(num); // bot constructor
+			if(!clients[num].is_bot())
+				bug("ERROR: not set to bot");
+		}
 		else
+		{
+			bug("HUMAN FOUND: " << num);
 			clients[num] = GUID(guid);
+			if(clients[num].is_bot())
+				bug("ERROR: set to bot");
+		}
 
 		//bug("Adding: " << num << " to team " << team);
 		bug_var(clients[num]);
