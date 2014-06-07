@@ -167,6 +167,7 @@ bool KatinaPluginStats::exit(siz min, siz sec)
                 if(p->first.is_bot())
                     continue;
                 
+                pbug_var(p->second.name);
                 db.add_player(p->first, p->second.name);
                 
 				siz count;
@@ -181,6 +182,7 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 				if((count = map_get(p->second.flags, FL_CAPTURED)))
 					db.add_caps(id, p->first, count);
 
+				pbug_var(p->second.logged_time);
                 if((count = p->second.logged_time))
                     db.add_time(id, p->first, count);
 
