@@ -1034,7 +1034,7 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 
 				if(guid == null_guid)
 				{
-					log("ERROR: nul GUID: " << guid << " at [" << n << "] " << line);
+					log("ERROR: nul GUID: " << guid << (guid.is_bot()?" [BOT]":"") << " at [" << n << "] " << line);
 				}
 
 				clients[num].disconnect();

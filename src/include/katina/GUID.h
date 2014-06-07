@@ -71,11 +71,8 @@ public:
 			this->data[i] = data[i];
 	}
 
-	GUID(const GUID& guid): data(SIZE, '0'), bot(guid.bot)
+	GUID(const GUID& guid): data(guid.data), bot(guid.bot)
 	{
-		bot = guid.bot;
-		for(siz i = 0; i < SIZE; ++i)
-			this->data[i] = guid.data[i];
 	}
 
 	/**
@@ -88,6 +85,7 @@ public:
 		data = "B" + oss.str();
 		if(data.size() < GUID::SIZE)
 			data = str(GUID::SIZE - data.size(), '0') + data;
+		bug_var(data);
 	}
 
 	const GUID& operator=(const GUID& guid)
