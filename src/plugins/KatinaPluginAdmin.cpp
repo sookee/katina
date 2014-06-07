@@ -712,18 +712,18 @@ bool KatinaPluginAdmin::client_userinfo_changed(siz min, siz sec, slot num, siz 
 	if(guid.is_bot() || !guid.is_connected())
 		return true;
 
-	bug("SANCTION CHECK FOR: " << guid);
+//	bug("SANCTION CHECK FOR: " << guid);
 	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end();)
 	{
-		bug("SANCTION FOUND: " << s->type);
+//		bug("SANCTION FOUND: " << s->type);
 		if(s->expires && s->expires >= katina.now)
 			{ s = sanctions.erase(s); save_sanctions(); continue; }
 
-		bug("SANCTION CURRENT: " << (s->expires ? ctime(&s->expires):"PERMANENT"));
+//		bug("SANCTION CURRENT: " << (s->expires ? ctime(&s->expires):"PERMANENT"));
 		if(s->guid != guid)
 			{ ++s; continue; }
 
-		bug("SANCTION APPLICABLE: " << s->guid);
+//		bug("SANCTION APPLICABLE: " << s->guid);
 		if(s->type == S_FIXNAME)
 		{
 			if(!s->params.empty() && name != s->params[0])
@@ -762,16 +762,16 @@ bool KatinaPluginAdmin::client_switch_team(siz min, siz sec, slot num, siz teamB
 	if(!active)
 		return true;
 
-	plog("client_switch_team(" << num << ", " << teamBefore << ", " << teamNow << ")");
+	//plog("client_switch_team(" << num << ", " << teamBefore << ", " << teamNow << ")");
 
 	if((teamNow == TEAM_R || teamNow == TEAM_B) && !time[num])
 	{
-		pbug("STARTING TIMER FOR: " << katina.getPlayerName(num) << " [" << katina.now << "]");
+		//pbug("STARTING TIMER FOR: " << katina.getPlayerName(num) << " [" << katina.now << "]");
 		time[num] = katina.now; // start timer if not running
 	}
 	else if(teamNow == TEAM_S && time[num])
 	{
-		pbug("STOPPING TIMER FOR: " << katina.getPlayerName(num) << " after " << (katina.now - time[num]) << " seconds");
+		//pbug("STOPPING TIMER FOR: " << katina.getPlayerName(num) << " after " << (katina.now - time[num]) << " seconds");
 		secs[num] += (katina.now - time[num]);
 		time[num] = 0; // stop timer if running
 	}

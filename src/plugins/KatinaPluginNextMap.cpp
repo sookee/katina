@@ -113,12 +113,12 @@ bool KatinaPluginNextMap::client_connect_info(siz min, siz sec, slot num, const 
 	if(!active)
 		return true;
 
-	pbug("Finding votes for player: " << guid << " " << katina.getPlayerName(guid));
+	//pbug("Finding votes for player: " << guid << " " << katina.getPlayerName(guid));
 
 	// get map stats for this player
 	soss sql;
 	sql << "select `item`,`count` from `votes` where `type` = 'map' and guid = '" << str(guid) << "'";
-	pbug_var(sql.str());
+	//pbug_var(sql.str());
 	str_vec_vec rows;
 	if(!db.select(sql.str(), rows, 2))
 	{
@@ -165,10 +165,10 @@ bool KatinaPluginNextMap::exit(siz min, siz sec)
 
 	for(guid_vote_map_iter i = votes.begin(); i != votes.end(); ++i)
 	{
-		pbug_var(i->first);
-		pbug("maps[" << i->second.mapname << "] += " << i->second.count);
+//		pbug_var(i->first);
+//		pbug("maps[" << i->second.mapname << "] += " << i->second.count);
 		maps[i->second.mapname] += i->second.count;
-		pbug_var(maps[i->second.mapname]);
+//		pbug_var(maps[i->second.mapname]);
 	}
 
 	str nextmap; // next mapname
@@ -210,12 +210,12 @@ bool KatinaPluginNextMap::exit(siz min, siz sec)
 		return true;
 	}
 
-	pbug_var(i->first);
-	pbug_var(i->second);
+//	pbug_var(i->first);
+//	pbug_var(i->second);
 
 	nextmap = i->second;
 
-	pbug_var(nextmap);
+//	pbug_var(nextmap);
 	// set m1 "map oasago2; set nextmap vstr m2"
 
 	//server.msg_to_all("^3NEXT MAP SUGGESTS: ^7" + upper_copy(nextmap));
