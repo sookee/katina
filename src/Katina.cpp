@@ -914,6 +914,7 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 	char c;
 	str cmd;
 	str skip;
+	str name;
 
 	siz n = 0;
 	str line;
