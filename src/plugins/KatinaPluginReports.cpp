@@ -636,7 +636,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 		std::multimap<str, str> scores;
 
 		soss oss;
-		for(guid_stat_citer p = stats->stats.begin(); p != stats->stats.end(); ++p)
+		for(guid_stat_map_citer p = stats->stats.begin(); p != stats->stats.end(); ++p)
 		{
 			// $time $fph $cph $fpd $cpd $acc[GA|MG|SG|GL|RL|LG|RG|PG|BG|GH|NG|PL|CG] $name
 
