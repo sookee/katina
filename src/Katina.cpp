@@ -915,11 +915,14 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 	str cmd;
 	str skip;
 
+	siz n = 0;
 	str line;
 	while(sgl(ifs, line))
 	{
 		if(ifs.tellg() >= pos)
 			return true;
+
+		++n;// current line number
 
 		iss.clear();
 		iss.str(line);
@@ -928,13 +931,13 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 		{
 			if(!client_userinfo_bug)
 			{
-				log("ERROR: parsing logfile command: " << line);
+				log("ERROR: parsing logfile command: [" << n << "] " << line);
 				continue;
 			}
 			log("WARN: possible ClientUserinfoChanged bug");
 			if(line.find("\\id\\") == str::npos)
 			{
-				log("ERROR: parsing logfile command: " << line);
+				log("ERROR: parsing logfile command: [" << n << "] " << line);
 				client_userinfo_bug.reset();
 				continue;
 			}
@@ -964,10 +967,10 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 			slot num;
 			siz team;
 			if(!(sgl(sgl(sgl(iss >> num, skip, '\\'), name, '\\'), skip, '\\') >> team))
-				std::cout << "Error parsing ClientUserinfoChanged: "  << params << '\n';
+				std::cout << "Error parsing ClientUserinfoChanged: [" << n << "] "  << params << '\n';
 			else if(num > slot(32))
 			{
-				log("ERROR: Client num too high: " << num);
+				log("ERROR: Client num too high: " << num << " at [" << n << "] " << line);
 			}
 			else
 			{
@@ -1019,10 +1022,10 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 		{
 			slot num;
 			if(!(iss >> num))
-				std::cout << "Error parsing ClientDisconnect: "  << params << '\n';
+				log("Error parsing ClientDisconnect: "  << params << " at [" << n << "] " << line);
 			else if(num > slot(32))
 			{
-				log("ERROR: Client num too high: " << num);
+				log("ERROR: Client num too high: " << num << " at [" << n << "] " << line);
 			}
 			else
 			{
@@ -1031,7 +1034,7 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 
 				if(guid == null_guid)
 				{
-					log("ERROR: nul GUID");
+					log("ERROR: nul GUID" << " at [" << n << "] " << line);
 				}
 
 				clients[num].disconnect();
