@@ -496,12 +496,6 @@ void Katina::init_rcon()
 
 	if(get("rcon.active") == "true")
 		server.on();
-    
-//	prefix = get("rcon.cvar.prefix");
-//	if(!prefix.empty())
-//		prefix += ".";
-    
-	//pthread_create(&cvarevts_thread, 0, &cvarpoll, (void*) this);
 }
 
 void Katina::load_plugins()
@@ -1167,12 +1161,13 @@ bool Katina::start(const str& dir)
 			}
 			else
 			{
+				// slot numbers are defunct, but keep GUIDs until ShutdownGame
+				clients[num].disconnect();
+				shutdown_erase.push_back(clients[num]);
+
 				for(plugin_vec_iter i = events[CLIENT_DISCONNECT].begin()
 					; i != events[CLIENT_DISCONNECT].end(); ++i)
 					(*i)->client_disconnect(min, sec, num);
-
-				// slot numbers are defunct, but keep GUIDs until ShutdownGame
-				shutdown_erase.push_back(clients[num]);
 
  				//teams.erase(clients[num]);
 				//players.erase(clients[num]);

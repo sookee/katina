@@ -135,17 +135,19 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 	//bug("in_game: " << in_game);
 	if(!in_game)
 		return true;
+
 	in_game = false;
+
 	if(!active)
 		return true;
 
 	// in game timing
 	std::time_t logged_time = 0;
-	for(guid_stat_iter p = stats.begin(); p != stats.end(); ++p)
+	for(guid_stat_map_iter p = stats.begin(); p != stats.end(); ++p)
 	{
 		if(p->second.joined_time)
 		{
-			p->second.logged_time += katina.now - p->second.joined_time;
+			p->second.logged_time += (katina.now - p->second.joined_time);
 			p->second.joined_time = 0;
 		}
         
@@ -160,7 +162,7 @@ bool KatinaPluginStats::exit(siz min, siz sec)
         
 		if(id != null_id && id != bad_id)
 		{
-			for(guid_stat_citer p = stats.begin(); p != stats.end(); ++p)
+			for(guid_stat_map_citer p = stats.begin(); p != stats.end(); ++p)
 			{
                 if(p->first.is_bot())
                     continue;
@@ -239,6 +241,8 @@ bool KatinaPluginStats::shutdown_game(siz min, siz sec)
 	if(!active)
 		return true;
 
+	stall_clients();
+
 	return true;
 }
 
@@ -247,6 +251,7 @@ bool KatinaPluginStats::warmup(siz min, siz sec)
 {
 	// bug("in_game: " << in_game);
 	in_game = false;
+	stall_clients();
     
     return true;
 }
@@ -263,43 +268,44 @@ void KatinaPluginStats::updatePlayerTime(slot num)
 }
 
 
-void KatinaPluginStats::stall_client(slot num)
+void KatinaPluginStats::stall_client(const GUID& guid)
 {
-	if(!stats[katina.getClientGuid(num)].joined_time)
+	if(!stats[guid].joined_time)
 		return;
 
-	stats[katina.getClientGuid(num)].logged_time += katina.now - stats[katina.getClientGuid(num)].joined_time;
-	stats[katina.getClientGuid(num)].joined_time = 0;
+	stats[guid].logged_time += katina.now - stats[guid].joined_time;
+	stats[guid].joined_time = 0;
 }
 
 
-void KatinaPluginStats::unstall_client(slot num)
+void KatinaPluginStats::unstall_client(const GUID& guid)
 {
-	if(stats[katina.getClientGuid(num)].joined_time)
+	if(stats[guid].joined_time)
 		return;
-	if(katina.getTeam(num) != TEAM_R && katina.getTeam(num) != TEAM_B)
+
+	if(katina.getTeam(guid) != TEAM_R && katina.getTeam(guid) != TEAM_B)
 		return;
     
-	stats[katina.getClientGuid(num)].joined_time = katina.now;
+	stats[guid].joined_time = katina.now;
 }
 
 
 void KatinaPluginStats::stall_clients()
 {
-	for(slot_guid_map_citer ci = clients.begin(); ci != clients.end(); ++ci)
+	for(guid_stat_map_citer ci = stats.begin(); ci != stats.end(); ++ci)
 		stall_client(ci->first);
 }
 
 
-void KatinaPluginStats::unstall_clients(slot num)
+void KatinaPluginStats::unstall_clients(const GUID& guid)
 {
-	for(slot_guid_map_citer ci = clients.begin(); ci != clients.end(); ++ci)
-		if(num == siz(-1) || num != ci->first)
+	for(guid_stat_map_citer ci = stats.begin(); ci != stats.end(); ++ci)
+		if(guid == null_guid || guid != ci->first)
 			unstall_client(ci->first);
 }
 
 
-void KatinaPluginStats::check_bots_and_players(slot num)
+void KatinaPluginStats::check_bots_and_players(const GUID& guid)
 {
 	bool had_bots = have_bots;
 	//bool human_players_nr_or_nb = !human_players_r || !human_players_b;
@@ -308,12 +314,12 @@ void KatinaPluginStats::check_bots_and_players(slot num)
 	human_players_r = 0;
 	human_players_b = 0;
     
-    if(recordBotGames)
-        return;
+//    if(recordBotGames)
+//        return;
 
 	for(guid_siz_map_citer ci = teams.begin(); ci != teams.end(); ++ci)
 	{
-		if(num != bad_slot && katina.getClientSlot(ci->first) == num)
+		if(guid != null_guid && ci->first == guid) // avoid disconnected client
 			continue;
 		if(!katina.is_disconnected(ci->first))
 			continue;
@@ -334,14 +340,9 @@ void KatinaPluginStats::check_bots_and_players(slot num)
 		}
 	}
 
-//	bug_var(have_bots);
-//	bug_var(human_players_r);
-//	bug_var(human_players_b);
-    
 	if(have_bots || !human_players_r || !human_players_b)
     {
         stall_clients();
-//        bug("BOT GAME ===================");
         have_bots = true; // TODO: one flag for everything, maybe change its name?
         
         if(had_bots != have_bots)
@@ -349,13 +350,11 @@ void KatinaPluginStats::check_bots_and_players(slot num)
     }
 	else
     {
-		unstall_clients(num);
- //       bug("HUMAN GAME ===================");
+		unstall_clients(guid);
         if(had_bots != have_bots)
             server.chat("^2Stats recording activated^7");
     }
 }
-
 
 bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, slot num, siz team, const GUID& guid, const str& name, siz hc)
 {
@@ -371,14 +370,7 @@ bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, slot num, siz 
 	if(!active)
 		return true;
 
-	stall_client(num);
-
 	check_bots_and_players();
-
-	if(have_bots)
-		return true;
-
-	unstall_client(num);
 
 	return true;
 }
@@ -388,6 +380,10 @@ bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, slot num, siz 
 //{
 //	if(!active)
 //		return true;
+//
+//	// DON'T do this. ClientUserinfoChanged even fired BEFORE this
+//	// for some reason
+//	// stall_client(katina.getClientGuid(num));
 //}
 
 
@@ -398,8 +394,8 @@ bool KatinaPluginStats::client_disconnect(siz min, siz sec, slot num)
 	if(!active)
 		return true;
 
-	stall_client(num);
-	check_bots_and_players(num);
+	stall_client(katina.getClientGuid(num));
+	check_bots_and_players(katina.getClientGuid(num));
 
 	return true;
 }
@@ -498,6 +494,8 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 
 	if(!active)
 		return true;
+
+	unstall_clients();
 
 	if(do_prev_stats)
 	{

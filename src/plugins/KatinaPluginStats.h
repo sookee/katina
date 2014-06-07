@@ -116,9 +116,9 @@ typedef std::map<GUID, guid_siz_map>::iterator onevone_iter;
 typedef std::map<GUID, guid_siz_map>::const_iterator onevone_citer;
 
 typedef std::map<GUID, stats> guid_stat_map;
-typedef std::pair<const GUID, stats> guid_stat_pair;
-typedef std::map<GUID, stats>::iterator guid_stat_iter;
-typedef std::map<GUID, stats>::const_iterator guid_stat_citer;
+typedef guid_stat_map::value_type guid_stat_vt;
+typedef std::map<GUID, stats>::iterator guid_stat_map_iter;
+typedef std::map<GUID, stats>::const_iterator guid_stat_map_citer;
 
 //class Database
 //: public oastats::data::Database
@@ -163,11 +163,11 @@ private:
 
 	siz_set db_weaps; // which weapons to record
 
-	void stall_client(slot num);
-	void unstall_client(slot num);
+	void stall_client(const GUID& guid);
+	void unstall_client(const GUID& guid);
 	void stall_clients();
-	void unstall_clients(slot num = siz(-1));
-	void check_bots_and_players(slot num = siz(-1));
+	void unstall_clients(const GUID& guid = null_guid);
+	void check_bots_and_players(const GUID& guid = null_guid);
 	bool check_slot(slot num);
 
 public:

@@ -56,7 +56,7 @@ void Database::on()
 		log("DATABASE ERROR: Unable to connect; " << mysql_error(&mysql));
 		return;
 	}
-	log("DATABASE: on");
+//	log("DATABASE: on");
 	active = true;
 }
 
@@ -66,7 +66,7 @@ void Database::off()
 		return;
 	active = false;
 	mysql_close(&mysql);
-	log("DATABASE: off");
+//	log("DATABASE: off");
 }
 
 bool Database::check()
@@ -375,7 +375,7 @@ bool Database::add_speed(game_id id, const GUID& guid,
 
 bool Database::read_map_votes(const str& mapname, guid_int_map& map_votes)
 {
-	log("DATABASE: read_map_votes()");
+	//log("DATABASE: read_map_votes()");
 
 	str safe_mapname;
 	if(!escape(mapname, safe_mapname))
@@ -903,6 +903,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	return true;
 }
 
+// TODO: Make bood, champ & stats return a proper GUID like this does scanning the clients
 bool Database::get_ingame_crap(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats)
 {
 	log("DATABASE: get_ingame_crap(" << mapname << ", " << clients.size() << ")");
@@ -915,7 +916,7 @@ bool Database::get_ingame_crap(const str& mapname, const slot_guid_map& clients,
 		return false;
 
 	stat_map stat_cs;
-	str_set guids;
+	//str_set guids;
 
 	soss oss;
 	oss << "select `game_id` from `game` where `map` = '" << mapname << "'";
@@ -944,7 +945,7 @@ bool Database::get_ingame_crap(const str& mapname, const slot_guid_map& clients,
 
 	str sql = oss.str();
 
-//	bug_var(sql);
+	bug_var(sql);
 
 	str_vec_vec rows;
 
@@ -956,7 +957,7 @@ bool Database::get_ingame_crap(const str& mapname, const slot_guid_map& clients,
 		if(rows[i][0].empty() || rows[i][1].empty())
 			continue;
 		stat_cs[rows[i][0]].kills = to<siz>(rows[i][1]);
-		guids.insert(rows[i][0]);
+		//guids.insert(rows[i][0]);
 	}
 
 	oss.clear();
@@ -976,40 +977,37 @@ bool Database::get_ingame_crap(const str& mapname, const slot_guid_map& clients,
 		if(rows[i][0].empty() || rows[i][1].empty())
 			continue;
 		stat_cs[rows[i][0]].secs = to<siz>(rows[i][1]);
-		guids.insert(rows[i][0]);
+		//guids.insert(rows[i][0]);
 	}
 
-	if(guids.empty())
-		return true;
+//	if(guids.empty())
+//		return true;
 
-	str_set_iter maxi = guids.end();
+	slot_guid_map_citer maxi = clients.end();
 	double maxv = 0.0;
 
-	for(str_set_iter g = guids.begin(); g != guids.end(); ++g)
+	for(slot_guid_map_citer g = clients.begin(); g != clients.end(); ++g)
 	{
-		if(stat_cs[*g].secs)
+		if(stat_cs[g->second].secs)
 		{
-			stat_cs[*g].fph = stat_cs[*g].kills * 60 * 60 / stat_cs[*g].secs;
-			if(stat_cs[*g].fph > maxv)
+			stat_cs[g->second].fph = stat_cs[g->second].kills * 60 * 60 / stat_cs[g->second].secs;
+			if(stat_cs[g->second].fph > maxv)
 			{
-				maxv = stat_cs[*g].fph;
+				maxv = stat_cs[g->second].fph;
 				maxi = g;
 			}
 		}
 	}
 
-	if(maxi != guids.end())
+	if(maxi != clients.end())
 	{
-		guid = GUID(*maxi);
-		if(!guid.is_bot())
+		if(!maxi->second.is_bot())
 		{
-			str fpad = stat_cs[*maxi].fph < 10 ? "00" : (stat_cs[*maxi].fph < 100 ? "0" : "");
-			str cpad = stat_cs[*maxi].cph < 10 ? "00" : (stat_cs[*maxi].cph < 100 ? "0" : "");
-			str spad = stat_cs[*maxi].idx < 10 ? "00" : (stat_cs[*maxi].idx < 100 ? "0" : "");
 			soss oss;
-			oss << "^3FCraps/Hour^7:^2" << stat_cs[*maxi].fph;
+			oss << "^3FCraps/Hour^7:^2" << stat_cs[maxi->second].fph;
 			stats = oss.str();
 //			bug_var(stats);
+			guid = maxi->second;
 		}
 	}
 
