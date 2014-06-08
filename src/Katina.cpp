@@ -1223,12 +1223,18 @@ bool Katina::start(const str& dir)
 
 			// these are clients that disconnected before the game ended
 			log("SHUTDOWN ERASE: dumping: " << std::to_string(shutdown_erase.size()));
+			siz nt = teams.size() - shutdown_erase.size();
+			siz np = players.size() - shutdown_erase.size();
 			for(const GUID& guid: shutdown_erase)
 			{
 				log("SHUTDOWN ERASE: " << guid);
 				teams.erase(guid);
 				players.erase(guid);
 			}
+			if(nt != teams.size())
+				log("WARN: erase discrepency in teams: have: " << teams.size() << " expected: " << nt << " at: " << n);
+			if(np != players.size())
+				log("WARN: erase discrepency in players: have: " << players.size() << " expected: " << np << " at: " << n);
 			shutdown_erase.clear();
 		}
 		else if(cmd == "Warmup:")
