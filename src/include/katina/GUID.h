@@ -46,33 +46,39 @@ using namespace oastats::types;
 
 class GUID
 {
+public:
+	const static siz SIZE = 8;
+
+private:
 	str data;
 	bool bot;
 	mutable bool connected = true;
 
+//	explicit GUID(const char data[SIZE]): data(SIZE, '0'), bot(false)
+//	{
+//		for(siz i = 0; i < SIZE; ++i)
+//			this->data[i] = data[i];
+//	}
+
 public:
-	const static siz SIZE = 8;
 
 	GUID(): data(SIZE, '0'), bot(false)
 	{
-		for(siz i = 0; i < SIZE; ++i)
-			this->data[i] = '0';
+		connected = false;
+//		for(siz i = 0; i < SIZE; ++i)
+//			this->data[i] = '0';
 	}
 
-	explicit GUID(const char data[SIZE]): data(SIZE, '0'), bot(false)
+	GUID(const GUID& guid): data(guid.data), bot(guid.bot)
 	{
-		for(siz i = 0; i < SIZE; ++i)
-			this->data[i] = data[i];
+		connected = guid.connected;
 	}
 
 	explicit GUID(const str& data): data(SIZE, '0'), bot(false)
 	{
 		for(siz i = 0; i < SIZE && i < data.size(); ++i)
 			this->data[i] = data[i];
-	}
-
-	GUID(const GUID& guid): data(guid.data), bot(guid.bot)
-	{
+		bot = this->data[0] == 'B';
 	}
 
 	/**
@@ -91,6 +97,7 @@ public:
 	const GUID& operator=(const GUID& guid)
 	{
 		bot = guid.bot;
+		connected = guid.connected;
 		for(siz i = 0; i < SIZE; ++i)
 			this->data[i] = guid.data[i];
 		return *this;
@@ -103,14 +110,6 @@ public:
 				return false;
 		return true;
 	}
-
-//	bool operator==(const str& guid) const
-//	{
-//		for(siz i = 0; i < SIZE; ++i)
-//			if(this->data[i] != guid[i])
-//				return false;
-//		return guid.size() == SIZE;
-//	}
 
 	bool operator!=(const GUID& guid) const
 	{
@@ -148,23 +147,28 @@ public:
 
 	//bool is_bot() const { return data < "00001000"; }
 	bool is_bot() const { return bot; }
+
+	friend sos& operator<<(sos& os, const GUID& guid)
+	{
+		for(siz i = 0; i < guid.size(); ++i)
+			os << guid[i];
+		return os;
+	}
+
+	friend sis& operator>>(sis& is, GUID& guid)
+	{
+		str s;
+		is >> s;
+
+		if(s.size() == 8)
+			guid = GUID(s);
+		else if(s.size() == 32)
+			guid = GUID(s.substr(24));
+		else
+			is.setstate(std::ios::failbit);
+		return is;
+	}
 };
-
-inline
-sos& operator<<(sos& os, const GUID& guid)
-{
-	for(siz i = 0; i < guid.size(); ++i)
-		os << guid[i];
-	return os;
-}
-
-inline
-sis& operator>>(sis& is, GUID& guid)
-{
-	for(siz i = 0; i < guid.size(); ++i)
-		is.get(guid[i]);
-	return is;
-}
 
 typedef std::list<GUID> guid_lst;
 typedef guid_lst::iterator guid_lst_iter;

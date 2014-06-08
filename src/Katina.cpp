@@ -191,7 +191,7 @@ GUID Katina::guid_from_name(const str& name)
 
 bool Katina::extract_name_from_text(const str& line, GUID& guid, str& text)
 {
-	GUID candidate;
+//	GUID candidate;
 	siz pos = 0;
 	siz beg = 0;
 	if((beg = line.find(": ")) == str::npos) // "say: "
@@ -202,7 +202,8 @@ bool Katina::extract_name_from_text(const str& line, GUID& guid, str& text)
 	bool found = false;
 	for(pos = beg; (pos = line.find(": ", pos)) != str::npos; pos += 2)
 	{
-		if((candidate = guid_from_name(line.substr(beg, pos - beg))) == null_guid)
+		GUID candidate(guid_from_name(line.substr(beg, pos - beg)));
+		if(candidate == null_guid)
 			continue;
 		guid = candidate;
 		text = line.substr(pos + 2);
@@ -338,12 +339,12 @@ KatinaPlugin* Katina::get_plugin(const str& id, const str& version)
 
 bool Katina::chat_to(slot num, const str& text)
 {
-	return chat_to(clients[num], text);
+	return chat_to(getClientGuid(num), text);
 }
 
 bool Katina::chat_to(const GUID& guid, const str& text)
 {
-	return chat_to(players[guid], text);
+	return chat_to(getPlayerName(guid), text);
 }
 
 bool Katina::chat_to(const str& name, const str& text)
@@ -776,19 +777,19 @@ bool Katina::initial_player_info()
 			bug("BOT FOUND: " << num);
 			clients[num] = GUID(num); // bot constructor
 			if(!clients[num].is_bot())
-				bug("ERROR: not set to bot");
+				log("ERROR: not set to bot");
 		}
 		else
 		{
 			bug("HUMAN FOUND: " << num);
 			clients[num] = GUID(guid);
 			if(clients[num].is_bot())
-				bug("ERROR: set to bot");
+				log("ERROR: set to bot");
 		}
 
 		//bug("Adding: " << num << " to team " << team);
-		bug_var(clients[num]);
-		teams[clients[num]] = (team == 'R' ? 1 : (team == 'B' ? 2 : 3));
+		bug_var(getClientGuid(num));
+		teams[getClientGuid(num)] = (team == 'R' ? 1 : (team == 'B' ? 2 : 3));
 	}
 
 	if(!server.command("status", reply))
@@ -903,7 +904,7 @@ struct client_userinfo_bug_t
 };
 
 
-bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
+bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 {
 	sifs ifs(logname);
 
@@ -916,7 +917,7 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 	str skip;
 	str name;
 
-	siz n = 0;
+	n = 0;
 	str line;
 	while(sgl(ifs, line))
 	{
@@ -981,12 +982,14 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 				else
 				{
 					str id = line.substr(pos + 4, 32);
-					GUID guid;
+					GUID guid(num);
+					if(id.size() == 32)
+						guid = GUID(id.substr(24));
 
-					if(id.size() != 32)
-						guid = GUID(num); // bot constructor
-					else
-						guid = to<GUID>(id.substr(24));
+//					if(id.size() != 32)
+//						guid = GUID(num); // bot constructor
+//					else
+//						guid = to<GUID>(id.substr(24));
 
 					siz hc = 100;
 					if((pos = line.find("\\hc\\")) == str::npos)
@@ -1106,7 +1109,8 @@ bool Katina::start(const str& dir)
 	// info
 	std::time_t rbt = std::time(0);
 	log("Initializing data structures");
-	if(!rerun && log_read_back(get_exp("logfile"), gpos))
+	siz n = 0; // log file line number
+	if(!rerun && log_read_back(get_exp("logfile"), gpos, n))
 		log("WARN: Unable to get initial player info");
 	log("DONE: " << (std::time(0) - rbt) << " seconds");
 
@@ -1136,6 +1140,7 @@ bool Katina::start(const str& dir)
 			continue;
 		}
 
+		++n;
 		gpos = is.tellg();
 
 		if(!active)
@@ -1260,12 +1265,14 @@ bool Katina::start(const str& dir)
 				else
 				{
 					str id = line.substr(pos + 4, 32);
-					GUID guid;
+					GUID guid(num);
+					if(id.size() == 32)
+						guid = GUID(id.substr(24));
 
-					if(id.size() != 32)
-						guid = GUID(num); // bot constructor
-					else
-						guid = to<GUID>(id.substr(24));
+//					if(id.size() != 32)
+//						guid = GUID(num); // bot constructor
+//					else
+//						guid = to<GUID>(id.substr(24));
 
 					siz hc = 100;
 					if((pos = line.find("\\hc\\")) == str::npos)
@@ -1320,7 +1327,7 @@ bool Katina::start(const str& dir)
 				continue;
 
 			slot num;
-			GUID guid;
+			str guid;
 			str ip;
 			str skip; // rest of guid needs to be skipped before ip
 
@@ -1330,7 +1337,7 @@ bool Katina::start(const str& dir)
 			{
 				for(plugin_vec_iter i = events[CLIENT_CONNECT_INFO].begin()
 					; i != events[CLIENT_CONNECT_INFO].end(); ++i)
-					(*i)->client_connect_info(min, sec, num, guid, ip);
+					(*i)->client_connect_info(min, sec, num, GUID(guid), ip);
 			}
 		}
 		else if(cmd == "ClientBegin:") // 0:04 ClientBegin: 4
