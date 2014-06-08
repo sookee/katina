@@ -1018,6 +1018,7 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 					clients[num] = guid;
 					players[guid] = name;
 					teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
+
 					if(playerdb)
 						playerdb->client_userinfo_changed(min, sec, num, team, guid, name, hc);
 				}

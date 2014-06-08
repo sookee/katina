@@ -56,7 +56,7 @@ struct player_do
 	str ip;
 	str name;
 
-	player_do(): ip(0) {}
+//	player_do(): ip(0) {}
 
 	bool operator<(const player_do& p) const
 	{
@@ -136,21 +136,8 @@ bool db_escape(const str& from, str& to)
 
 void db_add(const player_do& p)
 {
-	//bug("PLAYER DB: add: " << p.guid << " " << p.ip << " " << p.name);
-
-//	if(p.ip == 0)
-//	{
-//		bug("ZERO: p.ip: " << p.ip);
-//		return;
-//	}
-
 	if(player_cache.count(p))
-	{
-		//bug("CACHE HIT DATABASE WRITE AVOIDED");
 		return;
-	}
-
-	std::ostringstream sql;
 
 	str safe_name;
 
@@ -159,6 +146,7 @@ void db_add(const player_do& p)
 
 	// insert into info values ('XXXXXXXX', INET_ATON('123.123.234.234'), 'testing')
 
+	soss sql;
 	sql << "insert into `" << base << "`.`info` values ('";
 	sql << p.guid << "',INET_ATON('" << p.ip << "'),'" << safe_name << "')";
 
@@ -244,11 +232,6 @@ bool KatinaPluginPlayerDb::client_disconnect(siz min, siz sec, slot num)
 bool KatinaPluginPlayerDb::client_userinfo_changed(siz min, siz sec, slot num, siz team
 		, const GUID& guid, const str& name, siz hc)
 {
-//	if(!active)
-//		return true;
-//	plog("client_userinfo_changed(" << num << ", " << team << ", " << guid << ", " << name << ")");
-//	plog("clients[" << num << "]         : " << clients[num]);
-//	plog("players[clients[" << num << "]]: " << players[clients[num]]);
 	if(guid.is_bot())
 		return true;
 
