@@ -87,11 +87,11 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	con("host: " << host);
-	con("port: " << port);
-	con("user: " << user);
-	con("pass: " << pass);
-
+//	con("host: " << host);
+//	con("port: " << port);
+//	con("user: " << user);
+//	con("pass: " << pass);
+//
 	//bug_func();
 	MYSQL mysql;
 
@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
 			return 1;
 		}
 
-		bug("Database open");
+//		bug("Database open");
 
 		soss oss;
 		oss << "select `item`,`count` from `votes` where `type` = 'map'";
@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
 
 		if(result)
 		{
-			bug("Processing votes");
+//			bug("Processing votes");
 
 			MYSQL_ROW row;
 			while((row = mysql_fetch_row(result)))
@@ -159,33 +159,8 @@ int main(int argc, char* argv[])
 			for(std::map<str,opine>::iterator i = votes.begin(); i != votes.end(); ++i)
 			{
 				con(i->first << ": " << i->second.love << ", " << i->second.hate << ", " << i->second.soso);
-
-//				oss.str("");
-//				oss << "insert into `polls` (`type`,`item`,`love`,`hate`) values (";
-//				oss << "'map','" << i->first << "','" << i->second.first << "','" << i->second.second << "')";
-//
-//				str sql = oss.str();
-//
-//				if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
-//				{
-//					log("DATABASE ERROR: Unable to read votes; " << mysql_error(&mysql));
-//					log("              : sql = " << sql);
-//					return 1;
-//				}
 			}
 		}
-
-//		oss.str("");
-//		oss << "delete from `votes` where `type` = 'map'";
-//
-//		sql = oss.str();
-//
-//		if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
-//		{
-//			log("DATABASE ERROR: Unable to delete votes; " << mysql_error(&mysql));
-//			log("              : sql = " << sql);
-//			return false;
-//		}
-//		mysql_close(&mysql);
+		mysql_close(&mysql);
 	}
 }
