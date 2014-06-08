@@ -53,7 +53,7 @@ str base;
 struct player_do
 {
 	GUID guid;
-	uint32_t ip;
+	str ip;
 	str name;
 
 	player_do(): ip(0) {}
@@ -76,7 +76,7 @@ typedef player_set::iterator player_set_iter;
 
 player_set player_cache;
 
-typedef std::map<slot, uint32_t> ip_map; // slot -> ip
+typedef std::map<slot, str> ip_map; // slot -> ip
 ip_map ips;
 
 bool is_ip(const str& s)
@@ -138,11 +138,11 @@ void db_add(const player_do& p)
 {
 	//bug("PLAYER DB: add: " << p.guid << " " << p.ip << " " << p.name);
 
-	if(p.ip == 0)
-	{
-		bug("ZERO: p.ip: " << p.ip);
-		return;
-	}
+//	if(p.ip == 0)
+//	{
+//		bug("ZERO: p.ip: " << p.ip);
+//		return;
+//	}
 
 	if(player_cache.count(p))
 	{
@@ -157,8 +157,10 @@ void db_add(const player_do& p)
 	if(!db_escape(p.name, safe_name))
 		return;
 
+	// insert into info values ('XXXXXXXX', INET_ATON('123.123.234.234'), 'testing')
+
 	sql << "insert into `" << base << "`.`info` values ('";
-	sql << p.guid << "'," << p.ip << ",'" << safe_name << "')";
+	sql << p.guid << "',INET_ATON('" << p.ip << "'),'" << safe_name << "')";
 
 	insert(sql.str());
 	player_cache.insert(p);
@@ -214,18 +216,13 @@ str KatinaPluginPlayerDb::get_version() const { return VERSION; }
 
 bool KatinaPluginPlayerDb::client_connect_info(siz min, siz sec, slot num, const GUID& guid, const str& ip)
 {
-	if(trim_copy(ip).empty())
+	if(ip.empty())
 	{
 		plog("WARN: empty ip address");
 		return true;
 	}
 
-	struct in_addr ip4;
-
-	if(!inet_pton(AF_INET, trim_copy(ip).c_str(), &ip4) || !ip4.s_addr)
-		plog("ERROR: converting IP address: " << ip << " for [" << guid << "]");
-	else
-		ips[num] = ip4.s_addr;
+	ips[num] = ip;
 
 	return true;
 }
@@ -255,7 +252,7 @@ bool KatinaPluginPlayerDb::client_userinfo_changed(siz min, siz sec, slot num, s
 	if(guid.is_bot())
 		return true;
 
-	if(!ips[num])
+	if(ips.find(num) == ips.end())
 	{
 		static guid_set guids;
 		if(guids.count(guid))
