@@ -1008,8 +1008,10 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 		else if(cmd == "ShutdownGame:")
 		{
 			// these are clients that disconnected before the game ended
+			log("SHUTDOWN ERASE: dumping: " << std::to_string(shutdown_erase.size()));
 			for(const GUID& guid: shutdown_erase)
 			{
+				log("SHUTDOWN ERASE: " << guid);
 				teams.erase(guid);
 				players.erase(guid);
 			}
@@ -1220,8 +1222,10 @@ bool Katina::start(const str& dir)
 				(*i)->shutdown_game(min, sec);
 
 			// these are clients that disconnected before the game ended
+			log("SHUTDOWN ERASE: dumping: " << std::to_string(shutdown_erase.size()));
 			for(const GUID& guid: shutdown_erase)
 			{
+				log("SHUTDOWN ERASE: " << guid);
 				teams.erase(guid);
 				players.erase(guid);
 			}
