@@ -856,8 +856,12 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, slot num, const str& type, co
 
 		if(t == type && i == info)
 		{
-			votekill(katina.get_name() + "^1: ^5This vote has been disallowed" + reason);
-			plog("VOTEKILL: admin.ban.vote: " << v);
+			std::async(std::launch::async, [&]
+			{
+				thread_sleep_millis(1000);
+				votekill(katina.get_name() + "^1: ^5This vote has been disallowed" + reason);
+				plog("VOTEKILL: admin.ban.vote: " << v);
+			});
 		}
 	}
 
@@ -867,9 +871,13 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, slot num, const str& type, co
 	for(const sanction& s: sanctions)
 		if((!s.expires || s.expires < katina.now) && s.guid == katina.getClientGuid(num))
 		{
-			votekill(katina.get_name() + "^1: " + katina.getPlayerName(num) + " is banned from voting for "
+			std::async(std::launch::async, [&]
+			{
+				thread_sleep_millis(1000);
+				votekill(katina.get_name() + "^1: " + katina.getPlayerName(num) + " is banned from voting for "
 				+ secs_to_dhms(s.expires - katina.now));
-			plog("VOTEKILL: prevented " << katina.getClientGuid(num) << ": banned: " << s.reason);
+				plog("VOTEKILL: prevented " << katina.getClientGuid(num) << ": banned: " << s.reason);
+			});
 		}
 
 	if(protect_admins)

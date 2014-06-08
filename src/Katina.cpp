@@ -1272,11 +1272,6 @@ bool Katina::start(const str& dir)
 					if(id.size() == 32)
 						guid = GUID(id.substr(24));
 
-//					if(id.size() != 32)
-//						guid = GUID(num); // bot constructor
-//					else
-//						guid = to<GUID>(id.substr(24));
-
 					siz hc = 100;
 					if((pos = line.find("\\hc\\")) == str::npos)
 					{
@@ -1334,7 +1329,8 @@ bool Katina::start(const str& dir)
 			str ip;
 			str skip; // rest of guid needs to be skipped before ip
 
-			if(!(iss >> num >> std::ws >> guid >> skip >> std::ws >> ip))
+			// 2 5E68E970866FC20242482AA396BBD43E 81.101.111.32
+			if(!(iss >> num >> std::ws >> guid >> std::ws >> ip))
 				log("Error parsing ClientConnectInfo: "  << params);
 			else
 			{
