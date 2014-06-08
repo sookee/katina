@@ -122,6 +122,18 @@ bool insert(const str& sql, my_ulonglong& insert_id)
 	return true;
 }
 
+bool db_escape(const str& from, str& to)
+{
+	if(from.size() > 511)
+	{
+		plog("DATABASE ERROR: escape: string too long at line: " << __LINE__);
+		return false;
+	}
+	char buff[1024];
+	to.assign(buff, mysql_real_escape_string(&mysql, buff, from.c_str(), from.size()));
+	return true;
+}
+
 void db_add(const player_do& p)
 {
 	//bug("PLAYER DB: add: " << p.guid << " " << p.ip << " " << p.name);
@@ -140,8 +152,13 @@ void db_add(const player_do& p)
 
 	std::ostringstream sql;
 
+	str safe_name;
+
+	if(!db_escape(p.name, safe_name))
+		return;
+
 	sql << "insert into `" << base << "`.`info` values ('";
-	sql << p.guid << "'," << p.ip << ",'" << p.name << "')";
+	sql << p.guid << "'," << p.ip << ",'" << safe_name << "')";
 
 	insert(sql.str());
 	player_cache.insert(p);
