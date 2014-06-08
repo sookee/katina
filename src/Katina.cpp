@@ -1002,11 +1002,24 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 					if(id.size() == 32)
 						guid = GUID(id.substr(24));
 
+					siz hc = 100;
+					if((pos = line.find("\\hc\\")) == str::npos)
+					{
+						log("WARN: no handicap info found: " << line);
+					}
+					else
+					{
+						if(!(siss(line.substr(pos + 4)) >> hc))
+							log("ERROR: Parsing handicap: " << line.substr(pos + 4));
+					}
+
 					shutdown_erase.remove(guid); // must have re-joined
 
 					clients[num] = guid;
 					players[guid] = name;
 					teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
+					if(playerdb)
+						playerdb->client_userinfo_changed(min, sec, num, team, guid, name, hc);
 				}
 			}
 		}
