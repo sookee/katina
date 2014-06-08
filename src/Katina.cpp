@@ -986,28 +986,10 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 					if(id.size() == 32)
 						guid = GUID(id.substr(24));
 
-//					if(id.size() != 32)
-//						guid = GUID(num); // bot constructor
-//					else
-//						guid = to<GUID>(id.substr(24));
-
-					siz hc = 100;
-					if((pos = line.find("\\hc\\")) == str::npos)
-					{
-						log("WARN: no handicap info found: " << line);
-					}
-					else
-					{
-						if(!(siss(line.substr(pos + 4)) >> hc))
-							log("ERROR: Parsing handicap: " << line.substr(pos + 4));
-					}
-
 					shutdown_erase.remove(guid); // must have re-joined
 
 					clients[num] = guid;
 					players[guid] = name;
-
-					siz teamBefore = teams[guid];
 					teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
 				}
 			}
@@ -1041,7 +1023,7 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 					log("ERROR: nul GUID: " << guid << (guid.is_bot()?" [BOT]":"") << " at [" << n << "] " << line);
 				}
 
-				clients[num].disconnect();
+				getClientGuid(num).disconnect();
 				shutdown_erase.push_back(guid);
 				teams[guid] = TEAM_U;
 
@@ -1377,6 +1359,7 @@ bool Katina::start(const str& dir)
 					log("ERROR: nul GUID");
 				}
 
+				getClientGuid(num).disconnect();
 				shutdown_erase.push_back(guid);
                 siz teamBefore = teams[getClientGuid(num)];
                 teams[guid] = TEAM_U;
