@@ -1016,17 +1016,14 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 			else
 			{
 				// slot numbers are defunct, but keep GUIDs until ShutdownGame
-				GUID guid = getClientGuid(num);
+				const GUID& guid = getClientGuid(num);
 
 				if(guid == null_guid)
-				{
-					log("ERROR: nul GUID: " << guid << (guid.is_bot()?" [BOT]":"") << " at [" << n << "] " << line);
-				}
+					continue;
 
 				getClientGuid(num).disconnect();
 				shutdown_erase.push_back(guid);
 				teams[guid] = TEAM_U;
-
 				clients.erase(num);
 			}
 		}
@@ -1092,7 +1089,7 @@ bool Katina::start(const str& dir)
 	std::time_t rbt = std::time(0);
 	log("Initializing data structures");
 	siz n = 0; // log file line number
-	if(!rerun && log_read_back(get_exp("logfile"), gpos, n))
+	if(!rerun && !log_read_back(get_exp("logfile"), gpos, n))
 		log("WARN: Unable to get initial player info");
 	log("DONE: " << (std::time(0) - rbt) << " seconds");
 
@@ -1351,14 +1348,14 @@ bool Katina::start(const str& dir)
 			}
 			else
 			{
-				// slot numbers are defunct, but keep GUIDs until ShutdownGame
 				GUID guid = getClientGuid(num);
 
+				// Sometimes you get 2 ClientDisconnect: events with
+				// nothing created in between them. These should be ignored.
 				if(guid == null_guid)
-				{
-					log("ERROR: nul GUID");
-				}
+					continue;
 
+				// slot numbers are defunct, but keep GUIDs until ShutdownGame
 				getClientGuid(num).disconnect();
 				shutdown_erase.push_back(guid);
                 siz teamBefore = teams[getClientGuid(num)];
