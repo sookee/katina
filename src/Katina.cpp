@@ -1040,6 +1040,25 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 				clients.erase(num);
 			}
 		}
+		else if(cmd == "ClientConnectInfo:")
+		{
+			// scavange any client data we may have missed due to downtime etc...
+			// ClientConnectInfo: 4 87597A67B5A4E3C79544A72B7B5DA741 81.101.111.32
+			slot num;
+			str guid;
+			str ip;
+			str skip; // rest of guid needs to be skipped before ip
+
+			// 2 5E68E970866FC20242482AA396BBD43E 81.101.111.32
+			if(!(iss >> num >> std::ws >> guid >> std::ws >> ip))
+				log("Error parsing ClientConnectInfo: "  << params);
+			else
+			{
+				KatinaPlugin* plugin = get_plugin("katina::playerdb", "0.1-dev");
+				if(plugin)
+					plugin->client_connect_info(min, sec, num, GUID(guid), ip);
+			}
+		}
 	}
 
 	return true;
