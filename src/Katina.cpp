@@ -551,27 +551,35 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 
 			if(type == "clients" || type == "data")
 			{
-				server.msg_to(num, "clients:");
+				server.msg_to(num, "clients: " + std::to_string(clients.size()));
 				for(slot_guid_map_pair p: clients)
-					server.msg_to(num, "\t{" + str(p.first) + ", " + str(p.second) + "}"
+					server.msg_to(num, " {" + str(p.first) + ", " + str(p.second) + "}"
 						+ (p.second.is_bot()?" (BOT)":"")
 						+ (p.second.is_connected()?"":" (Disconnected)"));
 			}
 			else if(type == "teams" || type == "data")
 			{
-				server.msg_to(num, "teams:");
+				server.msg_to(num, "teams: " + std::to_string(teams.size()));
 				for(guid_siz_map_pair p: teams)
-					server.msg_to(num, "\t{" + str(p.first) + ", " + std::to_string(p.second) + "}"
+					server.msg_to(num, " {" + str(p.first) + ", " + std::to_string(p.second) + "}"
 						+ (p.first.is_bot()?" (BOT)":"")
 						+ (p.first.is_connected()?"":" (Disconnected)"));
 			}
 			else if(type == "players" || type == "data")
 			{
-				server.msg_to(num, "players:");
+				server.msg_to(num, "players: " + std::to_string(players.size()));
 				for(guid_str_map_pair p: players)
-					server.msg_to(num, "\t{" + str(p.first) + ", " + p.second + "}"
+					server.msg_to(num, " {" + str(p.first) + ", " + p.second + "}"
 						+ (p.first.is_bot()?" (BOT)":"")
 						+ (p.first.is_connected()?"":" (Disconnected)"));
+			}
+			else if(type == "erase" || type == "data")
+			{
+				server.msg_to(num, "shutdown_erase: " + std::to_string(shutdown_erase.size()));
+				for(const GUID& guid: shutdown_erase)
+					server.msg_to(num, " {" + str(guid) + "}"
+						+ (guid.is_bot()?" (BOT)":"")
+						+ (guid.is_connected()?"":" (Disconnected)"));
 			}
 		}
 		else if(cmd == "plugin")

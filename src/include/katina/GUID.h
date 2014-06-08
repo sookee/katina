@@ -98,17 +98,13 @@ public:
 	{
 		bot = guid.bot;
 		connected = guid.connected;
-		for(siz i = 0; i < SIZE; ++i)
-			this->data[i] = guid.data[i];
+		data = guid.data;
 		return *this;
 	}
 
 	bool operator==(const GUID& guid) const
 	{
-		for(siz i = 0; i < SIZE; ++i)
-			if(this->data[i] != guid.data[i])
-				return false;
-		return true;
+		return data == guid.data;
 	}
 
 	bool operator!=(const GUID& guid) const
@@ -121,8 +117,8 @@ public:
 		return data < guid.data;
 	}
 
-	char& operator[](siz i) { return data[i]; }
-	const char& operator[](siz i) const { return data[i]; }
+//	char& operator[](siz i) { return data[i]; }
+//	const char& operator[](siz i) const { return data[i]; }
 	siz size() const { return SIZE; }
 
 	operator str() const { return data; }
@@ -150,9 +146,7 @@ public:
 
 	friend sos& operator<<(sos& os, const GUID& guid)
 	{
-		for(siz i = 0; i < guid.size(); ++i)
-			os << guid[i];
-		return os;
+		return os << guid.data;
 	}
 
 	friend sis& operator>>(sis& is, GUID& guid)
@@ -166,6 +160,10 @@ public:
 			guid = GUID(s.substr(24));
 		else
 			is.setstate(std::ios::failbit);
+		if(guid.data.size() == 8 && guid.data[0] == 'B' && guid.data.substr(1) < "0000064")
+			guid.bot = true;
+		if(guid.data == "00000000")
+			guid.connected = false;
 		return is;
 	}
 };
