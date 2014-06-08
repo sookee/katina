@@ -975,6 +975,11 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 		iss.clear();
 		iss.str(params);
 
+		KatinaPlugin* playerdb = get_plugin("katina::playerdb", "");
+
+		if(!playerdb)
+			log("WARN: Plugin katina::playerdb not found processing backlog");
+
 		if(cmd == "ClientUserinfoChanged:")
 		{
 			slot num;
@@ -1008,10 +1013,10 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 		else if(cmd == "ShutdownGame:")
 		{
 			// these are clients that disconnected before the game ended
-			log("SHUTDOWN ERASE: dumping: " << std::to_string(shutdown_erase.size()));
+//			log("SHUTDOWN ERASE: dumping: " << std::to_string(shutdown_erase.size()));
 			for(const GUID& guid: shutdown_erase)
 			{
-				log("SHUTDOWN ERASE: " << guid);
+//				log("SHUTDOWN ERASE: " << guid);
 				teams.erase(guid);
 				players.erase(guid);
 			}
@@ -1054,9 +1059,8 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 				log("Error parsing ClientConnectInfo: "  << params);
 			else
 			{
-				KatinaPlugin* plugin = get_plugin("katina::playerdb", "0.1-dev");
-				if(plugin)
-					plugin->client_connect_info(min, sec, num, GUID(guid), ip);
+				if(playerdb)
+					playerdb->client_connect_info(min, sec, num, GUID(guid), ip);
 			}
 		}
 	}
