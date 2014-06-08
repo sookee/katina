@@ -926,6 +926,9 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 
 		++n;// current line number
 
+		if(trim(line).empty())
+			continue;
+
 		iss.clear();
 		iss.str(line);
 
@@ -1123,6 +1126,9 @@ bool Katina::start(const str& dir)
 		gpos = is.tellg();
 
 		if(!active)
+			continue;
+
+		if(trim(line).empty())
 			continue;
 
 		iss.clear();
