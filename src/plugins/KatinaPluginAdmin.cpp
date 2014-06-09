@@ -473,6 +473,7 @@ siz char_to_team(char t)
 
 bool KatinaPluginAdmin::reteam(slot num, char team)
 {
+	plog("RETEAM CHECK: " << katina.getPlayerName(num) << " (" << str(num) << ")" << " to team: " << team);
 	if(clients.find(num) == clients.end())
 	{
 		plog("ERROR: can't find client num: " << num);
@@ -487,12 +488,26 @@ bool KatinaPluginAdmin::reteam(slot num, char team)
 		return true;
 
 	str reply;
-	server.command("!putteam " + to_string(num) + " " + (char)tolower(team), reply);
+	if(!server.command("!putteam " + to_string(num) + " " + (char)tolower(team), reply))
+		if(!server.command("!putteam " + to_string(num) + " " + (char)tolower(team), reply))
+			server.command("!putteam " + to_string(num) + " " + (char)tolower(team), reply);
+
 	// ����
 	// ����      ^/warn: no connected player by that name or slot #
-	if(reply.find("!putteam: no connected player by that name or slot #") != str::npos
-	|| reply.find("!putteam: unknown team") != str::npos)
+	if(reply.find("!putteam: no connected player by that name or slot #") != str::npos)
+	{
+		plog("RETEAM FAIL : " << trim(reply));
 		return false;
+	}
+
+	if(reply.find("!putteam: unknown team") != str::npos)
+	{
+		plog("RETEAM FAIL : " << trim(reply));
+		return false;
+	}
+
+	plog("RETEAM ACTED: " << katina.getPlayerName(num) << " (" << str(num) << ")" << " to team: " << team);
+
 	return true;
 }
 

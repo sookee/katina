@@ -321,10 +321,11 @@ void KatinaPluginStats::check_bots_and_players(const GUID& guid)
 
 	for(guid_siz_map_citer ci = teams.begin(); ci != teams.end(); ++ci)
 	{
-		if(guid != null_guid && ci->first == guid) // avoid disconnected client
-			continue;
-		if(!katina.is_disconnected(ci->first))
-			continue;
+//		if(guid != null_guid && ci->first == guid) // avoid disconnected client
+//			continue;
+//		if(katina.is_disconnected(ci->first))
+//			continue;
+		// Disconnected clients have team set to TEAM_U
 		if(ci->first.is_bot())
 		{
 			//pbug("FOUND A BOT    : " << katina.getPlayerName(ci->first));

@@ -1068,27 +1068,23 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 				nlog("WARN: erase discrepancy in teams: have: " << teams.size() << " expected: " << nt << " at: " << n);
 			if(np != players.size())
 				nlog("WARN: erase discrepancy in players: have: " << players.size() << " expected: " << np << " at: " << n);
+
 			shutdown_erase.clear();
-			if(clients.size() > players.size())
+
+			if(clients.size() != players.size())
 				nlog("WARN: discrepancy between players: " << players.size() << " and teams: " << teams.size());
-			if(clients.size() > teams.size())
+			if(clients.size() != teams.size())
 				nlog("WARN: discrepancy between clients: " << clients.size() << " and teams: " << teams.size());
 
 			// ATTEMPT TO FIX shutdown erase
 			for(const guid_str_map_vt& p: players)
-			{
 				if(std::find_if(clients.begin(), clients.end(), [&p](const slot_guid_map_vt& c){return c.second == p.first;}) == clients.end())
-				{
 					shutdown_erase.push_back(p.first);
-				}
-			}
+
 			for(const guid_siz_map_vt& t: teams)
-			{
 				if(std::find_if(clients.begin(), clients.end(), [&t](const slot_guid_map_vt& c){return c.second == t.first;}) == clients.end())
-				{
 					shutdown_erase.push_back(t.first);
-				}
-			}
+
 			if(!shutdown_erase.empty())
 			{
 				nlog("SHUTDOWN ERASE FIXUP");
