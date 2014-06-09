@@ -1030,24 +1030,24 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 		else if(cmd == "ShutdownGame:")
 		{
 			// these are clients that disconnected before the game ended
-			log("SHUTDOWN ERASE: dumping: " << std::to_string(shutdown_erase.size()));
+			nlog("SHUTDOWN ERASE: dumping: " << std::to_string(shutdown_erase.size()));
 			siz nt = teams.size() - shutdown_erase.size();
 			siz np = players.size() - shutdown_erase.size();
 			for(const GUID& guid: shutdown_erase)
 			{
-				log("SHUTDOWN ERASE: " << guid);
+				nlog("SHUTDOWN ERASE: " << guid);
 				teams.erase(guid);
 				players.erase(guid);
 			}
 			if(nt != teams.size())
-				log("WARN: erase discrepancy in teams: have: " << teams.size() << " expected: " << nt << " at: " << n);
+				nlog("WARN: erase discrepancy in teams: have: " << teams.size() << " expected: " << nt << " at: " << n);
 			if(np != players.size())
-				log("WARN: erase discrepancy in players: have: " << players.size() << " expected: " << np << " at: " << n);
+				nlog("WARN: erase discrepancy in players: have: " << players.size() << " expected: " << np << " at: " << n);
 			shutdown_erase.clear();
 			if(clients.size() > players.size())
-				log("WARN: discrepancy between players: " << players.size() << " and teams: " << teams.size());
+				nlog("WARN: discrepancy between players: " << players.size() << " and teams: " << teams.size());
 			if(clients.size() > teams.size())
-				log("WARN: discrepancy between clients: " << clients.size() << " and teams: " << teams.size());
+				nlog("WARN: discrepancy between clients: " << clients.size() << " and teams: " << teams.size());
 
 			// ATTEMPT TO FIX shutdown erase
 			for(guid_str_map_iter p = players.begin(); p != players.end();)
@@ -1069,7 +1069,7 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 				nlog("SHUTDOWN ERASE FIXUP");
 				for(const GUID& guid: shutdown_erase)
 				{
-					log("SHUTDOWN ERASE FIXUP: " << guid);
+					nlog("SHUTDOWN ERASE FIXUP: " << guid);
 					teams.erase(guid);
 					players.erase(guid);
 				}
