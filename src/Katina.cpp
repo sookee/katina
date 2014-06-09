@@ -6,7 +6,7 @@
  */
 
 /*-----------------------------------------------------------------.
-| Copyright (C) 2013 SooKee oasookee@gmail.com               |
+| Copyright (C) 2013 SooKee oasookee@gmail.com			   |
 '------------------------------------------------------------------'
 
 This program is free software; you can redistribute it and/or
@@ -73,24 +73,24 @@ const slot bad_slot(-1);
 
 siz Katina::getTeam(slot client) const
 {
-    slot_guid_map_citer clientsIt = clients.find(client);
-    if(clientsIt == clients.end())
-        return TEAM_U;
-    
-    guid_siz_map_citer teamsIt = teams.find(clientsIt->second);
-    if(teamsIt == teams.end())
-        return TEAM_U;
-    
-    return teamsIt->second;
+	slot_guid_map_citer clientsIt = clients.find(client);
+	if(clientsIt == clients.end())
+		return TEAM_U;
+
+	guid_siz_map_citer teamsIt = teams.find(clientsIt->second);
+	if(teamsIt == teams.end())
+		return TEAM_U;
+
+	return teamsIt->second;
 }
 
 siz Katina::getTeam(const GUID& guid) const
 {
-     guid_siz_map_citer teamsIt = teams.find(guid);
-    if(teamsIt == teams.end())
-        return TEAM_U;
+	 guid_siz_map_citer teamsIt = teams.find(guid);
+	if(teamsIt == teams.end())
+		return TEAM_U;
 
-    return teamsIt->second;
+	return teamsIt->second;
 }
 
 str Katina::getPlayerName(slot num) const
@@ -121,7 +121,7 @@ slot Katina::getClientSlot(const GUID& guid) const
 	for(slot_guid_map_citer it = clients.cbegin(); it != clients.cend(); ++it)
 		if(it->second == guid)
 			return it->first;
-    return bad_slot;
+	return bad_slot;
 }
 
 const GUID&  Katina::getClientGuid(slot num) const
@@ -129,7 +129,7 @@ const GUID&  Katina::getClientGuid(slot num) const
 	for(slot_guid_map_citer it = clients.cbegin(); it != clients.cend(); ++it)
 		if(it->first == num)
 			return it->second;
-    return null_guid;
+	return null_guid;
 }
 
 str Katina::get_version() const { return version + (tag.size()?"-":"") + tag; }
@@ -375,8 +375,8 @@ bool Katina::is_admin(const GUID& guid)
 
 	str line;
 	// [admin]
-	// name    = ^1S^2oo^3K^5ee
-	// guid    = 87597A67B5A4E3C79544A72B7B5DA741
+	// name	= ^1S^2oo^3K^5ee
+	// guid	= 87597A67B5A4E3C79544A72B7B5DA741
 	while(sgl(ifs, line))
 		if(trim(line) == "[admin]")
 			if(sgl(sgl(ifs, line), line))
@@ -422,7 +422,7 @@ bool Katina::load_config(const str& dir, const str& file, property_map& props)
 		if(!sgl(sgl(iss, key, ':') >> std::ws, val))
 		{
 			log("ERROR: parsing config file: " << file << " at: " << no);
-			log("ERROR:                    : " << line);
+			log("ERROR:					: " << line);
 			continue;
 		}
 
@@ -453,7 +453,7 @@ bool Katina::init_pki()
 	if(!pki.load_keypair(config_dir + "/" + keypair_file))
 	{
 		log("WARNING: Unable to load keypair: " << keypair_file);
-		log("       : Creating a new one");
+		log("	   : Creating a new one");
 
 		if(!pki.generate_keypair(128))
 		{
@@ -482,13 +482,13 @@ bool Katina::init_pki()
 		log("LOAD PUBLIC KEY: " << pkeys[i]);
 		pki.load_public_key(pkeys[i], pkeys[i]);
 	}
-    
+
 	// TODO: ad this
 	//ifs.open((config_dir + "/" + pkeys_file).c_str());
 	//while(pki.read_public_key(, ifs)) {}
 	//ifs.close();
-    
-    return true;
+
+	return true;
 }
 
 void Katina::init_rcon()
@@ -628,8 +628,8 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 			// !katina plugin pluginid
 			//
 			// !katina set [pluginid::]varname value // set variable
-			// !katina set [pluginid::]varname     // display value
-			// !katina set [pluginid::]            // display list of variables
+			// !katina set [pluginid::]varname	 // display value
+			// !katina set [pluginid::]			// display list of variables
 
 			bool show_list = false;
 			bool show_value = false;
@@ -730,7 +730,7 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 bool Katina::initial_player_info()
 {
 	//bug_func();
-	// ����      !listplayers: 9 players connected:
+	// ����	  !listplayers: 9 players connected:
 	//  2 S 5  Server Operator (*7B5DA741)   SooKee|AFK (a.k.a. SooKee)
 	//  3 S 0   Unknown Player (*198025FD)   Kiki
 	//  4 B 0   Unknown Player (*2671CC00)   Bruttler
@@ -811,12 +811,12 @@ bool Katina::initial_player_info()
 		return false;
 	}
 
-	// ����      map: am_thornish
-	// num score ping name            lastmsg address               qport rate
+	// ����	  map: am_thornish
+	// num score ping name			lastmsg address			   qport rate
 	// --- ----- ---- --------------- ------- --------------------- ----- -----
-	//   2     0   26 ^1S^2oo^3K^5ee^4|^7AFK^7     100 81.101.111.32         61881 25000
-	//   3    46  138 Silent^7             50 96.241.187.112          814  2500
-	//   4    32   98 ^2|<^8MAD^1Kitty Too^7       0 178.66.13.135         14639 25000
+	//   2	 0   26 ^1S^2oo^3K^5ee^4|^7AFK^7	 100 81.101.111.32		 61881 25000
+	//   3	46  138 Silent^7			 50 96.241.187.112		  814  2500
+	//   4	32   98 ^2|<^8MAD^1Kitty Too^7	   0 178.66.13.135		 14639 25000
 
 	iss.clear();
 	iss.str(reply);
@@ -838,7 +838,7 @@ bool Katina::initial_player_info()
 			log("ERROR: parsing status: " << line);
 			continue;
 		}
-		// ^2|<^8MAD^1Kitty Too^7       0 178.66.13.135         14639 25000
+		// ^2|<^8MAD^1Kitty Too^7	   0 178.66.13.135		 14639 25000
 		str_iter f = std::find_end(line.begin(), line.end(), term.begin(), term.end());
 		if(f == line.end())
 		{
@@ -860,7 +860,7 @@ bool Katina::initial_player_info()
 		//bug_var(players[clients[num]]);
 	}
 
-    return true;
+	return true;
 }
 
 // TODO: remove color codes
@@ -914,6 +914,9 @@ struct client_userinfo_bug_t
 
 bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 {
+	bug_func();
+	nlog("pos: " << pos);
+
 	sifs ifs(logname);
 
 	client_userinfo_bug_t client_userinfo_bug;
@@ -929,10 +932,13 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 	str line;
 	while(sgl(ifs, line))
 	{
+	//	nlog("ifs.tellg(): " << ifs.tellg());
 		if(ifs.tellg() >= pos)
 			return true;
 
 		++n;// current line number
+
+	//	nlog("line: " << line);
 
 		if(trim(line).empty())
 			continue;
@@ -979,6 +985,8 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 
 		if(!playerdb)
 			log("WARN: Plugin katina::playerdb not found processing backlog");
+
+	//	nlog("CMD: " << cmd);
 
 		if(cmd == "ClientUserinfoChanged:")
 		{
@@ -1050,18 +1058,18 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 				nlog("WARN: discrepancy between clients: " << clients.size() << " and teams: " << teams.size());
 
 			// ATTEMPT TO FIX shutdown erase
-			for(guid_str_map_iter p = players.begin(); p != players.end();)
+			for(const guid_str_map_vt& p: players)
 			{
-				if(std::find_if(clients.begin(), clients.end(), [&p](const slot_guid_map_vt& c){return c.second == p->first;}) == clients.end())
+				if(std::find_if(clients.begin(), clients.end(), [&p](const slot_guid_map_vt& c){return c.second == p.first;}) == clients.end())
 				{
-					shutdown_erase.push_back(p->first);
+					shutdown_erase.push_back(p.first);
 				}
 			}
-			for(guid_siz_map_iter t = teams.begin(); t != teams.end();)
+			for(const guid_siz_map_vt& t: teams)
 			{
-				if(std::find_if(clients.begin(), clients.end(), [&t](const slot_guid_map_vt& c){return c.second == t->first;}) == clients.end())
+				if(std::find_if(clients.begin(), clients.end(), [&t](const slot_guid_map_vt& c){return c.second == t.first;}) == clients.end())
 				{
-					shutdown_erase.push_back(t->first);
+					shutdown_erase.push_back(t.first);
 				}
 			}
 			if(!shutdown_erase.empty())
@@ -1131,11 +1139,11 @@ bool Katina::start(const str& dir)
 
 	name = get("katina.name" , "^1K^7at^3i^7na^7");
 
-    if(!init_pki())
-    	return false;
-    init_rcon();
+	if(!init_pki())
+		return false;
+	init_rcon();
 
-    // everything the plugins need shuld be initialized before loading them
+	// everything the plugins need shuld be initialized before loading them
 
 	// Get mod_katina version if available
 	if(!rconset("mod_katina", mod_katina))
@@ -1147,7 +1155,7 @@ bool Katina::start(const str& dir)
 
 	bug_var(now);
 
-    load_plugins();
+	load_plugins();
 
 	std::ios::openmode mode = std::ios::in|std::ios::ate;
 
@@ -1187,7 +1195,7 @@ bool Katina::start(const str& dir)
 	log("Processing:");
 
 	//===================================================//
-	//= MAIN LOOP                                       =//
+	//= MAIN LOOP									   =//
 	//===================================================//
 
 	// working variables
@@ -1274,12 +1282,12 @@ bool Katina::start(const str& dir)
 			now = base_now + (min * 60) + sec;
 		//else
 		//	now = std::time(0);
-        
-        // Send HEARTBEAT event to plugins
-        for(plugin_vec_iter i = events[HEARTBEAT].begin(); i != events[HEARTBEAT].end(); ++i)
-            (*i)->heartbeat(min, sec);
 
-        bool flagspeed = false; // speed carrying a flag
+		// Send HEARTBEAT event to plugins
+		for(plugin_vec_iter i = events[HEARTBEAT].begin(); i != events[HEARTBEAT].end(); ++i)
+			(*i)->heartbeat(min, sec);
+
+		bool flagspeed = false; // speed carrying a flag
 
 		if(cmd == "Exit:")
 		{
@@ -1298,24 +1306,24 @@ bool Katina::start(const str& dir)
 				(*i)->shutdown_game(min, sec);
 
 			// these are clients that disconnected before the game ended
-			log("SHUTDOWN ERASE: dumping: " << std::to_string(shutdown_erase.size()));
+			nlog("SHUTDOWN ERASE: dumping: " << std::to_string(shutdown_erase.size()));
 			siz nt = teams.size() - shutdown_erase.size();
 			siz np = players.size() - shutdown_erase.size();
 			for(const GUID& guid: shutdown_erase)
 			{
-				log("SHUTDOWN ERASE: " << guid);
+				nlog("SHUTDOWN ERASE: " << guid);
 				teams.erase(guid);
 				players.erase(guid);
 			}
 			if(nt != teams.size())
-				log("WARN: erase discrepancy in teams: have: " << teams.size() << " expected: " << nt << " at: " << n);
+				nlog("WARN: erase discrepancy in teams: have: " << teams.size() << " expected: " << nt << " at: " << n);
 			if(np != players.size())
-				log("WARN: erase discrepancy in players: have: " << players.size() << " expected: " << np << " at: " << n);
+				nlog("WARN: erase discrepancy in players: have: " << players.size() << " expected: " << np << " at: " << n);
 			shutdown_erase.clear();
 			if(clients.size() > players.size())
-				log("WARN: discrepancy between players: " << players.size() << " and teams: " << teams.size());
+				nlog("WARN: discrepancy between players: " << players.size() << " and teams: " << teams.size());
 			if(clients.size() > teams.size())
-				log("WARN: discrepancy between clients: " << clients.size() << " and teams: " << teams.size());
+				nlog("WARN: discrepancy between clients: " << clients.size() << " and teams: " << teams.size());
 		}
 		else if(cmd == "Warmup:")
 		{
@@ -1367,18 +1375,18 @@ bool Katina::start(const str& dir)
 
 					clients[num] = guid;
 					players[guid] = name;
-                    
-                    siz teamBefore = teams[guid];
-                    teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
+
+					siz teamBefore = teams[guid];
+					teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
 
 					for(plugin_vec_iter i = events[CLIENT_USERINFO_CHANGED].begin();
 							i != events[CLIENT_USERINFO_CHANGED].end(); ++i)
 						(*i)->client_userinfo_changed(min, sec, num, team, guid, name, hc);
-                    
-                    if(team != teamBefore && !guid.is_bot())
-                        for(plugin_vec_iter i = events[CLIENT_SWITCH_TEAM].begin();
-                        		i != events[CLIENT_SWITCH_TEAM].end(); ++i)
-                            (*i)->client_switch_team(min, sec, num, teamBefore, team);
+
+					if(team != teamBefore && !guid.is_bot())
+						for(plugin_vec_iter i = events[CLIENT_SWITCH_TEAM].begin();
+								i != events[CLIENT_SWITCH_TEAM].end(); ++i)
+							(*i)->client_switch_team(min, sec, num, teamBefore, team);
 				}
 			}
 		}
@@ -1458,17 +1466,17 @@ bool Katina::start(const str& dir)
 				// slot numbers are defunct, but keep GUIDs until ShutdownGame
 				getClientGuid(num).disconnect();
 				shutdown_erase.push_back(guid);
-                siz teamBefore = teams[getClientGuid(num)];
-                teams[guid] = TEAM_U;
+				siz teamBefore = teams[getClientGuid(num)];
+				teams[guid] = TEAM_U;
 
 				for(plugin_vec_iter i = events[CLIENT_DISCONNECT].begin()
 					; i != events[CLIENT_DISCONNECT].end(); ++i)
 					(*i)->client_disconnect(min, sec, num);
 
-	               if(teamBefore != TEAM_U && !guid.is_bot())
-	                    for(plugin_vec_iter i = events[CLIENT_SWITCH_TEAM].begin();
-	                    		i != events[CLIENT_SWITCH_TEAM].end(); ++i)
-	                        (*i)->client_switch_team(min, sec, num, teamBefore, TEAM_U);
+				   if(teamBefore != TEAM_U && !guid.is_bot())
+						for(plugin_vec_iter i = events[CLIENT_SWITCH_TEAM].begin();
+								i != events[CLIENT_SWITCH_TEAM].end(); ++i)
+							(*i)->client_switch_team(min, sec, num, teamBefore, TEAM_U);
 
 				//teams.erase(clients[num]);
 				//players.erase(clients[num]);
@@ -1548,16 +1556,16 @@ bool Katina::start(const str& dir)
 
 			// Player Stats Update
 			// PlayerStats: <client#>
-			// 			    <fragsFace> <fragsBack> <fraggedInFace> <fraggedInBack>
-			// 			    <spawnKillsDone> <spanwKillsRecv>
-			// 			    <pushesDone> <pushesRecv>
-			// 			    <healthPickedUp> <armorPickedUp>
+			// 				<fragsFace> <fragsBack> <fraggedInFace> <fraggedInBack>
+			// 				<spawnKillsDone> <spanwKillsRecv>
+			// 				<pushesDone> <pushesRecv>
+			// 				<healthPickedUp> <armorPickedUp>
 			//				<holyShitFrags> <holyShitFragged>
 			slot num;
 			siz fragsFace, fragsBack, fraggedFace, fraggedBack, spawnKills, spawnKillsRecv;
 			siz pushes, pushesRecv, health, armor, holyShitFrags, holyShitFragged;
 			if(iss >> num >> fragsFace >> fragsBack >> fraggedFace >> fraggedBack >> spawnKills >> spawnKillsRecv
-			       >> pushes >> pushesRecv >> health >> armor >> holyShitFrags >> holyShitFragged)
+				   >> pushes >> pushesRecv >> health >> armor >> holyShitFrags >> holyShitFragged)
 			{
 				for(plugin_vec_iter i = events[PLAYER_STATS].begin(); i != events[PLAYER_STATS].end(); ++i)
 				{
@@ -1825,7 +1833,7 @@ bool Katina::start(const str& dir)
 		}
 		//pthread_mutex_unlock(&cvarevts_mtx);
 	}
-    
+
 	return true;
 }
 
