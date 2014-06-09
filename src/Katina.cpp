@@ -1003,6 +1003,12 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 				siz pos = line.find("\\id\\");
 				if(pos == str::npos)
 					client_userinfo_bug.set(params);
+				else if(!is_connected(num))
+				{
+					// Don't trust ClientUserInfoChanged: messages until
+					// we see a ClientConnect: for this slot number
+					nlog("Disconnected ClientUserinfoChange");
+				}
 				else
 				{
 					str id = line.substr(pos + 4, 32);
@@ -1035,15 +1041,26 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 				}
 			}
 		}
+		else if(cmd == "ClientConnect:")
+		{
+			slot num;
+			if(!(iss >> num))
+				nlog("Error parsing ClientConnect: "  << params);
+			else
+			{
+				if(!is_connected(num))
+					clients[num] = null_guid; // connecting
+			}
+		}
 		else if(cmd == "ShutdownGame:")
 		{
 			// these are clients that disconnected before the game ended
-			nlog("SHUTDOWN ERASE: dumping: " << std::to_string(shutdown_erase.size()));
+			//nlog("SHUTDOWN ERASE: dumping: " << std::to_string(shutdown_erase.size()));
 			siz nt = teams.size() - shutdown_erase.size();
 			siz np = players.size() - shutdown_erase.size();
 			for(const GUID& guid: shutdown_erase)
 			{
-				nlog("SHUTDOWN ERASE: " << guid);
+				//nlog("SHUTDOWN ERASE: " << guid);
 				teams.erase(guid);
 				players.erase(guid);
 			}
@@ -1097,12 +1114,19 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 				// slot numbers are defunct, but keep GUIDs until ShutdownGame
 				const GUID& guid = getClientGuid(num);
 
+				// Sometimes you get 2 ClientDisconnect: events with
+				// nothing created in between them. These should be ignored.
 				if(guid == null_guid)
+				{
+					// partially connected slot num?
+					clients.erase(num);
 					continue;
+				}
 
 				getClientGuid(num).disconnect();
 				shutdown_erase.push_back(guid);
 				teams[guid] = TEAM_U;
+
 				clients.erase(num);
 			}
 		}
@@ -1371,6 +1395,7 @@ bool Katina::start(const str& dir)
 					{
 						// Don't trust ClientUserInfoChanged: messages until
 						// we see a ClientConnect: for this slot number
+						nlog("Disconnected ClientUserinfoChange");
 					}
 					else
 					{
