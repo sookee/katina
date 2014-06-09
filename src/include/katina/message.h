@@ -40,10 +40,10 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include "types.h"
 
 
-namespace oastats { namespace ircbot {
+namespace katina { namespace ircbot {
 
-using namespace oastats::types;
-using namespace oastats::string;
+using namespace katina::types;
+using namespace katina::string;
 
 class message
 {
@@ -428,6 +428,6 @@ void bug_message(const std::string& K, const std::string& V, const message& msg)
 #else
 #define BUG_MSG(m,M)
 #endif
-}} // oastats::ircbot
+}} // katina::ircbot
 
 #endif // _OASTATS_MESSAGE_H__

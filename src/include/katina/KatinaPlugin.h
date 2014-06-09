@@ -39,9 +39,9 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include "types.h"
 #include "GUID.h"
 
-namespace oastats {
+namespace katina {
 
-using namespace oastats::types;
+using namespace katina::types;
 
 /**
  * This is the abstract base class for all plugins.

@@ -28,8 +28,8 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace katina { namespace plugin {
 
-using namespace oastats::log;
-using namespace oastats::types;
+using namespace katina::log;
+using namespace katina::types;
 
 KATINA_PLUGIN_TYPE(KatinaPluginExample);
 KATINA_PLUGIN_INFO("katina::example", "Katina Example", "0.1-dev");

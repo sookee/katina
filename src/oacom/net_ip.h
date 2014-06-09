@@ -18,7 +18,7 @@
 
 namespace oacom {
 
-using namespace oastats::types;
+using namespace katina::types;
 
 #define NET_ENABLEV4            0x01
 #define NET_ENABLEV6            0x02

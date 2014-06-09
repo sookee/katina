@@ -41,10 +41,10 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace katina { namespace plugin {
 
-using namespace oastats::log;
-using namespace oastats::types;
-using namespace oastats::time;
-using namespace oastats::string;
+using namespace katina::log;
+using namespace katina::types;
+using namespace katina::time;
+using namespace katina::string;
 
 KATINA_PLUGIN_TYPE(KatinaPluginAdmin);
 KATINA_PLUGIN_INFO("katina::admin", "Katina Admin", "0.1-dev");
@@ -587,7 +587,7 @@ void KatinaPluginAdmin::heartbeat(siz min, siz sec)
 	last_min = min;
 
 	pbug("SPAMKILL HEARTBEAT check:");
-	for(slot_guid_map_pair client: katina.getClients())
+	for(slot_guid_map_vt client: katina.getClients())
 	{
 		if(mutes[client.first] && mutes[client.first] + spamkill_mute < katina.now)
 		{

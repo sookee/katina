@@ -37,10 +37,10 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #define CSTRING(s) s,sizeof(s)
 #define STRC(c) str(1, c)
 
-namespace oastats { namespace ircbot {
+namespace katina { namespace ircbot {
 
-using namespace oastats::types;
-using namespace oastats::string;
+using namespace katina::types;
+using namespace katina::string;
 
 //std::istream& operator>>(std::istream& is, message& m)
 //{
@@ -188,4 +188,4 @@ const str message::nocrlf(CSTRING("\0\r\n")); // (":" / nospcrlfcl)
 const str message::nospcrlfat(CSTRING("\0 \r\n@")); // any octet except NUL, CR, LF, " " and "@"
 const str message::bnf_special(CSTRING("[]\\`_^{|}")); // "[", "]", "\", "`", "_", "^", "{", "|", "}"
 
-}} // oastats::ircbot
+}} // katina::ircbot

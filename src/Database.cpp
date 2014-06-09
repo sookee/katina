@@ -37,7 +37,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include <katina/log.h>
 
-namespace oastats { namespace data {
+namespace katina { namespace data {
 
 const game_id bad_id(-1);
 const game_id null_id(0);
@@ -1014,4 +1014,4 @@ bool Database::get_ingame_crap(const str& mapname, const slot_guid_map& clients,
 	return true;
 }
 
-}} // oastats::data
+}} // katina::data

@@ -33,10 +33,10 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include "types.h"
 
-namespace oastats { namespace utils {
+namespace katina { namespace utils {
 
-using namespace oastats::types;
-using namespace oastats::string;
+using namespace katina::types;
+using namespace katina::string;
 
 class Alias
 {
@@ -95,6 +95,6 @@ public:
 	}
 };
 
-}} // oastats::utils
+}} // katina::utils
 
 #endif // _KATINA_ALIAS_H_

@@ -31,9 +31,9 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace katina { namespace plugin {
 
-using namespace oastats;
-using namespace oastats::log;
-using namespace oastats::types;
+using namespace katina;
+using namespace katina::log;
+using namespace katina::types;
 
 KATINA_PLUGIN_TYPE(KatinaPluginVotes);
 KATINA_PLUGIN_INFO("katina::votes", "Katina Voting", "0.1");

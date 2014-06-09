@@ -36,9 +36,9 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <ctime>
 #include <unistd.h>
 
-namespace oastats { namespace time {
+namespace katina { namespace time {
 
-using namespace oastats::types;
+using namespace katina::types;
 
 inline
 void thread_sleep_millis(siz msecs)
@@ -54,6 +54,6 @@ milliseconds get_millitime()
 	return (ts.tv_sec * 1000) + (ts.tv_nsec / 1000000);
 }
 
-}} // oastats::time
+}} // katina::time
 
 #endif /* _OASTATS_TIME_H_ */

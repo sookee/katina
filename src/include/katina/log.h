@@ -33,9 +33,9 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include "types.h"
 
-namespace oastats { namespace log {
+namespace katina { namespace log {
 
-using namespace oastats::types;
+using namespace katina::types;
 
 // -- LOGGING ------------------------------------------------
 
@@ -57,7 +57,8 @@ str get_stamp()
 #define bug_var(v)
 #define bug_func()
 #define con(m) do{std::cout << m << std::endl;}while(false)
-#define log(m) do{std::cout << oastats::log::get_stamp() << ": " << m << std::endl;}while(false)
+#define log(m) do{std::cout << katina::log::get_stamp() << ": " << m << std::endl;}while(false)
+#define nlog(m) do{std::cout << katina::log::get_stamp() << ": " << m << " {" << n << "}" << std::endl;}while(false)
 #else
 #define bug(m) do{std::cout << "BUG: " << m << " [" << __FILE__ << "]" << " (" << __LINE__ << ")" << std::endl;}while(false)
 #define bug_var(v) bug(QUOTE(v:) << std::boolalpha << " " << v)
@@ -68,9 +69,10 @@ struct _
 	_(const char* n, const char* f): n(n), f(f) { std::cout << "\n---> " << n << " [" << f << "]\n\n"; }
 	~_() { std::cout << "\n<--- " << n << " [" << f << "]\n\n"; }
 };
-#define bug_func() oastats::log::_ __(__PRETTY_FUNCTION__, __FILE__)
+#define bug_func() katina::log::_ __(__PRETTY_FUNCTION__, __FILE__)
 #define con(m) do{std::cout << m << " [" << __FILE__ << "]" << " (" << __LINE__ << ")" << std::endl;}while(false)
-#define log(m) do{std::cout << oastats::log::get_stamp() << ": " << m << " [" << __FILE__ << "]" << " (" << __LINE__ << ")" << std::endl;}while(false)
+#define log(m) do{std::cout << katina::log::get_stamp() << ": " << m << " [" << __FILE__ << "]" << " (" << __LINE__ << ")" << std::endl;}while(false)
+#define nlog(m) do{std::cout << katina::log::get_stamp() << ": " << m << " {" << n << "}" << " [" << __FILE__ << "]" << " (" << __LINE__ << ")" << std::endl;}while(false)
 #endif
 
 
@@ -85,6 +87,6 @@ enum
 	LOG_NONE, LOG_NORMAL, LOG_VERBOSE, LOG_DETAILED
 };
 
-}} // oastats::log
+}} // katina::log
 
 #endif /* _OASTATS_LOG_H_ */

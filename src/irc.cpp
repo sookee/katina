@@ -31,9 +31,9 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <katina/irc.h>
 #include <katina/types.h>
 
-namespace oastats { namespace irc {
+namespace katina { namespace irc {
 
-using namespace oastats::types;
+using namespace katina::types;
 
 // -- IRC --------------------------------------------------------------
 
@@ -91,4 +91,4 @@ str oa_to_IRC(const char* msg)
 	return oss.str();
 }
 
-}} // oastats::irc
+}} // katina::irc

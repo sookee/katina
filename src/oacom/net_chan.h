@@ -15,7 +15,7 @@
 
 namespace oacom {
 
-using namespace oastats::types;
+using namespace katina::types;
 
 #define	MAX_MSGLEN 16384		// max length of a message, which may
 

@@ -34,9 +34,9 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <gcrypt.h>
 #include "types.h"
 
-namespace oastats { namespace pki {
+namespace katina { namespace pki {
 
-using namespace oastats::types;
+using namespace katina::types;
 
 class PKI
 {
@@ -123,7 +123,7 @@ public:
 	bool verify_signature(const str& id, const str& signature, const str& text, bool& is_good) const;
 };
 
-}} // oastats::pki
+}} // katina::pki
 
 #endif	// _OASTATS_PKI_H
 

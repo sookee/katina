@@ -27,13 +27,13 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <katina/Database.h>
 #include <katina/Properties.h>
 
-using namespace oastats;
-using namespace oastats::types;
-using namespace oastats::utils;
-using namespace oastats::string;
+using namespace katina;
+using namespace katina::types;
+using namespace katina::utils;
+using namespace katina::string;
 
 class Database
-: public oastats::data::Database
+: public katina::data::Database
 {
 public:
 	

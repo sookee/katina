@@ -42,9 +42,9 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <katina/log.h>
 #include <katina/types.h>
 
-using namespace oastats;
-using namespace oastats::log;
-using namespace oastats::types;
+using namespace katina;
+using namespace katina::log;
+using namespace katina::types;
 
 #ifndef REVISION
 #define REVISION "not set"

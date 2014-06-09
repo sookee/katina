@@ -35,11 +35,11 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include "log.h"
 #include "str.h"
 
-namespace oastats { namespace net {
+namespace katina { namespace net {
 
-using namespace oastats::log;
-using namespace oastats::types;
-using namespace oastats::string;
+using namespace katina::log;
+using namespace katina::types;
+using namespace katina::string;
 
 #define TIMEOUT 1000
 
@@ -195,6 +195,6 @@ public:
 		return rcon("rcon " + pass + " chat ^1K^7at^3i^7na^8: ^7" + msg, ret, host, port);
 	}
 };
-}} // oastats::net
+}} // katina::net
 
 #endif /* _OASTATS_RCON_H_ */

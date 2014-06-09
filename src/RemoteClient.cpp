@@ -33,10 +33,10 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <katina/Katina.h>
 #include <katina/utils.h>
 
-namespace oastats { namespace net {
+namespace katina { namespace net {
 
-using namespace oastats;
-using namespace oastats::utils;
+using namespace katina;
+using namespace katina::utils;
 	
 // TODO: This should be configurable
 const str irc_katina = "04K00at08i00na";
@@ -241,4 +241,4 @@ RemoteClient* RemoteClient::create(Katina& katina, const str& config)
 	return 0;
 }
 
-}} // oastats::net
+}} // katina::net

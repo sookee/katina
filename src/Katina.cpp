@@ -56,14 +56,14 @@ http://www.gnu.org/licenses/gpl-2.0.html
 //#define QUOTE(x) #x
 #define REV QUOTE(REVISION)
 
-namespace oastats {
+namespace katina {
 
-using namespace oastats::log;
-using namespace oastats::net;
-using namespace oastats::time;
-using namespace oastats::types;
-using namespace oastats::utils;
-using namespace oastats::string;
+using namespace katina::log;
+using namespace katina::net;
+using namespace katina::time;
+using namespace katina::types;
+using namespace katina::utils;
+using namespace katina::string;
 
 const str version = "0.1";
 const str tag = "";
@@ -552,7 +552,7 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 			if(type == "clients" || type == "data")
 			{
 				server.msg_to(num, "clients: " + std::to_string(clients.size()));
-				for(slot_guid_map_pair p: clients)
+				for(slot_guid_map_vt p: clients)
 					server.msg_to(num, " {" + str(p.first) + ", " + str(p.second) + "}"
 						+ (p.second.is_bot()?" (BOT)":"")
 						+ (p.second.is_connected()?"":" (Disconnected)"));
@@ -560,7 +560,7 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 			else if(type == "teams" || type == "data")
 			{
 				server.msg_to(num, "teams: " + std::to_string(teams.size()));
-				for(guid_siz_map_pair p: teams)
+				for(guid_siz_map_vt p: teams)
 					server.msg_to(num, " {" + str(p.first) + ", " + std::to_string(p.second) + "}"
 						+ (p.first.is_bot()?" (BOT)":"")
 						+ (p.first.is_connected()?"":" (Disconnected)"));
@@ -568,7 +568,7 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 			else if(type == "players" || type == "data")
 			{
 				server.msg_to(num, "players: " + std::to_string(players.size()));
-				for(guid_str_map_pair p: players)
+				for(const guid_str_map_vt& p: players)
 					server.msg_to(num, " {" + str(p.first) + ", " + p.second + "}"
 						+ (p.first.is_bot()?" (BOT)":"")
 						+ (p.first.is_connected()?"":" (Disconnected)"));
@@ -1015,6 +1015,9 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 
 					shutdown_erase.remove(guid); // must have re-joined
 
+//					if(clients.find(num) && clients[num] != guid)
+//						nlog("WARN: clients already contains guid: {" << num << ", " << clients[num] << "}");
+
 					clients[num] = guid;
 					players[guid] = name;
 					teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
@@ -1027,14 +1030,50 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 		else if(cmd == "ShutdownGame:")
 		{
 			// these are clients that disconnected before the game ended
-//			log("SHUTDOWN ERASE: dumping: " << std::to_string(shutdown_erase.size()));
+			log("SHUTDOWN ERASE: dumping: " << std::to_string(shutdown_erase.size()));
+			siz nt = teams.size() - shutdown_erase.size();
+			siz np = players.size() - shutdown_erase.size();
 			for(const GUID& guid: shutdown_erase)
 			{
-//				log("SHUTDOWN ERASE: " << guid);
+				log("SHUTDOWN ERASE: " << guid);
 				teams.erase(guid);
 				players.erase(guid);
 			}
+			if(nt != teams.size())
+				log("WARN: erase discrepancy in teams: have: " << teams.size() << " expected: " << nt << " at: " << n);
+			if(np != players.size())
+				log("WARN: erase discrepancy in players: have: " << players.size() << " expected: " << np << " at: " << n);
 			shutdown_erase.clear();
+			if(clients.size() > players.size())
+				log("WARN: discrepancy between players: " << players.size() << " and teams: " << teams.size());
+			if(clients.size() > teams.size())
+				log("WARN: discrepancy between clients: " << clients.size() << " and teams: " << teams.size());
+
+			// ATTEMPT TO FIX shutdown erase
+			for(guid_str_map_iter p = players.begin(); p != players.end();)
+			{
+				if(std::find_if(clients.begin(), clients.end(), [&p](const slot_guid_map_vt& c){return c.second == p->first;}) == clients.end())
+				{
+					shutdown_erase.push_back(p->first);
+				}
+			}
+			for(guid_siz_map_iter t = teams.begin(); t != teams.end();)
+			{
+				if(std::find_if(clients.begin(), clients.end(), [&t](const slot_guid_map_vt& c){return c.second == t->first;}) == clients.end())
+				{
+					shutdown_erase.push_back(t->first);
+				}
+			}
+			if(!shutdown_erase.empty())
+			{
+				nlog("SHUTDOWN ERASE FIXUP");
+				for(const GUID& guid: shutdown_erase)
+				{
+					log("SHUTDOWN ERASE FIXUP: " << guid);
+					teams.erase(guid);
+					players.erase(guid);
+				}
+			}
 		}
 		else if(cmd == "ClientDisconnect:")
 		{
@@ -1269,10 +1308,14 @@ bool Katina::start(const str& dir)
 				players.erase(guid);
 			}
 			if(nt != teams.size())
-				log("WARN: erase discrepency in teams: have: " << teams.size() << " expected: " << nt << " at: " << n);
+				log("WARN: erase discrepancy in teams: have: " << teams.size() << " expected: " << nt << " at: " << n);
 			if(np != players.size())
-				log("WARN: erase discrepency in players: have: " << players.size() << " expected: " << np << " at: " << n);
+				log("WARN: erase discrepancy in players: have: " << players.size() << " expected: " << np << " at: " << n);
 			shutdown_erase.clear();
+			if(clients.size() > players.size())
+				log("WARN: discrepancy between players: " << players.size() << " and teams: " << teams.size());
+			if(clients.size() > teams.size())
+				log("WARN: discrepancy between clients: " << clients.size() << " and teams: " << teams.size());
 		}
 		else if(cmd == "Warmup:")
 		{

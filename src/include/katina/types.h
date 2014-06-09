@@ -47,7 +47,28 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <fstream>
 #include <iostream>
 
-namespace oastats { namespace types {
+namespace katina { namespace types {
+
+#define TYPEDEF_CONTAINER_T(def) \
+typedef def::value_type def##_vt; \
+typedef def::iterator def##_iter; \
+typedef def::const_iterator def##_citer; \
+typedef def::reverse_iterator def##_riter; \
+typedef def::const_reverse_iterator def##_criter
+
+/**
+ * Single parameter containers
+ */
+#define TYPEDEF_CONTAINER_1(type, p, def) \
+typedef type<p> def; \
+TYPEDEF_CONTAINER_T(def)
+
+/**
+ * Two parameter containers
+ */
+#define TYPEDEF_CONTAINER_2(type, p1, p2, def) \
+typedef type<p1,p2> def; \
+TYPEDEF_CONTAINER_T(def)
 
 //-- TYPES ---------------------------------------------
 
@@ -59,76 +80,35 @@ typedef std::string str;
 typedef str::iterator str_iter;
 typedef str::const_iterator str_citer;
 
-typedef std::vector<int> int_vec;
-typedef std::vector<siz> siz_vec;
+TYPEDEF_CONTAINER_1(std::vector, int, int_vec);
+TYPEDEF_CONTAINER_1(std::vector, siz, siz_vec);
+TYPEDEF_CONTAINER_1(std::vector, str, str_vec);
 
-typedef std::vector<str> str_vec;
-typedef str_vec::iterator str_vec_iter;
-typedef str_vec::const_iterator str_vec_citer;
+TYPEDEF_CONTAINER_1(std::set, int, int_set);
+TYPEDEF_CONTAINER_1(std::set, siz, siz_set);
+TYPEDEF_CONTAINER_1(std::set, str, str_set);
 
-// sets
-typedef std::set<str> str_set;
-typedef str_set::iterator str_set_iter;
-typedef str_set::const_iterator str_set_citer;
+TYPEDEF_CONTAINER_1(std::multiset, int, int_mset);
+TYPEDEF_CONTAINER_1(std::multiset, siz, siz_mset);
+TYPEDEF_CONTAINER_1(std::multiset, str, str_mset);
 
-typedef std::set<siz> siz_set;
-typedef siz_set::iterator siz_set_iter;
-typedef siz_set::const_iterator siz_set_citer;
+TYPEDEF_CONTAINER_2(std::map, int, int, int_map);
+TYPEDEF_CONTAINER_2(std::map, siz, siz, siz_map);
+TYPEDEF_CONTAINER_2(std::map, str, str, str_map);
 
-typedef std::multiset<str> str_mset;
+TYPEDEF_CONTAINER_2(std::multimap, int, int, int_mmap);
+TYPEDEF_CONTAINER_2(std::multimap, siz, siz, siz_mmap);
+TYPEDEF_CONTAINER_2(std::multimap, str, str, str_mmap);
 
-// maps
-typedef std::map<str, str> str_map;
-typedef str_map::iterator str_map_iter;
-typedef str_map::const_iterator str_map_citer;
-
-typedef std::pair<const str, str> str_map_pair;
-
-typedef std::map<siz, siz> siz_map;
-typedef siz_map::iterator siz_map_iter;
-typedef siz_map::const_iterator siz_map_citer;
-typedef std::pair<const siz, siz> siz_map_pair;
-
-typedef std::multimap<siz, siz> siz_mmap;
-typedef siz_mmap::iterator siz_mmap_iter;
-typedef siz_mmap::const_iterator siz_mmap_citer;
-typedef siz_mmap::reverse_iterator siz_mmap_riter;
-typedef siz_mmap::const_reverse_iterator siz_mmap_criter;
-typedef std::pair<const siz, siz> siz_mmap_pair;
-
-typedef std::map<str, siz> str_siz_map;
-typedef str_siz_map::iterator str_siz_map_iter;
-typedef str_siz_map::const_iterator str_siz_map_citer;
-typedef std::pair<const str, siz> str_siz_map_pair;
-
-typedef std::map<str, int> str_int_map;
-typedef str_int_map::iterator str_int_map_iter;
-typedef str_int_map::const_iterator str_int_map_citer;
-typedef std::pair<const str, int> str_int_map_pair;
-
-typedef std::map<siz, str> siz_str_map;
-typedef siz_str_map::iterator siz_str_map_iter;
-typedef siz_str_map::const_iterator siz_str_map_citer;
-typedef std::pair<const siz, str> siz_str_map_pair;
-
-typedef std::map<str, time_t> str_time_map;
-typedef str_time_map::iterator str_time_map_iter;
-typedef str_time_map::const_iterator str_time_map_citer;
-typedef std::pair<const str, time_t> str_time_map_pair;
-
-typedef std::map<str, str_set> str_set_map;
-typedef str_set_map::iterator str_set_map_iter;
-typedef str_set_map::const_iterator str_set_map_citer;
-typedef std::pair<const str, str_set> str_set_map_pair;
-
-typedef std::map<const str, str_vec> str_vec_map;
-typedef str_vec_map::iterator str_vec_map_iter;
-typedef str_vec_map::const_iterator str_vec_map_citer;
-typedef std::pair<const str, str_vec> str_vec_map_pair;
-
-typedef std::multimap<str, str> str_mmap;
-typedef str_mmap::iterator str_mmap_iter;
-typedef str_mmap::const_iterator str_mmap_citer;
+TYPEDEF_CONTAINER_2(std::map, str, int, str_int_map);
+TYPEDEF_CONTAINER_2(std::map, str, siz, str_siz_map);
+TYPEDEF_CONTAINER_2(std::map, int, str, int_str_map);
+TYPEDEF_CONTAINER_2(std::map, siz, str, siz_str_map);
+TYPEDEF_CONTAINER_2(std::multimap, int, str, int_str_mmap);
+TYPEDEF_CONTAINER_2(std::multimap, siz, str, siz_str_mmap);
+TYPEDEF_CONTAINER_2(std::map, str, std::time_t, siz_time_map);
+TYPEDEF_CONTAINER_2(std::map, str, str_set, str_set_map);
+TYPEDEF_CONTAINER_2(std::map, str, str_vec, str_vec_map);
 
 // streams
 typedef std::istream sis;
@@ -162,16 +142,11 @@ public:
 	friend sos& operator<<(sos& o, const slot& s) { return o << s.num; }
 	friend sis& operator>>(sis& i, slot& s) { return i >> s.num; }
 
-	explicit operator str() const
-	{
-		return std::to_string(num);
-	}
+	explicit operator str() const { return std::to_string(num); }
 };
 
-typedef std::map<slot, siz> slot_siz_map;
-typedef slot_siz_map::iterator slot_siz_map_iter;
-typedef slot_siz_map::const_iterator slot_siz_map_citer;
+TYPEDEF_CONTAINER_2(std::map, slot, siz, slot_siz_map);
 
-}} // oastats::types
+}} // katina::types
 
 #endif /* _OASTATS_TYPES_H_ */

@@ -7,10 +7,10 @@
 
 namespace katina { namespace plugin {
     
-using namespace oastats;
-using namespace oastats::log;
-using namespace oastats::data;
-using namespace oastats::types;
+using namespace katina;
+using namespace katina::log;
+using namespace katina::data;
+using namespace katina::types;
 
     
 

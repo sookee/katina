@@ -36,9 +36,9 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace katina { namespace plugin {
 
-using namespace oastats::log;
-using namespace oastats::types;
-using namespace oastats::string;
+using namespace katina::log;
+using namespace katina::types;
+using namespace katina::string;
 
 KATINA_PLUGIN_TYPE(KatinaPluginPlayerDb);
 KATINA_PLUGIN_INFO("katina::playerdb", "Katina Player Database", "0.1-dev");

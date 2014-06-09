@@ -44,13 +44,13 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <pthread.h>
 #include <memory>
 
-namespace oastats {
+namespace katina {
 
-using namespace oastats::log;
-using namespace oastats::net;
-using namespace oastats::pki;
-using namespace oastats::types;
-using namespace oastats::utils;
+using namespace katina::log;
+using namespace katina::net;
+using namespace katina::pki;
+using namespace katina::types;
+using namespace katina::utils;
 
 extern const slot bad_slot;
 

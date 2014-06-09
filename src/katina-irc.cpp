@@ -47,13 +47,13 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <netinet/in.h>
 #include <signal.h>
 
-using namespace oastats;
-using namespace oastats::log;
-using namespace oastats::time;
-using namespace oastats::types;
-using namespace oastats::utils;
-using namespace oastats::string;
-using namespace oastats::ircbot;
+using namespace katina;
+using namespace katina::log;
+using namespace katina::time;
+using namespace katina::types;
+using namespace katina::utils;
+using namespace katina::string;
+using namespace katina::ircbot;
 
 class Bot;
 

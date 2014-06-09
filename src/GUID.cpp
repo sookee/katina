@@ -30,7 +30,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include <katina/GUID.h>
 
-namespace oastats {
+namespace katina {
 
 const GUID null_guid("00000000");
 

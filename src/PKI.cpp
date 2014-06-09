@@ -37,11 +37,11 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <katina/types.h>
 #include <katina/utils.h>
 
-namespace oastats { namespace pki {
+namespace katina { namespace pki {
 
-using namespace oastats::log;
-using namespace oastats::types;
-using namespace oastats::utils;
+using namespace katina::log;
+using namespace katina::types;
+using namespace katina::utils;
 
 PKI::PKI()
 : skey(0)
@@ -460,4 +460,4 @@ bool PKI::verify_signature(const str& id, const str& signature, const str& text,
 	return true;
 }
 
-}} //oastats::pki
+}} //katina::pki

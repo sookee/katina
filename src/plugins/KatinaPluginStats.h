@@ -44,10 +44,10 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace katina { namespace plugin {
 
-using namespace oastats;
-using namespace oastats::log;
-using namespace oastats::data;
-using namespace oastats::types;
+using namespace katina;
+using namespace katina::log;
+using namespace katina::data;
+using namespace katina::types;
 
 struct mod_damage_stats
 {
@@ -121,7 +121,7 @@ typedef std::map<GUID, stats>::iterator guid_stat_map_iter;
 typedef std::map<GUID, stats>::const_iterator guid_stat_map_citer;
 
 //class Database
-//: public oastats::data::Database
+//: public katina::data::Database
 //{
 //};
 

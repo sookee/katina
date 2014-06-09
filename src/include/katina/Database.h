@@ -39,12 +39,12 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include <mysql.h>
 
-namespace oastats { namespace data {
+namespace katina { namespace data {
 
-using namespace oastats;
-using namespace oastats::types;
-using namespace oastats::string;
-using namespace oastats::log;
+using namespace katina;
+using namespace katina::types;
+using namespace katina::string;
+using namespace katina::log;
 
 typedef my_ulonglong game_id;
 typedef my_ulonglong row_count;
@@ -206,6 +206,6 @@ public:
 	bool get_ingame_crap(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats);
 };
 
-}} // oastats::data
+}} // katina::data
 
 #endif /* _OASTATS_DATABASE_H_ */

@@ -48,10 +48,10 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <execinfo.h>
 #include <cxxabi.h>
 
-namespace oastats { namespace utils {
+namespace katina { namespace utils {
 
-using namespace oastats::log;
-using namespace oastats::types;
+using namespace katina::log;
+using namespace katina::types;
 
 inline
 sis& sgl(sis& is, str& line, char delim = '\n')
@@ -132,6 +132,6 @@ public:
 	~lock_guard() { pthread_mutex_unlock(&mtx); }
 };
 
-}} // oastats::utils
+}} // katina::utils
 
 #endif // _OASTATS_UTILS_H_
