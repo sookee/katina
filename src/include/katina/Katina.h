@@ -297,6 +297,14 @@ public:
 		return std::find(shutdown_erase.begin(), shutdown_erase.end(), guid) != shutdown_erase.end();
 	}
 
+	/**
+	 * DEFINITIVELY if a client slot is connected or not.
+	 */
+	bool is_connected(slot num)
+	{
+		return clients.find(num) != clients.end();
+	}
+
 	str_map svars; // server variables
 	siz logmode;
 	std::time_t now;

@@ -1161,679 +1161,704 @@ bool Katina::start(const str& dir)
 
 	bool rerun = get("run.mode") == "rerun";
 	if(rerun)
+	{
+		server.off();
 		mode = std::ios::in;
+	}
 
 	log("Opening logfile (" << get("run.mode") << "): " << get("logfile"));
 
 	std::ifstream ifs;
-	ifs.open(get_exp("logfile").c_str(), mode);
 
-	if(!ifs.is_open())
+	const str_vec& logfiles = get_exp_vec("logfile");
+
+	for(const str& logfile: logfiles)
 	{
-		log("FATAL: Logfile not found: " << get("logfile"));
-		return false;
-	}
+		done = false;
+		ifs.clear();
+		ifs.open(logfile, mode);
 
-	std::istream& is = ifs;
-	std::ios::streampos gpos = is.tellg();
-
-	//	if(!initial_player_info())
-	//		log("ERROR: Unable to get initial player info");
-
-
-	// read back through log file to build up current player
-	// info
-	std::time_t rbt = std::time(0);
-	log("Initializing data structures");
-	siz n = 0; // log file line number
-	if(!rerun && !log_read_back(get_exp("logfile"), gpos, n))
-		log("WARN: Unable to get initial player info");
-	log("DONE: " << (std::time(0) - rbt) << " seconds");
-
-	client_userinfo_bug_t client_userinfo_bug;
-
-	log("Processing:");
-
-	//===================================================//
-	//= MAIN LOOP									   =//
-	//===================================================//
-
-	// working variables
-	char c;
-	siz min, sec;
-	str line, skip, name, cmd;
-	siss iss;
-
-	while(!done)
-	{
-		if(!std::getline(is, line) || is.eof())
+		if(!ifs.is_open())
 		{
-			if(rerun)
-				done = true;
-			thread_sleep_millis(100);
-			is.clear();
-			is.seekg(gpos);
+			if(!rerun)
+			{
+				log("FATAL: Logfile not found: " << get("logfile"));
+				return false;
+			}
+			log("WARN: Logfile not found: " << get("logfile"));
 			continue;
 		}
 
-		++n;
-		gpos = is.tellg();
+		std::istream& is = ifs;
+		std::ios::streampos gpos = is.tellg();
 
-		if(!active)
-			continue;
-
-		if(trim(line).empty())
-			continue;
-
-		iss.clear();
-		iss.str(line);
-
-		if(!(sgl(iss >> min >> c >> sec >> std::ws, cmd, ':') >> std::ws))
+		siz n = 0; // log file line number
+		if(!rerun)
 		{
-			if(!client_userinfo_bug)
+			// read back through log file to build up current player
+			// info
+			std::time_t rbt = std::time(0);
+			log("Initializing data structures");
+			if(!log_read_back(get_exp("logfile"), gpos, n))
+				log("WARN: Unable to get initial player info");
+			log("DONE: " << (std::time(0) - rbt) << " seconds");
+		}
+
+		client_userinfo_bug_t client_userinfo_bug;
+
+		log("Processing:");
+
+		//===================================================//
+		//= MAIN LOOP									   =//
+		//===================================================//
+
+		// working variables
+		char c;
+		siz min, sec;
+		str line, skip, name, cmd;
+		siss iss;
+
+		while(!done)
+		{
+			if(!std::getline(is, line) || is.eof())
 			{
-				log("ERROR: parsing logfile command: " << line);
+				if(rerun)
+					done = true;
+				thread_sleep_millis(100);
+				is.clear();
+				is.seekg(gpos);
 				continue;
 			}
-			log("WARN: possible ClientUserinfoChanged bug");
-			if(line.find("\\id\\") == str::npos)
-			{
-				log("ERROR: parsing logfile command: " << line);
-				client_userinfo_bug.reset();
-				continue;
-			}
-			else
-			{
-				log("INFO: ClientUserinfoChanged bug detected");
-				cmd = "ClientUserinfoChanged";
-				iss.clear();
-				iss.str(client_userinfo_bug.params + line);
-				log("INFO: params: " << client_userinfo_bug.params << line);
-			}
-		}
 
-		client_userinfo_bug.reset();
+			++n;
+			gpos = is.tellg();
 
-		if(!cmd.find("----"))
-		{
-			if(!min && !sec)
-			{
-				base_now = std::time(0);
-				//base_now = now;
-				bug("=========================");
-				bug("= BASE_TIME: " << base_now << " =");
-				bug("=========================");
-			}
-			continue;
-		}
-
-		cmd += ":";
-
-		str params;
-
-		sgl(iss, params); // not all commands have params
-
-		iss.clear();
-		iss.str(params);
-
-		//lock_guard lock(cvarevts_mtx);
-
-		//if(rerun)
-			now = base_now + (min * 60) + sec;
-		//else
-		//	now = std::time(0);
-
-		// Send HEARTBEAT event to plugins
-		for(plugin_vec_iter i = events[HEARTBEAT].begin(); i != events[HEARTBEAT].end(); ++i)
-			(*i)->heartbeat(min, sec);
-
-		bool flagspeed = false; // speed carrying a flag
-
-		if(cmd == "Exit:")
-		{
-			//bug(cmd << "(" << params << ")");
-			if(events[EXIT].empty())
+			if(!active)
 				continue;
 
-			for(plugin_vec_iter i = events[EXIT].begin()
-				; i != events[EXIT].end(); ++i)
-				(*i)->exit(min, sec);
-		}
-		else if(cmd == "ShutdownGame:")
-		{
-			for(plugin_vec_iter i = events[SHUTDOWN_GAME].begin()
-				; i != events[SHUTDOWN_GAME].end(); ++i)
-				(*i)->shutdown_game(min, sec);
-
-			// these are clients that disconnected before the game ended
-			nlog("SHUTDOWN ERASE: dumping: " << std::to_string(shutdown_erase.size()));
-			siz nt = teams.size() - shutdown_erase.size();
-			siz np = players.size() - shutdown_erase.size();
-			for(const GUID& guid: shutdown_erase)
-			{
-				nlog("SHUTDOWN ERASE: " << guid);
-				teams.erase(guid);
-				players.erase(guid);
-			}
-			if(nt != teams.size())
-				nlog("WARN: erase discrepancy in teams: have: " << teams.size() << " expected: " << nt << " at: " << n);
-			if(np != players.size())
-				nlog("WARN: erase discrepancy in players: have: " << players.size() << " expected: " << np << " at: " << n);
-			shutdown_erase.clear();
-			if(clients.size() > players.size())
-				nlog("WARN: discrepancy between players: " << players.size() << " and teams: " << teams.size());
-			if(clients.size() > teams.size())
-				nlog("WARN: discrepancy between clients: " << clients.size() << " and teams: " << teams.size());
-		}
-		else if(cmd == "Warmup:")
-		{
-			//bug(cmd << "(" << params << ")");
-			if(events[WARMUP].empty())
+			if(trim(line).empty())
 				continue;
 
-			for(plugin_vec_iter i = events[WARMUP].begin()
-				; i != events[WARMUP].end(); ++i)
-				(*i)->warmup(min, sec);
-		}
-		else if(cmd == "ClientUserinfoChanged:")
-		{
-			//bug(cmd << "(" << params << ")");
-			// 0 n\Merman\t\2\model\merman\hmodel\merman\c1\1\c2\1\hc\70\w\0\l\0\skill\ 2.00\tt\0\tl\0\id\
-			// 2 \n\^1S^2oo^3K^5ee\t\3\c2\d\hc\100\w\0\l\0\tt\0\tl\0\id\041BD1732752BCC408FAF45616A8F64B
-			slot num;
-			siz team;
-			if(!(sgl(sgl(sgl(iss >> num, skip, '\\'), name, '\\'), skip, '\\') >> team))
-				std::cout << "Error parsing ClientUserinfoChanged: "  << params << '\n';
-			else if(num > slot(32))
+			iss.clear();
+			iss.str(line);
+
+			if(!(sgl(iss >> min >> c >> sec >> std::ws, cmd, ':') >> std::ws))
 			{
-				log("ERROR: Client num too high: " << num);
-			}
-			else
-			{
-				siz pos = line.find("\\id\\");
-				if(pos == str::npos)
-					client_userinfo_bug.set(params);
+				if(!client_userinfo_bug)
+				{
+					nlog("ERROR: parsing logfile command: " << line);
+					continue;
+				}
+				log("WARN: possible ClientUserinfoChanged bug");
+				if(line.find("\\id\\") == str::npos)
+				{
+					nlog("ERROR: parsing logfile command: " << line);
+					client_userinfo_bug.reset();
+					continue;
+				}
 				else
 				{
-					str id = line.substr(pos + 4, 32);
-					GUID guid(num);
-					if(id.size() == 32)
-						guid = GUID(id.substr(24));
+					nlog("INFO: ClientUserinfoChanged bug detected");
+					cmd = "ClientUserinfoChanged";
+					iss.clear();
+					iss.str(client_userinfo_bug.params + line);
+					nlog("INFO: params: " << client_userinfo_bug.params << line);
+				}
+			}
 
-					siz hc = 100;
-					if((pos = line.find("\\hc\\")) == str::npos)
+			client_userinfo_bug.reset();
+
+			if(!cmd.find("----"))
+			{
+				if(!min && !sec)
+				{
+					base_now = std::time(0);
+					//base_now = now;
+					bug("=========================");
+					bug("= BASE_TIME: " << base_now << " =");
+					bug("=========================");
+				}
+				continue;
+			}
+
+			cmd += ":";
+
+			str params;
+
+			sgl(iss, params); // not all commands have params
+
+			iss.clear();
+			iss.str(params);
+
+			//lock_guard lock(cvarevts_mtx);
+
+			//if(rerun)
+				now = base_now + (min * 60) + sec;
+			//else
+			//	now = std::time(0);
+
+			// Send HEARTBEAT event to plugins
+			for(plugin_vec_iter i = events[HEARTBEAT].begin(); i != events[HEARTBEAT].end(); ++i)
+				(*i)->heartbeat(min, sec);
+
+			bool flagspeed = false; // speed carrying a flag
+
+			if(cmd == "Exit:")
+			{
+				//bug(cmd << "(" << params << ")");
+				if(events[EXIT].empty())
+					continue;
+
+				for(plugin_vec_iter i = events[EXIT].begin()
+					; i != events[EXIT].end(); ++i)
+					(*i)->exit(min, sec);
+			}
+			else if(cmd == "ShutdownGame:")
+			{
+				for(plugin_vec_iter i = events[SHUTDOWN_GAME].begin()
+					; i != events[SHUTDOWN_GAME].end(); ++i)
+					(*i)->shutdown_game(min, sec);
+
+				// these are clients that disconnected before the game ended
+				nlog("SHUTDOWN ERASE: dumping: " << std::to_string(shutdown_erase.size()));
+				siz nt = teams.size() - shutdown_erase.size();
+				siz np = players.size() - shutdown_erase.size();
+				for(const GUID& guid: shutdown_erase)
+				{
+					nlog("SHUTDOWN ERASE: " << guid);
+					teams.erase(guid);
+					players.erase(guid);
+				}
+				if(nt != teams.size())
+					nlog("WARN: erase discrepancy in teams: have: " << teams.size() << " expected: " << nt << " at: " << n);
+				if(np != players.size())
+					nlog("WARN: erase discrepancy in players: have: " << players.size() << " expected: " << np << " at: " << n);
+				shutdown_erase.clear();
+				if(clients.size() > players.size())
+					nlog("WARN: discrepancy between players: " << players.size() << " and teams: " << teams.size());
+				if(clients.size() > teams.size())
+					nlog("WARN: discrepancy between clients: " << clients.size() << " and teams: " << teams.size());
+			}
+			else if(cmd == "Warmup:")
+			{
+				//bug(cmd << "(" << params << ")");
+				if(events[WARMUP].empty())
+					continue;
+
+				for(plugin_vec_iter i = events[WARMUP].begin()
+					; i != events[WARMUP].end(); ++i)
+					(*i)->warmup(min, sec);
+			}
+			else if(cmd == "ClientUserinfoChanged:")
+			{
+				//bug(cmd << "(" << params << ")");
+				// 0 n\Merman\t\2\model\merman\hmodel\merman\c1\1\c2\1\hc\70\w\0\l\0\skill\ 2.00\tt\0\tl\0\id\
+				// 2 \n\^1S^2oo^3K^5ee\t\3\c2\d\hc\100\w\0\l\0\tt\0\tl\0\id\041BD1732752BCC408FAF45616A8F64B
+				slot num;
+				siz team;
+				if(!(sgl(sgl(sgl(iss >> num, skip, '\\'), name, '\\'), skip, '\\') >> team))
+					std::cout << "Error parsing ClientUserinfoChanged: "  << params << '\n';
+				else if(num > slot(32))
+				{
+					log("ERROR: Client num too high: " << num);
+				}
+				else
+				{
+					siz pos = line.find("\\id\\");
+					if(pos == str::npos)
+						client_userinfo_bug.set(params);
+					else if(!is_connected(num))
 					{
-						log("WARN: no handicap info found: " << line);
+						// Don't trust ClientUserInfoChanged: messages until
+						// we see a ClientConnect: for this slot number
 					}
 					else
 					{
-						if(!(siss(line.substr(pos + 4)) >> hc))
-							log("ERROR: Parsing handicap: " << line.substr(pos + 4));
+						str id = line.substr(pos + 4, 32);
+						GUID guid(num);
+						if(id.size() == 32)
+							guid = GUID(id.substr(24));
+
+						siz hc = 100;
+						if((pos = line.find("\\hc\\")) == str::npos)
+						{
+							nlog("WARN: no handicap info found: " << line);
+						}
+						else
+						{
+							if(!(siss(line.substr(pos + 4)) >> hc))
+								nlog("ERROR: Parsing handicap: " << line.substr(pos + 4));
+						}
+
+						shutdown_erase.remove(guid); // must have re-joined
+
+						clients[num] = guid;
+						players[guid] = name;
+
+						siz teamBefore = teams[guid];
+						teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
+
+						for(plugin_vec_iter i = events[CLIENT_USERINFO_CHANGED].begin();
+								i != events[CLIENT_USERINFO_CHANGED].end(); ++i)
+							(*i)->client_userinfo_changed(min, sec, num, team, guid, name, hc);
+
+						if(team != teamBefore && !guid.is_bot())
+							for(plugin_vec_iter i = events[CLIENT_SWITCH_TEAM].begin();
+									i != events[CLIENT_SWITCH_TEAM].end(); ++i)
+								(*i)->client_switch_team(min, sec, num, teamBefore, team);
 					}
-
-					shutdown_erase.remove(guid); // must have re-joined
-
-					clients[num] = guid;
-					players[guid] = name;
-
-					siz teamBefore = teams[guid];
-					teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
-
-					for(plugin_vec_iter i = events[CLIENT_USERINFO_CHANGED].begin();
-							i != events[CLIENT_USERINFO_CHANGED].end(); ++i)
-						(*i)->client_userinfo_changed(min, sec, num, team, guid, name, hc);
-
-					if(team != teamBefore && !guid.is_bot())
-						for(plugin_vec_iter i = events[CLIENT_SWITCH_TEAM].begin();
-								i != events[CLIENT_SWITCH_TEAM].end(); ++i)
-							(*i)->client_switch_team(min, sec, num, teamBefore, team);
 				}
 			}
-		}
-		else if(cmd == "ClientConnect:")
-		{
-			if(events[CLIENT_CONNECT].empty())
-				continue;
-
-			slot num;
-			if(!(iss >> num))
-				log("Error parsing ClientConnect: "  << params);
-			else
+			else if(cmd == "ClientConnect:")
 			{
-				for(plugin_vec_iter i = events[CLIENT_CONNECT].begin()
-					; i != events[CLIENT_CONNECT].end(); ++i)
-					(*i)->client_connect(min, sec, num);
+				slot num;
+				if(!(iss >> num))
+					nlog("Error parsing ClientConnect: "  << params);
+				else
+				{
+					if(!is_connected(num))
+						clients[num] = null_guid; // connecting
+					for(plugin_vec_iter i = events[CLIENT_CONNECT].begin()
+						; i != events[CLIENT_CONNECT].end(); ++i)
+						(*i)->client_connect(min, sec, num);
+				}
 			}
-		}
-		else if(cmd == "ClientConnectInfo:")
-		{
-			// ClientConnectInfo: 4 87597A67B5A4E3C79544A72B7B5DA741 81.101.111.32
-			log("ClientConnectInfo: " << params);
-			if(events[CLIENT_CONNECT_INFO].empty())
-				continue;
-
-			slot num;
-			str guid;
-			str ip;
-			str skip; // rest of guid needs to be skipped before ip
-
-			// 2 5E68E970866FC20242482AA396BBD43E 81.101.111.32
-			if(!(iss >> num >> std::ws >> guid >> std::ws >> ip))
-				log("Error parsing ClientConnectInfo: "  << params);
-			else
+			else if(cmd == "ClientConnectInfo:")
 			{
-				for(plugin_vec_iter i = events[CLIENT_CONNECT_INFO].begin()
-					; i != events[CLIENT_CONNECT_INFO].end(); ++i)
-					(*i)->client_connect_info(min, sec, num, GUID(guid), ip);
-			}
-		}
-		else if(cmd == "ClientBegin:") // 0:04 ClientBegin: 4
-		{
-			//bug(cmd << "(" << params << ")");
-			if(events[CLIENT_BEGIN].empty())
-				continue;
-
-			slot num;
-			if(!(iss >> num))
-				log("Error parsing ClientBegin: "  << params);
-			else
-			{
-				for(plugin_vec_iter i = events[CLIENT_BEGIN].begin()
-					; i != events[CLIENT_BEGIN].end(); ++i)
-					(*i)->client_begin(min, sec, num);
-			}
-		}
-		else if(cmd == "ClientDisconnect:")
-		{
-			//bug(cmd << "(" << params << ")");
-
-			slot num;
-			if(!(iss >> num))
-				std::cout << "Error parsing ClientDisconnect: "  << params << '\n';
-			else if(num > slot(32))
-			{
-				log("ERROR: Client num too high: " << num);
-			}
-			else
-			{
-				GUID guid = getClientGuid(num);
-
-				// Sometimes you get 2 ClientDisconnect: events with
-				// nothing created in between them. These should be ignored.
-				if(guid == null_guid)
+				// ClientConnectInfo: 4 87597A67B5A4E3C79544A72B7B5DA741 81.101.111.32
+				nlog("ClientConnectInfo: " << params);
+				if(events[CLIENT_CONNECT_INFO].empty())
 					continue;
 
-				// slot numbers are defunct, but keep GUIDs until ShutdownGame
-				getClientGuid(num).disconnect();
-				shutdown_erase.push_back(guid);
-				siz teamBefore = teams[getClientGuid(num)];
-				teams[guid] = TEAM_U;
+				slot num;
+				str guid;
+				str ip;
+				str skip; // rest of guid needs to be skipped before ip
 
-				for(plugin_vec_iter i = events[CLIENT_DISCONNECT].begin()
-					; i != events[CLIENT_DISCONNECT].end(); ++i)
-					(*i)->client_disconnect(min, sec, num);
-
-				   if(teamBefore != TEAM_U && !guid.is_bot())
-						for(plugin_vec_iter i = events[CLIENT_SWITCH_TEAM].begin();
-								i != events[CLIENT_SWITCH_TEAM].end(); ++i)
-							(*i)->client_switch_team(min, sec, num, teamBefore, TEAM_U);
-
-				//teams.erase(clients[num]);
-				//players.erase(clients[num]);
-				clients.erase(num);
-			}
-		}
-		else if(cmd == "Kill:")
-		{
-			//bug(cmd << "(" << params << ")");
-			if(events[KILL].empty())
-				continue;
-
-			slot num1, num2;
-			siz weap;
-			if(!(iss >> num1 >> num2 >> weap))
-				log("Error parsing Kill:" << params);
-			else
-			{
-				for(plugin_vec_iter i = events[KILL].begin()
-					; i != events[KILL].end(); ++i)
-					(*i)->kill(min, sec, num1, num2, weap);
-			}
-		}
-		else if(cmd == "Push:") // mod_katina only
-		{
-			//bug(cmd << "(" << params << ")");
-			if(events[PUSH].empty())
-				continue;
-
-			slot num1, num2;
-			if(!(iss >> num1 >> num2))
-				log("Error parsing Push:" << params);
-			else
-			{
-				for(plugin_vec_iter i = events[PUSH].begin()
-					; i != events[PUSH].end(); ++i)
-					(*i)->push(min, sec, num1, num2);
-			}
-		}
-		else if(cmd == "WeaponUsage:")
-		{
-			//bug(cmd << "(" << params << ")");
-
-			// Weapon Usage Update
-			// WeaponUsage: <client#> <weapon#> <#shotsFired>
-			slot num;
-			siz weap, shots;
-
-			if(iss >> num >> weap >> shots)
-			{
-				for(plugin_vec_iter i = events[WEAPON_USAGE].begin(); i != events[WEAPON_USAGE].end(); ++i)
-					(*i)->weapon_usage(min, sec, num, weap, shots);
-			}
-			else
-				log("Error parsing WeaponUsage: " << params);
-		}
-		else if(cmd == "MODDamage:")
-		{
-			//bug(cmd << "(" << params << ")");
-
-			// MOD (Means of Death = Damage Type) Damage Update
-			// MODDamage: <client#> <mod#> <#hits> <damageDone> <#hitsRecv> <damageRecv> <weightedHits>
-			slot num;
-			siz mod, hits, dmg, hitsRecv, dmgRecv;
-			float weightedHits;
-			if(iss >> num >> mod >> hits >> dmg >> hitsRecv >> dmgRecv >> weightedHits)
-			{
-				for(plugin_vec_iter i = events[MOD_DAMAGE].begin(); i != events[MOD_DAMAGE].end(); ++i)
-					(*i)->mod_damage(min, sec, num, mod, hits, dmg, hitsRecv, dmgRecv, weightedHits);
-			}
-			else
-				log("Error parsing MODDamage: " << params);
-		}
-		else if(cmd == "PlayerStats:")
-		{
-			//bug(cmd << "(" << params << ")");
-
-			// Player Stats Update
-			// PlayerStats: <client#>
-			// 				<fragsFace> <fragsBack> <fraggedInFace> <fraggedInBack>
-			// 				<spawnKillsDone> <spanwKillsRecv>
-			// 				<pushesDone> <pushesRecv>
-			// 				<healthPickedUp> <armorPickedUp>
-			//				<holyShitFrags> <holyShitFragged>
-			slot num;
-			siz fragsFace, fragsBack, fraggedFace, fraggedBack, spawnKills, spawnKillsRecv;
-			siz pushes, pushesRecv, health, armor, holyShitFrags, holyShitFragged;
-			if(iss >> num >> fragsFace >> fragsBack >> fraggedFace >> fraggedBack >> spawnKills >> spawnKillsRecv
-				   >> pushes >> pushesRecv >> health >> armor >> holyShitFrags >> holyShitFragged)
-			{
-				for(plugin_vec_iter i = events[PLAYER_STATS].begin(); i != events[PLAYER_STATS].end(); ++i)
-				{
-					(*i)->player_stats(min, sec, num,
-						fragsFace, fragsBack, fraggedFace, fraggedBack,
-						spawnKills, spawnKillsRecv, pushes, pushesRecv,
-						health, armor, holyShitFrags, holyShitFragged);
-				}
-			}
-			else
-				log("Error parsing PlayerStats: " << params);
-		}
-		else if(cmd == "CTF:")
-		{
-			if(events[CTF].empty())
-				continue;
-
-			//bug(cmd << "(" << params << ")");
-
-			slot num;
-			siz col, act;
-			if(!(iss >> num >> col >> act) || col < 1 || col > 2)
-				log("Error parsing CTF:" << params);
-			else
-			{
-				for(plugin_vec_iter i = events[CTF].begin()
-					; i != events[CTF].end(); ++i)
-					(*i)->ctf(min, sec, num, col, act);
-			}
-		}
-		else if(cmd == "red:") // BUG: red:(8  blue:6) [Katina.cpp] (662)
-		{
-			//bug(cmd << "(" << params << ")");
-			if(events[CTF_EXIT].empty())
-				continue;
-
-			//bug_var(iss.str());
-			siz r = 0;
-			siz b = 0;
-			str skip;
-			if(!(sgl(iss >> r >> std::ws, skip, ':') >> b))
-				log("Error parsing CTF_EXIT:" << params);
-			else
-			{
-//				bug_var(r);
-//				bug_var(skip);
-//				bug_var(b);
-				for(plugin_vec_iter i = events[CTF_EXIT].begin()
-					; i != events[CTF_EXIT].end(); ++i)
-					(*i)->ctf_exit(min, sec, r, b);
-			}
-		}
-		else if(cmd == "score:") //
-		{
-			//bug(cmd << "(" << params << ")");
-			if(events[SCORE_EXIT].empty())
-				continue;
-
-			int score = 0;
-			siz ping = 0;
-			slot num;
-			str name;
-			// 18:38 score: 200  ping: 7  client: 0 ^5A^6lien ^5S^6urf ^5G^6irl
-			// 18:38 score: 196  ping: 65  client: 5 ^1Lord ^2Zeus
-			// 18:38 score: 121  ping: 200  client: 1 (drunk)Mosey
-			// 18:38 score: 115  ping: 351  client: 2 Wark
-			// 18:38 score: 102  ping: 315  client: 3 Next map
-			// 18:38 score: 89  ping: 235  client: 4 ^1S^3amus ^1A^3ran
-			// 18:38 score: 30  ping: 228  client: 6 ^1LE^0O^4HX
-			// 18:38 score: 6  ping: 50  client: 7 Cyber_Ape
-			if(!sgl(iss >> score >> skip >> ping >> skip >> num >> std::ws, name))
-				log("Error parsing SCORE_EXIT:" << params);
-			else
-			{
-//				bug_var(score);
-//				bug_var(ping);
-//				bug_var(num);
-//				bug_var(name);
-				for(plugin_vec_iter i = events[SCORE_EXIT].begin()
-					; i != events[SCORE_EXIT].end(); ++i)
-					(*i)->score_exit(min, sec, score, ping, num, name);
-			}
- 		}
-		else if((flagspeed = cmd == "SpeedFlag:") || (cmd == "Speed:")) // mod_katina >= 0.1-beta
-		{
-			// 9:35 Speed: 3 1957 13 : Client 3 ran 1957u in 13s without the flag.
-			// 9:35 SpeedFlag: 3 3704 12 : Client 3 ran 3704u in 12s while holding the flag.
-			//bug(cmd << "(" << params << ")");
-			if(events[SPEED].empty())
-				continue;
-
-			slot num;
-			siz dist, time;
-			if(!(iss >> num >> dist >> time))
-				log("Error parsing Speed:" << params);
-			else
-			{
-				for(plugin_vec_iter i = events[SPEED].begin()
-					; i != events[SPEED].end(); ++i)
-					(*i)->speed(min, sec, num, dist, time, flagspeed);
-			}
-		}
-		else if(cmd == "Award:")
-		{
-			//bug(cmd << "(" << params << ")");
-			if(events[AWARD].empty())
-				continue;
-
-			slot num;
-			siz awd;
-			if(!(iss >> num >> awd))
-				log("Error parsing Award:" << params);
-			else
-			{
-				for(plugin_vec_iter i = events[AWARD].begin()
-					; i != events[AWARD].end(); ++i)
-					(*i)->award(min, sec, num, awd);
-			}
-		}
-		else if(cmd == "InitGame:")
-		{
-			//bug(cmd << "(" << params << ")");
-
-			static str key, val;
-
-//			clients.clear();
-//			players.clear();
-//			teams.clear();
-			svars.clear();
-
-			iss.ignore(); // skip initial '\\'
-			while(sgl(sgl(iss, key, '\\'), val, '\\'))
-				svars[key] = val;
-
-			mapname = svars["mapname"];
-
-			if(rerun)
-			{
-				str skip;
-				siz Y, M, D, h, m, s;
-				char c;
-				siss iss(svars["g_timestamp"]);
-				// g_timestamp 2013-05-24 09:34:32
-				if((iss >> Y >> c >> M >> c >> D >> c >> h >> c >> m >> c >> s))
-				{
-					tm t;
-					std::time_t _t = std::time(0);
-					t = *gmtime(&_t);
-					t.tm_year = Y - 1900;
-					t.tm_mon = M;
-					t.tm_mday = D;
-					t.tm_hour = h;
-					t.tm_min = m;
-					t.tm_sec = s;
-					t.tm_isdst = 0;
-					base_now = std::mktime(&t);
-					log("RERUN TIMESTAMP: " << base_now);
-				}
-			}
-
-			str msg = this->name + " ^3Stats System v^7" + version + (tag.size()?"^3-^7":"") + tag;
-			server.cp(msg);
-
-			log("MAP NAME: " << mapname);
-
-			if(events[INIT_GAME].empty())
-				continue;
-
-			for(plugin_vec_iter i = events[INIT_GAME].begin()
-				; i != events[INIT_GAME].end(); ++i)
-				(*i)->init_game(min, sec, svars);
-		}
-		else if(cmd == "Playerstore:")
-		{
-		}
-		else if(cmd == "Restored")
-		{
-		}
-		else if(cmd == "PlayerScore:")
-		{
-		}
-		else if(cmd == "Challenge:")
-		{
-		}
-		else if(cmd == "Info:")
-		{
-		}
-		else if(cmd == "Item:")
-		{
-		}
-		else if(cmd == "score:")
-		{
-		}
-		else if(cmd == "Callvote:") // mod_katina >= 0.1-beta
-		{
-			//   2:14 Callvote: 0 custom nobots: ^1S^2oo^3K^5ee^4|^7AFK has called a vote for 'custom nobots'
-			if(events[LOG_CALLVOTE].empty())
-				continue;
-
-			slot num;
-			str type;
-			str info;
-
-			if(!sgl(iss >> num >> std::ws >> type >> std::ws, info, ':'))
-				log("Error parsing Callvote: "  << params);
-			else
-			{
-				for(plugin_vec_iter i = events[LOG_CALLVOTE].begin()
-					; i != events[LOG_CALLVOTE].end(); ++i)
-					(*i)->callvote(min, sec, num, type, info);
-			}
-		}
-		else if(cmd == "sayteam:")
-		{
-			if(events[SAYTEAM].empty())
-				continue;
-
-			//bug(cmd << "(" << params << ")");
-
-			str text;
-			GUID guid;
-
-			if(extract_name_from_text(line, guid, text))
-				for(plugin_vec_iter i = events[SAYTEAM].begin()
-					; i != events[SAYTEAM].end(); ++i)
-					(*i)->sayteam(min, sec, guid, text);
-		}
-		else if(cmd == "say:")
-		{
-			if(events[SAY].empty())
-				continue;
-
-			str text;
-			GUID guid;
-
-			if(extract_name_from_text(line, guid, text))
-			{
-				if(!text.find("!katina"))
-					builtin_command(guid, text);
+				// 2 5E68E970866FC20242482AA396BBD43E 81.101.111.32
+				if(!(iss >> num >> std::ws >> guid >> std::ws >> ip))
+					nlog("Error parsing ClientConnectInfo: "  << params);
 				else
-					for(plugin_vec_iter i = events[SAY].begin()
-						; i != events[SAY].end(); ++i)
-						(*i)->say(min, sec, guid, text);
+				{
+					for(plugin_vec_iter i = events[CLIENT_CONNECT_INFO].begin()
+						; i != events[CLIENT_CONNECT_INFO].end(); ++i)
+						(*i)->client_connect_info(min, sec, num, GUID(guid), ip);
+				}
 			}
-		}
-		else if(cmd == "chat:")
-		{
-			if(events[CHAT].empty())
-				continue;
+			else if(cmd == "ClientBegin:") // 0:04 ClientBegin: 4
+			{
+				//bug(cmd << "(" << params << ")");
+				if(events[CLIENT_BEGIN].empty())
+					continue;
 
-			for(plugin_vec_iter i = events[CHAT].begin()
-				; i != events[CHAT].end(); ++i)
-				(*i)->chat(min, sec, params);
-		}
-		else
-		{
-			if(events[UNKNOWN].empty())
-				continue;
+				slot num;
+				if(!(iss >> num))
+					nlog("Error parsing ClientBegin: "  << params);
+				else
+				{
+					for(plugin_vec_iter i = events[CLIENT_BEGIN].begin()
+						; i != events[CLIENT_BEGIN].end(); ++i)
+						(*i)->client_begin(min, sec, num);
+				}
+			}
+			else if(cmd == "ClientDisconnect:")
+			{
+				//bug(cmd << "(" << params << ")");
 
-			//bug("UNKNOWN: " << cmd << "(" << params << ")");
+				slot num;
+				if(!(iss >> num))
+					std::cout << "Error parsing ClientDisconnect: "  << params << '\n';
+				else if(num > slot(32))
+				{
+					nlog("ERROR: Client num too high: " << num);
+				}
+				else
+				{
+					GUID guid = getClientGuid(num);
 
-			for(plugin_vec_iter i = events[UNKNOWN].begin()
-				; i != events[UNKNOWN].end(); ++i)
-				(*i)->unknown(min, sec, cmd, params);
+					// Sometimes you get 2 ClientDisconnect: events with
+					// nothing created in between them. These should be ignored.
+					if(guid == null_guid)
+					{
+						// partially connected slot num?
+						clients.erase(num);
+						continue;
+					}
+					// slot numbers are defunct, but keep GUIDs until ShutdownGame
+					getClientGuid(num).disconnect();
+					shutdown_erase.push_back(guid);
+
+					siz teamBefore = teams[getClientGuid(num)];
+					teams[guid] = TEAM_U;
+
+					for(plugin_vec_iter i = events[CLIENT_DISCONNECT].begin()
+						; i != events[CLIENT_DISCONNECT].end(); ++i)
+						(*i)->client_disconnect(min, sec, num);
+
+					   if(teamBefore != TEAM_U && !guid.is_bot())
+							for(plugin_vec_iter i = events[CLIENT_SWITCH_TEAM].begin();
+									i != events[CLIENT_SWITCH_TEAM].end(); ++i)
+								(*i)->client_switch_team(min, sec, num, teamBefore, TEAM_U);
+
+					clients.erase(num);
+				}
+			}
+			else if(cmd == "Kill:")
+			{
+				//bug(cmd << "(" << params << ")");
+				if(events[KILL].empty())
+					continue;
+
+				slot num1, num2;
+				siz weap;
+				if(!(iss >> num1 >> num2 >> weap))
+					nlog("Error parsing Kill:" << params);
+				else
+				{
+					for(plugin_vec_iter i = events[KILL].begin()
+						; i != events[KILL].end(); ++i)
+						(*i)->kill(min, sec, num1, num2, weap);
+				}
+			}
+			else if(cmd == "Push:") // mod_katina only
+			{
+				//bug(cmd << "(" << params << ")");
+				if(events[PUSH].empty())
+					continue;
+
+				slot num1, num2;
+				if(!(iss >> num1 >> num2))
+					nlog("Error parsing Push:" << params);
+				else
+				{
+					for(plugin_vec_iter i = events[PUSH].begin()
+						; i != events[PUSH].end(); ++i)
+						(*i)->push(min, sec, num1, num2);
+				}
+			}
+			else if(cmd == "WeaponUsage:")
+			{
+				//bug(cmd << "(" << params << ")");
+
+				// Weapon Usage Update
+				// WeaponUsage: <client#> <weapon#> <#shotsFired>
+				slot num;
+				siz weap, shots;
+
+				if(iss >> num >> weap >> shots)
+				{
+					for(plugin_vec_iter i = events[WEAPON_USAGE].begin(); i != events[WEAPON_USAGE].end(); ++i)
+						(*i)->weapon_usage(min, sec, num, weap, shots);
+				}
+				else
+					nlog("Error parsing WeaponUsage: " << params);
+			}
+			else if(cmd == "MODDamage:")
+			{
+				//bug(cmd << "(" << params << ")");
+
+				// MOD (Means of Death = Damage Type) Damage Update
+				// MODDamage: <client#> <mod#> <#hits> <damageDone> <#hitsRecv> <damageRecv> <weightedHits>
+				slot num;
+				siz mod, hits, dmg, hitsRecv, dmgRecv;
+				float weightedHits;
+				if(iss >> num >> mod >> hits >> dmg >> hitsRecv >> dmgRecv >> weightedHits)
+				{
+					for(plugin_vec_iter i = events[MOD_DAMAGE].begin(); i != events[MOD_DAMAGE].end(); ++i)
+						(*i)->mod_damage(min, sec, num, mod, hits, dmg, hitsRecv, dmgRecv, weightedHits);
+				}
+				else
+					nlog("Error parsing MODDamage: " << params);
+			}
+			else if(cmd == "PlayerStats:")
+			{
+				//bug(cmd << "(" << params << ")");
+
+				// Player Stats Update
+				// PlayerStats: <client#>
+				// 				<fragsFace> <fragsBack> <fraggedInFace> <fraggedInBack>
+				// 				<spawnKillsDone> <spanwKillsRecv>
+				// 				<pushesDone> <pushesRecv>
+				// 				<healthPickedUp> <armorPickedUp>
+				//				<holyShitFrags> <holyShitFragged>
+				slot num;
+				siz fragsFace, fragsBack, fraggedFace, fraggedBack, spawnKills, spawnKillsRecv;
+				siz pushes, pushesRecv, health, armor, holyShitFrags, holyShitFragged;
+				if(iss >> num >> fragsFace >> fragsBack >> fraggedFace >> fraggedBack >> spawnKills >> spawnKillsRecv
+					   >> pushes >> pushesRecv >> health >> armor >> holyShitFrags >> holyShitFragged)
+				{
+					for(plugin_vec_iter i = events[PLAYER_STATS].begin(); i != events[PLAYER_STATS].end(); ++i)
+					{
+						(*i)->player_stats(min, sec, num,
+							fragsFace, fragsBack, fraggedFace, fraggedBack,
+							spawnKills, spawnKillsRecv, pushes, pushesRecv,
+							health, armor, holyShitFrags, holyShitFragged);
+					}
+				}
+				else
+					nlog("Error parsing PlayerStats: " << params);
+			}
+			else if(cmd == "CTF:")
+			{
+				if(events[CTF].empty())
+					continue;
+
+				//bug(cmd << "(" << params << ")");
+
+				slot num;
+				siz col, act;
+				if(!(iss >> num >> col >> act) || col < 1 || col > 2)
+					nlog("Error parsing CTF:" << params);
+				else
+				{
+					for(plugin_vec_iter i = events[CTF].begin()
+						; i != events[CTF].end(); ++i)
+						(*i)->ctf(min, sec, num, col, act);
+				}
+			}
+			else if(cmd == "red:") // BUG: red:(8  blue:6) [Katina.cpp] (662)
+			{
+				//bug(cmd << "(" << params << ")");
+				if(events[CTF_EXIT].empty())
+					continue;
+
+				//bug_var(iss.str());
+				siz r = 0;
+				siz b = 0;
+				str skip;
+				if(!(sgl(iss >> r >> std::ws, skip, ':') >> b))
+					nlog("Error parsing CTF_EXIT:" << params);
+				else
+				{
+	//				bug_var(r);
+	//				bug_var(skip);
+	//				bug_var(b);
+					for(plugin_vec_iter i = events[CTF_EXIT].begin()
+						; i != events[CTF_EXIT].end(); ++i)
+						(*i)->ctf_exit(min, sec, r, b);
+				}
+			}
+			else if(cmd == "score:") //
+			{
+				//bug(cmd << "(" << params << ")");
+				if(events[SCORE_EXIT].empty())
+					continue;
+
+				int score = 0;
+				siz ping = 0;
+				slot num;
+				str name;
+				// 18:38 score: 200  ping: 7  client: 0 ^5A^6lien ^5S^6urf ^5G^6irl
+				// 18:38 score: 196  ping: 65  client: 5 ^1Lord ^2Zeus
+				// 18:38 score: 121  ping: 200  client: 1 (drunk)Mosey
+				// 18:38 score: 115  ping: 351  client: 2 Wark
+				// 18:38 score: 102  ping: 315  client: 3 Next map
+				// 18:38 score: 89  ping: 235  client: 4 ^1S^3amus ^1A^3ran
+				// 18:38 score: 30  ping: 228  client: 6 ^1LE^0O^4HX
+				// 18:38 score: 6  ping: 50  client: 7 Cyber_Ape
+				if(!sgl(iss >> score >> skip >> ping >> skip >> num >> std::ws, name))
+					nlog("Error parsing SCORE_EXIT:" << params);
+				else
+				{
+	//				bug_var(score);
+	//				bug_var(ping);
+	//				bug_var(num);
+	//				bug_var(name);
+					for(plugin_vec_iter i = events[SCORE_EXIT].begin()
+						; i != events[SCORE_EXIT].end(); ++i)
+						(*i)->score_exit(min, sec, score, ping, num, name);
+				}
+			}
+			else if((flagspeed = cmd == "SpeedFlag:") || (cmd == "Speed:")) // mod_katina >= 0.1-beta
+			{
+				// 9:35 Speed: 3 1957 13 : Client 3 ran 1957u in 13s without the flag.
+				// 9:35 SpeedFlag: 3 3704 12 : Client 3 ran 3704u in 12s while holding the flag.
+				//bug(cmd << "(" << params << ")");
+				if(events[SPEED].empty())
+					continue;
+
+				slot num;
+				siz dist, time;
+				if(!(iss >> num >> dist >> time))
+					nlog("Error parsing Speed:" << params);
+				else
+				{
+					for(plugin_vec_iter i = events[SPEED].begin()
+						; i != events[SPEED].end(); ++i)
+						(*i)->speed(min, sec, num, dist, time, flagspeed);
+				}
+			}
+			else if(cmd == "Award:")
+			{
+				//bug(cmd << "(" << params << ")");
+				if(events[AWARD].empty())
+					continue;
+
+				slot num;
+				siz awd;
+				if(!(iss >> num >> awd))
+					nlog("Error parsing Award:" << params);
+				else
+				{
+					for(plugin_vec_iter i = events[AWARD].begin()
+						; i != events[AWARD].end(); ++i)
+						(*i)->award(min, sec, num, awd);
+				}
+			}
+			else if(cmd == "InitGame:")
+			{
+				//bug(cmd << "(" << params << ")");
+
+				static str key, val;
+
+	//			clients.clear();
+	//			players.clear();
+	//			teams.clear();
+				svars.clear();
+
+				iss.ignore(); // skip initial '\\'
+				while(sgl(sgl(iss, key, '\\'), val, '\\'))
+					svars[key] = val;
+
+				mapname = svars["mapname"];
+
+				if(rerun)
+				{
+					str skip;
+					siz Y, M, D, h, m, s;
+					char c;
+					siss iss(svars["g_timestamp"]);
+					// g_timestamp 2013-05-24 09:34:32
+					if((iss >> Y >> c >> M >> c >> D >> c >> h >> c >> m >> c >> s))
+					{
+						tm t;
+						std::time_t _t = std::time(0);
+						t = *gmtime(&_t);
+						t.tm_year = Y - 1900;
+						t.tm_mon = M;
+						t.tm_mday = D;
+						t.tm_hour = h;
+						t.tm_min = m;
+						t.tm_sec = s;
+						t.tm_isdst = 0;
+						base_now = std::mktime(&t);
+						nlog("RERUN TIMESTAMP: " << base_now);
+					}
+				}
+
+				str msg = this->name + " ^3Stats System v^7" + version + (tag.size()?"^3-^7":"") + tag;
+				server.cp(msg);
+
+				nlog("MAP NAME: " << mapname);
+
+				if(events[INIT_GAME].empty())
+					continue;
+
+				for(plugin_vec_iter i = events[INIT_GAME].begin()
+					; i != events[INIT_GAME].end(); ++i)
+					(*i)->init_game(min, sec, svars);
+			}
+			else if(cmd == "Playerstore:")
+			{
+			}
+			else if(cmd == "Restored")
+			{
+			}
+			else if(cmd == "PlayerScore:")
+			{
+			}
+			else if(cmd == "Challenge:")
+			{
+			}
+			else if(cmd == "Info:")
+			{
+			}
+			else if(cmd == "Item:")
+			{
+			}
+			else if(cmd == "score:")
+			{
+			}
+			else if(cmd == "Callvote:") // mod_katina >= 0.1-beta
+			{
+				//   2:14 Callvote: 0 custom nobots: ^1S^2oo^3K^5ee^4|^7AFK has called a vote for 'custom nobots'
+				if(events[LOG_CALLVOTE].empty())
+					continue;
+
+				slot num;
+				str type;
+				str info;
+
+				if(!sgl(iss >> num >> std::ws >> type >> std::ws, info, ':'))
+					nlog("Error parsing Callvote: "  << params);
+				else
+				{
+					for(plugin_vec_iter i = events[LOG_CALLVOTE].begin()
+						; i != events[LOG_CALLVOTE].end(); ++i)
+						(*i)->callvote(min, sec, num, type, info);
+				}
+			}
+			else if(cmd == "sayteam:")
+			{
+				if(events[SAYTEAM].empty())
+					continue;
+
+				//bug(cmd << "(" << params << ")");
+
+				str text;
+				GUID guid;
+
+				if(extract_name_from_text(line, guid, text))
+					for(plugin_vec_iter i = events[SAYTEAM].begin()
+						; i != events[SAYTEAM].end(); ++i)
+						(*i)->sayteam(min, sec, guid, text);
+			}
+			else if(cmd == "say:")
+			{
+				if(events[SAY].empty())
+					continue;
+
+				str text;
+				GUID guid;
+
+				if(extract_name_from_text(line, guid, text))
+				{
+					if(!text.find("!katina"))
+						builtin_command(guid, text);
+					else
+						for(plugin_vec_iter i = events[SAY].begin()
+							; i != events[SAY].end(); ++i)
+							(*i)->say(min, sec, guid, text);
+				}
+			}
+			else if(cmd == "chat:")
+			{
+				if(events[CHAT].empty())
+					continue;
+
+				for(plugin_vec_iter i = events[CHAT].begin()
+					; i != events[CHAT].end(); ++i)
+					(*i)->chat(min, sec, params);
+			}
+			else
+			{
+				if(events[UNKNOWN].empty())
+					continue;
+
+				//bug("UNKNOWN: " << cmd << "(" << params << ")");
+
+				for(plugin_vec_iter i = events[UNKNOWN].begin()
+					; i != events[UNKNOWN].end(); ++i)
+					(*i)->unknown(min, sec, cmd, params);
+			}
+			//pthread_mutex_unlock(&cvarevts_mtx);
 		}
-		//pthread_mutex_unlock(&cvarevts_mtx);
+
+		// only process first logfile when
+		// running live
+		if(!rerun)
+			break;
 	}
-
 	return true;
 }
 
