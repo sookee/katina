@@ -60,6 +60,11 @@ private:
 //			this->data[i] = data[i];
 //	}
 
+	bool is_bot_data()
+	{
+		return data.size() == 8 && data[0] == 'B' && data.substr(1) < "0000064";
+	}
+
 public:
 
 	GUID(): data(SIZE, '0'), bot(false)
@@ -78,7 +83,7 @@ public:
 	{
 		for(siz i = 0; i < SIZE && i < data.size(); ++i)
 			this->data[i] = data[i];
-		bot = this->data[0] == 'B';
+		bot = is_bot_data();
 	}
 
 	/**
@@ -160,8 +165,9 @@ public:
 			guid = GUID(s.substr(24));
 		else
 			is.setstate(std::ios::failbit);
-		if(guid.data.size() == 8 && guid.data[0] == 'B' && guid.data.substr(1) < "0000064")
-			guid.bot = true;
+//		if(guid.data.size() == 8 && guid.data[0] == 'B' && guid.data.substr(1) < "0000064")
+//			guid.bot = true;
+		guid.bot = guid.is_bot_data();
 		if(guid.data == "00000000")
 			guid.connected = false;
 		return is;
