@@ -44,6 +44,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <pthread.h>
 #include <memory>
 #include <map>
+#include <array>
 
 int main(const int argc, const char* argv[]);
 
