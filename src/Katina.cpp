@@ -573,10 +573,10 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 						+ (p.first.is_bot()?" (BOT)":"")
 						+ (p.first.is_connected()?"":" (Disconnected)"));
 			}
-			else if(type == "conected" || type == "data")
+			else if(type == "connected" || type == "data")
 			{
 				siz c = std::count_if(connected.begin(), connected.end(), [](const bool& b){return b;});
-				server.msg_to(num, "conected: " + std::to_string(c));
+				server.msg_to(num, "connected: " + std::to_string(c));
 				for(bool b: connected)
 					server.msg_to(num, " {" + std::to_string(c) + ": " + std::to_string(b) + "}");
 			}
