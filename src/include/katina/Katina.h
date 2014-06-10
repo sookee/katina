@@ -43,6 +43,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <list>
 #include <pthread.h>
 #include <memory>
+#include <map>
 
 int main(const int argc, const char* argv[]);
 
@@ -210,13 +211,8 @@ private:
 	bool done;
 	bool active;
 
-	typedef std::map<str, str_vec> property_map;
-	typedef std::pair<const str, str_vec> property_map_pair;
-	typedef property_map::iterator property_map_iter;
-	typedef property_map::const_iterator property_map_citer;
-
-	typedef std::pair<property_map_iter, property_map_iter> property_map_iter_pair;
-	typedef std::pair<property_map_iter, property_map_iter> property_map_range;
+	TYPEDEF_MAP(str, str_vec, property_map);
+	TYPEDEF_LST(slot, slot_lst);
 
 	str name;
 	str plugin;
@@ -245,10 +241,11 @@ private:
 	void builtin_command(const GUID& guid, const str& text);
 
 	// disconnected guid keys are kept here until ShutdownGame
-    guid_lst shutdown_erase; // disconnected list
+    //guid_lst shutdown_erase; // disconnected list
 
 	// We try to keep map keys GUID based as slot numbers are defunct as soon
 	// as a client disconnects.
+    std::array<bool, MAX_CLIENTS> connected;
 	slot_guid_map clients; // slot -> GUID // cleared when players disconnect and on game_begin()
 	guid_str_map players; // GUID -> name  // cleard before game_begin()
 	guid_siz_map teams; // GUID -> 0,1,2,3 // cleared when players disconnect and on game_begin()
@@ -296,13 +293,7 @@ public:
 	 */
 	bool is_disconnected(const GUID& guid) const
 	{
-		if(getClientSlot(guid) == bad_slot)
-			return true;
-
-		if(std::find(shutdown_erase.begin(), shutdown_erase.end(), guid) != shutdown_erase.end())
-			return true;
-
-		return false;
+		return !guid.is_connected();
 	}
 
 	/**
@@ -310,7 +301,7 @@ public:
 	 */
 	bool is_connected(slot num)
 	{
-		return clients.find(num) != clients.end();
+		return connected[siz(num)];
 	}
 
 	str_map svars; // server variables

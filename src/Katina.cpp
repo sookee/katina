@@ -573,13 +573,12 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 						+ (p.first.is_bot()?" (BOT)":"")
 						+ (p.first.is_connected()?"":" (Disconnected)"));
 			}
-			else if(type == "erase" || type == "data")
+			else if(type == "conected" || type == "data")
 			{
-				server.msg_to(num, "shutdown_erase: " + std::to_string(shutdown_erase.size()));
-				for(const GUID& guid: shutdown_erase)
-					server.msg_to(num, " {" + str(guid) + "}"
-						+ (guid.is_bot()?" (BOT)":"")
-						+ (guid.is_connected()?"":" (Disconnected)"));
+				siz c = std::count_if(connected.begin(), connected.end(), [](const bool& b){return b;});
+				server.msg_to(num, "conected: " + std::to_string(c));
+				for(bool b: connected)
+					server.msg_to(num, " {" + std::to_string(c) + ": " + std::to_string(b) + "}");
 			}
 		}
 		else if(cmd == "plugin")
@@ -1007,7 +1006,7 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 				{
 					// Don't trust ClientUserInfoChanged: messages until
 					// we see a ClientConnect: for this slot number
-					nlog("Disconnected ClientUserinfoChange");
+					nlog("Disconnected ClientUserinfoChange: ");
 				}
 				else
 				{
@@ -1027,7 +1026,7 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 							log("ERROR: Parsing handicap: " << line.substr(pos + 4));
 					}
 
-					shutdown_erase.remove(guid); // must have re-joined
+//					shutdown_erase.remove(guid); // must have re-joined
 
 //					if(clients.find(num) && clients[num] != guid)
 //						nlog("WARN: clients already contains guid: {" << num << ", " << clients[num] << "}");
@@ -1050,56 +1049,60 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 			{
 				if(!is_connected(num))
 					clients[num] = null_guid; // connecting
+				connected[siz(num)] = true;
 			}
 		}
 		else if(cmd == "ShutdownGame:")
 		{
+			clients.clear();
+			players.clear();
+			teams.clear();
 			// these are clients that disconnected before the game ended
 			//nlog("SHUTDOWN ERASE: dumping: " << std::to_string(shutdown_erase.size()));
-			siz nt = teams.size() - shutdown_erase.size();
-			siz np = players.size() - shutdown_erase.size();
-			for(const GUID& guid: shutdown_erase)
-			{
-				//nlog("SHUTDOWN ERASE: " << guid);
-				teams.erase(guid);
-				players.erase(guid);
-			}
-			if(nt != teams.size())
-				nlog("WARN: erase discrepancy in teams: have: " << teams.size() << " expected: " << nt << " at: " << n);
-			if(np != players.size())
-				nlog("WARN: erase discrepancy in players: have: " << players.size() << " expected: " << np << " at: " << n);
-
-			shutdown_erase.clear();
-
-			if(clients.size() != players.size())
-				nlog("WARN: discrepancy between clients: " << clients.size() << " and players: " << players.size());
-			if(clients.size() != teams.size())
-				nlog("WARN: discrepancy between clients: " << clients.size() << " and teams: " << teams.size());
-
-			// ATTEMPT TO FIX shutdown erase
-			for(const guid_str_map_vt& p: players)
-				if(std::find_if(clients.begin(), clients.end(), [&p](const slot_guid_map_vt& c){return c.second == p.first;}) == clients.end())
-					shutdown_erase.push_back(p.first);
-
-			for(const guid_siz_map_vt& t: teams)
-				if(std::find_if(clients.begin(), clients.end(), [&t](const slot_guid_map_vt& c){return c.second == t.first;}) == clients.end())
-					shutdown_erase.push_back(t.first);
-
-			if(!shutdown_erase.empty())
-			{
-				nlog("SHUTDOWN ERASE FIXUP");
-				for(const GUID& guid: shutdown_erase)
-				{
-					nlog("SHUTDOWN ERASE FIXUP: " << guid);
-					teams.erase(guid);
-					players.erase(guid);
-				}
-				nlog("DID WE FIX IT?");
-				if(clients.size() != players.size())
-					nlog("WARN: discrepancy between clients: " << clients.size() << " and players: " << players.size());
-				if(clients.size() != teams.size())
-					nlog("WARN: discrepancy between clients: " << clients.size() << " and teams: " << teams.size());
-			}
+//			siz nt = teams.size() - shutdown_erase.size();
+//			siz np = players.size() - shutdown_erase.size();
+//			for(const GUID& guid: shutdown_erase)
+//			{
+//				//nlog("SHUTDOWN ERASE: " << guid);
+//				teams.erase(guid);
+//				players.erase(guid);
+//			}
+//			if(nt != teams.size())
+//				nlog("WARN: erase discrepancy in teams: have: " << teams.size() << " expected: " << nt << " at: " << n);
+//			if(np != players.size())
+//				nlog("WARN: erase discrepancy in players: have: " << players.size() << " expected: " << np << " at: " << n);
+//
+//			shutdown_erase.clear();
+//
+//			if(clients.size() != players.size())
+//				nlog("WARN: discrepancy between clients: " << clients.size() << " and players: " << players.size());
+//			if(clients.size() != teams.size())
+//				nlog("WARN: discrepancy between clients: " << clients.size() << " and teams: " << teams.size());
+//
+//			// ATTEMPT TO FIX shutdown erase
+//			for(const guid_str_map_vt& p: players)
+//				if(std::find_if(clients.begin(), clients.end(), [&p](const slot_guid_map_vt& c){return c.second == p.first;}) == clients.end())
+//					shutdown_erase.push_back(p.first);
+//
+//			for(const guid_siz_map_vt& t: teams)
+//				if(std::find_if(clients.begin(), clients.end(), [&t](const slot_guid_map_vt& c){return c.second == t.first;}) == clients.end())
+//					shutdown_erase.push_back(t.first);
+//
+//			if(!shutdown_erase.empty())
+//			{
+//				nlog("SHUTDOWN ERASE FIXUP");
+//				for(const GUID& guid: shutdown_erase)
+//				{
+//					nlog("SHUTDOWN ERASE FIXUP: " << guid);
+//					teams.erase(guid);
+//					players.erase(guid);
+//				}
+//				nlog("DID WE FIX IT?");
+//				if(clients.size() != players.size())
+//					nlog("WARN: discrepancy between clients: " << clients.size() << " and players: " << players.size());
+//				if(clients.size() != teams.size())
+//					nlog("WARN: discrepancy between clients: " << clients.size() << " and teams: " << teams.size());
+//			}
 		}
 		else if(cmd == "ClientDisconnect:")
 		{
@@ -1112,6 +1115,7 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 			}
 			else
 			{
+				connected[siz(num)] = false;
 				// slot numbers are defunct, but keep GUIDs until ShutdownGame
 				const GUID& guid = getClientGuid(num);
 
@@ -1125,9 +1129,8 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 				}
 
 				getClientGuid(num).disconnect();
-				shutdown_erase.push_back(guid);
+//				shutdown_erase.push_back(guid);
 				teams[guid] = TEAM_U;
-
 				clients.erase(num);
 			}
 		}
@@ -1143,6 +1146,10 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 			// 2 5E68E970866FC20242482AA396BBD43E 81.101.111.32
 			if(!(iss >> num >> std::ws >> guid >> std::ws >> ip))
 				log("Error parsing ClientConnectInfo: "  << params);
+			else if(!is_connected(num))
+			{
+				// ignore this event until it occurs at a reliable place
+			}
 			else
 			{
 				if(playerdb)
@@ -1349,25 +1356,29 @@ bool Katina::start(const str& dir)
 					; i != events[SHUTDOWN_GAME].end(); ++i)
 					(*i)->shutdown_game(min, sec);
 
+				clients.clear();
+				players.clear();
+				teams.clear();
+
 				// these are clients that disconnected before the game ended
-				nlog("SHUTDOWN ERASE: dumping: " << std::to_string(shutdown_erase.size()));
-				siz nt = teams.size() - shutdown_erase.size();
-				siz np = players.size() - shutdown_erase.size();
-				for(const GUID& guid: shutdown_erase)
-				{
-					nlog("SHUTDOWN ERASE: " << guid);
-					teams.erase(guid);
-					players.erase(guid);
-				}
-				if(nt != teams.size())
-					nlog("WARN: erase discrepancy in teams: have: " << teams.size() << " expected: " << nt << " at: " << n);
-				if(np != players.size())
-					nlog("WARN: erase discrepancy in players: have: " << players.size() << " expected: " << np << " at: " << n);
-				shutdown_erase.clear();
-				if(clients.size() != players.size())
-					nlog("WARN: discrepancy between clients: " << clients.size() << " and players: " << players.size());
-				if(clients.size() != teams.size())
-					nlog("WARN: discrepancy between clients: " << clients.size() << " and teams: " << teams.size());
+//				nlog("SHUTDOWN ERASE: dumping: " << std::to_string(shutdown_erase.size()));
+//				siz nt = teams.size() - shutdown_erase.size();
+//				siz np = players.size() - shutdown_erase.size();
+//				for(const GUID& guid: shutdown_erase)
+//				{
+//					nlog("SHUTDOWN ERASE: " << guid);
+//					teams.erase(guid);
+//					players.erase(guid);
+//				}
+//				if(nt != teams.size())
+//					nlog("WARN: erase discrepancy in teams: have: " << teams.size() << " expected: " << nt << " at: " << n);
+//				if(np != players.size())
+//					nlog("WARN: erase discrepancy in players: have: " << players.size() << " expected: " << np << " at: " << n);
+//				shutdown_erase.clear();
+//				if(clients.size() != players.size())
+//					nlog("WARN: discrepancy between clients: " << clients.size() << " and players: " << players.size());
+//				if(clients.size() != teams.size())
+//					nlog("WARN: discrepancy between clients: " << clients.size() << " and teams: " << teams.size());
 			}
 			else if(cmd == "Warmup:")
 			{
@@ -1401,7 +1412,7 @@ bool Katina::start(const str& dir)
 					{
 						// Don't trust ClientUserInfoChanged: messages until
 						// we see a ClientConnect: for this slot number
-						nlog("Disconnected ClientUserinfoChange");
+						nlog("Disconnected ClientUserinfoChange: ");
 					}
 					else
 					{
@@ -1421,7 +1432,7 @@ bool Katina::start(const str& dir)
 								nlog("ERROR: Parsing handicap: " << line.substr(pos + 4));
 						}
 
-						shutdown_erase.remove(guid); // must have re-joined
+						//shutdown_erase.remove(guid); // must have re-joined
 
 						clients[num] = guid;
 						players[guid] = name;
@@ -1452,6 +1463,7 @@ bool Katina::start(const str& dir)
 					for(plugin_vec_iter i = events[CLIENT_CONNECT].begin()
 						; i != events[CLIENT_CONNECT].end(); ++i)
 						(*i)->client_connect(min, sec, num);
+					connected[siz(num)] = true;
 				}
 			}
 			else if(cmd == "ClientConnectInfo:")
@@ -1469,8 +1481,13 @@ bool Katina::start(const str& dir)
 				// 2 5E68E970866FC20242482AA396BBD43E 81.101.111.32
 				if(!(iss >> num >> std::ws >> guid >> std::ws >> ip))
 					nlog("Error parsing ClientConnectInfo: "  << params);
+				else if(!is_connected(num))
+				{
+					// ignore this event until it occurs at a reliable place
+				}
 				else
 				{
+					nlog("FOUND: Reliable ClientConnectInfo: event?");
 					for(plugin_vec_iter i = events[CLIENT_CONNECT_INFO].begin()
 						; i != events[CLIENT_CONNECT_INFO].end(); ++i)
 						(*i)->client_connect_info(min, sec, num, GUID(guid), ip);
@@ -1478,7 +1495,6 @@ bool Katina::start(const str& dir)
 			}
 			else if(cmd == "ClientBegin:") // 0:04 ClientBegin: 4
 			{
-				//bug(cmd << "(" << params << ")");
 				if(events[CLIENT_BEGIN].empty())
 					continue;
 
@@ -1505,6 +1521,7 @@ bool Katina::start(const str& dir)
 				}
 				else
 				{
+					connected[siz(num)] = false;
 					GUID guid = getClientGuid(num);
 
 					// Sometimes you get 2 ClientDisconnect: events with
@@ -1517,7 +1534,7 @@ bool Katina::start(const str& dir)
 					}
 					// slot numbers are defunct, but keep GUIDs until ShutdownGame
 					getClientGuid(num).disconnect();
-					shutdown_erase.push_back(guid);
+					//shutdown_erase.push_back(guid);
 
 					siz teamBefore = teams[getClientGuid(num)];
 					teams[guid] = TEAM_U;
@@ -1536,7 +1553,6 @@ bool Katina::start(const str& dir)
 			}
 			else if(cmd == "Kill:")
 			{
-				//bug(cmd << "(" << params << ")");
 				if(events[KILL].empty())
 					continue;
 
@@ -1569,8 +1585,6 @@ bool Katina::start(const str& dir)
 			}
 			else if(cmd == "WeaponUsage:")
 			{
-				//bug(cmd << "(" << params << ")");
-
 				// Weapon Usage Update
 				// WeaponUsage: <client#> <weapon#> <#shotsFired>
 				slot num;
@@ -1586,8 +1600,6 @@ bool Katina::start(const str& dir)
 			}
 			else if(cmd == "MODDamage:")
 			{
-				//bug(cmd << "(" << params << ")");
-
 				// MOD (Means of Death = Damage Type) Damage Update
 				// MODDamage: <client#> <mod#> <#hits> <damageDone> <#hitsRecv> <damageRecv> <weightedHits>
 				slot num;
@@ -1603,8 +1615,6 @@ bool Katina::start(const str& dir)
 			}
 			else if(cmd == "PlayerStats:")
 			{
-				//bug(cmd << "(" << params << ")");
-
 				// Player Stats Update
 				// PlayerStats: <client#>
 				// 				<fragsFace> <fragsBack> <fraggedInFace> <fraggedInBack>
@@ -1634,8 +1644,6 @@ bool Katina::start(const str& dir)
 				if(events[CTF].empty())
 					continue;
 
-				//bug(cmd << "(" << params << ")");
-
 				slot num;
 				siz col, act;
 				if(!(iss >> num >> col >> act) || col < 1 || col > 2)
@@ -1649,11 +1657,9 @@ bool Katina::start(const str& dir)
 			}
 			else if(cmd == "red:") // BUG: red:(8  blue:6) [Katina.cpp] (662)
 			{
-				//bug(cmd << "(" << params << ")");
 				if(events[CTF_EXIT].empty())
 					continue;
 
-				//bug_var(iss.str());
 				siz r = 0;
 				siz b = 0;
 				str skip;
@@ -1661,9 +1667,6 @@ bool Katina::start(const str& dir)
 					nlog("Error parsing CTF_EXIT:" << params);
 				else
 				{
-	//				bug_var(r);
-	//				bug_var(skip);
-	//				bug_var(b);
 					for(plugin_vec_iter i = events[CTF_EXIT].begin()
 						; i != events[CTF_EXIT].end(); ++i)
 						(*i)->ctf_exit(min, sec, r, b);
@@ -1679,22 +1682,11 @@ bool Katina::start(const str& dir)
 				siz ping = 0;
 				slot num;
 				str name;
-				// 18:38 score: 200  ping: 7  client: 0 ^5A^6lien ^5S^6urf ^5G^6irl
-				// 18:38 score: 196  ping: 65  client: 5 ^1Lord ^2Zeus
-				// 18:38 score: 121  ping: 200  client: 1 (drunk)Mosey
-				// 18:38 score: 115  ping: 351  client: 2 Wark
-				// 18:38 score: 102  ping: 315  client: 3 Next map
-				// 18:38 score: 89  ping: 235  client: 4 ^1S^3amus ^1A^3ran
-				// 18:38 score: 30  ping: 228  client: 6 ^1LE^0O^4HX
-				// 18:38 score: 6  ping: 50  client: 7 Cyber_Ape
+
 				if(!sgl(iss >> score >> skip >> ping >> skip >> num >> std::ws, name))
 					nlog("Error parsing SCORE_EXIT:" << params);
 				else
 				{
-	//				bug_var(score);
-	//				bug_var(ping);
-	//				bug_var(num);
-	//				bug_var(name);
 					for(plugin_vec_iter i = events[SCORE_EXIT].begin()
 						; i != events[SCORE_EXIT].end(); ++i)
 						(*i)->score_exit(min, sec, score, ping, num, name);

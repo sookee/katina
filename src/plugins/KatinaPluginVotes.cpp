@@ -174,6 +174,8 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 	{
 		if(i->second.is_bot())
 			continue;
+		if(!katina.is_connected(i->first))
+			continue;
 
 		pbug("ANNOUNCING VOTE TO: " << i->second << " " << katina.getPlayerName(i->second));
 

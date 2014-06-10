@@ -47,55 +47,69 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <fstream>
 #include <iostream>
 
-namespace katina { namespace types {
+// TODO: mode to "defs.h"
+#define MAX_CLIENTS 64
 
-#define TYPEDEF_CONTAINER_T(def) \
-typedef def::value_type def##_vt; \
-typedef def::iterator def##_iter; \
-typedef def::const_iterator def##_citer; \
-typedef def::reverse_iterator def##_riter; \
-typedef def::const_reverse_iterator def##_criter
+#define TYPEDEF_CONTAINER_T(name) \
+	typedef name::value_type name##_vt; \
+	typedef name::iterator name##_iter; \
+	typedef name::const_iterator name##_citer; \
+	typedef name::reverse_iterator name##_riter; \
+	typedef name::const_reverse_iterator name##_criter
 
 /**
  * Single parameter containers
  */
-#define TYPEDEF_CONTAINER_1(type, p, def) \
-typedef type<p> def; \
-TYPEDEF_CONTAINER_T(def)
+#define TYPEDEF_CONTAINER_1(type, t, name) \
+	typedef type<t> name; \
+	TYPEDEF_CONTAINER_T(name)
 
 /**
  * Two parameter containers
  */
-#define TYPEDEF_CONTAINER_2(type, p1, p2, def) \
-typedef type<p1,p2> def; \
-TYPEDEF_CONTAINER_T(def)
+#define TYPEDEF_CONTAINER_2(type, t1, t2, name) \
+	typedef type<t1,t2> name; \
+	TYPEDEF_CONTAINER_T(name)
 
-#define TYPEDEF_DEQ(def, name) \
-	TYPEDEF_CONTAINER_1(std::deque, def, name##_deq)
+#define TYPEDEF_DEQ(type, name) \
+	TYPEDEF_CONTAINER_1(std::deque, type, name)
 
-#define TYPEDEF_QUE(def, name) \
-	TYPEDEF_CONTAINER_1(std::queue, def, name##_que)
+#define TYPEDEF_QUE(type, name) \
+	TYPEDEF_CONTAINER_1(std::queue, type, name)
 
-#define TYPEDEF_PQUE(def, name) \
-	TYPEDEF_CONTAINER_1(std::priority_queue, def, name##_pque)
+#define TYPEDEF_PQUE(type, name) \
+	TYPEDEF_CONTAINER_1(std::priority_queue, type, name)
 
-#define TYPEDEF_SET(def, name) \
-	TYPEDEF_CONTAINER_1(std::set, def, name##_set)
+#define TYPEDEF_SET(type, name) \
+	TYPEDEF_CONTAINER_1(std::set, type, name)
 
-#define TYPEDEF_MSET(def, name) \
-	TYPEDEF_CONTAINER_1(std::multiset, def, name##_mset)
+#define TYPEDEF_MSET(type, name) \
+	TYPEDEF_CONTAINER_1(std::multiset, type, name)
 
-#define TYPEDEF_USET(def, name) \
-	TYPEDEF_CONTAINER_1(std::unordered_set, def, name##_uset)
+#define TYPEDEF_USET(type, name) \
+	TYPEDEF_CONTAINER_1(std::unordered_set, type, name)
 
-#define TYPEDEF_LST(def, name) \
-	TYPEDEF_CONTAINER_1(std::list, def, name##_lst)
+#define TYPEDEF_LST(type, name) \
+	TYPEDEF_CONTAINER_1(std::list, type, name)
 
-#define TYPEDEF_FLST(def, name) \
-	TYPEDEF_CONTAINER_1(std::foreward_list, def, name##_flst)
+#define TYPEDEF_FLST(type, name) \
+	TYPEDEF_CONTAINER_1(std::foreward_list, type, name)
 
-#define TYPEDEF_VEC(def, name) \
-	TYPEDEF_CONTAINER_1(std::vector, def, name##_vec)
+#define TYPEDEF_VEC(type, name) \
+	TYPEDEF_CONTAINER_1(std::vector, type, name)
+
+#define TYPEDEF_PAIR(type1, type2, name) \
+	typedef std::pair<type1,type2> name
+
+#define TYPEDEF_MAP(type1, type2, name) \
+	TYPEDEF_CONTAINER_2(std::map, type1, type2, name); \
+	TYPEDEF_PAIR(name##_iter, name##_iter, name##_range)
+
+#define TYPEDEF_MMAP(type1, type2, name) \
+	TYPEDEF_CONTAINER_2(std::multimap, type1, type2, name); \
+	TYPEDEF_PAIR(name##_iter, name##_iter, name##_range)
+
+namespace katina { namespace types {
 
 //-- TYPES ---------------------------------------------
 
@@ -107,35 +121,36 @@ typedef std::string str;
 typedef str::iterator str_iter;
 typedef str::const_iterator str_citer;
 
-TYPEDEF_CONTAINER_1(std::vector, int, int_vec);
-TYPEDEF_CONTAINER_1(std::vector, siz, siz_vec);
-TYPEDEF_CONTAINER_1(std::vector, str, str_vec);
+TYPEDEF_VEC(int, int_vec);
+TYPEDEF_VEC(siz, siz_vec);
+TYPEDEF_VEC(str, str_vec);
 
-TYPEDEF_CONTAINER_1(std::set, int, int_set);
-TYPEDEF_CONTAINER_1(std::set, siz, siz_set);
-TYPEDEF_CONTAINER_1(std::set, str, str_set);
+TYPEDEF_SET(int, int_set);
+TYPEDEF_SET(siz, siz_set);
+TYPEDEF_SET(str, str_set);
 
-TYPEDEF_CONTAINER_1(std::multiset, int, int_mset);
-TYPEDEF_CONTAINER_1(std::multiset, siz, siz_mset);
-TYPEDEF_CONTAINER_1(std::multiset, str, str_mset);
+TYPEDEF_MSET(int, int_mset);
+TYPEDEF_MSET(siz, siz_mset);
+TYPEDEF_MSET(str, str_mset);
 
-TYPEDEF_CONTAINER_2(std::map, int, int, int_map);
-TYPEDEF_CONTAINER_2(std::map, siz, siz, siz_map);
-TYPEDEF_CONTAINER_2(std::map, str, str, str_map);
+TYPEDEF_MAP(int, int, int_map);
+TYPEDEF_MAP(siz, siz, siz_map);
+TYPEDEF_MAP(str, str, str_map);
 
-TYPEDEF_CONTAINER_2(std::multimap, int, int, int_mmap);
-TYPEDEF_CONTAINER_2(std::multimap, siz, siz, siz_mmap);
-TYPEDEF_CONTAINER_2(std::multimap, str, str, str_mmap);
+TYPEDEF_MMAP(int, int, int_mmap);
+TYPEDEF_MMAP(siz, siz, siz_mmap);
+TYPEDEF_MMAP(str, str, str_mmap);
 
-TYPEDEF_CONTAINER_2(std::map, str, int, str_int_map);
-TYPEDEF_CONTAINER_2(std::map, str, siz, str_siz_map);
-TYPEDEF_CONTAINER_2(std::map, int, str, int_str_map);
-TYPEDEF_CONTAINER_2(std::map, siz, str, siz_str_map);
-TYPEDEF_CONTAINER_2(std::multimap, int, str, int_str_mmap);
-TYPEDEF_CONTAINER_2(std::multimap, siz, str, siz_str_mmap);
-TYPEDEF_CONTAINER_2(std::map, str, std::time_t, siz_time_map);
-TYPEDEF_CONTAINER_2(std::map, str, str_set, str_set_map);
-TYPEDEF_CONTAINER_2(std::map, str, str_vec, str_vec_map);
+TYPEDEF_MAP(str, int, str_int_map);
+TYPEDEF_MAP(str, siz, str_siz_map);
+TYPEDEF_MAP(int, str, int_str_map);
+TYPEDEF_MAP(siz, str, siz_str_map);
+TYPEDEF_MAP(str, std::time_t, siz_time_map);
+TYPEDEF_MAP(str, str_set, str_set_map);
+TYPEDEF_MAP(str, str_vec, str_vec_map);
+
+TYPEDEF_MMAP(int, str, int_str_mmap);
+TYPEDEF_MMAP(siz, str, siz_str_mmap);
 
 // streams
 typedef std::istream sis;
@@ -170,9 +185,10 @@ public:
 	friend sis& operator>>(sis& i, slot& s) { return i >> s.num; }
 
 	explicit operator str() const { return std::to_string(num); }
+	explicit operator siz() const { return num; }
 };
 
-TYPEDEF_CONTAINER_2(std::map, slot, siz, slot_siz_map);
+TYPEDEF_MAP(slot, siz, slot_siz_map);
 
 }} // katina::types
 

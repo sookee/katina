@@ -604,6 +604,8 @@ void KatinaPluginAdmin::heartbeat(siz min, siz sec)
 	pbug("SPAMKILL HEARTBEAT check:");
 	for(slot_guid_map_vt client: katina.getClients())
 	{
+		if(!katina.is_connected(client.first))
+			continue;
 		if(mutes[client.first] && mutes[client.first] + spamkill_mute < katina.now)
 		{
 			pbug("SPAMKILL DEACTIVATED FOR: " << katina.getPlayerName(client.first) << " [" << katina.getClientGuid(client.first) << "] (" << client.first << ")");
