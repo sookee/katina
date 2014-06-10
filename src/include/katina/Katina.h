@@ -313,13 +313,23 @@ public:
 	/**
 	 * Get the name of the bot (default Katina)
 	 */
-	const str& get_name() { return name; }
+	const str& get_name() const { return name; }
 
 	/**
 	 * Get a read-only reference to the clients data
-	 * structure that maps slot numbers to gUIDs.
+	 * structure that maps slot numbers to GUIDs.
 	 */
-	const slot_guid_map& getClients() { return clients; }
+	const slot_guid_map& getClients() const { return clients; }
+
+//	/**
+//	 * Get a copy of the clients data
+//	 * structure that maps slot numbers to GUIDs.
+//	 *
+//	 * NOTE: This will become out-of-date when used from
+//	 * another thread.
+//	 *
+//	 */
+//	slot_guid_map copyClients() { return clients; }
 
 	/**
 	 * Get a read-only reference to the players data
