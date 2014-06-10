@@ -577,8 +577,10 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 			{
 				siz c = std::count_if(connected.begin(), connected.end(), [](const bool& b){return b;});
 				server.msg_to(num, "connected: " + std::to_string(c));
+				c = 0;
 				for(bool b: connected)
-					server.msg_to(num, " {" + std::to_string(c) + ": " + std::to_string(b) + "}");
+					if(c++ && b)
+						server.msg_to(num, " {" + std::to_string(c) + ": " + std::to_string(b) + "}");
 			}
 		}
 		else if(cmd == "plugin")
