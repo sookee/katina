@@ -1185,6 +1185,8 @@ bool Katina::start(const str& dir)
 	std::ios::openmode mode = std::ios::in|std::ios::ate;
 
 	bool rerun = get("run.mode") == "rerun";
+	bool backlog = get("run.mode") == "backlog";
+
 	if(rerun)
 	{
 		server.off();
@@ -1228,6 +1230,9 @@ bool Katina::start(const str& dir)
 				log("WARN: Unable to get initial player info");
 			log("DONE: " << (std::time(0) - rbt) << " seconds");
 		}
+
+		if(backlog) // read backlog only
+			break;
 
 		client_userinfo_bug_t client_userinfo_bug;
 
@@ -1885,6 +1890,9 @@ bool Katina::start(const str& dir)
 		if(!rerun)
 			break;
 	}
+
+	log("TERMINATE: all good");
+
 	return true;
 }
 

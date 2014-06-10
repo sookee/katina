@@ -1034,7 +1034,7 @@ bool KatinaPluginAdmin::check_slot(slot num)
 	return false;
 }
 
-std::time_t parse_duration(const str& duration, std::time_t dflt)
+std::time_t KatinaPluginAdmin::duration_to_time(const str& duration, siz dflt)
 {
 	std::time_t t = dflt;
 
@@ -1060,7 +1060,7 @@ std::time_t parse_duration(const str& duration, std::time_t dflt)
 	else if (units == "w")
 		t *= 60 * 60 * 24 * 7;
 
-	return t;
+	return katina.now + t;
 }
 
 bool KatinaPluginAdmin::remove_sanctions(const GUID& guid, siz type)
@@ -1283,7 +1283,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		sanction s;
 		s.type = S_MUTEPP;
 		s.guid = katina.getClientGuid(num);
-		s.expires = parse_duration(duration, 5 * 60);
+		s.expires = duration_to_time(duration, 5 * 60);
 		s.reason = reason;
 
 		if(s.guid == null_guid)
@@ -1332,7 +1332,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		sanction s;
 		s.type = S_VOTEBAN;
 		s.guid = katina.getClientGuid(perp);
-		s.expires = parse_duration(duration, 5 * 60);
+		s.expires = duration_to_time(duration, 5 * 60);
 		s.reason = reason;
 
 		if(s.guid == null_guid)
@@ -1385,7 +1385,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		sanction s;
 		s.type = S_MAPBAN;
 		s.guid = katina.getClientGuid(num);
-		s.expires = parse_duration(duration, 20 * 60);
+		s.expires = duration_to_time(duration, 20 * 60);
 		s.reason = reason;
 		s.params.push_back(katina.get_mapname());
 
@@ -1437,7 +1437,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		sanction s;
 		s.type = S_FIXNAME;
 		s.guid = katina.getClientGuid(perp);
-		s.expires = 0;
+		s.expires = duration_to_time("1h", 60 * 60);
 		s.params.push_back(name);
 
 		if(s.guid == null_guid)
@@ -1532,7 +1532,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		sanction s;
 		s.type = S_RETEAM;
 		s.guid = katina.getClientGuid(perp);
-		s.expires = 0;
+		s.expires = duration_to_time("5m", 5 * 60);
 		s.params.push_back(team);
 		s.reason = reason;
 

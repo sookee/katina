@@ -70,6 +70,33 @@ TYPEDEF_CONTAINER_T(def)
 typedef type<p1,p2> def; \
 TYPEDEF_CONTAINER_T(def)
 
+#define TYPEDEF_DEQ(def, name) \
+	TYPEDEF_CONTAINER_1(std::deque, def, name##_deq)
+
+#define TYPEDEF_QUE(def, name) \
+	TYPEDEF_CONTAINER_1(std::queue, def, name##_que)
+
+#define TYPEDEF_PQUE(def, name) \
+	TYPEDEF_CONTAINER_1(std::priority_queue, def, name##_pque)
+
+#define TYPEDEF_SET(def, name) \
+	TYPEDEF_CONTAINER_1(std::set, def, name##_set)
+
+#define TYPEDEF_MSET(def, name) \
+	TYPEDEF_CONTAINER_1(std::multiset, def, name##_mset)
+
+#define TYPEDEF_USET(def, name) \
+	TYPEDEF_CONTAINER_1(std::unordered_set, def, name##_uset)
+
+#define TYPEDEF_LST(def, name) \
+	TYPEDEF_CONTAINER_1(std::list, def, name##_lst)
+
+#define TYPEDEF_FLST(def, name) \
+	TYPEDEF_CONTAINER_1(std::foreward_list, def, name##_flst)
+
+#define TYPEDEF_VEC(def, name) \
+	TYPEDEF_CONTAINER_1(std::vector, def, name##_vec)
+
 //-- TYPES ---------------------------------------------
 
 typedef unsigned char byte;

@@ -44,6 +44,8 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <pthread.h>
 #include <memory>
 
+int main(const int argc, const char* argv[]);
+
 namespace katina {
 
 using namespace katina::log;
@@ -203,7 +205,7 @@ sos& operator<<(sos& o, const siz_set& s)
  */
 class Katina
 {
-	//friend void* cvarpoll(void* vp);
+	friend int ::main(const int argc, const char* argv[]);
 private:
 	bool done;
 	bool active;
@@ -294,7 +296,13 @@ public:
 	 */
 	bool is_disconnected(const GUID& guid) const
 	{
-		return std::find(shutdown_erase.begin(), shutdown_erase.end(), guid) != shutdown_erase.end();
+		if(getClientSlot(guid) == bad_slot)
+			return true;
+
+		if(std::find(shutdown_erase.begin(), shutdown_erase.end(), guid) != shutdown_erase.end())
+			return true;
+
+		return false;
 	}
 
 	/**

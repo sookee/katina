@@ -199,6 +199,9 @@ private:
 	bool load_sanctions();
 	bool save_sanctions();
 
+	std::time_t duration_to_time(const str& duration, siz dflt = 0);
+
+
 	/**
 	 * Remove all sanctions of a given type.
 	 * @return true on success

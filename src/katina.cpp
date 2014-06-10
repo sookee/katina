@@ -58,5 +58,13 @@ int main(const int argc, const char* argv[])
 	srand(time(0));
 	log("KATINA REVISION: " << REVISION);
 	Katina katina;
-	katina.start(str(argc == 2 ? argv[1] : "$HOME/.katina"));
+
+	// command line override log file
+	if(argc > 2)
+	{
+		katina.props["logfile"].push_back(argv[2]);
+		katina.props["run.mode"].push_back("backlog");
+	}
+
+	katina.start(str(argc > 1 ? argv[1] : "$HOME/.katina"));
 }

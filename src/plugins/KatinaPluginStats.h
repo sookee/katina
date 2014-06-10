@@ -166,8 +166,8 @@ private:
 	void stall_client(const GUID& guid);
 	void unstall_client(const GUID& guid);
 	void stall_clients();
-	void unstall_clients(const GUID& guid = null_guid);
-	void check_bots_and_players(const GUID& guid = null_guid);
+	void unstall_clients();
+	void check_bots_and_players();
 	bool check_slot(slot num);
 
 public:

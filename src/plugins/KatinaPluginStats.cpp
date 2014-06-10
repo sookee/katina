@@ -299,15 +299,15 @@ void KatinaPluginStats::stall_clients()
 }
 
 
-void KatinaPluginStats::unstall_clients(const GUID& guid)
+void KatinaPluginStats::unstall_clients()
 {
 	for(guid_stat_map_citer ci = stats.begin(); ci != stats.end(); ++ci)
-		if(guid == null_guid || guid != ci->first)
+		if(!katina.is_disconnected(ci->first))
 			unstall_client(ci->first);
 }
 
 
-void KatinaPluginStats::check_bots_and_players(const GUID& guid)
+void KatinaPluginStats::check_bots_and_players()
 {
 	bool had_bots = have_bots;
 	//bool human_players_nr_or_nb = !human_players_r || !human_players_b;
@@ -359,7 +359,7 @@ void KatinaPluginStats::check_bots_and_players(const GUID& guid)
     }
 	else
     {
-		unstall_clients(guid);
+		unstall_clients();
         if(had_bots != have_bots)
             server.chat("^2Stats recording activated^7");
     }
@@ -384,7 +384,6 @@ bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, slot num, siz 
 	return true;
 }
 
-
 //bool KatinaPluginStats::client_connect(siz min, siz sec, slot num)
 //{
 //	if(!active)
@@ -395,7 +394,6 @@ bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, slot num, siz 
 //	// stall_client(katina.getClientGuid(num));
 //}
 
-
 bool KatinaPluginStats::client_disconnect(siz min, siz sec, slot num)
 {
 	if(!in_game)
@@ -404,11 +402,10 @@ bool KatinaPluginStats::client_disconnect(siz min, siz sec, slot num)
 		return true;
 
 	stall_client(katina.getClientGuid(num));
-	check_bots_and_players(katina.getClientGuid(num));
+	check_bots_and_players();
 
 	return true;
 }
-
 
 bool KatinaPluginStats::kill(siz min, siz sec, slot num1, slot num2, siz weap)
 {
