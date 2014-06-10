@@ -1072,7 +1072,7 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 			shutdown_erase.clear();
 
 			if(clients.size() != players.size())
-				nlog("WARN: discrepancy between players: " << players.size() << " and teams: " << teams.size());
+				nlog("WARN: discrepancy between clients: " << clients.size() << " and players: " << players.size());
 			if(clients.size() != teams.size())
 				nlog("WARN: discrepancy between clients: " << clients.size() << " and teams: " << teams.size());
 
@@ -1094,6 +1094,11 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 					teams.erase(guid);
 					players.erase(guid);
 				}
+				nlog("DID WE FIX IT?");
+				if(clients.size() != players.size())
+					nlog("WARN: discrepancy between clients: " << clients.size() << " and players: " << players.size());
+				if(clients.size() != teams.size())
+					nlog("WARN: discrepancy between clients: " << clients.size() << " and teams: " << teams.size());
 			}
 		}
 		else if(cmd == "ClientDisconnect:")
@@ -1354,9 +1359,9 @@ bool Katina::start(const str& dir)
 				if(np != players.size())
 					nlog("WARN: erase discrepancy in players: have: " << players.size() << " expected: " << np << " at: " << n);
 				shutdown_erase.clear();
-				if(clients.size() > players.size())
-					nlog("WARN: discrepancy between players: " << players.size() << " and teams: " << teams.size());
-				if(clients.size() > teams.size())
+				if(clients.size() != players.size())
+					nlog("WARN: discrepancy between clients: " << clients.size() << " and players: " << players.size());
+				if(clients.size() != teams.size())
 					nlog("WARN: discrepancy between clients: " << clients.size() << " and teams: " << teams.size());
 			}
 			else if(cmd == "Warmup:")
