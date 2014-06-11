@@ -1252,14 +1252,42 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			return true;
 		}
 
+		const str_vec& banned = katina.get_vec("admin.alert.banned");
+		if(std::find(banned.begin(), banned.end(), str(guid)) != banned.end())
+		{
+			server.msg_to(say_num, katina.get_name() + "^7: "
+				+   katina.getPlayerName(guid)
+						   + "^3, sorry, ^7!alert ^3disabled for misuse.", true);
+			return true;
+		}
+
 		str request;
 		sgl(iss >> std::ws, request);
 
 		if(irc)
-			if(irc->chat('a', "^3!^1ALERT^3! ^7" + katina.get("admin.alert.irc.admins") + " ^3" + request))
+		{
+			const str_vec& admins = katina.get_vec("admin.irc.alert");
+
+			if(admins.empty())
+			{
 				server.msg_to(say_num, katina.get_name() + "^7: "
-						+   katina.getPlayerName(guid)
-								   + "^3, admin have been alerted.", true);
+					+   katina.getPlayerName(guid)
+							   + "^3, sorry, no admins configured.", true);
+				return true;
+			}
+
+			soss msg;
+
+			msg << " ^7!^1ALERT^7! ^3" + request + "^7[" + katina.getPlayerName(guid) + "^7]";
+
+			for(const str& admin: admins)
+				irc->send("/msg " + admin + oa_to_IRC(msg.str()));
+//
+//			if(irc->chat('a', "^3!^1ALERT^3! ^7" + katina.get("admin.alert.irc.admins") + " ^3" + request))
+//				server.msg_to(say_num, katina.get_name() + "^7: "
+//						+   katina.getPlayerName(guid)
+//								   + "^3, admin have been alerted.", true);
+		}
 	}
 	else if(cmd == trans("!request") || cmd == trans("?request"))
 	{

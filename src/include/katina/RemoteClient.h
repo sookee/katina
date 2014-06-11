@@ -109,6 +109,12 @@ public:
 	 */
 	virtual bool send(const str& msg, str& res) = 0;
 	
+	bool send(const str& msg)
+	{
+		str res;
+		return send(msg, res);
+	}
+
 	static RemoteClient* create(Katina& katina, const str& config);
 };
 
