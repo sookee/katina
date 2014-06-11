@@ -188,9 +188,9 @@ extern "C" KatinaPlugin* katina_plugin_factory(Katina& katina) \
  * an interface to plugin loaders.
  */
 #define KATINA_PLUGIN_INFO(I, N, V) \
-static const char* ID = I; \
-static const char* NAME = N; \
-static const char* VERSION = V
+static const str ID = I; \
+static const str NAME = N; \
+static const str VERSION = V
 
 /**
  * Please use plog() rather than log() in your plugins

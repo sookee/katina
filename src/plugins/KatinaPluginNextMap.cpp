@@ -68,12 +68,13 @@ bool KatinaPluginNextMap::open()
 		return false;
 	}
 
-	db.on();
+	//db.on();
 
 	katina.add_var_event(this, "nextmap.active", active);
-	katina.add_log_event(this, INIT_GAME);
-	katina.add_log_event(this, CLIENT_CONNECT_INFO);
-	katina.add_log_event(this, CLIENT_DISCONNECT);
+//	katina.add_log_event(this, INIT_GAME);
+//	katina.add_log_event(this, CLIENT_CONNECT_INFO);
+//	katina.add_log_event(this, CLIENT_DISCONNECT);
+//	katina.add_log_event(this, SHUTDOWN_GAME);
 	katina.add_log_event(this, SAY);
 	katina.add_log_event(this, EXIT);
 
@@ -98,53 +99,53 @@ str KatinaPluginNextMap::get_version() const
 	return VERSION;
 }
 
-bool KatinaPluginNextMap::init_game(siz min, siz sec, const str_map& cvars)
-{
-	if(!active)
-		return true;
-
-	// get map stats for all known players ?
-
-	return true;
-}
-
-bool KatinaPluginNextMap::client_connect_info(siz min, siz sec, slot num, const GUID& guid, const str& ip)
-{
-	if(!active)
-		return true;
-
-	//pbug("Finding votes for player: " << guid << " " << katina.getPlayerName(guid));
-
-	// get map stats for this player
-	soss sql;
-	sql << "select `item`,`count` from `votes` where `type` = 'map' and guid = '" << str(guid) << "'";
-	//pbug_var(sql.str());
-	str_vec_vec rows;
-	if(!db.select(sql.str(), rows, 2))
-	{
-		pbug("UNREPORTED DATABASE ERROR: " << db.error());
-		return true;
-	}
-	// guid -> {mapname, count}
-	for(siz row = 0; row < rows.size(); ++row)
-	{
-		pbug("vote: " << rows[row][0] << " [" << rows[row][1] << "]");
-		votes[guid] = vote(rows[row][0], to<int>(rows[row][1]));
-	}
-
-	return true;
-}
-
-bool KatinaPluginNextMap::client_disconnect(siz min, siz sec, slot num)
-{
-	if(!active)
-		return true;
-
-	// drop map stats
-	votes.erase(katina.getClientGuid(num));
-
-	return true;
-}
+//bool KatinaPluginNextMap::init_game(siz min, siz sec, const str_map& cvars)
+//{
+//	if(!active)
+//		return true;
+//
+//	// get map stats for all known players ?
+//
+//	return true;
+//}
+//
+//bool KatinaPluginNextMap::client_connect_info(siz min, siz sec, slot num, const GUID& guid, const str& ip)
+//{
+//	if(!active)
+//		return true;
+//
+//	//pbug("Finding votes for player: " << guid << " " << katina.getPlayerName(guid));
+//
+//	// get map stats for this player
+//	soss sql;
+//	sql << "select `item`,`count` from `votes` where `type` = 'map' and guid = '" << str(guid) << "'";
+//	//pbug_var(sql.str());
+//	str_vec_vec rows;
+//	if(!db.select(sql.str(), rows, 2))
+//	{
+//		pbug("UNREPORTED DATABASE ERROR: " << db.error());
+//		return true;
+//	}
+//	// guid -> {mapname, count}
+//	for(siz row = 0; row < rows.size(); ++row)
+//	{
+//		pbug("vote: " << rows[row][0] << " [" << rows[row][1] << "]");
+//		votes[guid] = vote(rows[row][0], to<int>(rows[row][1]));
+//	}
+//
+//	return true;
+//}
+//
+//bool KatinaPluginNextMap::client_disconnect(siz min, siz sec, slot num)
+//{
+//	if(!active)
+//		return true;
+//
+//	// drop map stats
+//	votes.erase(katina.getClientGuid(num));
+//
+//	return true;
+//}
 
 bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& text)
 {
@@ -160,79 +161,93 @@ bool KatinaPluginNextMap::exit(siz min, siz sec)
 		return true;
 	bug_func();
 
-	// set nextmap here
-	str_int_map maps;
+	str sep;
+	soss sql;
+	for(slot_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
+		if(!i->second.is_bot() && katina.is_connected(i->first))
+			{ sql << sep << "'" << i->second << "'"; sep = ",";}
+	str insql = "(" + sql.str() + ")";
 
-	for(guid_vote_map_iter i = votes.begin(); i != votes.end(); ++i)
-	{
-//		pbug_var(i->first);
-//		pbug("maps[" << i->second.mapname << "] += " << i->second.count);
-		maps[i->second.mapname] += i->second.count;
-//		pbug_var(maps[i->second.mapname]);
-	}
 
-	str nextmap; // next mapname
+	sql.clear();
+	sql.str("");
+	sql << "select `item`,`count` from `votes` where `type` = 'map' and guid in " << insql;
 
-	int tot = 0;
-	siz_str_map sort;
-	for(str_int_map_citer i = maps.begin(); i != maps.end(); ++i)
-		if(i->second > 0)
-			{ sort[i->second] = i->first; tot += i->second; }
+	str_vec_vec rows;
 
-	pbug_var(tot);
+	db_guard on(db);
 
-	if(!tot)
+	if(!db.select(sql.str(), rows, 2))
 		return true;
 
-	siz pick = rand() % tot;
-
-	pbug_var(pick);
-
-	tot = 0;
-	siz_str_map_citer i;
-	for(i = sort.begin(); i != sort.end(); ++i)
+	struct opine
 	{
-		if((tot += i->first) < pick)
-		{
-			pbug_var(tot);
+		siz love, hate, soso;
+		opine(): love(0), hate(0), soso(0) {}
+	};
+
+	TYPEDEF_MAP(str, opine, opine_map);
+
+	opine_map votes; // mapname -> { love, hate, soso }
+
+	const str_vec& banned = katina.get_vec("nextmap.banned");
+
+	int vote;
+
+	for(const str_vec& row: rows)
+	{
+		if(std::find(banned.begin(), banned.end(), row[0]) != banned.end())
 			continue;
-		}
+		if(mapname == row[0])
+			continue;
+		vote = to<int>(row[1]);
+		if(vote > 0)
+			++votes[row[0]].love;
+		else if(vote < 0)
+			++votes[row[0]].hate;
+		else
+			++votes[row[0]].soso;
 	}
 
-	if(i == sort.end())
+	str_siz_map maps;
+
+	siz total = 0;
+
+	for(opine_map_vt& v: votes)
 	{
-		plog("WARN: No map detected");
+		vote = (v.second.love * 2) + v.second.soso - v.second.hate;
+		if(vote < 1)
+			continue;
+		total += (maps[v.first] = vote);
+	}
 
-//		if(server.command("vstr " + rotmap))
-//			if(!katina.rconset("nextmap", rotmap))
-//				plog("WARN: Unable to obtain rotation mapname");
+	siz select = rand() % total;
 
+	str nextmap;
+	total = 0;
+	for(const str_siz_map_vt& m: maps)
+	{
+		total += m.second;
+		if(total < select)
+			continue;
+		nextmap = m.first;
+		break;
+	}
+
+	if(nextmap.empty())
+	{
+		plog("NEXTMAP: failed to select a map");
 		return true;
 	}
 
-//	pbug_var(i->first);
-//	pbug_var(i->second);
-
-	nextmap = i->second;
-
-//	pbug_var(nextmap);
-	// set m1 "map oasago2; set nextmap vstr m2"
-
-	//server.msg_to_all("^3NEXT MAP SUGGESTS: ^7" + upper_copy(nextmap));
-	plog("^3NEXTMAP SUGGESTS: ^7" + upper_copy(nextmap));
-
-//	if(server.command("set xmap \"map " + nextmap + "; set nextmap " + rotmap + "\""))
-//		if(server.command("vstr xmap"))
-//			played[nextmap] = 0;
-//
-//	if(!katina.rconset("nextmap", rotmap))
-//		plog("WARN: Unable to obtain rotation mapname");
+	plog("NEXTMAP SUGGESTS: " << nextmap);
 
 	return true;
 }
 
 void KatinaPluginNextMap::close()
 {
-	db.off();}
+//	db.off();
+}
 
 }} // katina::plugin

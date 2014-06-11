@@ -99,9 +99,9 @@ public:
 
 	//virtual void cvar_event(const str& name, const str& value);
 	
-	virtual bool init_game(siz min, siz sec, const str_map& cvars) override;
-	virtual bool client_connect_info(siz min, siz sec, slot num, const GUID& guid, const str& ip) override;
-	virtual bool client_disconnect(siz min, siz sec, slot num) override;
+//	virtual bool init_game(siz min, siz sec, const str_map& cvars) override;
+//	virtual bool client_connect_info(siz min, siz sec, slot num, const GUID& guid, const str& ip) override;
+//	virtual bool client_disconnect(siz min, siz sec, slot num) override;
 	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) override;
 	virtual bool exit(siz min, siz sec) override;
 

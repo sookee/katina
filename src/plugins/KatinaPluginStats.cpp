@@ -345,9 +345,9 @@ void KatinaPluginStats::check_bots_and_players()
 		}
 	}
 
-	bug_var(have_bots);
-	bug_var(human_players_r);
-	bug_var(human_players_b);
+//	bug_var(have_bots);
+//	bug_var(human_players_r);
+//	bug_var(human_players_b);
 
 	if(have_bots || !human_players_r || !human_players_b)
     {

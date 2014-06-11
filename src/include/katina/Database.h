@@ -206,6 +206,14 @@ public:
 	bool get_ingame_crap(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats);
 };
 
+
+struct db_guard
+{
+	Database& db;
+	db_guard(Database& db): db(db) { db.on(); }
+	~db_guard() { db.off(); }
+};
+
 }} // katina::data
 
 #endif /* _OASTATS_DATABASE_H_ */

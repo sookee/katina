@@ -193,7 +193,7 @@ bool KatinaPluginReports::open()
 
 	client.on();
 
-	client.chat('*', "^3Stats Reporting System v^7" + katina.get_version() + " - ^1ONLINE");
+	client.chat('*', "^3" + NAME + " " + VERSION + " - ^1ONLINE");
 
 	notspam = katina.get_vec("reports.notspam");
 

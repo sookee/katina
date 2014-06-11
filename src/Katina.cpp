@@ -1001,10 +1001,10 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 			slot num;
 			siz team;
 			if(!(sgl(sgl(sgl(iss >> num, skip, '\\'), name, '\\'), skip, '\\') >> team))
-				std::cout << "Error parsing ClientUserinfoChanged: [" << n << "] "  << params << '\n';
+				nlog("Error parsing ClientUserinfoChanged: "  << params);
 			else if(num > slot(32))
 			{
-				log("ERROR: Client num too high: " << num << " at [" << n << "] " << line);
+				nlog("ERROR: Client num too high: " << num);
 			}
 			else
 			{
@@ -1035,11 +1035,6 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 							log("ERROR: Parsing handicap: " << line.substr(pos + 4));
 					}
 
-//					shutdown_erase.remove(guid); // must have re-joined
-
-//					if(clients.find(num) && clients[num] != guid)
-//						nlog("WARN: clients already contains guid: {" << num << ", " << clients[num] << "}");
-
 					clients[num] = guid;
 					players[guid] = name;
 					teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
@@ -1066,52 +1061,6 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 			clients.clear();
 			players.clear();
 			teams.clear();
-			// these are clients that disconnected before the game ended
-			//nlog("SHUTDOWN ERASE: dumping: " << std::to_string(shutdown_erase.size()));
-//			siz nt = teams.size() - shutdown_erase.size();
-//			siz np = players.size() - shutdown_erase.size();
-//			for(const GUID& guid: shutdown_erase)
-//			{
-//				//nlog("SHUTDOWN ERASE: " << guid);
-//				teams.erase(guid);
-//				players.erase(guid);
-//			}
-//			if(nt != teams.size())
-//				nlog("WARN: erase discrepancy in teams: have: " << teams.size() << " expected: " << nt << " at: " << n);
-//			if(np != players.size())
-//				nlog("WARN: erase discrepancy in players: have: " << players.size() << " expected: " << np << " at: " << n);
-//
-//			shutdown_erase.clear();
-//
-//			if(clients.size() != players.size())
-//				nlog("WARN: discrepancy between clients: " << clients.size() << " and players: " << players.size());
-//			if(clients.size() != teams.size())
-//				nlog("WARN: discrepancy between clients: " << clients.size() << " and teams: " << teams.size());
-//
-//			// ATTEMPT TO FIX shutdown erase
-//			for(const guid_str_map_vt& p: players)
-//				if(std::find_if(clients.begin(), clients.end(), [&p](const slot_guid_map_vt& c){return c.second == p.first;}) == clients.end())
-//					shutdown_erase.push_back(p.first);
-//
-//			for(const guid_siz_map_vt& t: teams)
-//				if(std::find_if(clients.begin(), clients.end(), [&t](const slot_guid_map_vt& c){return c.second == t.first;}) == clients.end())
-//					shutdown_erase.push_back(t.first);
-//
-//			if(!shutdown_erase.empty())
-//			{
-//				nlog("SHUTDOWN ERASE FIXUP");
-//				for(const GUID& guid: shutdown_erase)
-//				{
-//					nlog("SHUTDOWN ERASE FIXUP: " << guid);
-//					teams.erase(guid);
-//					players.erase(guid);
-//				}
-//				nlog("DID WE FIX IT?");
-//				if(clients.size() != players.size())
-//					nlog("WARN: discrepancy between clients: " << clients.size() << " and players: " << players.size());
-//				if(clients.size() != teams.size())
-//					nlog("WARN: discrepancy between clients: " << clients.size() << " and teams: " << teams.size());
-//			}
 		}
 		else if(cmd == "ClientDisconnect:")
 		{
@@ -1407,10 +1356,10 @@ bool Katina::start(const str& dir)
 				slot num;
 				siz team;
 				if(!(sgl(sgl(sgl(iss >> num, skip, '\\'), name, '\\'), skip, '\\') >> team))
-					std::cout << "Error parsing ClientUserinfoChanged: "  << params << '\n';
+					nlog("Error parsing ClientUserinfoChanged: "  << params);
 				else if(num > slot(32))
 				{
-					log("ERROR: Client num too high: " << num);
+					nlog("ERROR: Client num too high: " << num);
 				}
 				else
 				{
