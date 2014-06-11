@@ -85,6 +85,7 @@ private:
 	str rotmap; // next map command on rotation
 
 	bool active;
+	str nextmap;
 
 public:
 	KatinaPluginNextMap(Katina& katina);
@@ -104,6 +105,7 @@ public:
 //	virtual bool client_disconnect(siz min, siz sec, slot num) override;
 	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) override;
 	virtual bool exit(siz min, siz sec) override;
+	virtual bool shutdown_game(siz min, siz sec) override;
 
 	virtual void close() override;
 };

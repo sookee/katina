@@ -74,7 +74,6 @@ bool KatinaPluginNextMap::open()
 //	katina.add_log_event(this, INIT_GAME);
 //	katina.add_log_event(this, CLIENT_CONNECT_INFO);
 //	katina.add_log_event(this, CLIENT_DISCONNECT);
-//	katina.add_log_event(this, SHUTDOWN_GAME);
 	katina.add_log_event(this, SAY);
 	katina.add_log_event(this, EXIT);
 
@@ -223,7 +222,6 @@ bool KatinaPluginNextMap::exit(siz min, siz sec)
 
 	siz select = rand() % total;
 
-	str nextmap;
 	total = 0;
 	for(const str_siz_map_vt& m: maps)
 	{
@@ -240,7 +238,35 @@ bool KatinaPluginNextMap::exit(siz min, siz sec)
 		return true;
 	}
 
+	katina.add_log_event(this, SHUTDOWN_GAME);
+
 	plog("NEXTMAP SUGGESTS: " << nextmap);
+
+	return true;
+}
+
+bool KatinaPluginNextMap::shutdown_game(siz min, siz sec)
+{
+	if(!active)
+		return true;
+	if(nextmap.empty())
+		return true;
+
+	// set m332 "map 17+ctf; set nextmap vstr m333"
+	str rot_nextmap;
+	if(!katina.rconset("nextmap", rot_nextmap))
+		if(!katina.rconset("nextmap", rot_nextmap))
+			return true; // no action
+
+	if(!server.command("map " + nextmap))
+		if(!server.command("map " + nextmap))
+			return true;
+
+	if(!server.command("set nextmap " + rot_nextmap))
+		if(!server.command("set nextmap " + rot_nextmap))
+			plog("ERROR: can't reset rotation");
+
+	katina.del_log_event(this, SHUTDOWN_GAME);
 
 	return true;
 }
