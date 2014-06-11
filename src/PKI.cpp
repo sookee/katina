@@ -175,7 +175,7 @@ bool PKI::read_keypair(const str& s)
 	return true;
 }
 
-bool PKI::load_public_key(const str& id, const str& file)
+bool PKI::set_key_file(const str& file, key_t& key)
 {
 	std::ifstream ifs(file.c_str());
 	if(!ifs.is_open())
@@ -183,10 +183,10 @@ bool PKI::load_public_key(const str& id, const str& file)
 		log("PKI: ERROR: opening file; " << file);
 		return false;
 	}
-	return read_public_key(id, ifs);
+	return set_key(ifs, key);
 }
 
-bool PKI::read_public_key(const str& id, std::istream& is)
+bool PKI::set_key(std::istream& is, key_t& key)
 {
 	soss oss;
 	if(!(oss << is.rdbuf()))
@@ -194,10 +194,50 @@ bool PKI::read_public_key(const str& id, std::istream& is)
 		log("PKI: ERROR: reading keypair from stream");
 		return false;
 	}
-	return read_public_key(id, oss.str());
+	return set_key(oss.str(), key);
 }
 
-bool PKI::read_public_key(const str& id, const str& s)
+bool PKI::set_key(const str& s, key_t& key)
+{
+	if(key)
+		gcry_sexp_release(key);
+	key = 0;
+
+	if(gcry_error_t e = gcry_sexp_sscan(&key, 0, s.c_str(), s.size()))
+	{
+		log("PKI: ERROR: parsing public key data: " << gcry_strerror(e));
+		log("PKI: " << s);
+		return false;
+	}
+
+	return true;
+}
+
+//
+
+bool PKI::add_client_key_file(const str& id, const str& file)
+{
+	std::ifstream ifs(file.c_str());
+	if(!ifs.is_open())
+	{
+		log("PKI: ERROR: opening file; " << file);
+		return false;
+	}
+	return add_client_key(id, ifs);
+}
+
+bool PKI::add_client_key(const str& id, std::istream& is)
+{
+	soss oss;
+	if(!(oss << is.rdbuf()))
+	{
+		log("PKI: ERROR: reading keypair from stream");
+		return false;
+	}
+	return add_client_key(id, oss.str());
+}
+
+bool PKI::add_client_key(const str& id, const str& s)
 {
 	gcry_sexp_t pkey = 0;
 
@@ -212,6 +252,8 @@ bool PKI::read_public_key(const str& id, const str& s)
 
 	return true;
 }
+
+// =======
 
 bool PKI::get_sexp_as_text(const gcry_sexp_t& sexp, str& text) const
 {

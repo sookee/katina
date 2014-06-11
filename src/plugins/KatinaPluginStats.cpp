@@ -319,10 +319,10 @@ void KatinaPluginStats::check_bots_and_players()
 //    if(recordBotGames)
 //        return;
 
-	pbug("check_bots_and_players: teams:");
+//	pbug("check_bots_and_players: teams:");
 	for(guid_siz_map_citer ci = teams.begin(); ci != teams.end(); ++ci)
 	{
-		pbug("{" << str(ci->first) << ", " << ci->second << "}");
+//		pbug("{" << str(ci->first) << ", " << ci->second << "}");
 //		if(guid != null_guid && ci->first == guid) // avoid disconnected client
 //			continue;
 //		if(katina.is_disconnected(ci->first))

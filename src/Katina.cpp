@@ -70,6 +70,7 @@ const str tag = "";
 const str revision = REV;
 
 const slot bad_slot(-1);
+const slot world_slot(1022);
 
 siz Katina::getTeam(slot client) const
 {
@@ -117,7 +118,6 @@ str Katina::getPlayerName(const GUID& guid) const
 
 slot Katina::getClientSlot(const GUID& guid) const
 {
-	//bug_func();
 	for(slot_guid_map_citer it = clients.cbegin(); it != clients.cend(); ++it)
 		if(it->second == guid)
 			return it->first;
@@ -447,8 +447,8 @@ bool Katina::init_pki()
 {
 	log("Reading keypair:");
 
-	str keypair_file = get_exp("pki.keypair", "keypair.pki");
-//	str pkeys_file = get("pki.pkeys", "pkeys.pki");
+	str keypair_file = get_exp("pki.keypair", "katina.pki");
+	str pub_key_file = get("pki.pub.key", "katina.pub");
 
 	if(!pki.load_keypair(config_dir + "/" + keypair_file))
 	{
@@ -467,26 +467,33 @@ bool Katina::init_pki()
 			std::ofstream ofs((config_dir + "/" + keypair_file).c_str());
 			ofs << sexp;
 		}
-
-//		if(pki.get_public_key_as_text(sexp))
-//		{
-//			std::ofstream ofs((config_dir + "/" + pkeys_file).c_str());
-//			ofs << sexp;
-//		}
 	}
 
-	log("Reading public keys:");
-	str_vec pkeys = get_exp_vec("pki.pkey");
-	for(siz i = 0; i < pkeys.size(); ++i)
+	// always write out the public key from the keypair
+	// so they always match
+	log("Outputting public key: " << pub_key_file);
+	str sexp;
+	if(pki.get_public_key_as_text(sexp))
 	{
-		log("LOAD PUBLIC KEY: " << pkeys[i]);
-		pki.load_public_key(pkeys[i], pkeys[i]);
+		std::ofstream ofs((config_dir + "/" + pub_key_file).c_str());
+		ofs << sexp;
 	}
 
-	// TODO: ad this
-	//ifs.open((config_dir + "/" + pkeys_file).c_str());
-	//while(pki.read_public_key(, ifs)) {}
-	//ifs.close();
+	log("Scanning for public keys:");
+
+	const str_vec& keys = get_vec("pki.remote.key");
+
+	for(const str& key: keys)
+	{
+		str id, file;
+		if(!(siss(key) >> id >> file))
+		{
+			log("WARN: error parsing key entry: " << key);
+			continue;
+		}
+		log("Reading public keys: [" << id << "] " << file);
+		pki.add_client_key_file(id, expand_env(file, WRDE_SHOWERR|WRDE_UNDEF));
+	}
 
 	return true;
 }
@@ -1008,7 +1015,7 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 				{
 					// Don't trust ClientUserInfoChanged: messages until
 					// we see a ClientConnect: for this slot number
-					nlog("Disconnected ClientUserinfoChange: ");
+					//nlog("Disconnected ClientUserinfoChange: ");
 				}
 				else
 				{

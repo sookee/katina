@@ -137,6 +137,8 @@ private:
 
 	// - /fixteams
 
+	bool do_detect_pushing = false;
+
 	bool protect_admins = false;
 
 	// spamkill
@@ -210,6 +212,19 @@ private:
 //	bool apply_sanction(sanction_lst_iter& s);
 //	bool apply_sanctions();
 
+	// hostile push detection
+	struct push_evt
+	{
+		std::time_t when = 0;
+		slot pusher;
+		slot pushed;
+		//bool suspicious = false;
+	};
+
+	TYPEDEF_LST(push_evt, push_lst);
+
+	push_lst pushes;
+
 public:
 	KatinaPluginAdmin(Katina& katina);
 
@@ -233,6 +248,7 @@ public:
 	virtual bool client_switch_team(siz min, siz sec, slot num, siz teamBefore, siz teamNow) override;
 	virtual bool callvote(siz min, siz sec, slot num, const str& type, const str& info) override;
 	virtual bool kill(siz min, siz sec, slot num1, slot num2, siz weap) override;
+	virtual bool push(siz min, siz sec, slot num1, slot num2) override;
 	virtual bool award(siz min, siz sec, slot num, siz awd);
 	virtual bool ctf(siz min, siz sec, slot num, siz team, siz act) override;
 	virtual bool ctf_exit(siz min, siz sec, siz r, siz b) override;

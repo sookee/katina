@@ -55,7 +55,7 @@ using namespace katina::types;
  */
 int main(const int argc, const char* argv[])
 {
-	srand(time(0));
+	srand(std::time(0));
 	log("KATINA REVISION: " << REVISION);
 	Katina katina;
 

@@ -527,6 +527,7 @@ bool KatinaPluginAdmin::open()
 	katina.add_var_event(this, "admin.active", active, false);
 	katina.add_var_event(this, "admin.clientkick.protect", protect_admins, false);
 	katina.add_var_event(this, "admin.fixteams.policy", policy, policy_t::FT_NONE);
+	katina.add_var_event(this, "admin.detect.pushing", do_detect_pushing, false);
 
 	// allows spamkill_spams / spamkill_period else !mute for spamkill_mute
 	katina.add_var_event(this, "admin.spamkill.active", do_spamkill, false);
@@ -915,15 +916,71 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, slot num, const str& type, co
 	return true;
 }
 
-bool KatinaPluginAdmin::kill(siz min, siz sec, slot num1, slot num2, siz weap)
+bool KatinaPluginAdmin::kill(siz min, siz sec, slot killer, slot killed, siz weap)
 {
 	if(!active)
 		return true;
 
+//	if(do_detect_pushing && killer == world_slot && weap == MOD_TRIGGER_HURT)
+//	{
+//		pbug("DETECTING HOSTILE PUSHES:");
+//		bool warned = false;
+//		siz suspicious = 0;
+//		for(push_lst_iter p = pushes.begin(); p != pushes.end();)
+//		{
+//			pbug(katina.getPlayerName(p->pusher) << " push-killed " << katina.getPlayerName(pushed));
+//			if(katina.now - p->when > 3) // 3 seconds
+//			{
+//				p = pushes.erase(p);
+//				continue;
+//			}
+//
+//			if(p->pushed != killed)
+//			{
+//				++p;
+//				continue;
+//			}
+//
+//			if(warned)
+//			{
+//				p = pushes.erase(p);
+//				continue;
+//			}
+//
+//			if(++suspicious < 3)
+//			{
+//				++p;
+//				continue;
+//			}
+//
+//			if(irc && irc->chat('a', "^3!^1ALERT^3! ^7" + katina.get("admin.alert.irc.admins")
+//				+ " ^3possible pusher: " + katina.getPlayerName(p->pusher)))
+//			{
+//				plog("HOSTILE PUSHING DETECTED!!!!");
+////				server.msg_to(p->pusher, katina.get_name() + "^7: "
+////						+   katina.getPlayerName(p->pusher)
+////								   + "^3, your ^7PUSHES ^3are suspicious, ^7ADMIN ^3alerted", true);
+//				p = pushes.erase(p);
+//				warned = true;
+//			}
+//		}
+//		return true;
+//	}
+
 	 // !fixteams
-	if(time[num1]) // is the timer running?
-		++kills[num1];
+	if(time[killer]) // is the timer running?
+		++kills[killer];
 	++total_kills;
+	return true;
+}
+
+bool KatinaPluginAdmin::push(siz min, siz sec, slot pusher, slot pushed)
+{
+//	push_evt p;
+//	p.when = katina.now;
+//	p.pusher = pusher;
+//	p.pushed = pushed;
+//	pushes.push_back(p);
 	return true;
 }
 

@@ -47,6 +47,10 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <fstream>
 #include <iostream>
 
+#include <mutex>
+#include <thread>
+
+
 // TODO: mode to "defs.h"
 #define MAX_CLIENTS 64
 
@@ -189,6 +193,9 @@ public:
 };
 
 TYPEDEF_MAP(slot, siz, slot_siz_map);
+
+typedef std::lock_guard<std::mutex> lock_guard;
+typedef std::unique_lock<std::mutex> unique_lock;
 
 }} // katina::types
 

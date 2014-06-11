@@ -112,7 +112,7 @@ public:
 	static RemoteClient* create(Katina& katina, const str& config);
 };
 
-class PKIClient
+class PkiClient
 : public RemoteClient
 {
 	net::socketstream ss;
@@ -140,7 +140,7 @@ class PKIClient
 	//session_map sessions;
 	
 public:
-	PKIClient(Katina& katina): RemoteClient(katina), connected(false), port(0) {}
+	PkiClient(Katina& katina): RemoteClient(katina), connected(false), port(0) {}
 	// RemoteClient Interface
 
 	virtual bool configure(const str& params);
