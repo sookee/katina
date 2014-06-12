@@ -81,7 +81,8 @@ extern const slot world_slot;
 
 enum event_t
 {
-	INIT_GAME
+	LOG_NONE
+	, INIT_GAME
 	, WARMUP
 	, CLIENT_CONNECT
 	, CLIENT_BEGIN
@@ -109,9 +110,10 @@ enum event_t
 	, LOG_CALLVOTE// mod_katina >= 0.1-beta
 };
 
-typedef std::map<event_t, plugin_vec> event_map;
-typedef event_map::iterator event_map_iter;
-typedef event_map::const_iterator event_map_citer;
+TYPEDEF_MAP(event_t, plugin_lst, event_map);
+//typedef std::map<event_t, plugin_vec> event_map;
+//typedef event_map::iterator event_map_iter;
+//typedef event_map::const_iterator event_map_citer;
 
 struct cvar
 {
@@ -560,11 +562,22 @@ public:
 		events[e].push_back(plugin);
 	}
 
+	struct evt_erase
+	{
+		event_t e;
+		KatinaPlugin* p;
+		evt_erase(): e(event_t::LOG_NONE), p(0) {}
+		evt_erase(event_t e, KatinaPlugin* p): e(e), p(p) {}
+		bool operator==(const evt_erase& erase) const { return e == erase.e && p == erase.p; }
+	};
+	TYPEDEF_VEC(evt_erase, evt_erase_vec);
+	evt_erase_vec erase_events;
+
 	void del_log_event(class KatinaPlugin* plugin, event_t e)
 	{
-		plugin_vec_iter i = std::find(events[e].begin(), events[e].end(), plugin);
+		plugin_lst_iter i = std::find(events[e].begin(), events[e].end(), plugin);
 		if(i != events[e].end())
-			events[e].erase(i);
+			erase_events.push_back(evt_erase(e, *i));
 	}
 
 	/**

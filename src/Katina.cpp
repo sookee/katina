@@ -1292,8 +1292,16 @@ bool Katina::start(const str& dir)
 			//else
 			//	now = std::time(0);
 
+			for(const evt_erase& e: erase_events)
+			{
+				plugin_lst_iter i = std::find(events[e.e].begin(), events[e.e].end(), e.p);
+				if(i != events[e.e].end())
+					events[e.e].erase(i);
+			}
+			erase_events.clear();
+
 			// Send HEARTBEAT event to plugins
-			for(plugin_vec_iter i = events[HEARTBEAT].begin(); i != events[HEARTBEAT].end(); ++i)
+			for(plugin_lst_iter i = events[HEARTBEAT].begin(); i != events[HEARTBEAT].end(); ++i)
 				(*i)->heartbeat(min, sec);
 
 			bool flagspeed = false; // speed carrying a flag
@@ -1304,13 +1312,13 @@ bool Katina::start(const str& dir)
 				if(events[EXIT].empty())
 					continue;
 
-				for(plugin_vec_iter i = events[EXIT].begin()
+				for(plugin_lst_iter i = events[EXIT].begin()
 					; i != events[EXIT].end(); ++i)
 					(*i)->exit(min, sec);
 			}
 			else if(cmd == "ShutdownGame:")
 			{
-				for(plugin_vec_iter i = events[SHUTDOWN_GAME].begin()
+				for(plugin_lst_iter i = events[SHUTDOWN_GAME].begin()
 					; i != events[SHUTDOWN_GAME].end(); ++i)
 					(*i)->shutdown_game(min, sec);
 
@@ -1344,7 +1352,7 @@ bool Katina::start(const str& dir)
 				if(events[WARMUP].empty())
 					continue;
 
-				for(plugin_vec_iter i = events[WARMUP].begin()
+				for(plugin_lst_iter i = events[WARMUP].begin()
 					; i != events[WARMUP].end(); ++i)
 					(*i)->warmup(min, sec);
 			}
@@ -1398,12 +1406,12 @@ bool Katina::start(const str& dir)
 						siz teamBefore = teams[guid];
 						teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
 
-						for(plugin_vec_iter i = events[CLIENT_USERINFO_CHANGED].begin();
+						for(plugin_lst_iter i = events[CLIENT_USERINFO_CHANGED].begin();
 								i != events[CLIENT_USERINFO_CHANGED].end(); ++i)
 							(*i)->client_userinfo_changed(min, sec, num, team, guid, name, hc);
 
 						if(team != teamBefore && !guid.is_bot())
-							for(plugin_vec_iter i = events[CLIENT_SWITCH_TEAM].begin();
+							for(plugin_lst_iter i = events[CLIENT_SWITCH_TEAM].begin();
 									i != events[CLIENT_SWITCH_TEAM].end(); ++i)
 								(*i)->client_switch_team(min, sec, num, teamBefore, team);
 					}
@@ -1418,7 +1426,7 @@ bool Katina::start(const str& dir)
 				{
 					if(!is_connected(num))
 						clients[num] = null_guid; // connecting
-					for(plugin_vec_iter i = events[CLIENT_CONNECT].begin()
+					for(plugin_lst_iter i = events[CLIENT_CONNECT].begin()
 						; i != events[CLIENT_CONNECT].end(); ++i)
 						(*i)->client_connect(min, sec, num);
 					connected[siz(num)] = true;
@@ -1446,7 +1454,7 @@ bool Katina::start(const str& dir)
 				else
 				{
 					nlog("FOUND: Reliable ClientConnectInfo: event?");
-					for(plugin_vec_iter i = events[CLIENT_CONNECT_INFO].begin()
+					for(plugin_lst_iter i = events[CLIENT_CONNECT_INFO].begin()
 						; i != events[CLIENT_CONNECT_INFO].end(); ++i)
 						(*i)->client_connect_info(min, sec, num, GUID(guid), ip);
 				}
@@ -1461,7 +1469,7 @@ bool Katina::start(const str& dir)
 					nlog("Error parsing ClientBegin: "  << params);
 				else
 				{
-					for(plugin_vec_iter i = events[CLIENT_BEGIN].begin()
+					for(plugin_lst_iter i = events[CLIENT_BEGIN].begin()
 						; i != events[CLIENT_BEGIN].end(); ++i)
 						(*i)->client_begin(min, sec, num);
 				}
@@ -1497,12 +1505,12 @@ bool Katina::start(const str& dir)
 					siz teamBefore = teams[getClientGuid(num)];
 					teams[guid] = TEAM_U;
 
-					for(plugin_vec_iter i = events[CLIENT_DISCONNECT].begin()
+					for(plugin_lst_iter i = events[CLIENT_DISCONNECT].begin()
 						; i != events[CLIENT_DISCONNECT].end(); ++i)
 						(*i)->client_disconnect(min, sec, num);
 
 					   if(teamBefore != TEAM_U && !guid.is_bot())
-							for(plugin_vec_iter i = events[CLIENT_SWITCH_TEAM].begin();
+							for(plugin_lst_iter i = events[CLIENT_SWITCH_TEAM].begin();
 									i != events[CLIENT_SWITCH_TEAM].end(); ++i)
 								(*i)->client_switch_team(min, sec, num, teamBefore, TEAM_U);
 
@@ -1520,7 +1528,7 @@ bool Katina::start(const str& dir)
 					nlog("Error parsing Kill:" << params);
 				else
 				{
-					for(plugin_vec_iter i = events[KILL].begin()
+					for(plugin_lst_iter i = events[KILL].begin()
 						; i != events[KILL].end(); ++i)
 						(*i)->kill(min, sec, num1, num2, weap);
 				}
@@ -1536,7 +1544,7 @@ bool Katina::start(const str& dir)
 					nlog("Error parsing Push:" << params);
 				else
 				{
-					for(plugin_vec_iter i = events[PUSH].begin()
+					for(plugin_lst_iter i = events[PUSH].begin()
 						; i != events[PUSH].end(); ++i)
 						(*i)->push(min, sec, num1, num2);
 				}
@@ -1550,7 +1558,7 @@ bool Katina::start(const str& dir)
 
 				if(iss >> num >> weap >> shots)
 				{
-					for(plugin_vec_iter i = events[WEAPON_USAGE].begin(); i != events[WEAPON_USAGE].end(); ++i)
+					for(plugin_lst_iter i = events[WEAPON_USAGE].begin(); i != events[WEAPON_USAGE].end(); ++i)
 						(*i)->weapon_usage(min, sec, num, weap, shots);
 				}
 				else
@@ -1565,7 +1573,7 @@ bool Katina::start(const str& dir)
 				float weightedHits;
 				if(iss >> num >> mod >> hits >> dmg >> hitsRecv >> dmgRecv >> weightedHits)
 				{
-					for(plugin_vec_iter i = events[MOD_DAMAGE].begin(); i != events[MOD_DAMAGE].end(); ++i)
+					for(plugin_lst_iter i = events[MOD_DAMAGE].begin(); i != events[MOD_DAMAGE].end(); ++i)
 						(*i)->mod_damage(min, sec, num, mod, hits, dmg, hitsRecv, dmgRecv, weightedHits);
 				}
 				else
@@ -1586,7 +1594,7 @@ bool Katina::start(const str& dir)
 				if(iss >> num >> fragsFace >> fragsBack >> fraggedFace >> fraggedBack >> spawnKills >> spawnKillsRecv
 					   >> pushes >> pushesRecv >> health >> armor >> holyShitFrags >> holyShitFragged)
 				{
-					for(plugin_vec_iter i = events[PLAYER_STATS].begin(); i != events[PLAYER_STATS].end(); ++i)
+					for(plugin_lst_iter i = events[PLAYER_STATS].begin(); i != events[PLAYER_STATS].end(); ++i)
 					{
 						(*i)->player_stats(min, sec, num,
 							fragsFace, fragsBack, fraggedFace, fraggedBack,
@@ -1608,7 +1616,7 @@ bool Katina::start(const str& dir)
 					nlog("Error parsing CTF:" << params);
 				else
 				{
-					for(plugin_vec_iter i = events[CTF].begin()
+					for(plugin_lst_iter i = events[CTF].begin()
 						; i != events[CTF].end(); ++i)
 						(*i)->ctf(min, sec, num, col, act);
 				}
@@ -1625,7 +1633,7 @@ bool Katina::start(const str& dir)
 					nlog("Error parsing CTF_EXIT:" << params);
 				else
 				{
-					for(plugin_vec_iter i = events[CTF_EXIT].begin()
+					for(plugin_lst_iter i = events[CTF_EXIT].begin()
 						; i != events[CTF_EXIT].end(); ++i)
 						(*i)->ctf_exit(min, sec, r, b);
 				}
@@ -1645,7 +1653,7 @@ bool Katina::start(const str& dir)
 					nlog("Error parsing SCORE_EXIT:" << params);
 				else
 				{
-					for(plugin_vec_iter i = events[SCORE_EXIT].begin()
+					for(plugin_lst_iter i = events[SCORE_EXIT].begin()
 						; i != events[SCORE_EXIT].end(); ++i)
 						(*i)->score_exit(min, sec, score, ping, num, name);
 				}
@@ -1664,7 +1672,7 @@ bool Katina::start(const str& dir)
 					nlog("Error parsing Speed:" << params);
 				else
 				{
-					for(plugin_vec_iter i = events[SPEED].begin()
+					for(plugin_lst_iter i = events[SPEED].begin()
 						; i != events[SPEED].end(); ++i)
 						(*i)->speed(min, sec, num, dist, time, flagspeed);
 				}
@@ -1681,7 +1689,7 @@ bool Katina::start(const str& dir)
 					nlog("Error parsing Award:" << params);
 				else
 				{
-					for(plugin_vec_iter i = events[AWARD].begin()
+					for(plugin_lst_iter i = events[AWARD].begin()
 						; i != events[AWARD].end(); ++i)
 						(*i)->award(min, sec, num, awd);
 				}
@@ -1735,7 +1743,7 @@ bool Katina::start(const str& dir)
 				if(events[INIT_GAME].empty())
 					continue;
 
-				for(plugin_vec_iter i = events[INIT_GAME].begin()
+				for(plugin_lst_iter i = events[INIT_GAME].begin()
 					; i != events[INIT_GAME].end(); ++i)
 					(*i)->init_game(min, sec, svars);
 			}
@@ -1774,7 +1782,7 @@ bool Katina::start(const str& dir)
 					nlog("Error parsing Callvote: "  << params);
 				else
 				{
-					for(plugin_vec_iter i = events[LOG_CALLVOTE].begin()
+					for(plugin_lst_iter i = events[LOG_CALLVOTE].begin()
 						; i != events[LOG_CALLVOTE].end(); ++i)
 						(*i)->callvote(min, sec, num, type, info);
 				}
@@ -1790,7 +1798,7 @@ bool Katina::start(const str& dir)
 				GUID guid;
 
 				if(extract_name_from_text(line, guid, text))
-					for(plugin_vec_iter i = events[SAYTEAM].begin()
+					for(plugin_lst_iter i = events[SAYTEAM].begin()
 						; i != events[SAYTEAM].end(); ++i)
 						(*i)->sayteam(min, sec, guid, text);
 			}
@@ -1807,7 +1815,7 @@ bool Katina::start(const str& dir)
 					if(!text.find("!katina"))
 						builtin_command(guid, text);
 					else
-						for(plugin_vec_iter i = events[SAY].begin()
+						for(plugin_lst_iter i = events[SAY].begin()
 							; i != events[SAY].end(); ++i)
 							(*i)->say(min, sec, guid, text);
 				}
@@ -1817,7 +1825,7 @@ bool Katina::start(const str& dir)
 				if(events[CHAT].empty())
 					continue;
 
-				for(plugin_vec_iter i = events[CHAT].begin()
+				for(plugin_lst_iter i = events[CHAT].begin()
 					; i != events[CHAT].end(); ++i)
 					(*i)->chat(min, sec, params);
 			}
@@ -1828,7 +1836,7 @@ bool Katina::start(const str& dir)
 
 				//bug("UNKNOWN: " << cmd << "(" << params << ")");
 
-				for(plugin_vec_iter i = events[UNKNOWN].begin()
+				for(plugin_lst_iter i = events[UNKNOWN].begin()
 					; i != events[UNKNOWN].end(); ++i)
 					(*i)->unknown(min, sec, cmd, params);
 			}

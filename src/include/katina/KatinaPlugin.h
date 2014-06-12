@@ -155,6 +155,8 @@ typedef std::unique_ptr<KatinaPlugin> KatinaPluginUPtr;
 
 // TODO: make plugin_vec and plugin_map use KatinaPluginSptr
 
+TYPEDEF_LST(KatinaPlugin*, plugin_lst);
+
 typedef std::vector<KatinaPlugin*> plugin_vec;
 typedef plugin_vec::iterator plugin_vec_iter;
 typedef plugin_vec::const_iterator plugin_vec_citer;

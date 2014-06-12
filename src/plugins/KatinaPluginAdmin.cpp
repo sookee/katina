@@ -1095,6 +1095,10 @@ bool KatinaPluginAdmin::check_slot(slot num)
 
 std::time_t KatinaPluginAdmin::duration_to_time(const str& duration, siz dflt)
 {
+//	bug_func();
+//	pbug_var(duration);
+//	pbug_var(dflt);
+
 	std::time_t t = dflt;
 
 	// 30 w|d|h|m|s
@@ -1105,8 +1109,11 @@ std::time_t KatinaPluginAdmin::duration_to_time(const str& duration, siz dflt)
 	if(!(iss >> t >> std::ws >> units))
 	{
 		plog("ERROR: parsing duration: " << duration);
-		return dflt;
+		return katina.now + dflt;
 	}
+
+//	pbug_var(t);
+//	pbug_var(units);
 
 	if(units == "s")
 		t *= 1;
@@ -1118,6 +1125,8 @@ std::time_t KatinaPluginAdmin::duration_to_time(const str& duration, siz dflt)
 		t *= 60 * 60 * 24;
 	else if (units == "w")
 		t *= 60 * 60 * 24 * 7;
+
+//	pbug_var(t);
 
 	return katina.now + t;
 }
@@ -1383,7 +1392,8 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			s.applied = true;
 
 		sanctions.push_back(s);
-		save_sanctions();
+		if(save_sanctions())
+			plog("mute++ applied to " << s.guid << " " << katina.getPlayerName(guid) << " by " << katina.getPlayerName(say_num));
 	}
 	else if(cmd == trans("!voteban") || cmd == trans("?voteban"))
 	{

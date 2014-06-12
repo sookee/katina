@@ -71,14 +71,11 @@ bool KatinaPluginNextMap::open()
 	//db.on();
 
 	katina.add_var_event(this, "nextmap.active", active);
-//	katina.add_log_event(this, INIT_GAME);
+	katina.add_log_event(this, INIT_GAME);
 //	katina.add_log_event(this, CLIENT_CONNECT_INFO);
 //	katina.add_log_event(this, CLIENT_DISCONNECT);
 	katina.add_log_event(this, SAY);
 	katina.add_log_event(this, EXIT);
-
-	if(!katina.rconset("nextmap", rotmap))
-		plog("WARN: Unable to obtain rotation mapname");
 
 	return true;
 }
@@ -98,15 +95,26 @@ str KatinaPluginNextMap::get_version() const
 	return VERSION;
 }
 
-//bool KatinaPluginNextMap::init_game(siz min, siz sec, const str_map& cvars)
-//{
-//	if(!active)
-//		return true;
-//
-//	// get map stats for all known players ?
-//
-//	return true;
-//}
+bool KatinaPluginNextMap::init_game(siz min, siz sec, const str_map& cvars)
+{
+	bug_func();
+	pbug_var(cvars.at("mapname"));
+	if(!active)
+		return true;
+
+	if(rot_nextmap.empty())
+		return true;
+
+	if(!server.command("set nextmap " + rot_nextmap))
+	{
+		plog("ERROR: can't reset rotation");
+		return true;
+	}
+
+	rot_nextmap.clear();
+
+	return true;
+}
 //
 //bool KatinaPluginNextMap::client_connect_info(siz min, siz sec, slot num, const GUID& guid, const str& ip)
 //{
@@ -156,9 +164,9 @@ bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& tex
 
 bool KatinaPluginNextMap::exit(siz min, siz sec)
 {
+	bug_func();
 	if(!active)
 		return true;
-	bug_func();
 
 	str sep;
 	soss sql;
@@ -238,35 +246,35 @@ bool KatinaPluginNextMap::exit(siz min, siz sec)
 		return true;
 	}
 
-	katina.add_log_event(this, SHUTDOWN_GAME);
+
+	//katina.add_log_event(this, SHUTDOWN_GAME);
 
 	plog("NEXTMAP SUGGESTS: " << nextmap);
+
+	if(rot_nextmap.empty())  // don't splat a rot_nextmap that failed to take
+		if(!katina.rconset("nextmap", rot_nextmap))
+			return true; // no action
+
+	if(!server.command("set katina \"map " + nextmap + "; set nextmap " + rot_nextmap + "\""))
+		return true;
+
+	if(!server.command("set nextmap vstr katina"))
+		plog("ERROR: can't inject nextmap: " << nextmap);
 
 	return true;
 }
 
 bool KatinaPluginNextMap::shutdown_game(siz min, siz sec)
 {
+	bug_func();
 	if(!active)
 		return true;
 	if(nextmap.empty())
 		return true;
 
 	// set m332 "map 17+ctf; set nextmap vstr m333"
-	str rot_nextmap;
-	if(!katina.rconset("nextmap", rot_nextmap))
-		if(!katina.rconset("nextmap", rot_nextmap))
-			return true; // no action
 
-	if(!server.command("map " + nextmap))
-		if(!server.command("map " + nextmap))
-			return true;
-
-	if(!server.command("set nextmap " + rot_nextmap))
-		if(!server.command("set nextmap " + rot_nextmap))
-			plog("ERROR: can't reset rotation");
-
-	katina.del_log_event(this, SHUTDOWN_GAME);
+	//katina.del_log_event(this, SHUTDOWN_GAME);
 
 	return true;
 }
