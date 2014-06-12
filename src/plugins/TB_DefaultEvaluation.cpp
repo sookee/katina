@@ -20,7 +20,7 @@ DefaultEvaluation::DefaultEvaluation(Katina& katina, KatinaPluginTeamBalancer& p
 
 void DefaultEvaluation::loadStats(GUID guid, stats& dest)
 {
-    db.on();
+    db_scoper on(db);
     
     str_vec_vec rows;
     db.select("SELECT weap, SUM(count) FROM kills WHERE guid='" + str(guid) + "' GROUP BY weap", rows, 2);
@@ -51,9 +51,6 @@ void DefaultEvaluation::loadStats(GUID guid, stats& dest)
     db.select("SELECT `mod`, SUM(weightedHits) FROM damage WHERE guid='" + str(guid) + "' GROUP BY `mod`", rows, 2);
     for(siz i=0; i<rows.size(); ++i)
         dest.mod_damage[ to<siz>(rows[i][0]) ].weightedHits = to<float>(rows[i][1]);
-    
-    // TODO: Should this be included? - SooKee
-    //db.off();
 }
     
     

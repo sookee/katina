@@ -755,10 +755,9 @@ siz KatinaPluginStats::get_skill(const GUID& guid, const str& mapname)
 {
 	static str stats;
 	static siz skill;
-	db.on();
+	db_scoper on(db);
 	if(!db.get_ingame_stats(guid, mapname, 0, stats, skill))
 		skill = 0;
-	db.off();
 	return skill;
 }
 

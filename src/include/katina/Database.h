@@ -59,6 +59,8 @@ typedef std::vector<str_vec> str_vec_vec;
 
 class Database
 {
+	friend struct db_scoper;
+
 	bool active;
 
 	str host;
@@ -69,6 +71,16 @@ class Database
 
 	MYSQL mysql;
 	
+	/**
+	 * Open database connection
+	 */
+	void on();
+
+	/**
+	 * Close database connection
+	 */
+	void off();
+
 protected:
 	
 	/**
@@ -111,8 +123,6 @@ protected:
 	 */
 	bool update(const str& sql, my_ulonglong& update_count);
 
-
-
 public:
 	Database();
 	virtual ~Database();
@@ -125,16 +135,6 @@ public:
 		this->pass = pass;
 		this->base = base;
 	}
-
-	/**
-	 * Open database connection
-	 */
-	void on();
-
-	/**
-	 * Close database connection
-	 */
-	void off();
 
 	/**
 	 * Ensure connection
@@ -205,7 +205,6 @@ public:
 	bool get_ingame_stats(const GUID& guid, const str& mapname, siz prev, str& stats, siz& skill);
 	bool get_ingame_crap(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats);
 };
-
 
 struct db_scoper
 {

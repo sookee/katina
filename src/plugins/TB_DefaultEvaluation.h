@@ -12,7 +12,7 @@
 
 namespace katina { namespace plugin {
 
-    
+using namespace katina::data;
     
 class DefaultEvaluation : public PlayerEvaluation
 {
