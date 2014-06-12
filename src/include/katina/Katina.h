@@ -237,6 +237,7 @@ private:
     
     void load_plugins();
 	bool load_plugin(const str& file);
+	bool open_plugin(const str& id);
 	bool unload_plugin(const str& id);
 	bool reload_plugin(const str& id);
     

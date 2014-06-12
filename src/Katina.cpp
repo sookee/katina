@@ -242,15 +242,15 @@ bool Katina::load_plugin(const str& file)
 
 	plugin->dl = dl;
 
-	if(!plugin->open())
-	{
-		log("PLUGIN LOAD: plugin failed to open");
-		delete plugin;
-		if(dlclose(dl))
-			log("PLUGIN LOAD: plugin failed to unload: " << dlerror());
-		return false;
-	}
-
+//	if(!plugin->open())
+//	{
+//		log("PLUGIN LOAD: plugin failed to open");
+//		delete plugin;
+//		if(dlclose(dl))
+//			log("PLUGIN LOAD: plugin failed to unload: " << dlerror());
+//		return false;
+//	}
+//
 	plugins[plugin->get_id()] = plugin;
 	plugin_files[plugin->get_id()] = file;
 
@@ -269,12 +269,13 @@ bool Katina::unload_plugin(const str& id)
 		return false;
 	}
 
+	i->second->close();
+
 	// remove vars
 	cvar_map_map_iter v = vars.find(i->second);
 	if(v != vars.end())
 		vars.erase(v);
 
-	i->second->close();
 	void* dl = i->second->dl;
 	delete i->second;
 	plugins.erase(i);
@@ -315,7 +316,56 @@ bool Katina::reload_plugin(const str& id)
 		return false;
 	}
 
+	if(!open_plugin(id))
+	{
+		log("PLUGIN RELOAD: ERROR: plugin '" << id << "' failed to reopen: " << f->second);
+		return false;
+	}
+
 	return true;
+}
+
+bool Katina::open_plugin(const str& id)
+{
+	log("PLUGIN OPEN: " << id);
+
+	plugin_map_iter p = plugins.find(id);
+
+	if(p == plugins.end())
+	{
+		log("PLUGIN OPEN: ERROR: plugin file not known: " << id);
+		return false;
+	}
+
+	if(!p->second->open())
+	{
+		log("PLUGIN OPEN: ERROR: plugin failed to open: " << id);
+		return false;
+	}
+
+	log("PLUGIN OPEN: OK: " << p->second->get_id() << ", " << p->second->get_name() << ", " << p->second->get_version());
+
+	return true;
+}
+
+void Katina::load_plugins()
+{
+	log("Loading plugins:");
+	str_vec pluginfiles = get_exp_vec("plugin");
+	for(siz i = 0; i < pluginfiles.size(); ++i)
+		load_plugin(pluginfiles[i]);
+
+	log("Opening plugins:");
+	for(plugin_map_iter p = plugins.begin(); p != plugins.end();)
+	{
+		if(open_plugin(p->first))
+			++p;
+		else
+		{
+			delete p->second;
+			p = plugins.erase(p);
+		}
+	}
 }
 
 KatinaPlugin* Katina::get_plugin(const str& id, const str& version)
@@ -505,14 +555,6 @@ void Katina::init_rcon()
 
 	if(get("rcon.active") == "true")
 		server.on();
-}
-
-void Katina::load_plugins()
-{
-	log("Loading plugins:");
-	str_vec pluginfiles = get_exp_vec("plugin");
-	for(siz i = 0; i < pluginfiles.size(); ++i)
-		load_plugin(pluginfiles[i]);
 }
 
 void Katina::builtin_command(const GUID& guid, const str& text)
