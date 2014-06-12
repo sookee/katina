@@ -139,7 +139,7 @@ bool KatinaPluginNextMap::exit(siz min, siz sec)
 
 	str_vec_vec rows;
 
-	db_guard on(db);
+	db_scoper on(db);
 
 	if(!db.select(sql.str(), rows, 2))
 		return true;

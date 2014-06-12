@@ -207,11 +207,11 @@ public:
 };
 
 
-struct db_guard
+struct db_scoper
 {
 	Database& db;
-	db_guard(Database& db): db(db) { db.on(); }
-	~db_guard() { db.off(); }
+	db_scoper(Database& db): db(db) { db.on(); }
+	~db_scoper() { db.off(); }
 };
 
 }} // katina::data

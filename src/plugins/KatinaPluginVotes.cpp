@@ -144,7 +144,7 @@ bool KatinaPluginVotes::init_game(siz min, siz sec, const str_map& cvars)
 	bug_func();
 	
 	// NB. This MUST be done before mapname changes
-	db_guard on(db);
+	db_scoper on(db);
 	for(guid_int_map_iter i = map_votes.begin(); i != map_votes.end(); ++i)
 		db.add_vote("map", mapname, i->first, i->second);
 //	db.off();

@@ -154,10 +154,9 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 		logged_time += p->second.logged_time;
 	}
 
+    db_scoper on(db);
 	if(logged_time && write)
 	{
-        db.on();
-        
 		game_id id = db.add_game(host, port, mapname);
         
 		if(id != null_id && id != bad_id)
@@ -213,21 +212,14 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 					db.add_ovo(id, o->first, p->first, p->second);
             }
 		}
-
-		// prepare stats to be displayed at the start of next game
-		do_prev_stats = false; // these are rubbish
-//		prev_mapname = mapname;
-//		prev_game_stats.clear();
-//		siz skill;
-//		str stats;
-//		for(guid_str_map_iter p = players.begin(); p != players.end(); ++p)
-//			if(db.get_ingame_stats(p->first, mapname, 0, stats, skill))
-//				prev_game_stats.insert(std::pair<siz,str>(skill, stats + " ^7" + p->second));
-//		if(!prev_game_stats.empty())
-//			do_prev_stats = true;
-
-        db.off();
 	}
+
+	str stats;
+	GUID guid;
+	if(db.get_ingame_boss(mapname, clients, guid, stats) && guid != null_guid)
+		server.msg_to_all("^7BOSS: " + katina.getPlayerName(guid) + "^7: " + stats, true);
+	else
+		server.msg_to_all("^7BOSS: ^3There is no boss on this map", true);
 
 	stats.clear();
 	onevone.clear();
@@ -479,6 +471,16 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 		}
 		do_prev_stats = false;
 	}
+
+	db_scoper on(db);
+
+	str stats;
+	GUID guid;
+	if(db.get_ingame_boss(mapname, clients, guid, stats) && guid != null_guid)
+		server.msg_to_all("^7BOSS: " + katina.getPlayerName(guid) + "^7: " + stats, true);
+	else
+		server.msg_to_all("^7BOSS: ^3There is no boss on this map", true);
+
 	return true;
 }
 
@@ -632,10 +634,9 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 
 		if(write && katina.getPlayerName(guid) != "UnnamedPlayer" && katina.getPlayerName(guid) != "RenamedPlayer")
 		{
-			db.on();
+			db_scoper on(db);
 			if(db.set_preferred_name(guid, katina.getPlayerName(guid)))
 				server.chat(PREFIX + katina.getPlayerName(guid) + "^7: ^3Your preferred name has been registered.");
-			db.off();
 		}
 	}
 	else if(cmd == "!help" || cmd == "?help")
@@ -662,7 +663,7 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 		bug_var(prev);
 
 		bug("getting stats");
-		db.on();
+		db_scoper on(db);
 		str stats;
 		siz idx = 0;
 		if(db.get_ingame_stats(guid, mapname, prev, stats, idx))
@@ -673,7 +674,6 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 //			server.msg_to_all(stats + "^3SK^7:" + skill +" ^7" + players[guid]);
 			server.msg_to_all(stats + " ^7" + katina.getPlayerName(guid));
 		}
-		db.off();
 	}
 /*	else if(cmd == "!champ") // last month's champion
 	{
@@ -701,14 +701,13 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 		}
 
 		bug("getting boss");
-		db.on();
+		db_scoper on(db);
 		str stats;
 		GUID guid;
 		if(db.get_ingame_boss(mapname, clients, guid, stats) && guid != null_guid)
 			server.msg_to_all("^7BOSS: " + katina.getPlayerName(guid) + "^7: " + stats, true);
 		else
 			server.msg_to_all("^7BOSS: ^3There is no boss on this map", true);
-		db.off();
 	}
 	else if(cmd == "!crap" || cmd == "?crap") // best player in this game (from current months stats)
 	{
@@ -721,14 +720,13 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 		}
 
 		bug("getting crappiest");
-		db.on();
+		db_scoper on(db);
 		str stats;
 		GUID guid;
 		if(db.get_ingame_crap(mapname, clients, guid, stats) && guid != null_guid)
 			server.msg_to_all("^7CRAPPIEST: " + katina.getPlayerName(guid) + "^7: " + stats, true);
 		else
 			server.msg_to_all("^7CRAPPIEST: ^3There is no crappiest on this map", true);
-		db.off();
 	}
 	return true;
 }

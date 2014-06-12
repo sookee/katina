@@ -71,8 +71,8 @@ struct _
 		// virtual bool katina::plugin::KatinaPluginVotes::init_game(
 
 		siz pos = this->f.find_last_of('/');
-		if(pos != str::npos)
-			this->f = this->f.substr(pos);
+		if(pos != str::npos && (pos + 1) < this->f.size())
+			this->f = this->f.substr(pos + 1);
 		std::cout << "\n---> " << n << " [" << f << "]\n\n";
 	}
 	~_() { std::cout << "\n<--- " << n << " [" << f << "]\n\n"; }
