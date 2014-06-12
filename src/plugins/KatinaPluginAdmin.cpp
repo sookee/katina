@@ -38,7 +38,6 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <katina/codes.h>
 #include <katina/time.h>
 
-
 namespace katina { namespace plugin {
 
 using namespace katina::log;
@@ -1290,8 +1289,11 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			msg << " ^7!^1ALERT^7! ^3" + request + "^7[" + katina.getPlayerName(guid) + "^7]";
 
 			for(const str& admin: admins)
-				irc->send("/msg " + admin + oa_to_IRC(msg.str()));
-//
+			{
+				plog("ALERTING ADMIN: " << admin);
+				irc->send("/msg " + admin + " " + oa_to_IRC(msg.str()));
+			}
+
 //			if(irc->chat('a', "^3!^1ALERT^3! ^7" + katina.get("admin.alert.irc.admins") + " ^3" + request))
 //				server.msg_to(say_num, katina.get_name() + "^7: "
 //						+   katina.getPlayerName(guid)
