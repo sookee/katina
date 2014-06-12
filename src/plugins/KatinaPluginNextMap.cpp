@@ -116,7 +116,7 @@ bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& tex
 {
 	if(!active)
 		return true;
-	//plog("say(" << guid << ", " << text << ")");
+
 	return true;
 }
 
@@ -204,7 +204,7 @@ bool KatinaPluginNextMap::exit(siz min, siz sec)
 	}
 
 
-	plog("NEXTMAP SUGGESTS: " << nextmap << (enforcing?" won't enforce":" ENFORCING"));
+	plog("NEXTMAP SUGGESTS: " << nextmap << (enforcing?" ENFORCING":" won't enforce"));
 
 	if(rot_nextmap.empty())  // don't splat a rot_nextmap that failed to take
 		if(!katina.rconset("nextmap", rot_nextmap))

@@ -310,49 +310,25 @@ void KatinaPluginStats::unstall_clients()
 void KatinaPluginStats::check_bots_and_players()
 {
 	bool had_bots = have_bots;
-	//bool human_players_nr_or_nb = !human_players_r || !human_players_b;
 
 	have_bots = false;
 	human_players_r = 0;
 	human_players_b = 0;
     
-//    if(recordBotGames)
-//        return;
-
-//	pbug("check_bots_and_players: teams:");
 	for(guid_siz_map_citer ci = teams.begin(); ci != teams.end(); ++ci)
 	{
-//		pbug("{" << str(ci->first) << ", " << ci->second << "}");
-//		if(guid != null_guid && ci->first == guid) // avoid disconnected client
-//			continue;
-//		if(katina.is_disconnected(ci->first))
-//			continue;
-		// Disconnected clients have team set to TEAM_U
 		if(ci->first.is_bot())
-		{
-			//pbug("FOUND A BOT    : " << katina.getPlayerName(ci->first));
 			have_bots = true;
-		}
 		else if(ci->second == TEAM_R)
-		{
-			//pbug("FOUND A HUMAN R: " << katina.getPlayerName(ci->first));
 			++human_players_r;
-		}
 		else if(ci->second == TEAM_B)
-		{
-			//pbug("FOUND A HUMAN B: " << katina.getPlayerName(ci->first));
 			++human_players_b;
-		}
 	}
-
-//	bug_var(have_bots);
-//	bug_var(human_players_r);
-//	bug_var(human_players_b);
 
 	if(have_bots || !human_players_r || !human_players_b)
     {
-        stall_clients();
         have_bots = true; // TODO: one flag for everything, maybe change its name?
+        stall_clients();
         
         if(had_bots != have_bots)
             server.chat("^2Stats recording deactivated^7");
@@ -367,10 +343,6 @@ void KatinaPluginStats::check_bots_and_players()
 
 bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, slot num, siz team, const GUID& guid, const str& name, siz hc)
 {
-	//bug("KatinaPluginStats::client_userinfo_changed: [" <<  guid << "] " << name << " now: " << katina.now);
-	//bug("in_game: " << in_game);
-	//std::cout << std::endl;
-
 	if(!guid.is_bot())
 		stats[guid].name = name;
 
@@ -383,16 +355,6 @@ bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, slot num, siz 
 
 	return true;
 }
-
-//bool KatinaPluginStats::client_connect(siz min, siz sec, slot num)
-//{
-//	if(!active)
-//		return true;
-//
-//	// DON'T do this. ClientUserinfoChanged even fired BEFORE this
-//	// for some reason
-//	// stall_client(katina.getClientGuid(num));
-//}
 
 bool KatinaPluginStats::client_disconnect(siz min, siz sec, slot num)
 {
@@ -415,17 +377,14 @@ bool KatinaPluginStats::kill(siz min, siz sec, slot num1, slot num2, siz weap)
 		return true;
 	if(have_bots)
 		return true;
-//	if(!human_players_r || !human_players_b)
-//		return true;
+
 	if(clients.find(num1) == clients.end() || clients.find(num2) == clients.end())
 		return true;
 
 	if(num1 == slot(1022)) // no killer
 		++stats[katina.getClientGuid(num2)].deaths[weap];
     
-    // Don't add killed bots to player stats
-    // but count the kills of the bot itself
-	else //if(katina.getClientGuid(num1).is_bot() || !katina.getClientGuid(num2).is_bot())
+	else if(!katina.getClientGuid(num1).is_bot() && !katina.getClientGuid(num2).is_bot())
 	{
 		if(num1 != num2)
 		{
@@ -441,7 +400,7 @@ bool KatinaPluginStats::kill(siz min, siz sec, slot num1, slot num2, siz weap)
 		}
         
         //if(!katina.getClientGuid(num2).is_bot())
-            ++stats[katina.getClientGuid(num2)].deaths[weap];
+		++stats[katina.getClientGuid(num2)].deaths[weap];
 	}
 
 	return true;
