@@ -204,7 +204,7 @@ bool KatinaPluginNextMap::exit(siz min, siz sec)
 	}
 
 
-	plog("NEXTMAP SUGGESTS: " << nextmap << (enforcing?" ENFORCING":" won't enforce"));
+	plog("NEXTMAP SUGGESTS: " << nextmap << " from " << maps.size() << (enforcing?" ENFORCING":" NOT ENFORCING"));
 
 	if(rot_nextmap.empty())  // don't splat a rot_nextmap that failed to take
 		if(!katina.rconset("nextmap", rot_nextmap))

@@ -1210,6 +1210,7 @@ bool Katina::start(const str& dir)
 		// working variables
 		char c;
 		siz min, sec;
+		siz prev_sec = siz(-1);
 		str line, skip, name, cmd;
 		siss iss;
 
@@ -1301,9 +1302,12 @@ bool Katina::start(const str& dir)
 			erase_events.clear();
 
 			// Send HEARTBEAT event to plugins
-			for(plugin_lst_iter i = events[HEARTBEAT].begin(); i != events[HEARTBEAT].end(); ++i)
-				(*i)->heartbeat(min, sec);
-
+			if(sec != prev_sec)
+			{
+				prev_sec = sec;
+				for(plugin_lst_iter i = events[HEARTBEAT].begin(); i != events[HEARTBEAT].end(); ++i)
+					(*i)->heartbeat(min, sec);
+			}
 			bool flagspeed = false; // speed carrying a flag
 
 			if(cmd == "Exit:")
@@ -1325,26 +1329,6 @@ bool Katina::start(const str& dir)
 				clients.clear();
 				players.clear();
 				teams.clear();
-
-				// these are clients that disconnected before the game ended
-//				nlog("SHUTDOWN ERASE: dumping: " << std::to_string(shutdown_erase.size()));
-//				siz nt = teams.size() - shutdown_erase.size();
-//				siz np = players.size() - shutdown_erase.size();
-//				for(const GUID& guid: shutdown_erase)
-//				{
-//					nlog("SHUTDOWN ERASE: " << guid);
-//					teams.erase(guid);
-//					players.erase(guid);
-//				}
-//				if(nt != teams.size())
-//					nlog("WARN: erase discrepancy in teams: have: " << teams.size() << " expected: " << nt << " at: " << n);
-//				if(np != players.size())
-//					nlog("WARN: erase discrepancy in players: have: " << players.size() << " expected: " << np << " at: " << n);
-//				shutdown_erase.clear();
-//				if(clients.size() != players.size())
-//					nlog("WARN: discrepancy between clients: " << clients.size() << " and players: " << players.size());
-//				if(clients.size() != teams.size())
-//					nlog("WARN: discrepancy between clients: " << clients.size() << " and teams: " << teams.size());
 			}
 			else if(cmd == "Warmup:")
 			{

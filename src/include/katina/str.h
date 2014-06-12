@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef _OASTATS_STR_H_
 #define _OASTATS_STR_H_
 /*
@@ -230,7 +230,6 @@ str& replace(str& s, const str& from, const str& to)
 		s.replace(pos, from.size(), to);
 	return s;
 }
-
 
 }} // katina::string
 

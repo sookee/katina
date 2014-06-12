@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef _OASTATS_UTILS_H_
 #define _OASTATS_UTILS_H_
 /*
@@ -123,14 +123,14 @@ bool ls(const str& folder, str_vec &files)
 	return true;
 }
 
-class lock_guard
-{
-	pthread_mutex_t& mtx;
-	
-public:
-	lock_guard(pthread_mutex_t& mtx): mtx(mtx) { pthread_mutex_lock(&mtx); }
-	~lock_guard() { pthread_mutex_unlock(&mtx); }
-};
+//class lock_guard
+//{
+//	pthread_mutex_t& mtx;
+//
+//public:
+//	lock_guard(pthread_mutex_t& mtx): mtx(mtx) { pthread_mutex_lock(&mtx); }
+//	~lock_guard() { pthread_mutex_unlock(&mtx); }
+//};
 
 }} // katina::utils
 

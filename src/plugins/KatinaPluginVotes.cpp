@@ -77,7 +77,7 @@ bool KatinaPluginVotes::open()
 	katina.add_log_event(this, INIT_GAME);
 	katina.add_log_event(this, SAY);
 	katina.add_log_event(this, SAYTEAM);
-	katina.add_log_event(this, HEARTBEAT);
+//	katina.add_log_event(this, HEARTBEAT);
 
 	return true;
 }
@@ -144,7 +144,7 @@ bool KatinaPluginVotes::init_game(siz min, siz sec, const str_map& cvars)
 	bug_func();
 	
 	// NB. This MUST be done before mapname changes
-	db.on();
+	db_guard on(db);
 	for(guid_int_map_iter i = map_votes.begin(); i != map_votes.end(); ++i)
 		db.add_vote("map", mapname, i->first, i->second);
 //	db.off();
@@ -154,11 +154,18 @@ bool KatinaPluginVotes::init_game(siz min, siz sec, const str_map& cvars)
 
 	// load map votes for new map
 //	db.on();
-	db.read_map_votes(mapname, map_votes);
-	db.off();
+	if(!db.read_map_votes(mapname, map_votes))
+	{
+		map_votes.clear();
+		plog("WARN: failed to read map votes");
+		return true;
+		announce_time = 0;
+	}
 
 	if(!announce_time)
 		announce_time = katina.get("votes.announce.delay", 10);
+
+	katina.add_log_event(this, HEARTBEAT);
 
 	return true;
 }
@@ -167,6 +174,8 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 {
 	if(!announce_time || min || sec < announce_time)
 		return;
+
+	katina.del_log_event(this, HEARTBEAT);
 
 	pbug("HEARTBEAT");
 
@@ -193,11 +202,11 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 				continue;
 			}
 
-	//		if(i->first > 32)
-	//		{
-	//			plog("ERROR: Client number too large: " << i->first);
-	//			continue;
-	//		}
+			if(i->first > slot(32))
+			{
+				plog("ERROR: Client number too large: " << i->first);
+				continue;
+			}
 
 			pbug_var(i->first);
 			pbug_var(i->second);

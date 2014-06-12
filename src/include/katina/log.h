@@ -64,9 +64,17 @@ str get_stamp()
 #define bug_var(v) bug(QUOTE(v:) << std::boolalpha << " " << v)
 struct _
 {
-	const char* n;
-	const char* f;
-	_(const char* n, const char* f): n(n), f(f) { std::cout << "\n---> " << n << " [" << f << "]\n\n"; }
+	str n;
+	str f;
+	_(const char* n, const char* f): n(n), f(f)
+	{
+		// virtual bool katina::plugin::KatinaPluginVotes::init_game(
+
+		siz pos = this->f.find_last_of('/');
+		if(pos != str::npos)
+			this->f = this->f.substr(pos);
+		std::cout << "\n---> " << n << " [" << f << "]\n\n";
+	}
 	~_() { std::cout << "\n<--- " << n << " [" << f << "]\n\n"; }
 };
 #define bug_func() katina::log::_ __(__PRETTY_FUNCTION__, __FILE__)

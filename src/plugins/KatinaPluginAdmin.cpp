@@ -1286,7 +1286,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 
 			soss msg;
 
-			msg << " ^7!^1ALERT^7! ^3" + request + "^7[" + katina.getPlayerName(guid) + "^7]";
+			msg << " ^7!^1ALERT^7! ^3" + request + " ^7[" + katina.getPlayerName(guid) + "^7]";
 
 			for(const str& admin: admins)
 			{
