@@ -68,12 +68,10 @@ bool KatinaPluginNextMap::open()
 		return false;
 	}
 
-	//db.on();
+	katina.add_var_event(this, "nextmap.active", active, false);
+	katina.add_var_event(this, "nextmap.enforcing", enforcing, false);
 
-	katina.add_var_event(this, "nextmap.active", active);
 	katina.add_log_event(this, INIT_GAME);
-//	katina.add_log_event(this, CLIENT_CONNECT_INFO);
-//	katina.add_log_event(this, CLIENT_DISCONNECT);
 	katina.add_log_event(this, SAY);
 	katina.add_log_event(this, EXIT);
 
@@ -97,8 +95,6 @@ str KatinaPluginNextMap::get_version() const
 
 bool KatinaPluginNextMap::init_game(siz min, siz sec, const str_map& cvars)
 {
-	bug_func();
-	pbug_var(cvars.at("mapname"));
 	if(!active)
 		return true;
 
@@ -115,44 +111,6 @@ bool KatinaPluginNextMap::init_game(siz min, siz sec, const str_map& cvars)
 
 	return true;
 }
-//
-//bool KatinaPluginNextMap::client_connect_info(siz min, siz sec, slot num, const GUID& guid, const str& ip)
-//{
-//	if(!active)
-//		return true;
-//
-//	//pbug("Finding votes for player: " << guid << " " << katina.getPlayerName(guid));
-//
-//	// get map stats for this player
-//	soss sql;
-//	sql << "select `item`,`count` from `votes` where `type` = 'map' and guid = '" << str(guid) << "'";
-//	//pbug_var(sql.str());
-//	str_vec_vec rows;
-//	if(!db.select(sql.str(), rows, 2))
-//	{
-//		pbug("UNREPORTED DATABASE ERROR: " << db.error());
-//		return true;
-//	}
-//	// guid -> {mapname, count}
-//	for(siz row = 0; row < rows.size(); ++row)
-//	{
-//		pbug("vote: " << rows[row][0] << " [" << rows[row][1] << "]");
-//		votes[guid] = vote(rows[row][0], to<int>(rows[row][1]));
-//	}
-//
-//	return true;
-//}
-//
-//bool KatinaPluginNextMap::client_disconnect(siz min, siz sec, slot num)
-//{
-//	if(!active)
-//		return true;
-//
-//	// drop map stats
-//	votes.erase(katina.getClientGuid(num));
-//
-//	return true;
-//}
 
 bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& text)
 {
@@ -164,7 +122,6 @@ bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& tex
 
 bool KatinaPluginNextMap::exit(siz min, siz sec)
 {
-	bug_func();
 	if(!active)
 		return true;
 
@@ -247,9 +204,7 @@ bool KatinaPluginNextMap::exit(siz min, siz sec)
 	}
 
 
-	//katina.add_log_event(this, SHUTDOWN_GAME);
-
-	plog("NEXTMAP SUGGESTS: " << nextmap);
+	plog("NEXTMAP SUGGESTS: " << nextmap << (enforcing?" won't enforce":" ENFORCING"));
 
 	if(rot_nextmap.empty())  // don't splat a rot_nextmap that failed to take
 		if(!katina.rconset("nextmap", rot_nextmap))
@@ -258,23 +213,9 @@ bool KatinaPluginNextMap::exit(siz min, siz sec)
 	if(!server.command("set katina \"map " + nextmap + "; set nextmap " + rot_nextmap + "\""))
 		return true;
 
-	if(!server.command("set nextmap vstr katina"))
-		plog("ERROR: can't inject nextmap: " << nextmap);
-
-	return true;
-}
-
-bool KatinaPluginNextMap::shutdown_game(siz min, siz sec)
-{
-	bug_func();
-	if(!active)
-		return true;
-	if(nextmap.empty())
-		return true;
-
-	// set m332 "map 17+ctf; set nextmap vstr m333"
-
-	//katina.del_log_event(this, SHUTDOWN_GAME);
+	if(enforcing)
+		if(!server.command("set nextmap vstr katina"))
+			plog("ERROR: can't inject nextmap: " << nextmap);
 
 	return true;
 }
