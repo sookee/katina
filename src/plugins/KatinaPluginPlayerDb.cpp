@@ -202,11 +202,25 @@ str KatinaPluginPlayerDb::get_id() const { return ID; }
 str KatinaPluginPlayerDb::get_name() const { return NAME; }
 str KatinaPluginPlayerDb::get_version() const { return VERSION; }
 
+TYPEDEF_MAP(slot, GUID, slot_guid_map);
+TYPEDEF_MAP(slot, str, slot_str_map);
+
+static slot_guid_map hold_guids;
+static slot_str_map hold_ips;
+
 bool KatinaPluginPlayerDb::client_connect_info(siz min, siz sec, slot num, const GUID& guid, const str& ip)
 {
 	if(ip.empty())
 	{
 		plog("WARN: empty ip address");
+		return true;
+	}
+
+	if(katina.mod_katina < "0.1.1")
+	{
+		// untrustworthy until NEXT client_userinfo_changed when it can be checked
+		hold_guids[num] = guid;
+		hold_ips[num] = ip;
 		return true;
 	}
 
@@ -234,6 +248,15 @@ bool KatinaPluginPlayerDb::client_userinfo_changed(siz min, siz sec, slot num, s
 {
 	if(guid.is_bot())
 		return true;
+
+	if(!hold_ips[num].empty())
+	{
+		str ip = hold_ips[num];
+		hold_ips[num].clear();
+		if(guid != hold_guids[num]) // then we can't trust the ip
+			return true;
+		ips[num] = ip;
+	}
 
 	if(ips.find(num) == ips.end())
 	{
