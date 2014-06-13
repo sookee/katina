@@ -81,6 +81,15 @@ class Database
 	 */
 	void off();
 
+	// KatinaPluinStats
+	//struct playerstats {};
+	MYSQL_STMT *stmt_add_playerstats = 0;
+	MYSQL_BIND bind_add_playerstats[16];
+	siz siz_add_playerstats[16];
+	char guid_add_playerstats[9];
+	siz guid_length = 8;
+
+
 protected:
 	
 	/**
@@ -154,6 +163,8 @@ public:
 	 */
 	bool select(const str& sql, str_vec_vec& rows, siz fields = 0);
 
+
+
 	game_id add_game(const str& host, const str& port, const str& mapname);
 
 	/**
@@ -187,6 +198,11 @@ public:
 	bool add_weapon_usage(game_id id, const GUID& guid, siz weap, siz shots);
 	bool add_mod_damage(game_id id, const GUID& guid, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv, float weightedHits);
 	bool add_playerstats(game_id id, const GUID& guid,
+		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
+		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
+		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,
+		siz carrierFrags, siz carrierFragsRecv);
+	bool add_playerstats_ps(game_id id, const GUID& guid,
 		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
 		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
 		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,

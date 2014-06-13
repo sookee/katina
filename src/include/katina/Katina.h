@@ -225,7 +225,7 @@ private:
 	plugin_map plugins; // id -> KatinaPlugin*
 	str_map plugin_files; // id -> filename (for reloading))
 
-	event_map events; // event -> plugin_vec
+	event_map events; // event -> plugin_lst
 	cvar_map_map vars; // plugin* -> {name -> cvar*}
 
 	GUID guid_from_name(const str& name);

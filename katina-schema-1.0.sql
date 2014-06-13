@@ -142,6 +142,50 @@ CREATE  TABLE IF NOT EXISTS `playerstats` (
 ENGINE = MyISAM
 DEFAULT CHARACTER SET = utf8;
 
+DROP PROCEDURE IF EXISTS add_playerstats;
+delimiter //
+CREATE PROCEDURE add_playerstats
+(
+    IN game_id INT(4)
+    , IN guid VARCHAR(8)
+    , IN fragsFace INT(2)
+    , IN fragsBack INT(2)
+    , IN fraggedInFace INT(2)
+    , IN fraggedInBack INT(2)
+    , IN spawnKillsDone INT(2)
+    , IN spawnKillsRecv INT(2)
+    , IN pushesDone INT(2)
+    , IN pushesRecv INT(2)
+    , IN healthPickedUp INT(4)
+    , IN armorPickedUp INT(4)
+    , IN holyShitFrags INT(2)
+    , IN holyShitFragged INT(2)
+    , IN carrierFrags INT(2)
+    , IN carrierFragsRecv INT(2)
+)
+BEGIN
+    INSERT INTO `playerstats` VALUES
+    (
+        game_id
+        , guid
+        , fragsFace
+        , fragsBack
+        , fraggedInFace
+        , fraggedInBack
+        , spawnKillsDone
+        , spawnKillsRecv
+        , pushesDone
+        , pushesRecv
+        , healthPickedUp
+        , armorPickedUp
+        , holyShitFrags
+        , holyShitFragged
+        , carrierFrags
+        , carrierFragsRecv
+    );
+END //
+delimiter ;
+
 -- -----------------------------------------------------
 -- Table `speed`
 -- -----------------------------------------------------

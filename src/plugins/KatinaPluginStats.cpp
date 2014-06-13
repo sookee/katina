@@ -55,6 +55,8 @@ KatinaPluginStats::KatinaPluginStats(Katina& katina)
 , players(katina.getPlayers())
 , teams(katina.getTeams())
 , server(katina.server)
+, db()
+, on(db)
 , active(true)
 , write(true)
 , recordBotGames(false)
@@ -154,8 +156,7 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 		logged_time += p->second.logged_time;
 	}
 
-    db_scoper on(db);
-	if(logged_time && write)
+ 	if(logged_time && write)
 	{
 		game_id id = db.add_game(host, port, mapname);
         
@@ -191,7 +192,7 @@ bool KatinaPluginStats::exit(siz min, siz sec)
                 for(moddmg_map_citer md = p->second.mod_damage.begin(); md != p->second.mod_damage.end(); ++md)
                     db.add_mod_damage(id, p->first, md->first, md->second.hits, md->second.damage, md->second.hitsRecv, md->second.damageRecv, md->second.weightedHits);
 
-                db.add_playerstats(id, p->first,
+                db.add_playerstats_ps(id, p->first,
                     p->second.fragsFace, p->second.fragsBack, p->second.fraggedInFace, p->second.fraggedInBack,
                     p->second.spawnKills, p->second.spawnKillsRecv, p->second.pushes, p->second.pushesRecv,
                     p->second.healthPickedUp, p->second.armorPickedUp, p->second.holyShitFrags, p->second.holyShitFragged,
@@ -472,8 +473,6 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 		do_prev_stats = false;
 	}
 
-	db_scoper on(db);
-
 	str stats;
 	GUID guid;
 	if(db.get_ingame_boss(mapname, clients, guid, stats) && guid != null_guid)
@@ -634,7 +633,6 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 
 		if(write && katina.getPlayerName(guid) != "UnnamedPlayer" && katina.getPlayerName(guid) != "RenamedPlayer")
 		{
-			db_scoper on(db);
 			if(db.set_preferred_name(guid, katina.getPlayerName(guid)))
 				server.chat(PREFIX + katina.getPlayerName(guid) + "^7: ^3Your preferred name has been registered.");
 		}
@@ -663,7 +661,7 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 		bug_var(prev);
 
 		bug("getting stats");
-		db_scoper on(db);
+
 		str stats;
 		siz idx = 0;
 		if(db.get_ingame_stats(guid, mapname, prev, stats, idx))
@@ -701,7 +699,7 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 		}
 
 		bug("getting boss");
-		db_scoper on(db);
+
 		str stats;
 		GUID guid;
 		if(db.get_ingame_boss(mapname, clients, guid, stats) && guid != null_guid)
@@ -720,7 +718,7 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 		}
 
 		bug("getting crappiest");
-		db_scoper on(db);
+
 		str stats;
 		GUID guid;
 		if(db.get_ingame_crap(mapname, clients, guid, stats) && guid != null_guid)
@@ -755,7 +753,7 @@ siz KatinaPluginStats::get_skill(const GUID& guid, const str& mapname)
 {
 	static str stats;
 	static siz skill;
-	db_scoper on(db);
+
 	if(!db.get_ingame_stats(guid, mapname, 0, stats, skill))
 		skill = 0;
 	return skill;
