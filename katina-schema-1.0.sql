@@ -121,6 +121,62 @@ DEFAULT CHARACTER SET = utf8;
 -- Table `playerstats`
 -- -----------------------------------------------------
 
+CREATE  TABLE IF NOT EXISTS `facefrags` (
+  `game_id` INT(4) UNSIGNED NOT NULL ,
+  `guid` VARCHAR(8) NOT NULL ,
+  `toface` INT(2) UNSIGNED NOT NULL ,
+  `toback` INT(2) UNSIGNED NOT NULL ,
+  `inface` INT(2) UNSIGNED NOT NULL ,
+  `inback` INT(2) UNSIGNED NOT NULL ,
+  PRIMARY KEY (`game_id`, `guid`) )
+ENGINE = MyISAM
+DEFAULT CHARACTER SET = utf8;
+
+CREATE  TABLE IF NOT EXISTS `spawnkills` (
+  `game_id` INT(4) UNSIGNED NOT NULL ,
+  `guid` VARCHAR(8) NOT NULL ,
+  `done` INT(2) UNSIGNED NOT NULL ,
+  `recv` INT(2) UNSIGNED NOT NULL ,
+  PRIMARY KEY (`game_id`, `guid`) )
+ENGINE = MyISAM
+DEFAULT CHARACTER SET = utf8;
+
+CREATE  TABLE IF NOT EXISTS `pushes` (
+  `game_id` INT(4) UNSIGNED NOT NULL ,
+  `guid` VARCHAR(8) NOT NULL ,
+  `done` INT(2) UNSIGNED NOT NULL ,
+  `recv` INT(2) UNSIGNED NOT NULL ,
+  PRIMARY KEY (`game_id`, `guid`) )
+ENGINE = MyISAM
+DEFAULT CHARACTER SET = utf8;
+
+CREATE  TABLE IF NOT EXISTS `pickups` (
+  `game_id` INT(4) UNSIGNED NOT NULL ,
+  `guid` VARCHAR(8) NOT NULL ,
+  `health` INT(4) UNSIGNED NOT NULL ,
+  `armour` INT(4) UNSIGNED NOT NULL ,
+  PRIMARY KEY (`game_id`, `guid`) )
+ENGINE = MyISAM
+DEFAULT CHARACTER SET = utf8;
+
+CREATE  TABLE IF NOT EXISTS `holycraps` (
+  `game_id` INT(4) UNSIGNED NOT NULL ,
+  `guid` VARCHAR(8) NOT NULL ,
+  `done` INT(2) UNSIGNED NOT NULL ,
+  `recv` INT(2) UNSIGNED NOT NULL ,
+  PRIMARY KEY (`game_id`, `guid`) )
+ENGINE = MyISAM
+DEFAULT CHARACTER SET = utf8;
+
+CREATE  TABLE IF NOT EXISTS `flagkills` (
+  `game_id` INT(4) UNSIGNED NOT NULL ,
+  `guid` VARCHAR(8) NOT NULL ,
+  `done` INT(2) UNSIGNED NOT NULL ,
+  `recv` INT(2) UNSIGNED NOT NULL ,
+  PRIMARY KEY (`game_id`, `guid`) )
+ENGINE = MyISAM
+DEFAULT CHARACTER SET = utf8;
+
 CREATE  TABLE IF NOT EXISTS `playerstats` (
   `game_id` INT(4) UNSIGNED NOT NULL ,
   `guid` VARCHAR(8) NOT NULL ,

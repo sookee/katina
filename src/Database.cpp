@@ -394,6 +394,7 @@ bool Database::add_playerstats(game_id id, const GUID& guid,
 	return insert(sql);
 }
 
+// TODO: split these up into separate tables
 bool Database::add_playerstats_ps(game_id id, const GUID& guid,
 	siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
 	siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,

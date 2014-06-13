@@ -134,7 +134,6 @@ str prev_mapname;
 
 bool KatinaPluginStats::exit(siz min, siz sec)
 {
-	//bug("in_game: " << in_game);
 	if(!in_game)
 		return true;
 
@@ -143,8 +142,12 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 	if(!active)
 		return true;
 
+	bug_func();
 	// in game timing
 	std::time_t logged_time = 0;
+
+	pbug_var(logged_time);
+
 	for(guid_stat_map_iter p = stats.begin(); p != stats.end(); ++p)
 	{
 		if(p->second.joined_time)

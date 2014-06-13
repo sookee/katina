@@ -923,30 +923,30 @@ bool Katina::parse_slot_guid_name(const str& slot_guid_name, slot& num)
 {
 	// 12 | A0B65FD9 | wibble
 
-	slot n;
+	slot s;
 
 	if(slot_guid_name.size() > 2 && slot_guid_name.size() < 8) // try GUID startswith
 		for(guid_siz_map_citer i = teams.begin(); i != teams.end(); ++i)
 			if(!upper_copy(str(i->first)).find(upper_copy(slot_guid_name)))
-				if((n = getClientSlot(i->first)) != bad_slot)
-					return (num = n) != bad_slot;
+				if((s = getClientSlot(i->first)) != bad_slot)
+					return (num = s) != bad_slot;
 
 	if(slot_guid_name.size() > 3) // try name submatch
 		for(guid_str_map_citer i = players.begin(); i != players.end(); ++i)
 			if(sanitized(i->second).find(lower_copy(slot_guid_name)) != str::npos)
-				if((n = getClientSlot(i->first)) != bad_slot)
-					return (num = n) != bad_slot;
+				if((s = getClientSlot(i->first)) != bad_slot)
+					return (num = s) != bad_slot;
 
 	siss iss(slot_guid_name);
 	if(slot_guid_name.size() < 3) // try slot match
-		if(iss >> n && check_slot(n))
-			return (num = n) != bad_slot;
+		if(iss >> s && check_slot(s))
+			return (num = s) != bad_slot;
 
 	// try exact name match
 	for(guid_str_map_citer i = players.begin(); i != players.end(); ++i)
 		if(sanitized(i->second) == lower_copy(slot_guid_name))
-			if((n = getClientSlot(i->first)) != bad_slot)
-				return (num = n) != bad_slot;
+			if((s = getClientSlot(i->first)) != bad_slot)
+				return (num = s) != bad_slot;
 
 	return false;
 }
@@ -962,7 +962,7 @@ struct client_userinfo_bug_t
 };
 
 
-bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
+bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 {
 	bug_func();
 	nlog("pos: " << pos);
@@ -978,7 +978,7 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 	str skip;
 	str name;
 
-	n = 0;
+	line_number = 0;
 	str line;
 	while(sgl(ifs, line))
 	{
@@ -986,7 +986,7 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 		if(ifs.tellg() >= pos)
 			return true;
 
-		++n;// current line number
+		++line_number;// current line number
 
 	//	nlog("line: " << line);
 
@@ -1000,13 +1000,13 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 		{
 			if(!client_userinfo_bug)
 			{
-				log("ERROR: parsing logfile command: [" << n << "] " << line);
+				nlog("ERROR: parsing logfile command: " << line);
 				continue;
 			}
 			log("WARN: possible ClientUserinfoChanged bug");
 			if(line.find("\\id\\") == str::npos)
 			{
-				log("ERROR: parsing logfile command: [" << n << "] " << line);
+				nlog("ERROR: parsing logfile command: " << line);
 				client_userinfo_bug.reset();
 				continue;
 			}
@@ -1108,10 +1108,10 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos, siz& n)
 		{
 			slot num;
 			if(!(iss >> num))
-				log("Error parsing ClientDisconnect: "  << params << " at [" << n << "] " << line);
+				nlog("Error parsing ClientDisconnect: "  << params << ": " << line);
 			else if(num > slot(32))
 			{
-				log("ERROR: Client num too high: " << num << " at [" << n << "] " << line);
+				nlog("ERROR: Client num too high: " << num << ": " << line);
 			}
 			else
 			{
@@ -1226,14 +1226,14 @@ bool Katina::start(const str& dir)
 		std::istream& is = ifs;
 		std::ios::streampos gpos = is.tellg();
 
-		siz n = 0; // log file line number
+		line_number = 0; // log file line number
 		if(!rerun)
 		{
 			// read back through log file to build up current player
 			// info
 			std::time_t rbt = std::time(0);
 			log("Initializing data structures");
-			if(!log_read_back(get_exp("logfile"), gpos, n))
+			if(!log_read_back(get_exp("logfile"), gpos))
 				log("WARN: Unable to get initial player info");
 			log("DONE: " << (std::time(0) - rbt) << " seconds");
 		}
@@ -1268,7 +1268,7 @@ bool Katina::start(const str& dir)
 				continue;
 			}
 
-			++n;
+			++line_number;
 			gpos = is.tellg();
 
 			if(!active)

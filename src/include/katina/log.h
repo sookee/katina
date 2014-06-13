@@ -58,7 +58,7 @@ str get_stamp()
 #define bug_func()
 #define con(m) do{std::cout << m << std::endl;}while(false)
 #define log(m) do{std::cout << katina::log::get_stamp() << ": " << m << std::endl;}while(false)
-#define nlog(m) do{std::cout << katina::log::get_stamp() << ": " << m << " {" << n << "}" << std::endl;}while(false)
+#define nlog(m) do{std::cout << katina::log::get_stamp() << ": " << m << " {" << line_number << "}" << std::endl;}while(false)
 #else
 #define bug(m) do{std::cout << "BUG: " << m << " [" << __FILE__ << "]" << " (" << __LINE__ << ")" << std::endl;}while(false)
 #define bug_var(v) bug(QUOTE(v:) << std::boolalpha << " " << v)
@@ -80,7 +80,7 @@ struct _
 #define bug_func() katina::log::_ __(__PRETTY_FUNCTION__, __FILE__)
 #define con(m) do{std::cout << m << " [" << __FILE__ << "]" << " (" << __LINE__ << ")" << std::endl;}while(false)
 #define log(m) do{std::cout << katina::log::get_stamp() << ": " << m << " [" << __FILE__ << "]" << " (" << __LINE__ << ")" << std::endl;}while(false)
-#define nlog(m) do{std::cout << katina::log::get_stamp() << ": " << m << " {" << n << "}" << " [" << __FILE__ << "]" << " (" << __LINE__ << ")" << std::endl;}while(false)
+#define nlog(m) do{std::cout << katina::log::get_stamp() << ": " << m << " {" << line_number << "}" << " [" << __FILE__ << "]" << " (" << __LINE__ << ")" << std::endl;}while(false)
 #endif
 
 
