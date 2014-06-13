@@ -130,6 +130,10 @@ bool KatinaPluginNextMap::exit(siz min, siz sec)
 	for(slot_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
 		if(!i->second.is_bot() && katina.is_connected(i->first))
 			{ sql << sep << "'" << i->second << "'"; sep = ",";}
+
+	if(sql.str().empty())
+		return true; // no one connected
+
 	str insql = "(" + sql.str() + ")";
 
 
