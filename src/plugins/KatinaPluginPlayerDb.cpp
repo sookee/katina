@@ -219,6 +219,7 @@ bool KatinaPluginPlayerDb::client_connect_info(siz min, siz sec, slot num, const
 	if(katina.mod_katina < "0.1.1")
 	{
 		// untrustworthy until NEXT client_userinfo_changed when it can be checked
+		katina.log_lines(true);
 		plog("PLAYERDB: Holding guid & ip: " << str(num) << " " << str(guid) << ", " << ip << " {" << katina.get_line_number() << "}");
 		hold_guids[num] = guid;
 		hold_ips[num] = ip;

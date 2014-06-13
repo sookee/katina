@@ -269,6 +269,9 @@ private:
 	str mapname;
 
 	siz line_number = 0; // log file line number
+	str line_data; // log file lines read into this variable
+
+	bool do_log_lines = false;
 
 public:
 	Katina();
@@ -290,6 +293,8 @@ public:
 	 * Get line number in log file currently being processed
 	 */
 	siz get_line_number() { return line_number; }
+
+	void log_lines(bool status) { if((do_log_lines = status)) nlog("LINE: " << line_data); }
 
 	/**
 	 * Directory of the configuration file.

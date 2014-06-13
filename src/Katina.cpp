@@ -981,34 +981,35 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 	str name;
 
 	line_number = 0;
-	str line;
-	while(sgl(ifs, line))
+	while(sgl(ifs, line_data))
 	{
 	//	nlog("ifs.tellg(): " << ifs.tellg());
 		if(ifs.tellg() >= pos)
 			return true;
 
-		++line_number;// current line number
+		++line_number; // current line number
+		if(do_log_lines)
+			nlog("LINE: " << line_data);
 
 	//	nlog("line: " << line);
 
-		if(trim(line).empty())
+		if(trim(line_data).empty())
 			continue;
 
 		iss.clear();
-		iss.str(line);
+		iss.str(line_data);
 
 		if(!(sgl(iss >> min >> c >> sec >> std::ws, cmd, ':') >> std::ws))
 		{
 			if(!client_userinfo_bug)
 			{
-				nlog("ERROR: parsing logfile command: " << line);
+				nlog("ERROR: parsing logfile command: " << line_data);
 				continue;
 			}
 			log("WARN: possible ClientUserinfoChanged bug");
-			if(line.find("\\id\\") == str::npos)
+			if(line_data.find("\\id\\") == str::npos)
 			{
-				nlog("ERROR: parsing logfile command: " << line);
+				nlog("ERROR: parsing logfile command: " << line_data);
 				client_userinfo_bug.reset();
 				continue;
 			}
@@ -1017,8 +1018,8 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 				log("INFO: ClientUserinfoChanged bug detected");
 				cmd = "ClientUserinfoChanged";
 				iss.clear();
-				iss.str(client_userinfo_bug.params + line);
-				log("INFO: params: " << client_userinfo_bug.params << line);
+				iss.str(client_userinfo_bug.params + line_data);
+				log("INFO: params: " << client_userinfo_bug.params << line_data);
 			}
 		}
 
@@ -1052,7 +1053,7 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 			}
 			else
 			{
-				siz pos = line.find("\\id\\");
+				siz pos = line_data.find("\\id\\");
 				if(pos == str::npos)
 					client_userinfo_bug.set(params);
 				else if(!is_connected(num))
@@ -1063,20 +1064,20 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 				}
 				else
 				{
-					str id = line.substr(pos + 4, 32);
+					str id = line_data.substr(pos + 4, 32);
 					GUID guid(num);
 					if(id.size() == 32)
 						guid = GUID(id.substr(24));
 
 					siz hc = 100;
-					if((pos = line.find("\\hc\\")) == str::npos)
+					if((pos = line_data.find("\\hc\\")) == str::npos)
 					{
-						log("WARN: no handicap info found: " << line);
+						log("WARN: no handicap info found: " << line_data);
 					}
 					else
 					{
-						if(!(siss(line.substr(pos + 4)) >> hc))
-							log("ERROR: Parsing handicap: " << line.substr(pos + 4));
+						if(!(siss(line_data.substr(pos + 4)) >> hc))
+							log("ERROR: Parsing handicap: " << line_data.substr(pos + 4));
 					}
 
 					clients[num] = guid;
@@ -1110,10 +1111,10 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 		{
 			slot num;
 			if(!(iss >> num))
-				nlog("Error parsing ClientDisconnect: "  << params << ": " << line);
+				nlog("Error parsing ClientDisconnect: "  << params << ": " << line_data);
 			else if(num > max_slot)
 			{
-				nlog("ERROR: Client num too high: " << num << ": " << line);
+				nlog("ERROR: Client num too high: " << num << ": " << line_data);
 			}
 			else
 			{
@@ -1277,12 +1278,12 @@ bool Katina::start(const str& dir)
 		char c;
 		siz min, sec;
 		siz prev_sec = siz(-1);
-		str line, skip, name, cmd;
+		str skip, name, cmd;
 		siss iss;
 
 		while(!done)
 		{
-			if(!std::getline(is, line) || is.eof())
+			if(!std::getline(is, line_data) || is.eof())
 			{
 				if(rerun)
 					done = true;
@@ -1293,28 +1294,31 @@ bool Katina::start(const str& dir)
 			}
 
 			++line_number;
+			if(do_log_lines)
+				nlog("LINE: " << line_data);
+
 			gpos = is.tellg();
 
 			if(!active)
 				continue;
 
-			if(trim(line).empty())
+			if(trim(line_data).empty())
 				continue;
 
 			iss.clear();
-			iss.str(line);
+			iss.str(line_data);
 
 			if(!(sgl(iss >> min >> c >> sec >> std::ws, cmd, ':') >> std::ws))
 			{
 				if(!client_userinfo_bug)
 				{
-					nlog("ERROR: parsing logfile command: " << line);
+					nlog("ERROR: parsing logfile command: " << line_data);
 					continue;
 				}
 				log("WARN: possible ClientUserinfoChanged bug");
-				if(line.find("\\id\\") == str::npos)
+				if(line_data.find("\\id\\") == str::npos)
 				{
-					nlog("ERROR: parsing logfile command: " << line);
+					nlog("ERROR: parsing logfile command: " << line_data);
 					client_userinfo_bug.reset();
 					continue;
 				}
@@ -1323,8 +1327,8 @@ bool Katina::start(const str& dir)
 					nlog("INFO: ClientUserinfoChanged bug detected");
 					cmd = "ClientUserinfoChanged";
 					iss.clear();
-					iss.str(client_userinfo_bug.params + line);
-					nlog("INFO: params: " << client_userinfo_bug.params << line);
+					iss.str(client_userinfo_bug.params + line_data);
+					nlog("INFO: params: " << client_userinfo_bug.params << line_data);
 				}
 			}
 
@@ -1421,7 +1425,7 @@ bool Katina::start(const str& dir)
 				}
 				else
 				{
-					siz pos = line.find("\\id\\");
+					siz pos = line_data.find("\\id\\");
 					if(pos == str::npos)
 						client_userinfo_bug.set(params);
 					else if(!is_connected(num))
@@ -1432,20 +1436,20 @@ bool Katina::start(const str& dir)
 					}
 					else
 					{
-						str id = line.substr(pos + 4, 32);
+						str id = line_data.substr(pos + 4, 32);
 						GUID guid(num);
 						if(id.size() == 32)
 							guid = GUID(id.substr(24));
 
 						siz hc = 100;
-						if((pos = line.find("\\hc\\")) == str::npos)
+						if((pos = line_data.find("\\hc\\")) == str::npos)
 						{
-							nlog("WARN: no handicap info found: " << line);
+							nlog("WARN: no handicap info found: " << line_data);
 						}
 						else
 						{
-							if(!(siss(line.substr(pos + 4)) >> hc))
-								nlog("ERROR: Parsing handicap: " << line.substr(pos + 4));
+							if(!(siss(line_data.substr(pos + 4)) >> hc))
+								nlog("ERROR: Parsing handicap: " << line_data.substr(pos + 4));
 						}
 
 						//shutdown_erase.remove(guid); // must have re-joined
@@ -1849,7 +1853,7 @@ bool Katina::start(const str& dir)
 				str text;
 				GUID guid;
 
-				if(extract_name_from_text(line, guid, text))
+				if(extract_name_from_text(line_data, guid, text))
 					for(plugin_lst_iter i = events[SAYTEAM].begin()
 						; i != events[SAYTEAM].end(); ++i)
 						(*i)->sayteam(min, sec, guid, text);
@@ -1862,7 +1866,7 @@ bool Katina::start(const str& dir)
 				str text;
 				GUID guid;
 
-				if(extract_name_from_text(line, guid, text))
+				if(extract_name_from_text(line_data, guid, text))
 				{
 					if(!text.find("!katina"))
 						builtin_command(guid, text);
