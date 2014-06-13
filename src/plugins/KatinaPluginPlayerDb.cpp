@@ -232,6 +232,8 @@ bool KatinaPluginPlayerDb::client_connect_info(siz min, siz sec, slot num, const
 
 bool KatinaPluginPlayerDb::client_disconnect(siz min, siz sec, slot num)
 {
+	hold_ips[num].clear();
+
 	player_set_iter i, p;
 	for(i = player_cache.begin(); i != player_cache.end();)
 	{
@@ -256,7 +258,7 @@ bool KatinaPluginPlayerDb::client_userinfo_changed(siz min, siz sec, slot num, s
 		hold_ips[num].clear();
 		if(guid != hold_guids[num]) // then we can't trust the ip
 		{
-			plog("PLAYERDB: Unreliable GUID & ip, rejecting: " << str(hold_guids[num]) << " " << hold_ips[num] << " {" << katina.get_line_number() << "}");
+			plog("PLAYERDB: Unreliable GUID & ip, rejecting: " << str(hold_guids[num]) << " " << ip << " {" << katina.get_line_number() << "}");
 			return true;
 		}
 		ips[num] = ip;
