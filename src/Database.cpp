@@ -63,7 +63,7 @@ void Database::on()
 
 	if(stmt_add_playerstats)
 	{
-		static const str sql = "insert into `playerstats` values ('?','?','?','?','?','?','?','?','?','?','?','?','?','?','?','?')";
+		static const str sql = "insert into `playerstats` values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		if(mysql_stmt_prepare(stmt_add_playerstats, sql.c_str(), sql.size()))
 		{
 			log("DATABASE ERROR: Unable to prepare add_playerstats: " << mysql_stmt_error(stmt_add_playerstats));
