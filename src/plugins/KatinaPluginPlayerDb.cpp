@@ -255,6 +255,7 @@ bool KatinaPluginPlayerDb::client_userinfo_changed(siz min, siz sec, slot num, s
 
 	if(!hold_ips[num].empty())
 	{
+		katina.log_lines(false);
 		str ip = hold_ips[num];
 		hold_ips[num].clear();
 		if(guid != hold_guids[num]) // then we can't trust the ip
