@@ -163,6 +163,7 @@ bool KatinaPluginStats::exit(siz min, siz sec)
  	if(logged_time && write)
 	{
 		game_id id = db.add_game(host, port, mapname);
+		pbug_var(id);
         
 		if(id != null_id && id != bad_id)
 		{
