@@ -258,6 +258,8 @@ bool KatinaPluginPlayerDb::client_userinfo_changed(siz min, siz sec, slot num, s
 		hold_ips[num].clear();
 		if(guid != hold_guids[num]) // then we can't trust the ip
 		{
+			pbug_var(guid);
+			pbug_var(hold_guids[num]);
 			plog("PLAYERDB: Unreliable GUID & ip, rejecting: " << str(hold_guids[num]) << " " << ip << " {" << katina.get_line_number() << "}");
 			return true;
 		}
