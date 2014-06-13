@@ -56,7 +56,6 @@ KatinaPluginStats::KatinaPluginStats(Katina& katina)
 , teams(katina.getTeams())
 , server(katina.server)
 , db()
-, on(db)
 , active(true)
 , write(true)
 , recordBotGames(false)
@@ -159,6 +158,8 @@ bool KatinaPluginStats::exit(siz min, siz sec)
         
 		logged_time += p->second.logged_time;
 	}
+
+	db_scoper on(db);
 
  	if(logged_time && write)
 	{
@@ -638,6 +639,7 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 
 		if(write && katina.getPlayerName(guid) != "UnnamedPlayer" && katina.getPlayerName(guid) != "RenamedPlayer")
 		{
+			db_scoper on(db);
 			if(db.set_preferred_name(guid, katina.getPlayerName(guid)))
 				server.chat(PREFIX + katina.getPlayerName(guid) + "^7: ^3Your preferred name has been registered.");
 		}
@@ -669,6 +671,7 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 
 		str stats;
 		siz idx = 0;
+		db_scoper on(db);
 		if(db.get_ingame_stats(guid, mapname, prev, stats, idx))
 		{
 			str skill = to_string(idx);
@@ -707,6 +710,7 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 
 		str stats;
 		GUID guid;
+		db_scoper on(db);
 		if(db.get_ingame_boss(mapname, clients, guid, stats) && guid != null_guid)
 			server.msg_to_all("^7BOSS: " + katina.getPlayerName(guid) + "^7: " + stats, true);
 		else
@@ -726,6 +730,7 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 
 		str stats;
 		GUID guid;
+		db_scoper on(db);
 		if(db.get_ingame_crap(mapname, clients, guid, stats) && guid != null_guid)
 			server.msg_to_all("^7CRAPPIEST: " + katina.getPlayerName(guid) + "^7: " + stats, true);
 		else
@@ -759,6 +764,7 @@ siz KatinaPluginStats::get_skill(const GUID& guid, const str& mapname)
 	static str stats;
 	static siz skill;
 
+	db_scoper on(db);
 	if(!db.get_ingame_stats(guid, mapname, 0, stats, skill))
 		skill = 0;
 	return skill;

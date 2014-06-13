@@ -142,7 +142,6 @@ private:
 	RCon& server;
 
 	Database db;
-	db_scoper on;
 
 	str host;
 	str port;
