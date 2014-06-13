@@ -1100,9 +1100,9 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 		}
 		else if(cmd == "ShutdownGame:")
 		{
-			clients.clear();
-			players.clear();
-			teams.clear();
+//			clients.clear();
+//			players.clear();
+//			teams.clear();
 		}
 		else if(cmd == "ClientDisconnect:")
 		{
@@ -1149,12 +1149,34 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 			else if(!is_connected(num))
 			{
 				// ignore this event until it occurs at a reliable place
+				if(mod_katina >= "0.1.1")
+					nlog("ERROR: This event should NEVER occur");
 			}
 			else
 			{
 				if(playerdb)
 					playerdb->client_connect_info(min, sec, num, GUID(guid), ip);
 			}
+		}
+		else if(cmd == "InitGame:")
+		{
+			//bug(cmd << "(" << params << ")");
+
+			static str key, val;
+
+			clients.clear();
+			players.clear();
+			teams.clear();
+			svars.clear();
+
+			iss.ignore(); // skip initial '\\'
+			while(sgl(sgl(iss, key, '\\'), val, '\\'))
+				svars[key] = val;
+
+			mapname = svars["mapname"];
+			mod_katina = svars["mod_katina"];
+
+			nlog("MAP NAME: " << mapname);
 		}
 	}
 
@@ -1368,9 +1390,9 @@ bool Katina::start(const str& dir)
 					; i != events[SHUTDOWN_GAME].end(); ++i)
 					(*i)->shutdown_game(min, sec);
 
-				clients.clear();
-				players.clear();
-				teams.clear();
+//				clients.clear();
+//				players.clear();
+//				teams.clear();
 			}
 			else if(cmd == "Warmup:")
 			{
@@ -1476,10 +1498,11 @@ bool Katina::start(const str& dir)
 				else if(!is_connected(num))
 				{
 					// ignore this event until it occurs at a reliable place
+					if(mod_katina >= "0.1.1")
+						nlog("ERROR: This event should NEVER occur");
 				}
 				else
 				{
-					nlog("FOUND: Reliable ClientConnectInfo: event?");
 					for(plugin_lst_iter i = events[CLIENT_CONNECT_INFO].begin()
 						; i != events[CLIENT_CONNECT_INFO].end(); ++i)
 						(*i)->client_connect_info(min, sec, num, GUID(guid), ip);
@@ -1726,9 +1749,9 @@ bool Katina::start(const str& dir)
 
 				static str key, val;
 
-	//			clients.clear();
-	//			players.clear();
-	//			teams.clear();
+				clients.clear();
+				players.clear();
+				teams.clear();
 				svars.clear();
 
 				iss.ignore(); // skip initial '\\'
@@ -1736,6 +1759,7 @@ bool Katina::start(const str& dir)
 					svars[key] = val;
 
 				mapname = svars["mapname"];
+				mod_katina = svars["mod_katina"];
 
 				if(rerun)
 				{
