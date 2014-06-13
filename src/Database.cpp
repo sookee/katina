@@ -34,6 +34,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include <ctime>
 #include <cmath>
+#include <cstring>
 
 #include <katina/log.h>
 
@@ -43,7 +44,7 @@ const game_id bad_id(-1);
 const game_id null_id(0);
 
 
-Database::Database(): active(false) { mysql_init(&mysql); }
+Database::Database(): active(false), port(3306) { mysql_init(&mysql); }
 Database::~Database() { off(); }
 
 void Database::on()
@@ -53,9 +54,46 @@ void Database::on()
 	if(mysql_real_connect(&mysql, host.c_str(), user.c_str()
 		, pass.c_str(), base.c_str(), port, NULL, 0) != &mysql)
 	{
-		log("DATABASE ERROR: Unable to connect; " << mysql_error(&mysql));
+		log("DATABASE ERROR: Unable to connect: " << mysql_error(&mysql));
 		return;
 	}
+
+	if(!stmt_add_playerstats)
+		stmt_add_playerstats = mysql_stmt_init(&mysql);
+
+	if(stmt_add_playerstats)
+	{
+		static const str sql = "insert into `playerstats` values ('?','?','?','?','?','?','?','?','?','?','?','?','?','?','?','?')";
+		if(mysql_stmt_prepare(stmt_add_playerstats, sql.c_str(), sql.size()))
+		{
+			log("DATABASE ERROR: Unable to prepare add_playerstats: " << mysql_stmt_error(stmt_add_playerstats));
+			mysql_stmt_close(stmt_add_playerstats);
+			stmt_add_playerstats = 0;
+		}
+
+		for(siz i = 0; i < 16; ++i)
+		{
+			bind_add_playerstats[i].buffer_type = MYSQL_TYPE_LONGLONG;
+			bind_add_playerstats[i].buffer = &(siz_add_playerstats[i]);
+			bind_add_playerstats[i].is_null = 0;
+			bind_add_playerstats[i].length = 0;
+			bind_add_playerstats[i].is_unsigned = 1;
+		}
+
+		bind_add_playerstats[1].buffer_type = MYSQL_TYPE_VARCHAR;
+		bind_add_playerstats[1].buffer = guid_add_playerstats;
+		bind_add_playerstats[1].buffer_length = 9;
+		bind_add_playerstats[1].is_null = 0;
+		bind_add_playerstats[1].length = &guid_length;
+
+		if(mysql_stmt_bind_param(stmt_add_playerstats, bind_add_playerstats))
+		{
+			log("DATABASE ERROR: Unable to bind add_playerstats: " << mysql_stmt_error(stmt_add_playerstats));
+			mysql_stmt_close(stmt_add_playerstats);
+			stmt_add_playerstats = 0;
+		}
+	}
+
 //	log("DATABASE: on");
 	active = true;
 }
@@ -65,6 +103,12 @@ void Database::off()
 	if(!active)
 		return;
 	active = false;
+
+	if(stmt_add_playerstats)
+		mysql_stmt_close(stmt_add_playerstats);
+
+	stmt_add_playerstats = 0;
+
 	mysql_close(&mysql);
 //	log("DATABASE: off");
 }
@@ -337,12 +381,6 @@ bool Database::add_playerstats(game_id id, const GUID& guid,
 	siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,
 	siz carrierFrags, siz carrierFragsRecv)
 {
-//	log("DATABASE: add_playerstats(" << id << ", " << guid << ", " << fragsFace << ", " << fragsBack << ", " << fraggedInFace << ", " << fraggedInBack
-//		<< ", " << spawnKills << ", " << spawnKillsRecv << ", " << pushes << ", " << pushesRecv
-//		<< ", " << healthPickedUp << ", " << armorPickedUp << ", " << holyShitFrags << ", " << holyShitFragged
-//		<< ", " << carrierFrags << ", " << carrierFragsRecv << ")");
-
-
 	soss oss;
 	oss << "insert into `playerstats` ("
 	    << "`game_id`,`guid`,`fragsFace`,`fragsBack`,`fraggedInFace`,`fraggedInBack`,`spawnKillsDone`,`spawnKillsRecv`,"
@@ -354,6 +392,60 @@ bool Database::add_playerstats(game_id id, const GUID& guid,
 	str sql = oss.str();
 
 	return insert(sql);
+}
+
+// TODO: split these up into separate tables
+bool Database::add_playerstats_ps(game_id id, const GUID& guid,
+	siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
+	siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
+	siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,
+	siz carrierFrags, siz carrierFragsRecv)
+{
+	if(!stmt_add_playerstats)
+		return add_playerstats(id, guid, fragsFace, fragsBack, fraggedInFace, fraggedInBack,
+	spawnKills, spawnKillsRecv, pushes, pushesRecv,
+	healthPickedUp, armorPickedUp, holyShitFrags, holyShitFragged,
+	carrierFrags, carrierFragsRecv);
+
+	siz_add_playerstats[0] = id;
+	std::strncpy(guid_add_playerstats, str(guid).c_str(), 9);
+	guid_length = str(guid).size();
+	siz_add_playerstats[2] = fragsFace;
+	siz_add_playerstats[3] = fragsBack;
+	siz_add_playerstats[4] = fraggedInFace;
+	siz_add_playerstats[5] = fraggedInBack;
+	siz_add_playerstats[6] = spawnKills;
+	siz_add_playerstats[7] = spawnKillsRecv;
+	siz_add_playerstats[8] = pushes;
+	siz_add_playerstats[9] = pushesRecv;
+	siz_add_playerstats[10] = healthPickedUp;
+	siz_add_playerstats[11] = armorPickedUp;
+	siz_add_playerstats[12] = holyShitFrags;
+	siz_add_playerstats[13] = holyShitFragged;
+	siz_add_playerstats[14] = carrierFrags;
+	siz_add_playerstats[15] = carrierFragsRecv;
+
+	if(mysql_stmt_execute(stmt_add_playerstats))
+	{
+		log("DATABASE: ERROR: " << mysql_stmt_error(stmt_add_playerstats));
+		log("DATABASE:      : using fall-back");
+		return add_playerstats(id, guid, fragsFace, fragsBack, fraggedInFace, fraggedInBack,
+			spawnKills, spawnKillsRecv, pushes, pushesRecv,
+			healthPickedUp, armorPickedUp, holyShitFrags, holyShitFragged,
+			carrierFrags, carrierFragsRecv);
+	}
+
+	if(mysql_stmt_affected_rows(stmt_add_playerstats) != 1)
+	{
+		log("DATABASE: ERROR: add_playerstats_ps: no rows affected");
+		log("DATABASE:      : using fall-back");
+		return add_playerstats(id, guid, fragsFace, fragsBack, fraggedInFace, fraggedInBack,
+			spawnKills, spawnKillsRecv, pushes, pushesRecv,
+			healthPickedUp, armorPickedUp, holyShitFrags, holyShitFragged,
+			carrierFrags, carrierFragsRecv);
+	}
+
+	return true;
 }
 
 bool Database::add_speed(game_id id, const GUID& guid,

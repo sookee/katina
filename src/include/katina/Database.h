@@ -81,6 +81,15 @@ class Database
 	 */
 	void off();
 
+	// KatinaPluinStats
+	//struct playerstats {};
+	MYSQL_STMT *stmt_add_playerstats = 0;
+	MYSQL_BIND bind_add_playerstats[16];
+	siz siz_add_playerstats[16];
+	char guid_add_playerstats[9];
+	siz guid_length = 8;
+
+
 protected:
 	
 	/**
@@ -154,6 +163,8 @@ public:
 	 */
 	bool select(const str& sql, str_vec_vec& rows, siz fields = 0);
 
+
+
 	game_id add_game(const str& host, const str& port, const str& mapname);
 
 	/**
@@ -191,6 +202,11 @@ public:
 		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
 		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,
 		siz carrierFrags, siz carrierFragsRecv);
+	bool add_playerstats_ps(game_id id, const GUID& guid,
+		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
+		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
+		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,
+		siz carrierFrags, siz carrierFragsRecv);
 	bool add_speed(game_id id, const GUID& guid,
 			siz dist, siz time, bool has_flag);
 
@@ -209,8 +225,16 @@ public:
 struct db_scoper
 {
 	Database& db;
-	db_scoper(Database& db): db(db) { db.on(); }
-	~db_scoper() { db.off(); }
+	db_scoper(Database& db): db(db)
+	{
+		bug("db_scoper:  on: " << this);
+		db.on();
+	}
+	~db_scoper()
+	{
+		db.off();
+		bug("db_scoper: off: " << this);
+	}
 };
 
 }} // katina::data

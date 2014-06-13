@@ -187,11 +187,13 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 	{
 		for(slot_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
 		{
-			thread_sleep_millis(1000);
 			if(i->second.is_bot())
 				continue;
+
 			if(!katina.is_connected(i->first))
 				continue;
+
+			thread_sleep_millis(2000);
 
 			pbug("ANNOUNCING VOTE TO: " << i->second << " " << katina.getPlayerName(i->second));
 

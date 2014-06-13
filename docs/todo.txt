@@ -1,7 +1,8 @@
 # add issues for Aeq in github
 # rebuild stats using rerun
 # add skivvy plugin to !whois -> katina's database
-#
+# make katina respond to  Ctrl-D to clean up
+# 
 
 == v 1.0 ==
 

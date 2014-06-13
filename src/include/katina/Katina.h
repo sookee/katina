@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef _OASTATS_KATINA_H
 #define	_OASTATS_KATINA_H
 
@@ -225,7 +225,7 @@ private:
 	plugin_map plugins; // id -> KatinaPlugin*
 	str_map plugin_files; // id -> filename (for reloading))
 
-	event_map events; // event -> plugin_vec
+	event_map events; // event -> plugin_lst
 	cvar_map_map vars; // plugin* -> {name -> cvar*}
 
 	GUID guid_from_name(const str& name);
@@ -242,7 +242,7 @@ private:
 	bool reload_plugin(const str& id);
     
 	bool initial_player_info();
-	bool log_read_back(const str& logname, std::ios::streampos pos, siz& n);
+	bool log_read_back(const str& logname, std::ios::streampos pos);
 	void builtin_command(const GUID& guid, const str& text);
 
 	// disconnected guid keys are kept here until ShutdownGame
@@ -266,6 +266,8 @@ private:
 	 */
 	str mapname;
 
+	siz line_number = 0; // log file line number
+
 public:
 	Katina();
 	~Katina();
@@ -281,6 +283,11 @@ public:
 	 * Send rcon commands to the game server
 	 */
 	RCon server;
+
+	/**
+	 * Get line number in log file currently being processed
+	 */
+	siz get_line_number() { return line_number; }
 
 	/**
 	 * Directory of the configuration file.

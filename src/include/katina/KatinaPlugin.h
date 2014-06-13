@@ -161,10 +161,11 @@ typedef std::vector<KatinaPlugin*> plugin_vec;
 typedef plugin_vec::iterator plugin_vec_iter;
 typedef plugin_vec::const_iterator plugin_vec_citer;
 
-typedef std::map<str, KatinaPlugin*> plugin_map;
-typedef plugin_map::value_type plugin_map_vt;
-typedef plugin_map::iterator plugin_map_iter;
-typedef plugin_map::const_iterator plugin_map_citer;
+TYPEDEF_MAP(str, KatinaPlugin*, plugin_map);
+//typedef std::map<str, KatinaPlugin*> plugin_map;
+//typedef plugin_map::value_type plugin_map_vt;
+//typedef plugin_map::iterator plugin_map_iter;
+//typedef plugin_map::const_iterator plugin_map_citer;
 
 /**
  * The plugin implementation source should
