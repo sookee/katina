@@ -79,10 +79,12 @@ public:
 		connected = guid.connected;
 	}
 
-	explicit GUID(const str& data): data(SIZE, '0'), bot(false)
+	explicit GUID(const str& s): data(SIZE, '0'), bot(false)
 	{
-		for(siz i = 0; i < SIZE && i < data.size(); ++i)
-			this->data[i] = data[i];
+		if(s.size() == SIZE)
+			data = s;
+		else if(s.size() == 32)
+			data = s.substr(24);
 		bot = is_bot_data();
 	}
 
