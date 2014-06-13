@@ -427,13 +427,21 @@ bool Database::add_playerstats_ps(game_id id, const GUID& guid,
 	if(mysql_stmt_execute(stmt_add_playerstats))
 	{
 		log("DATABASE: ERROR: " << mysql_stmt_error(stmt_add_playerstats));
-		return false;
+		log("DATABASE:      : using fall-back");
+		return add_playerstats(id, guid, fragsFace, fragsBack, fraggedInFace, fraggedInBack,
+			spawnKills, spawnKillsRecv, pushes, pushesRecv,
+			healthPickedUp, armorPickedUp, holyShitFrags, holyShitFragged,
+			carrierFrags, carrierFragsRecv);
 	}
 
 	if(mysql_stmt_affected_rows(stmt_add_playerstats) != 1)
 	{
 		log("DATABASE: ERROR: add_playerstats_ps: no rows affected");
-		return false;
+		log("DATABASE:      : using fall-back");
+		return add_playerstats(id, guid, fragsFace, fragsBack, fraggedInFace, fraggedInBack,
+			spawnKills, spawnKillsRecv, pushes, pushesRecv,
+			healthPickedUp, armorPickedUp, holyShitFrags, holyShitFragged,
+			carrierFrags, carrierFragsRecv);
 	}
 
 	return true;
