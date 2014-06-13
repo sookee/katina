@@ -225,8 +225,16 @@ public:
 struct db_scoper
 {
 	Database& db;
-	db_scoper(Database& db): db(db) { db.on(); }
-	~db_scoper() { db.off(); }
+	db_scoper(Database& db): db(db)
+	{
+		bug("db_scoper:  on: " << this);
+		db.on();
+	}
+	~db_scoper()
+	{
+		db.off();
+		bug("db_scoper: off: " << this);
+	}
 };
 
 }} // katina::data

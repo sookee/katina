@@ -73,6 +73,7 @@ KatinaPluginStats::KatinaPluginStats(Katina& katina)
 
 bool KatinaPluginStats::open()
 {
+	bug_func();
 	host = katina.get("rcon.host", "localhost");
 	port = katina.get("rcon.port", "27960");
     
