@@ -85,7 +85,7 @@ class Utils
         28 => 'Grapple',
     ];
 
-    
+
     static $weapon_names = [
         0 => 'None',
         1 => 'Gauntlet',
@@ -102,8 +102,8 @@ class Utils
         12 => 'Proximity Launcher',
         13 => 'Chaingun',
     ];
-    
-    
+
+
     static $mod_to_weapon = [
         0 => 0,
         1 => 3,
@@ -135,8 +135,8 @@ class Utils
         27 => 0,
         28 => 10,
     ];
-    
-    
+
+
     static $weapon_to_mod = [
         0 => [0, 14, 15, 16, 17, 18, 19, 20, 21, 22, 26, 27],
         1 => [2],
@@ -153,7 +153,7 @@ class Utils
         12 => [25],
         13 => [24],
     ];
-    
+
 
 
 
@@ -168,19 +168,18 @@ class Utils
 
         if (!isset(self::$servers))
         {
-            self::$servers = Storage::cache()->get('dpmaster_servers');
+            self::$servers = \Config::$cache ? Storage::cache()->get('dpmaster_servers') : null;
             if (!isset(self::$servers))
             {
-                $dpmaster_file = 'dpmaster.xml';
-                if (@filemtime($dpmaster_file) < time() - 60 * 60 * 24)
+                if (@filemtime(\Config::$dpmasterCacheFile) < time() - \Config::$dpmasterCacheTtl)
                 {
                     file_put_contents(
-                        $dpmaster_file,
+                        \Config::$dpmasterCacheFile,
                         file_get_contents('http://dpmaster.deathmask.net/?game=openarena&xml=1&showall=1&xmlcarets=1')
                     );
                 }
 
-                $dpmaster = simplexml_load_file($dpmaster_file);
+                $dpmaster = simplexml_load_file(\Config::$dpmasterCacheFile);
                 self::$servers = ['server' => '[server]'];
                 foreach ($dpmaster->server as $server)
                 {
@@ -189,7 +188,11 @@ class Utils
                         self::$servers[(string)$server->hostname] = htmlspecialchars_decode(@$server->name ? : $server->hostname);
                     }
                 }
-                Storage::cache()->set('dpmaster_servers', self::$servers);
+
+                if (\Config::$cache)
+                {
+                    Storage::cache()->set('dpmaster_servers', self::$servers);
+                }
             }
         }
 

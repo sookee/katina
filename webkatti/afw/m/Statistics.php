@@ -119,7 +119,10 @@ class Statistics extends Model
         $args_num = func_num_args();
         for ($i = 1; $i < $args_num; $i++)
         {
-            $this->filters[$name] [] = $args[$i];
+            if (isset($args[$i]))
+            {
+                $this->filters[$name] [] = $args[$i];
+            }
         }
 
         return $this;
@@ -272,8 +275,10 @@ class Statistics extends Model
         {
             foreach ($this->filters[$name] as $filter)
             {
-                if ($filter instanceof StatisticsFilter && !$filter->check())
-                {
+                if (
+                    empty($filter)
+                    || ($filter instanceof StatisticsFilter && !$filter->check())
+                ){
                     return false;
                 }
             }

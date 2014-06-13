@@ -14,7 +14,7 @@
             <input class="games-date" type="date" size="8" name="to" value="<?= $this->dateTo ?>">
         </label>
         &emsp;
-        <input class="games-date-submit" type="submit" value="   OK   ">
+        <input class="games-date-submit" type="submit" value=" &nbsp; OK &nbsp; ">
     </label>
 </form>
 <?php $this->players->render() ?>

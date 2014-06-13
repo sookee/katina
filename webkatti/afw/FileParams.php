@@ -71,13 +71,6 @@ class FileParams
 
 
 
-    function transparent($value)
-    {
-        return $this->setParam(__FUNCTION__, $value);
-    }
-
-
-
     function quality($value)
     {
         return $this->setParam(__FUNCTION__, $value);

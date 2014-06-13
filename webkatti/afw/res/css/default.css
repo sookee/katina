@@ -39,7 +39,7 @@ time, mark, audio, video
 article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section
 {
-	display: block;
+    display: block;
 }
 
 body
@@ -55,11 +55,12 @@ h1, h2, h3, h4, h5, h6
 {
     line-height: 1.1;
     margin-bottom: .2em;
+    page-break-after: avoid;
 }
 
 h1
 {
-    font-size: 4em;
+    font-size: 5em;
 }
 
 h2
@@ -243,6 +244,11 @@ th, td
     padding: 1ex;
 }
 
+table, td
+{
+    border: 1px solid;
+}
+
 label
 {
     display: block;
@@ -278,7 +284,7 @@ textarea
 button,
 input[type=submit], input[type=reset], input[type=button]
 {
-	cursor: pointer;
+    cursor: pointer;
     overflow: visible;
     white-space: nowrap;
 }

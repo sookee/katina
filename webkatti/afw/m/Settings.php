@@ -15,27 +15,33 @@ namespace afw\m;
 class Settings extends ModelWithFields
 {
 
-    const cacheData = 'afw\m\Settings::data';
-
     protected $file;
+    protected $class;
     protected $data;
 
 
 
-    function __construct($file, \afw\ICache $cache = null)
+    function __construct($file, $class = 'Config')
     {
         $this->file = $file;
-        $this->setCache($cache);
+        $this->class = $class;
+    }
 
-        if (isset($this->cache))
-        {
-            $this->data = $this->cache->get(self::cacheData);
-        }
 
+
+    protected function load()
+    {
         if (!isset($this->data))
         {
-            $this->data = @unserialize(file_get_contents($file));
-            $this->cache();
+            try
+            {
+                $reflection = new \ReflectionClass($this->class);
+                $this->data = $reflection->getStaticProperties();
+            }
+            catch (\ReflectionException $e)
+            {
+                $this->data = [];
+            }
         }
     }
 
@@ -43,26 +49,38 @@ class Settings extends ModelWithFields
 
     function save(array $rawValues)
     {
-        $newValues = $this->filterValues($rawValues);
-        file_put_contents($this->file, serialize($newValues));
-        $this->data = $newValues;
-        $this->cache();
-    }
+        $this->load();
+        $values = $this->filterValues($rawValues) + $this->data;
 
-
-
-    private function cache()
-    {
-        if (isset($this->cache))
+        $s = "<?php\n\nclass {$this->class}\n{\n\n";
+        foreach ($this->fields as $name => $field)
         {
-            $this->cache->set(self::cacheData, $this->data);
+            $formField = $field->getFormField();
+            if (isset($formField))
+            {
+                if (!empty($formField->label))
+                {
+                    $s .= "    # {$formField->label}\n";
+                }
+                if (!empty($formField->description))
+                {
+                    $s .= "    # {$formField->description}\n";
+                }
+            }
+            $s .= "    static \$$name = "
+                . var_export(@$values[$name], true)
+                . ";\n\n";
         }
+        $s .= "}\n";
+
+        file_put_contents($this->file, $s, LOCK_EX);
     }
 
 
 
     function get($name)
     {
+        $this->load();
         return @$this->data[$name];
     }
 
@@ -70,12 +88,8 @@ class Settings extends ModelWithFields
 
     function all()
     {
-        $settings = [];
-        foreach ($this->fields as $name => $field)
-        {
-            $settings[$name] = @$this->data[$name];
-        }
-        return $settings;
+        $this->load();
+        return $this->data;
     }
 
 }

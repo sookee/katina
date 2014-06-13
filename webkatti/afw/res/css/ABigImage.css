@@ -1,0 +1,125 @@
+
+.ABigImage-overlay
+{
+    background-color: #444;
+}
+
+.ABigImage-prev,
+.ABigImage-close
+{
+    color: #888;
+}
+
+.ABigImage-prev:hover,
+.ABigImage-close:hover
+{
+    color: #ccc;
+}
+
+.ABigImage-prev-text:after
+{
+    content: '◄';
+}
+
+.ABigImage-close-text:after
+{
+    content: '✖';
+}
+
+
+
+.ABigImage-overlay
+{
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    visibility: hidden;
+    z-index: 2;
+}
+
+.ABigImage-fadein
+{
+    visibility: visible;
+    opacity: 0.875;
+    -webkit-transition: opacity 0.2s ease-in;
+       -moz-transition: opacity 0.2s ease-in;
+            transition: opacity 0.2s ease-in;
+}
+
+.ABigImage-layout
+{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    margin: 0 auto;
+    display: none;
+    z-index: 2;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+            user-select: none;
+}
+
+.ABigImage-visible
+{
+    display: block;
+}
+
+.ABigImage-wrapper
+{
+    display: table;
+    width: 100%;
+    height: 100%;
+}
+
+.ABigImage-box
+{
+    display: table-row;
+}
+
+.ABigImage-body
+{
+    width: 1%;
+}
+
+.ABigImage-prev,
+.ABigImage-close,
+.ABigImage-body
+{
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.ABigImage-prev,
+.ABigImage-close
+{
+    font-size: 2em;
+    font-weight: bold;
+    cursor: pointer;
+    padding: .75em;
+}
+
+.ABigImage-img-next,
+.ABigImage-img-prev
+{
+    position: absolute;
+    top: -10000px;
+    width: 100px;
+}
+
+.ABigImage-img
+{
+    cursor: pointer;
+    display: block;
+    margin: 1ex 0;
+    max-width: 800px;
+}
+
+.ABigImage-bottom
+{
+    text-align: right;
+}

@@ -18,7 +18,7 @@ class Element extends Controller
 {
 
     /**
-     * @var Form
+     * @var \afw\c\Form
      */
     public $form;
     public $label;

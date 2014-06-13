@@ -13,7 +13,10 @@ class Main
 
     static function clearCache()
     {
-        Storage::cache()->clear();
+        if (\Config::$cache)
+        {
+            Storage::cache()->clear();
+        }
         header('location: ' . Link::prefix());
         exit;
     }
@@ -83,7 +86,7 @@ class Main
 
     static function settings()
     {
-        if (!M::supervisor()->isAuthed())
+        if (!M::supervisor()->isAuthedOrLocal())
         {
             throw new \afw\HttpException(404);
         }
@@ -144,7 +147,7 @@ class Main
             $time = M::time()->countByGuid()
                 ->key($gameIds, 'game_id')
                 ->allK();
-            
+
             $shots = M::weapon_usage()->db()
                 ->fields('guid, sum(shots) as shots')
                 ->groupBy('guid')
@@ -174,8 +177,8 @@ class Main
             $time,
             $shots,
             $hits,
-            M::settings()->get('min_deaths_game_main'),
-            M::settings()->get('min_time_game_main')
+            \Config::$minDeathsMain,
+            \Config::$minTimeMain
         );
 
         return $c;

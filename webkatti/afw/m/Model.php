@@ -139,7 +139,8 @@ class Model extends ModelWithFields
     function pages()
     {
         $this->checkPage();
-        return ceil($this->db->count() / max($this->db->lastLimit(), 1));
+        $limit = max($this->db->lastLimit(), 1);
+        return ceil($this->db->count() / $limit);
     }
 
 

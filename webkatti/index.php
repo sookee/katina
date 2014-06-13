@@ -25,7 +25,7 @@ $uri->setException(function($e)
         ->wrap(new wk\c\Layout());
 });
 
-$p = Config::urlPrefix;
+$p = Config::$urlPrefix;
 
 $uri->addPattern("`^({$p}|)$`",                function (  ) { return wk\c\Main    ::index     (       ); });
 $uri->addPattern("`^{$p}/(clearCache|login|logout|settings|about|changes)$`",

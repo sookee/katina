@@ -12,7 +12,7 @@ namespace afw;
 
 
 
-class DebugLog implements ILog
+class DebugLog implements ILog, \ArrayAccess
 {
 
     private $timeStart;
@@ -20,11 +20,11 @@ class DebugLog implements ILog
     private $memoryLast;
     private $log = [];
 
-    public $enabled = false;
-    public $jsConsole = false;
-    public $phpLog = false;
-    public $textOutput = false;
-    public $echo = false;
+    public $enabled     = false;
+    public $jsConsole   = false;
+    public $phpLog      = false;
+    public $textOutput  = false;
+    public $echo        = false;
 
 
 
@@ -75,7 +75,7 @@ class DebugLog implements ILog
 
 
 
-    function sprintf($format, $args = null)
+    function printf($format, $args = null)
     {
         if (!$this->enabled) return;
         $args = func_get_args();
@@ -98,7 +98,7 @@ class DebugLog implements ILog
         if (!$this->enabled) return;
         $time = microtime(true);
         $memory = memory_get_usage() / pow(2, 20);
-        $this->sprintf(
+        $this->printf(
             '%30s | point: %8.3f s %8.3f Mb | interval: %8.3f s %+8.3f Mb | peak: %8.3f Mb',
             $prefix,
             $time - $this->timeStart,

@@ -77,23 +77,15 @@ class FormModelWithFields extends Form
 
 
 
-    function run($callback)
+    function run($callback = null)
     {
-        if (!empty($_POST))
+        try
         {
-            try
-            {
-                $callback();
-                $this->complete();
-            }
-            catch (\afw\m\ModelFilterException $e)
-            {
-                $this->setExceptions($e->getExceptions());
-            }
-            catch (\Exception $e)
-            {
-                $this->fail($e->getMessage());
-            }
+            parent::run($callback);
+        }
+        catch (\afw\m\ModelFilterException $e)
+        {
+            $this->setExceptions($e->getExceptions());
         }
     }
 
