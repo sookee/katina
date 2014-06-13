@@ -57,7 +57,9 @@ using namespace katina::types;
 using namespace katina::utils;
 
 extern const slot bad_slot;
+extern const slot all_slots;
 extern const slot world_slot;
+extern const slot max_slot;
 
 //struct cvarevt
 //{

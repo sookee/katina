@@ -70,7 +70,9 @@ const str tag = "";
 const str revision = REV;
 
 const slot bad_slot(-1);
+const slot all_slots(-1);
 const slot world_slot(1022);
+const slot max_slot(MAX_CLIENTS);
 
 siz Katina::getTeam(slot client) const
 {
@@ -820,7 +822,7 @@ bool Katina::initial_player_info()
 			continue;
 		}
 
-		if(num > slot(32))
+		if(num > max_slot)
 		{
 			log("ERROR: Bad client num: " << num);
 			continue;
@@ -1044,7 +1046,7 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 			siz team;
 			if(!(sgl(sgl(sgl(iss >> num, skip, '\\'), name, '\\'), skip, '\\') >> team))
 				nlog("Error parsing ClientUserinfoChanged: "  << params);
-			else if(num > slot(32))
+			else if(num > max_slot)
 			{
 				nlog("ERROR: Client num too high: " << num);
 			}
@@ -1109,7 +1111,7 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 			slot num;
 			if(!(iss >> num))
 				nlog("Error parsing ClientDisconnect: "  << params << ": " << line);
-			else if(num > slot(32))
+			else if(num > max_slot)
 			{
 				nlog("ERROR: Client num too high: " << num << ": " << line);
 			}
@@ -1413,7 +1415,7 @@ bool Katina::start(const str& dir)
 				siz team;
 				if(!(sgl(sgl(sgl(iss >> num, skip, '\\'), name, '\\'), skip, '\\') >> team))
 					nlog("Error parsing ClientUserinfoChanged: "  << params);
-				else if(num > slot(32))
+				else if(num > max_slot)
 				{
 					nlog("ERROR: Client num too high: " << num);
 				}
@@ -1530,7 +1532,7 @@ bool Katina::start(const str& dir)
 				slot num;
 				if(!(iss >> num))
 					std::cout << "Error parsing ClientDisconnect: "  << params << '\n';
-				else if(num > slot(32))
+				else if(num > max_slot)
 				{
 					nlog("ERROR: Client num too high: " << num);
 				}

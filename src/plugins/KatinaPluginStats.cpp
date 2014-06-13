@@ -380,7 +380,7 @@ bool KatinaPluginStats::kill(siz min, siz sec, slot num1, slot num2, siz weap)
 	if(clients.find(num1) == clients.end() || clients.find(num2) == clients.end())
 		return true;
 
-	if(num1 == slot(1022)) // no killer
+	if(num1 == world_slot) // no killer
 		++stats[katina.getClientGuid(num2)].deaths[weap];
     
 	else if(!katina.getClientGuid(num1).is_bot() && !katina.getClientGuid(num2).is_bot())

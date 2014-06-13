@@ -177,7 +177,7 @@ class slot
 {
 	siz num;
 public:
-	slot(): num(0) {}
+	slot(): num(-1) {}
 	explicit slot(siz num): num(num) {}
 
 	bool operator<(const slot& s) const { return num < s.num; }

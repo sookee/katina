@@ -204,7 +204,7 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 				continue;
 			}
 
-			if(i->first > slot(32))
+			if(i->first > max_slot)
 			{
 				plog("ERROR: Client number too large: " << i->first);
 				continue;
