@@ -221,7 +221,7 @@ public:
 	bool set_preferred_name(const GUID& guid, const str& name);
 	bool get_preferred_name(const GUID& guid, str& name);
 
-	siz get_kills_per_cap(const str& mapname);
+	siz get_kills_per_cap(const str& sql_select_games = "");
 	bool get_ingame_boss(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats);
 	bool get_ingame_champ(const str& mapname, GUID& guid, str& stats);
 	bool get_ingame_stats(const GUID& guid, const str& mapname, siz prev, str& stats, siz& skill);

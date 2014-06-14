@@ -614,26 +614,34 @@ typedef std::map<str, stat_c> stat_map; // guid -> stat_c
 typedef stat_map::iterator stat_map_iter;
 typedef stat_map::const_iterator stat_map_citer;
 
-siz Database::get_kills_per_cap(const str& mapname)
+siz Database::get_kills_per_cap(const str& sql_select_games)
 {
 	// -- get ratio of frags to caps
 
-	siz syear = 0;
-	siz smonth = 0;
-	siz eyear = 0;
-	siz emonth = 0;
+	soss oss;
 
-	if(!calc_period(syear, smonth, eyear, emonth))
-		return false;
+	str subsql = sql_select_games;
+
+//	if(subsql.empty())
+//	{
+//		siz syear = 0;
+//		siz smonth = 0;
+//		siz eyear = 0;
+//		siz emonth = 0;
+//
+//		if(!calc_period(syear, smonth, eyear, emonth))
+//			return false;
+//
+//		oss.clear();
+//		oss.str("");
+//		oss << "select `game_id` from `game` where `map` = '" << mapname << "'";
+//		oss << " and `date` >= TIMESTAMP('" << syear << '-' << (smonth < 10 ? "0":"") << smonth << '-' << "01" << "')";
+//		oss << " and `date` <  TIMESTAMP('" << eyear << '-' << (emonth < 10 ? "0":"") << emonth << '-' << "01" << "')";
+//		subsql = oss.str();
+//	}
 
 	stat_map stat_cs;
 	str_set guids;
-
-	soss oss;
-	oss << "select `game_id` from `game` where `map` = '" << mapname << "'";
-	oss << " and `date` >= TIMESTAMP('" << syear << '-' << (smonth < 10 ? "0":"") << smonth << '-' << "01" << "')";
-	oss << " and `date` <  TIMESTAMP('" << eyear << '-' << (emonth < 10 ? "0":"") << emonth << '-' << "01" << "')";
-	str subsql = oss.str();
 
 	oss.clear();
 	oss.str("");
@@ -693,7 +701,7 @@ bool Database::get_ingame_boss(const str& mapname, const slot_guid_map& clients,
 	oss << "select `game_id` from `game` where `map` = '" << mapname << "'";
 	oss << " and `date` >= TIMESTAMP('" << syear << '-' << (smonth < 10 ? "0":"") << smonth << '-' << "01" << "')";
 	oss << " and `date` <  TIMESTAMP('" << eyear << '-' << (emonth < 10 ? "0":"") << emonth << '-' << "01" << "')";
-	str subsql = oss.str();
+	str sql_select_games = oss.str();
 
 	str sep;
 	oss.clear();
@@ -712,7 +720,7 @@ bool Database::get_ingame_boss(const str& mapname, const slot_guid_map& clients,
 	oss.clear();
 	oss.str("");
 	oss << "select distinct `guid`,sum(`kills`.`count`) from `kills` where `kills`.`guid` in (" << insql << ")";
-	oss << " and `game_id` in (" << subsql << ") group by `guid` order by sum(`kills`.`count`) desc";
+	oss << " and `game_id` in (" << sql_select_games << ") group by `guid` order by sum(`kills`.`count`) desc";
 
 	str sql = oss.str();
 
@@ -734,7 +742,7 @@ bool Database::get_ingame_boss(const str& mapname, const slot_guid_map& clients,
 	oss.clear();
 	oss.str("");
 	oss << "select distinct `guid`,sum(`caps`.`count`) from `caps` where `caps`.`guid` in (" << insql << ")";
-	oss << " and `game_id` in (" << subsql << ") group by `guid` order by sum(`caps`.`count`) desc";
+	oss << " and `game_id` in (" << sql_select_games << ") group by `guid` order by sum(`caps`.`count`) desc";
 
 	sql = oss.str();
 
@@ -754,7 +762,7 @@ bool Database::get_ingame_boss(const str& mapname, const slot_guid_map& clients,
 	oss.clear();
 	oss.str("");
 	oss << "select distinct `guid`,sum(`time`.`count`) from `time` where `time`.`guid` in (" << insql << ")";
-	oss << " and `game_id` in (" << subsql << ") group by `guid` order by sum(`time`.`count`) desc";
+	oss << " and `game_id` in (" << sql_select_games << ") group by `guid` order by sum(`time`.`count`) desc";
 
 	sql = oss.str();
 
@@ -777,7 +785,7 @@ bool Database::get_ingame_boss(const str& mapname, const slot_guid_map& clients,
 	// -- get ratio of kills to caps
 
 
-	double kpc = get_kills_per_cap(mapname);
+	double kpc = get_kills_per_cap(sql_select_games);
 
 //	bug_var(k);
 //	bug_var(c);
@@ -850,7 +858,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	sql << "select `game_id` from `game` where `map` = '" << mapname << "'";
 	sql << " and `date` >= TIMESTAMP('" << syear << '-' << (smonth < 10 ? "0":"") << smonth << '-' << "01" << "')";
 	sql << " and `date` <  TIMESTAMP('" << eyear << '-' << (emonth < 10 ? "0":"") << emonth << '-' << "01" << "')";
-	str subsql = sql.str();
+	str sql_select_games = sql.str();
 
 	// kills
 
@@ -858,7 +866,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	sql.str("");
 	sql << "select sum(`kills`.`count`) from `kills` where `kills`.`guid` = '";
 	sql << guid << "'";
-	sql << " and `game_id` in (" << subsql << ")";
+	sql << " and `game_id` in (" << sql_select_games << ")";
 
 //	bug_var(sql.str());
 
@@ -877,7 +885,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	sql << "select sum(`weapon_usage`.`shots`) from `weapon_usage`";
 	sql << " where `weapon_usage`.`guid` = '" << guid << "'";
 	sql << " and `weapon_usage`.`weap` = '7'"; // FIXME: railgun only (not good for AW)
-	sql << " and `game_id` in (" << subsql << ")";
+	sql << " and `game_id` in (" << sql_select_games << ")";
 
 //	bug_var(sql.str());
 
@@ -894,7 +902,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	sql << "select sum(`damage`.`hits`) from `damage`";
 	sql << " where `damage`.`guid` = '" << guid << "'";
 	sql << " and `damage`.`mod` = '10'"; // FIXME: railgun only (not good for AW)
-	sql << " and `game_id` in (" << subsql << ")";
+	sql << " and `game_id` in (" << sql_select_games << ")";
 
 //	bug_var(sql.str());
 
@@ -910,7 +918,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	sql.str("");
 	sql << "select sum(`caps`.`count`) from `caps` where `caps`.`guid` = '";
 	sql << guid << "'";
-	sql << " and `game_id` in (" << subsql << ")";
+	sql << " and `game_id` in (" << sql_select_games << ")";
 
 //	bug_var(sql.str());
 
@@ -926,7 +934,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	sql.str("");
 	sql << "select sum(`speed`.`time`), sum(`speed`.`dist`) from `speed` where `speed`.`guid` = '";
 	sql << guid << "'";
-	sql << " and `game_id` in (" << subsql << ")";
+	sql << " and `game_id` in (" << sql_select_games << ")";
 
 //	bug_var(sql.str());
 
@@ -964,7 +972,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	sql.str("");
 	sql << "select sum(`time`.`count`) from `time` where `time`.`guid` = '";
 	sql << guid << "'";
-	sql << " and `game_id` in (" << subsql << ")";
+	sql << " and `game_id` in (" << sql_select_games << ")";
 
 //	bug_var(sql.str());
 
@@ -1003,7 +1011,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 		fph = (fph * 60 * 60) / sec;
 		cph = (cph * 60 * 60) / sec;
 		// Ranking
-		siz kpc = get_kills_per_cap(mapname);
+		siz kpc = get_kills_per_cap(sql_select_games);
 		skill = std::sqrt(std::pow(fph, 2) + std::pow(cph * kpc, 2));
 		// - Ranking
 
@@ -1043,7 +1051,7 @@ bool Database::get_ingame_crap(const str& mapname, const slot_guid_map& clients,
 	oss << "select `game_id` from `game` where `map` = '" << mapname << "'";
 	oss << " and `date` >= TIMESTAMP('" << syear << '-' << (smonth < 10 ? "0":"") << smonth << '-' << "01" << "')";
 	oss << " and `date` <  TIMESTAMP('" << eyear << '-' << (emonth < 10 ? "0":"") << emonth << '-' << "01" << "')";
-	str subsql = oss.str();
+	str sql_select_games = oss.str();
 
 	str sep;
 	oss.clear();
@@ -1062,7 +1070,7 @@ bool Database::get_ingame_crap(const str& mapname, const slot_guid_map& clients,
 	oss.clear();
 	oss.str("");
 	oss << "select distinct `guid`,sum(`playerstats`.`holyShitFrags`) from `playerstats` where `playerstats`.`guid` in (" << insql << ")";
-	oss << " and `game_id` in (" << subsql << ") group by `guid` order by sum(`playerstats`.`holyShitFrags`) desc";
+	oss << " and `game_id` in (" << sql_select_games << ") group by `guid` order by sum(`playerstats`.`holyShitFrags`) desc";
 
 	str sql = oss.str();
 
@@ -1084,7 +1092,7 @@ bool Database::get_ingame_crap(const str& mapname, const slot_guid_map& clients,
 	oss.clear();
 	oss.str("");
 	oss << "select distinct `guid`,sum(`time`.`count`) from `time` where `time`.`guid` in (" << insql << ")";
-	oss << " and `game_id` in (" << subsql << ") group by `guid` order by sum(`time`.`count`) desc";
+	oss << " and `game_id` in (" << sql_select_games << ") group by `guid` order by sum(`time`.`count`) desc";
 
 	sql = oss.str();
 
