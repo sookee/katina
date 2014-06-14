@@ -189,7 +189,7 @@ bool KatinaPluginNextMap::exit(siz min, siz sec)
 		total += (maps[v.first] = vote);
 	}
 
-	siz select = rand() % total;
+	siz select = total ? rand() % total : 0;
 
 	total = 0;
 	for(const str_siz_map_vt& m: maps)

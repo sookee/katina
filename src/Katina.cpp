@@ -969,6 +969,11 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 	bug_func();
 	nlog("pos: " << pos);
 
+	KatinaPlugin* playerdb = get_plugin("katina::playerdb", "");
+
+	if(!playerdb)
+		log("WARN: Plugin katina::playerdb not found processing backlog");
+
 	sifs ifs(logname);
 
 	client_userinfo_bug_t client_userinfo_bug;
@@ -1033,11 +1038,6 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 
 		iss.clear();
 		iss.str(params);
-
-		KatinaPlugin* playerdb = get_plugin("katina::playerdb", "");
-
-		if(!playerdb)
-			log("WARN: Plugin katina::playerdb not found processing backlog");
 
 	//	nlog("CMD: " << cmd);
 

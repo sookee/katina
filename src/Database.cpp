@@ -71,22 +71,35 @@ void Database::on()
 			stmt_add_playerstats = 0;
 		}
 
-		for(siz i = 0; i < 16; ++i)
+		try
 		{
-			bind_add_playerstats[i].buffer_type = MYSQL_TYPE_LONGLONG;
-			bind_add_playerstats[i].buffer = &(siz_add_playerstats[i]);
-			bind_add_playerstats[i].is_null = 0;
-			bind_add_playerstats[i].length = 0;
-			bind_add_playerstats[i].is_unsigned = 1;
+			memset(bind_add_playerstats.data(), 0, bind_add_playerstats.size() * sizeof(MYSQL_BIND));
+
+			for(siz i = 0, j = 0; i < bind_add_playerstats.size(); ++i)
+			{
+				if(i == 1)
+					continue;
+				bind_add_playerstats.at(i).buffer_type = MYSQL_TYPE_LONGLONG;
+				bind_add_playerstats.at(i).buffer = &(siz_add_playerstats.at(j++));
+				bind_add_playerstats.at(i).is_null = 0;
+				bind_add_playerstats.at(i).length = 0;
+				bind_add_playerstats.at(i).is_unsigned = 1;
+			}
+
+			bind_add_playerstats.at(1).buffer_type = MYSQL_TYPE_VARCHAR;
+			bind_add_playerstats.at(1).buffer = guid_add_playerstats;
+			bind_add_playerstats.at(1).buffer_length = 9;
+			bind_add_playerstats.at(1).is_null = 0;
+			bind_add_playerstats.at(1).length = &guid_length;
+		}
+		catch(const std::out_of_range& e)
+		{
+			log("DATABASE ERROR: " << e.what());
+			mysql_stmt_close(stmt_add_playerstats);
+			stmt_add_playerstats = 0;
 		}
 
-		bind_add_playerstats[1].buffer_type = MYSQL_TYPE_VARCHAR;
-		bind_add_playerstats[1].buffer = guid_add_playerstats;
-		bind_add_playerstats[1].buffer_length = 9;
-		bind_add_playerstats[1].is_null = 0;
-		bind_add_playerstats[1].length = &guid_length;
-
-		if(mysql_stmt_bind_param(stmt_add_playerstats, bind_add_playerstats))
+		if(mysql_stmt_bind_param(stmt_add_playerstats, bind_add_playerstats.data()))
 		{
 			log("DATABASE ERROR: Unable to bind add_playerstats: " << mysql_stmt_error(stmt_add_playerstats));
 			mysql_stmt_close(stmt_add_playerstats);
@@ -94,7 +107,6 @@ void Database::on()
 		}
 	}
 
-//	log("DATABASE: on");
 	active = true;
 }
 
@@ -304,7 +316,7 @@ bool Database::add_player(const GUID& guid, const str& name)
 	if(!escape(name, safe_name))
 	{
 		log("DATABASE: ERROR: failed to escape: " << name);
-		return bad_id;
+		return false;
 	}
 
 	soss oss;
@@ -407,23 +419,24 @@ bool Database::add_playerstats_ps(game_id id, const GUID& guid,
 	healthPickedUp, armorPickedUp, holyShitFrags, holyShitFragged,
 	carrierFrags, carrierFragsRecv);
 
-	siz_add_playerstats[0] = id;
+	siz j = 0;
+	siz_add_playerstats[j++] = id;
 	std::strncpy(guid_add_playerstats, str(guid).c_str(), 9);
 	guid_length = str(guid).size();
-	siz_add_playerstats[2] = fragsFace;
-	siz_add_playerstats[3] = fragsBack;
-	siz_add_playerstats[4] = fraggedInFace;
-	siz_add_playerstats[5] = fraggedInBack;
-	siz_add_playerstats[6] = spawnKills;
-	siz_add_playerstats[7] = spawnKillsRecv;
-	siz_add_playerstats[8] = pushes;
-	siz_add_playerstats[9] = pushesRecv;
-	siz_add_playerstats[10] = healthPickedUp;
-	siz_add_playerstats[11] = armorPickedUp;
-	siz_add_playerstats[12] = holyShitFrags;
-	siz_add_playerstats[13] = holyShitFragged;
-	siz_add_playerstats[14] = carrierFrags;
-	siz_add_playerstats[15] = carrierFragsRecv;
+	siz_add_playerstats[j++] = fragsFace;
+	siz_add_playerstats[j++] = fragsBack;
+	siz_add_playerstats[j++] = fraggedInFace;
+	siz_add_playerstats[j++] = fraggedInBack;
+	siz_add_playerstats[j++] = spawnKills;
+	siz_add_playerstats[j++] = spawnKillsRecv;
+	siz_add_playerstats[j++] = pushes;
+	siz_add_playerstats[j++] = pushesRecv;
+	siz_add_playerstats[j++] = healthPickedUp;
+	siz_add_playerstats[j++] = armorPickedUp;
+	siz_add_playerstats[j++] = holyShitFrags;
+	siz_add_playerstats[j++] = holyShitFragged;
+	siz_add_playerstats[j++] = carrierFrags;
+	siz_add_playerstats[j++] = carrierFragsRecv;
 
 	if(mysql_stmt_execute(stmt_add_playerstats))
 	{

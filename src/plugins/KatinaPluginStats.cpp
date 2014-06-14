@@ -61,7 +61,7 @@ KatinaPluginStats::KatinaPluginStats(Katina& katina)
 , recordBotGames(false)
 , do_prev_stats(false)
 , in_game(false)
-, have_bots(false)
+, stop_stats(false)
 , human_players_r(0)
 , human_players_b(0)
 , carrierBlue(-1)
@@ -97,8 +97,9 @@ bool KatinaPluginStats::open()
 	}
 
 	katina.add_var_event(this, "stats.active", active, true);
+	katina.add_var_event(this, "stats.allow.bots", allow_bots, false);
 	katina.add_var_event(this, "stats.write", write, true);
-	katina.add_var_event<siz_set>(this, "stats.weaps", db_weaps);
+	katina.add_var_event(this, "stats.weaps", db_weaps);
 
 	for(siz_set_iter i = db_weaps.begin(); i != db_weaps.end(); ++i)
 		plog("DB LOG WEAPON: " << *i);
@@ -146,8 +147,6 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 	// in game timing
 	std::time_t logged_time = 0;
 
-	pbug_var(logged_time);
-
 	for(guid_stat_map_iter p = stats.begin(); p != stats.end(); ++p)
 	{
 		if(p->second.joined_time)
@@ -159,7 +158,10 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 		logged_time += p->second.logged_time;
 	}
 
+	pbug_var(logged_time);
+
 	db_scoper on(db);
+//	db_transaction_scoper on(db);
 
  	if(logged_time && write)
 	{
@@ -170,7 +172,7 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 		{
 			for(guid_stat_map_citer p = stats.begin(); p != stats.end(); ++p)
 			{
-                if(p->first.is_bot())
+                if(!allow_bots && p->first.is_bot())
                     continue;
                 
                 pbug_var(p->second.name);
@@ -308,34 +310,34 @@ void KatinaPluginStats::unstall_clients()
 
 void KatinaPluginStats::check_bots_and_players()
 {
-	bool had_bots = have_bots;
+	bool stats_stopped = stop_stats;
 
-	have_bots = false;
+	stop_stats = false;
 	human_players_r = 0;
 	human_players_b = 0;
     
 	for(guid_siz_map_citer ci = teams.begin(); ci != teams.end(); ++ci)
 	{
-		if(ci->first.is_bot())
-			have_bots = true;
+		if(!allow_bots && ci->first.is_bot())
+			stop_stats = true;
 		else if(ci->second == TEAM_R)
 			++human_players_r;
 		else if(ci->second == TEAM_B)
 			++human_players_b;
 	}
 
-	if(have_bots || !human_players_r || !human_players_b)
+	if(stop_stats || !human_players_r || !human_players_b)
     {
-        have_bots = true; // TODO: one flag for everything, maybe change its name?
+        stop_stats = true;
         stall_clients();
         
-        if(had_bots != have_bots)
+        if(stats_stopped != stop_stats)
             server.chat("^2Stats recording deactivated^7");
     }
 	else
     {
 		unstall_clients();
-        if(had_bots != have_bots)
+        if(stats_stopped != stop_stats)
             server.chat("^2Stats recording activated^7");
     }
 }
@@ -374,7 +376,7 @@ bool KatinaPluginStats::kill(siz min, siz sec, slot num1, slot num2, siz weap)
 		return true;
 	if(!active)
 		return true;
-	if(have_bots)
+	if(stop_stats)
 		return true;
 
 	if(clients.find(num1) == clients.end() || clients.find(num2) == clients.end())
@@ -420,7 +422,7 @@ bool KatinaPluginStats::ctf(siz min, siz sec, slot num, siz team, siz act)
 
 	if(!active)
 		return true;
-	if(have_bots)
+	if(stop_stats)
 		return true;
 //	if(!human_players_r || !human_players_b)
 //		return true;
@@ -438,7 +440,7 @@ bool KatinaPluginStats::award(siz min, siz sec, slot num, siz awd)
 		return true;
 	if(!active)
 		return true;
-	if(have_bots)
+	if(stop_stats)
 		return true;
 //	if(!human_players_r || !human_players_b)
 //		return true;
@@ -498,7 +500,7 @@ bool KatinaPluginStats::speed(siz min, siz sec, slot num, siz dist, siz time, bo
 		return true;
 	if(!active)
 		return true;
-	if(have_bots)
+	if(stop_stats)
 		return true;
 
 	if(has_flag)
@@ -521,7 +523,7 @@ bool KatinaPluginStats::weapon_usage(siz min, siz sec, slot num, siz weapon, siz
 		return true;
 	if(!active)
 		return true;
-	if(have_bots)
+	if(stop_stats)
 		return true;
 //	if(!human_players_r || !human_players_b)
 //		return true;
@@ -538,7 +540,7 @@ bool KatinaPluginStats::mod_damage(siz min, siz sec, slot num, siz mod, siz hits
 		return true;
 	if(!active)
 		return true;
-	if(have_bots)
+	if(stop_stats)
 		return true;
 //	if(!human_players_r || !human_players_b)
 //		return true;
@@ -563,7 +565,7 @@ bool KatinaPluginStats::player_stats(siz min, siz sec, slot num,
 		return true;
 	if(!active)
 		return true;
-	if(have_bots)
+	if(stop_stats)
 		return true;
 //	if(!human_players_r || !human_players_b)
 //		return true;
