@@ -92,6 +92,8 @@ class Database
 	char guid_add_playerstats[9];
 	siz guid_length = 8;
 
+	bool trace = false;
+
 protected:
 	
 	/**
@@ -151,6 +153,8 @@ public:
 	 * Ensure connection
 	 */
 	bool check();
+
+	void set_trace(bool state = true) { trace = state; }
 
 	bool escape(const str& from, str& to);
 

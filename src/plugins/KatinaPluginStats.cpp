@@ -160,6 +160,7 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 
 	pbug_var(logged_time);
 
+	db.set_trace();
 	db_scoper on(db);
 //	db_transaction_scoper on(db);
 
@@ -175,7 +176,7 @@ bool KatinaPluginStats::exit(siz min, siz sec)
                 if(!allow_bots && p->first.is_bot())
                     continue;
                 
-                pbug_var(p->second.name);
+                //pbug_var(p->second.name);
                 db.add_player(p->first, p->second.name);
                 
 				siz count;
@@ -223,10 +224,10 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 		}
 	}
 
-	str stats;
+	str boss;
 	GUID guid;
-	if(db.get_ingame_boss(mapname, clients, guid, stats) && guid != null_guid)
-		server.msg_to_all("^7BOSS: " + katina.getPlayerName(guid) + "^7: " + stats, true);
+	if(db.get_ingame_boss(mapname, clients, guid, boss) && guid != null_guid)
+		server.msg_to_all("^7BOSS: " + katina.getPlayerName(guid) + "^7: " + boss, true);
 	else
 		server.msg_to_all("^7BOSS: ^3There is no boss on this map", true);
 
@@ -385,7 +386,7 @@ bool KatinaPluginStats::kill(siz min, siz sec, slot num1, slot num2, siz weap)
 	if(num1 == world_slot) // no killer
 		++stats[katina.getClientGuid(num2)].deaths[weap];
     
-	else if(!katina.getClientGuid(num1).is_bot() && !katina.getClientGuid(num2).is_bot())
+	else if(allow_bots || (!katina.getClientGuid(num1).is_bot() && !katina.getClientGuid(num2).is_bot()))
 	{
 		if(num1 != num2)
 		{
@@ -481,10 +482,10 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 		do_prev_stats = false;
 	}
 
-	str stats;
+	str boss;
 	GUID guid;
-	if(db.get_ingame_boss(mapname, clients, guid, stats) && guid != null_guid)
-		server.msg_to_all("^7BOSS: " + katina.getPlayerName(guid) + "^7: " + stats, true);
+	if(db.get_ingame_boss(mapname, clients, guid, boss) && guid != null_guid)
+		server.msg_to_all("^7BOSS: " + katina.getPlayerName(guid) + "^7: " + boss, true);
 	else
 		server.msg_to_all("^7BOSS: ^3There is no boss on this map", true);
 
