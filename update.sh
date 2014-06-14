@@ -2,7 +2,6 @@
 
 make clean
 git pull
-make clean
-make
+make all
 make install
 
