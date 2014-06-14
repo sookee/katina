@@ -13,7 +13,24 @@ Optional:
 
 ## Apache + mod-php
 
-Enable `mod_rewrite`.
+Enable `mod_rewrite` module:
+
+    sudo a2enmod rewrite
+
+Allow using `mod_rewrite` in `.htaccess` in config:
+
+    <Directory /var/www/>
+            Options Indexes FollowSymLinks MultiViews
+            # changed from None to FileInfo
+            AllowOverride FileInfo
+            Order allow,deny
+            Allow from all
+    </Directory>
+
+Restart apache:
+
+    sudo service apache2 restart
+
 By default Webkatti works under `/webkatti/`. You can change this in `.htaccess` and `conf-host.php` `$urlPrefix`.
 
 ## Nginx + php-fpm
