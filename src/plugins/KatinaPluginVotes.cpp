@@ -75,6 +75,7 @@ bool KatinaPluginVotes::open()
 	katina.add_var_event(this, "votes.active", active, false);
 
 	katina.add_log_event(this, INIT_GAME);
+	katina.add_log_event(this, WARMUP);
 	katina.add_log_event(this, SAY);
 	katina.add_log_event(this, SAYTEAM);
 //	katina.add_log_event(this, HEARTBEAT);
@@ -153,7 +154,6 @@ bool KatinaPluginVotes::init_game(siz min, siz sec, const str_map& cvars)
 	mapname = katina.get_mapname();
 
 	// load map votes for new map
-//	db.on();
 	if(!db.read_map_votes(mapname, map_votes))
 	{
 		map_votes.clear();
@@ -163,10 +163,18 @@ bool KatinaPluginVotes::init_game(siz min, siz sec, const str_map& cvars)
 	}
 
 	if(!announce_time)
-		announce_time = katina.get("votes.announce.delay", 10);
+		announce_time = sec + katina.get("votes.announce.delay", 10);
 
 	katina.add_log_event(this, HEARTBEAT);
 
+	return true;
+}
+
+bool KatinaPluginVotes::warmup(siz min, siz sec)
+{
+	// kybosch the announcement
+	announce_time = 0;
+	katina.del_log_event(this, HEARTBEAT);
 	return true;
 }
 
@@ -175,7 +183,6 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 	if(!announce_time || min || sec < announce_time)
 		return;
 
-	katina.del_log_event(this, HEARTBEAT);
 
 	pbug("HEARTBEAT");
 

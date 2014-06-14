@@ -491,7 +491,9 @@ bool Database::add_speed(game_id id, const GUID& guid,
 bool Database::read_map_votes(const str& mapname, guid_int_map& map_votes)
 {
 	if(trace)
-		log("DATABASE: read_map_votes()");
+		log("DATABASE: read_map_votes(" << mapname << ")");
+
+	map_votes.clear();
 
 	str safe_mapname;
 	if(!escape(mapname, safe_mapname))

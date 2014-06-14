@@ -89,6 +89,7 @@ public:
 	virtual str get_version() const override;
 
 	virtual bool init_game(siz min, siz sec, const str_map& cvars) override;
+	virtual bool warmup(siz min, siz sec) override;
 	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) override;
 	virtual bool sayteam(siz min, siz sec, const GUID& guid, const str& text) override;
 	virtual void heartbeat(siz min, siz sec) override;

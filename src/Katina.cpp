@@ -1103,9 +1103,6 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 		}
 		else if(cmd == "ShutdownGame:")
 		{
-//			clients.clear();
-//			players.clear();
-//			teams.clear();
 		}
 		else if(cmd == "ClientDisconnect:")
 		{

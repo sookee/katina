@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef _OASTATS_KATINA_PLUGIN_H
 #define	_OASTATS_KATINA_PLUGIN_H
 /*
@@ -89,14 +89,36 @@ public:
 	virtual str api(const str& cmd) { return "ERROR: unknown request"; }
 
 	// Game server log events
+
+	/**
+	 * Called at the very beginning of each game.
+	 *
+	 * When this function is called NONE of the core data structures
+	 * (clients, players, teams) contain any data.
+	 *
+	 * They will fill up on subsequent ClientUserinfoChanged: events.
+	 */
 	virtual bool init_game(siz min, siz sec, const str_map& svars) { return true; }
+
+	/**
+	 * Called IMMEDIATELY after init_game() IF this is a warmup game.
+	 *
+	 * Therefore the core data structures (clients, players, teams)
+	 * don't contain any data.
+	 *
+	 * They will fill up on subsequent ClientUserinfoChanged: events.
+	 */
 	virtual bool warmup(siz min, siz sec) { return true; }
+
 	virtual bool client_connect(siz min, siz sec, slot num) { return true; }
 
 	/**
 	 * Only with mod_katina >= 0.1-beta
+	 * Only reliable with mod_katina >= 0.1.1 (Is this true?)
 	 */
 	virtual bool client_connect_info(siz min, siz sec, slot num, const GUID& guid, const str& ip) { return true; }
+
+	// TODO: can these be used to validate client_connect_info info?
 	virtual bool client_begin(siz min, siz sec, slot num) { return true; }
 	virtual bool client_disconnect(siz min, siz sec, slot num) { return true; }
 	virtual bool client_userinfo_changed(siz min, siz sec, slot num, siz team, const GUID& guid, const str& name, siz hc) { return true; }
