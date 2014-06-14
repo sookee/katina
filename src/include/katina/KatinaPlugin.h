@@ -169,7 +169,36 @@ public:
 	 */
 	virtual void close() = 0;
     
+	/**
+	 * Potentially every time a message arrives in the log file
+	 * a HEARTBEAT event can be sent to the plugin (depending
+	 * on the "regularity" provided by the plugin's override
+	 * of the get_regularity() function.
+	 *
+	 * The default regularity (in seconds) is 0 (meaning never).
+	 *
+	 * Therefore plugins implementing this function should
+	 * also implement the get_regularity() function to tell
+	 * katina how often to call the heartbeat in seconds.
+	 */
     virtual void heartbeat(siz min, siz sec) {}
+
+    /**
+     * Override this function to contrl how often (in seconds)
+     * the heartbeat() function is called.
+     *
+     * Unless this function is overriden, it returns 0 meaning that
+     * the heartbeat() function will never be called.
+     *
+     * A return value of 2 will mean the heartbeat() event will
+     * be called once every two seconds. A return value of 5 means
+     * the heartbeat() function will be called once every five seconds, etc.
+     *
+     * @param time_in_secs The number of seconds since the first InitGame:
+     * for the currently running game. This is ((min * 60) + sec) as taken
+     * from the log file being processed.
+     */
+    virtual siz get_regularity(siz time_in_secs) const { return 0; }
 };
 
 typedef std::shared_ptr<KatinaPlugin> KatinaPluginSPtr;

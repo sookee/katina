@@ -107,6 +107,9 @@ public:
 		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
 		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged) override;
 
+	virtual void heartbeat(siz min, siz sec) override;
+	virtual siz get_regularity(siz time_in_secs) const override;
+
 	virtual void close() override;
 };
 

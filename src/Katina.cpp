@@ -1371,9 +1371,13 @@ bool Katina::start(const str& dir)
 			// Send HEARTBEAT event to plugins
 			if(sec != prev_sec)
 			{
-				prev_sec = sec;
+				prev_sec = sec; // only once every second (at most)
+
+				siz time_in_secs = (min * 60) + sec;
+				siz regularity;
 				for(plugin_lst_iter i = events[HEARTBEAT].begin(); i != events[HEARTBEAT].end(); ++i)
-					(*i)->heartbeat(min, sec);
+					if((regularity = (*i)->get_regularity(time_in_secs)) && !(time_in_secs % regularity))
+						(*i)->heartbeat(min, sec);
 			}
 			bool flagspeed = false; // speed carrying a flag
 
@@ -1392,14 +1396,9 @@ bool Katina::start(const str& dir)
 				for(plugin_lst_iter i = events[SHUTDOWN_GAME].begin()
 					; i != events[SHUTDOWN_GAME].end(); ++i)
 					(*i)->shutdown_game(min, sec);
-
-//				clients.clear();
-//				players.clear();
-//				teams.clear();
 			}
 			else if(cmd == "Warmup:")
 			{
-				//bug(cmd << "(" << params << ")");
 				if(events[WARMUP].empty())
 					continue;
 
@@ -1409,9 +1408,6 @@ bool Katina::start(const str& dir)
 			}
 			else if(cmd == "ClientUserinfoChanged:")
 			{
-				//bug(cmd << "(" << params << ")");
-				// 0 n\Merman\t\2\model\merman\hmodel\merman\c1\1\c2\1\hc\70\w\0\l\0\skill\ 2.00\tt\0\tl\0\id\
-				// 2 \n\^1S^2oo^3K^5ee\t\3\c2\d\hc\100\w\0\l\0\tt\0\tl\0\id\041BD1732752BCC408FAF45616A8F64B
 				slot num;
 				siz team;
 				if(!(sgl(sgl(sgl(iss >> num, skip, '\\'), name, '\\'), skip, '\\') >> team))
@@ -1458,13 +1454,13 @@ bool Katina::start(const str& dir)
 						teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
 
 						for(plugin_lst_iter i = events[CLIENT_USERINFO_CHANGED].begin();
-								i != events[CLIENT_USERINFO_CHANGED].end(); ++i)
-							(*i)->client_userinfo_changed(min, sec, num, team, guid, name, hc);
+							i != events[CLIENT_USERINFO_CHANGED].end(); ++i)
+								(*i)->client_userinfo_changed(min, sec, num, team, guid, name, hc);
 
 						if(team != teamBefore && !guid.is_bot())
 							for(plugin_lst_iter i = events[CLIENT_SWITCH_TEAM].begin();
-									i != events[CLIENT_SWITCH_TEAM].end(); ++i)
-								(*i)->client_switch_team(min, sec, num, teamBefore, team);
+								i != events[CLIENT_SWITCH_TEAM].end(); ++i)
+									(*i)->client_switch_team(min, sec, num, teamBefore, team);
 					}
 				}
 			}

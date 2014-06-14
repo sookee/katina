@@ -63,6 +63,7 @@ bool KatinaPluginExample::open()
 	katina.add_log_event(this, SAY);
 	katina.add_log_event(this, SHUTDOWN_GAME);
 	katina.add_log_event(this, EXIT);
+	katina.add_log_event(this, HEARTBEAT);
 	katina.add_log_event(this, UNKNOWN);
 
 	return true;
@@ -83,8 +84,11 @@ str KatinaPluginExample::get_version() const
 	return VERSION;
 }
 
+static siz r = 1;
+
 bool KatinaPluginExample::init_game(siz min, siz sec, const str_map& cvars)
 {
+	r = 1;
 	if(!active)
 		return true;
 	plog("init_game()");
@@ -278,6 +282,18 @@ bool KatinaPluginExample::player_stats(siz min, siz sec, slot num,
 			<< ", " << pushes << ", " << pushesRecv << ", " << healthPickedUp << ", " << armorPickedUp
 			<< ", " << holyShitFrags << ", " << holyShitFragged << ")");
 	return true;
+}
+
+void KatinaPluginExample::heartbeat(siz min, siz sec)
+{
+	plog("heartbeat(" << min << ", " << sec << ")");
+	++r;
+}
+
+siz KatinaPluginExample::get_regularity(siz time_in_secs) const
+{
+	plog("get_regularity(" << time_in_secs << ")-> " << r);
+	return r;
 }
 
 void KatinaPluginExample::close()

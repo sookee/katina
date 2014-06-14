@@ -92,7 +92,9 @@ public:
 	virtual bool warmup(siz min, siz sec) override;
 	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) override;
 	virtual bool sayteam(siz min, siz sec, const GUID& guid, const str& text) override;
+
 	virtual void heartbeat(siz min, siz sec) override;
+	virtual siz get_regularity(siz time_in_secs) const override { return 1; } // once per second
 
 	virtual void close() override;
 };
