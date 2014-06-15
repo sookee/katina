@@ -17,7 +17,7 @@ class Main
         {
             Storage::cache()->clear();
         }
-        header('location: ' . Link::prefix());
+        header('location: ' . Link::prefix() . '/');
         exit;
     }
 
@@ -111,7 +111,7 @@ class Main
         {
             $c->year = date('Y');
         }
-        
+
         $c->month = (int)@$_GET['month'];
         if (empty($c->month))
         {

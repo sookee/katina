@@ -15,7 +15,7 @@ class PlayerStats extends \afw\c\Controller
     public $time;
     public $shots;
     public $hits;
-    
+
     public $players;
     public $minDeaths;
     public $minTime;
@@ -69,7 +69,7 @@ class PlayerStats extends \afw\c\Controller
                 $player['kcd']  = sqrt($player['kills'] * $player['caps']) / $player['deaths'];
                 $player['kct']  = sqrt($player['kills'] * $player['caps']) / ($player['time'] / 3600);
                 $player['kcdt'] = ($player['kills'] * $player['caps']) / ($player['deaths'] * ($player['time'] / 3600));
-                
+
                 $player['acc']  = @($player['hits'] / $player['shots']);
             }
             unset($player);
@@ -81,17 +81,18 @@ class PlayerStats extends \afw\c\Controller
 
             foreach ($this->players as &$player)
             {
-                $player['kd']   = $player['kd'] ? number_format($player['kd']  * 100) . ' %' : '';
-                $player['cd']   = round($player['cd']  * 100) ? : '';
-                $player['kcd']  = round($player['kcd'] * 100) ? : '';
-                $player['kct']  = round($player['kct']      ) ? : '';
-                $player['kcdt'] = round($player['kcdt']     ) ? : '';
+                $player['kd']       = $player['kd'] ? number_format($player['kd']  * 100) . ' %' : '';
+                $player['cd']       = round($player['cd']  * 100) ? : '';
+                $player['kcd']      = round($player['kcd'] * 100) ? : '';
+                $player['kct']      = round($player['kct']      ) ? : '';
+                $player['kcdt']     = round($player['kcdt']     ) ? : '';
 
-                $player['time'] = \wk\Utils::formatTimeHMS($player['time']);
-                $player['tk']   = sprintf('%.1f', $player['tk']) ? : '';
-                $player['ct']   = round($player['ct']) ? : '';
-                
-                $player['acc']  = $player['acc'] ? number_format($player['acc'] * 100) . ' %' : '';
+                $player['time_raw'] = $player['time'];
+                $player['time']     = \wk\Utils::formatTimeHMS($player['time']);
+                $player['tk']       = sprintf('%.1f', $player['tk']) ? : '';
+                $player['ct']       = round($player['ct']) ? : '';
+
+                $player['acc']      = $player['acc'] ? number_format($player['acc'] * 100) . ' %' : '';
             }
             unset($player);
         }
