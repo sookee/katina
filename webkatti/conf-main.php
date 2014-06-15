@@ -52,7 +52,9 @@ class Storage extends afw\InstanceFactory
             {
                 $cache = new afw\AMemcache(
                     Config::$memcacheHost,
-                    Config::$memcachePort, 1, $_SERVER['HTTP_HOST'] . '.webkatti',
+                    Config::$memcachePort,
+                    1,
+                    $_SERVER['HTTP_HOST'] . '.webkatti',
                     Config::$memcacheTtl
                 );
             });
