@@ -62,7 +62,7 @@ private:
 	bool active;
 
 	bool votes_valid = false;
-	siz announce_time; // seconds before announce
+	siz announce_time = 0; // seconds before announce
 
 public:
 

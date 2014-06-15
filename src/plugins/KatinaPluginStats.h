@@ -165,6 +165,8 @@ private:
 
 	siz_set db_weaps; // which weapons to record
 
+	siz announce_time = 0; // seconds before announce
+
 	void stall_client(const GUID& guid);
 	void unstall_client(const GUID& guid);
 	void stall_clients();
@@ -215,6 +217,9 @@ public:
 		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged) override;
 	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) override;
 	virtual bool sayteam(siz min, siz sec, const GUID& guid, const str& text) override;
+
+	virtual void heartbeat(siz min, siz sec) override;
+	virtual siz get_regularity(siz time_in_secs) const override { return 1; } // once per second
 
 	virtual void close();
 };

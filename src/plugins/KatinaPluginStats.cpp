@@ -24,6 +24,9 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <katina/KatinaPlugin.h>
 #include "KatinaPluginStats.h"
 
+#include <thread>
+#include <future>
+
 #include <katina/Database.h>
 #include <katina/GUID.h>
 
@@ -107,7 +110,6 @@ bool KatinaPluginStats::open()
 
 	katina.add_log_event(this, EXIT);
 	katina.add_log_event(this, SHUTDOWN_GAME);
-	katina.add_log_event(this, WARMUP);
 	katina.add_log_event(this, CLIENT_USERINFO_CHANGED);
 	//katina.add_log_event(this, CLIENT_CONNECT);
 	katina.add_log_event(this, CLIENT_DISCONNECT);
@@ -115,6 +117,7 @@ bool KatinaPluginStats::open()
 	katina.add_log_event(this, CTF);
 	katina.add_log_event(this, AWARD);
 	katina.add_log_event(this, INIT_GAME);
+	katina.add_log_event(this, WARMUP);
 	katina.add_log_event(this, WEAPON_USAGE);
 	katina.add_log_event(this, MOD_DAMAGE);
 	katina.add_log_event(this, PLAYER_STATS);
@@ -222,6 +225,9 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 		}
 	}
 
+	stats.clear();
+	onevone.clear();
+
 	str boss;
 	GUID guid;
 	if(db.get_ingame_boss(mapname, clients, guid, boss) && guid != null_guid)
@@ -229,9 +235,6 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 	else
 		server.msg_to_all("^7BOSS: ^3There is no boss on this map", true);
 
-	stats.clear();
-	onevone.clear();
-    
 	return true;
 }
 
@@ -251,10 +254,13 @@ bool KatinaPluginStats::shutdown_game(siz min, siz sec)
 
 bool KatinaPluginStats::warmup(siz min, siz sec)
 {
-	// bug("in_game: " << in_game);
 	in_game = false;
 	stall_clients();
-    
+
+	// kybosch the announcement
+	announce_time = 0;
+	katina.del_log_event(this, HEARTBEAT);
+
     return true;
 }
 
@@ -480,14 +486,44 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 		do_prev_stats = false;
 	}
 
+//	std::async(std::launch::async, [&]
+//	{
+//		thread_sleep_millis(15000);
+//
+//		str boss;
+//		GUID guid;
+//		if(db.get_ingame_boss(mapname, clients, guid, boss) && guid != null_guid)
+//			server.msg_to_all("^7BOSS: " + katina.getPlayerName(guid) + "^7: " + boss, true);
+//		else
+//			server.msg_to_all("^7BOSS: ^3There is no boss on this map", true);
+//	});
+
+	if(!announce_time)
+		announce_time = sec + katina.get("boss.announce.delay", 10);
+
+	katina.add_log_event(this, HEARTBEAT);
+
+	return true;
+}
+
+void KatinaPluginStats::heartbeat(siz min, siz sec)
+{
+	if(!announce_time || min || sec < announce_time)
+		return;
+
+
+	pbug("HEARTBEAT");
+
+	announce_time = 0; // turn off
+
+	//const slot_guid_map& clients = katina.getClients();
+
 	str boss;
 	GUID guid;
 	if(db.get_ingame_boss(mapname, clients, guid, boss) && guid != null_guid)
 		server.msg_to_all("^7BOSS: " + katina.getPlayerName(guid) + "^7: " + boss, true);
 	else
 		server.msg_to_all("^7BOSS: ^3There is no boss on this map", true);
-
-	return true;
 }
 
 // zim@openmafia >= 0.1-beta
