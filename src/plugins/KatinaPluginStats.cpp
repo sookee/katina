@@ -462,6 +462,8 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 		do_prev_stats = false;
 	}
 
+	pbug("INITGAME");
+
 	if(!announce_time)
 		announce_time = sec + katina.get("boss.announce.delay", 10);
 
@@ -472,6 +474,7 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 
 bool KatinaPluginStats::warmup(siz min, siz sec)
 {
+	pbug("WARMUP");
 	in_game = false;
 	stall_clients();
 
@@ -487,10 +490,9 @@ void KatinaPluginStats::heartbeat(siz min, siz sec)
 	if(!announce_time || min || sec < announce_time)
 		return;
 
+	announce_time = 0; // turn off
 
 	pbug("HEARTBEAT");
-
-	announce_time = 0; // turn off
 
 	str boss;
 	GUID guid;

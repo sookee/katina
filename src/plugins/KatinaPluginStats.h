@@ -206,8 +206,6 @@ public:
 	virtual bool ctf(siz min, siz sec, slot num, siz team, siz act) override;
 	virtual bool award(siz min, siz sec, slot num, siz awd) override;
 	virtual bool init_game(siz min, siz sec, const str_map& cvars) override;
-//	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) override;
-//	virtual bool unknown(siz min, siz sec, const str& cmd, const str& params) override;
 	virtual bool speed(siz min, siz sec, slot num, siz dist, siz time, bool has_flag) override; // zim@openmafia >= 0.1-beta
 	virtual bool weapon_usage(siz min, siz sec, slot num, siz weapon, siz shots) override;
 	virtual bool mod_damage(siz min, siz sec, slot num, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv, float weightedHits) override;
