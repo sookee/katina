@@ -640,7 +640,8 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 		{
 			// $time $fph $cph $fpd $cpd $acc[GA|MG|SG|GL|RL|LG|RG|PG|BG|GH|NG|PL|CG] $name
 
-			if(p->first.is_bot() || !p->second.logged_time)
+			// must play for at least 3 minutes to be included
+			if(p->first.is_bot() || p->second.logged_time < (60 * 3))
 				continue;
             
 			str sort; // sort column
