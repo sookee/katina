@@ -53,7 +53,6 @@ using namespace katina::data;
 using namespace katina::types;
 
 class RemoteClientList
-//: public RemoteClient
 {
 	std::vector<RemoteClient*> clients;
 

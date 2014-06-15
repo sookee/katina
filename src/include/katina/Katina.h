@@ -247,11 +247,9 @@ private:
 	bool log_read_back(const str& logname, std::ios::streampos pos);
 	void builtin_command(const GUID& guid, const str& text);
 
-	// disconnected guid keys are kept here until ShutdownGame
-    //guid_lst shutdown_erase; // disconnected list
-
 	// We try to keep map keys GUID based as slot numbers are defunct as soon
 	// as a client disconnects.
+
     std::array<bool, MAX_CLIENTS> connected;
 	slot_guid_map clients; // slot -> GUID // cleared when players disconnect and on game_begin()
 	guid_str_map players; // GUID -> name  // cleard before game_begin()

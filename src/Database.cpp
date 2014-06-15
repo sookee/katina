@@ -711,6 +711,7 @@ bool Database::get_ingame_boss(const str& mapname, const slot_guid_map& clients,
 	for(slot_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
 		if(!i->second.is_bot())
 			{ oss << sep << "'" << i->second << "'"; sep = ",";}
+
 	str insql = oss.str();
 
 	guid = null_guid;

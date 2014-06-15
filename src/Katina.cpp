@@ -89,7 +89,7 @@ siz Katina::getTeam(slot client) const
 
 siz Katina::getTeam(const GUID& guid) const
 {
-	 guid_siz_map_citer teamsIt = teams.find(guid);
+	guid_siz_map_citer teamsIt = teams.find(guid);
 	if(teamsIt == teams.end())
 		return TEAM_U;
 

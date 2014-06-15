@@ -494,6 +494,10 @@ void KatinaPluginStats::heartbeat(siz min, siz sec)
 
 	pbug("HEARTBEAT");
 
+	pbug_var(clients.size());
+
+	db_scoper on(db);
+
 	str boss;
 	GUID guid;
 	if(db.get_ingame_boss(mapname, clients, guid, boss) && guid != null_guid)

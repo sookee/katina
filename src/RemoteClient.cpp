@@ -64,15 +64,10 @@ bool RemoteClient::say(char f, const str& text)
 	str res;
 	bool good = true;
 
-//	bug_var(chans.size());
 	for(chan_map_iter chan = chans.begin(); chan != chans.end(); ++chan)
-	{
-//		bug_var(chan->first);
-//		for(std::set<char>::iterator i = chan->second.begin(); i != chan->second.end(); ++i)
-//			bug_var(*i);
 		if(f == '*' || chan->second.count('*') || chan->second.count(f))
 			good = good && send("/say " + chan->first + " [" + irc_katina + "] " + text, res);
-	}
+
 	return good;
 }
 
