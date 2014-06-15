@@ -681,11 +681,11 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 					if(h)
 					{
 						siz fh = (f * 60 * 60) / h;
-						fph = to_string(fh, 3);
+						fph = to_string(fh, 4);
 					}
 
 					str s = "^7" + fph;
-					set_width(s, 3, 2);
+					set_width(s, 4, 2);
 					oss << sep << s;
 					sep = "^2|";
 					if(col == stats_sort)
@@ -802,7 +802,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 				if(col == "$time")
 					{ oss << sep << "^3time "; sep = "^2|"; }
 				else if(col == "$fph")
-					{ oss << sep << "^3fph"; sep = "^2|"; }
+					{ oss << sep << "^3fph "; sep = "^2|"; }
 				else if(col == "$cph")
 					{ oss << sep << "^3cph"; sep = "^2|"; }
 				else if(col == "$fpd")
