@@ -341,7 +341,7 @@ bool KatinaPluginAdmin::fair()
 			for(const player& p: rank)
 				total += p.skill;
 
-			rank.push_back(player(total / rank.size(), bad_slot));
+			rank.push_back(player(total / rank.size(), slot::bad));
 		}
 
 		std::sort(rank.begin(), rank.end());
@@ -508,7 +508,7 @@ bool KatinaPluginAdmin::fixteams()
 			for(const player& p: rank)
 				total += p.skill;
 
-			rank.push_back(player(total / rank.size(), bad_slot));
+			rank.push_back(player(total / rank.size(), slot::bad));
 		}
 
 		std::sort(rank.begin(), rank.end());
@@ -723,7 +723,7 @@ bool KatinaPluginAdmin::open()
 //	slot num;
 //	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end(); ++s)
 //	{
-//		if((num = katina.getClientSlot(s->guid)) == bad_slot)
+//		if((num = katina.getClientSlot(s->guid)) == slot::bad)
 //			continue;
 //
 //		if(players.find(s->guid) == players.end())
@@ -792,7 +792,7 @@ bool KatinaPluginAdmin::init_game(siz min, siz sec, const str_map& cvars)
 	slot num;
 	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end(); ++s)
 	{
-		if((num = katina.getClientSlot(s->guid)) == bad_slot)
+		if((num = katina.getClientSlot(s->guid)) == slot::bad)
 			continue;
 
 		if(players.find(s->guid) == players.end())
@@ -1333,9 +1333,9 @@ void KatinaPluginAdmin::spamkill(slot num)
 
 void KatinaPluginAdmin::tell_perp(slot admin_num, slot perp_num, const str& msg)
 {
-	if(admin_num != bad_slot)
+	if(admin_num != slot::bad)
 		server.msg_to(admin_num, "^7ADMIN: " + msg, true);
-	if(perp_num != admin_num && perp_num != bad_slot)
+	if(perp_num != admin_num && perp_num != slot::bad)
 		server.msg_to(perp_num, "^7ADMIN: " + msg, true);
 }
 
@@ -1350,7 +1350,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 	// !cmd <parans>
 
 	slot say_num;
-	if((say_num = katina.getClientSlot(guid)) == bad_slot)
+	if((say_num = katina.getClientSlot(guid)) == slot::bad)
 	{
 		plog("ERROR: Unable to get slot number from guid: " << guid);
 		return true;
@@ -1550,7 +1550,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			return true;
 		}
 
-		slot num = bad_slot;
+		slot num = slot::bad;
 		str duration = "5m";
 		str reason;
 
@@ -1600,7 +1600,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			return true;
 		}
 
-		slot perp = bad_slot;
+		slot perp = slot::bad;
 		str duration = "5m";
 		str reason;
 
@@ -1647,7 +1647,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			return true;
 		}
 
-		slot num = bad_slot;
+		slot num = slot::bad;
 		str duration = "20m";
 		str reason;
 
@@ -1706,7 +1706,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			return true;
 		}
 
-		slot perp = bad_slot;
+		slot perp = slot::bad;
 		str name;
 
 		sgl(iss >> perp >> std::ws, name);
@@ -1779,7 +1779,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			return true;
 		}
 
-		slot perp = bad_slot;
+		slot perp = slot::bad;
 		str team, reason;
 
 		if(spec)
@@ -1872,7 +1872,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		if(reason == "remove")
 		{
 			slot num = katina.getClientSlot(perp);
-			if(remove_sanctions(perp, S_WARN_ON_SIGHT) && num != bad_slot)
+			if(remove_sanctions(perp, S_WARN_ON_SIGHT) && num != slot::bad)
 				tell_perp(say_num, num, "^7" + katina.getPlayerName(perp) + " ^3Removed warn-on-sight from: ^7" + katina.getPlayerName(perp));
 			return true;
 		}

@@ -222,11 +222,11 @@ str KatinaPluginPlayerDb::api(const str& cmd)
 		if(!(iss >> num))
 			return "ERROR: parsing slot: " + cmd;
 
-		if(num == bad_slot)
-			return "ERROR: slot number not known for guid: " + str(guid);
+		if(num == slot::bad)
+			return "ERROR: slot number not known: " + str(num);
 
 		if(ips.find(num) == ips.end())
-			return "ERROR: ip not known for guid: " + str(guid);
+			return "ERROR: ip not known for slot: " + str(num);
 
 		return ips[num];
 	}
@@ -238,7 +238,7 @@ str KatinaPluginPlayerDb::api(const str& cmd)
 
 		slot num = katina.getClientSlot(guid);
 
-		if(num == bad_slot)
+		if(num == slot::bad)
 			return "ERROR: slot number not known for guid: " + str(guid);
 
 		if(ips.find(num) == ips.end())

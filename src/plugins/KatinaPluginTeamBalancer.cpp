@@ -461,7 +461,7 @@ bool KatinaPluginTeamBalancer::say(siz min, siz sec, const GUID& guid, const str
     
     slot client;
 
-    if((client = katina.getClientSlot(guid)) == bad_slot)
+    if((client = katina.getClientSlot(guid)) == slot::bad)
     	return true;
 
     siss iss(text);

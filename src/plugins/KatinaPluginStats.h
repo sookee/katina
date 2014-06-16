@@ -159,7 +159,7 @@ private:
 	siz human_players_r; // number of human players on red team
 	siz human_players_b; // number of human players on blue team
 
-	// Current flag carriers (slot number, bad_slot if nobody carries the flag)
+	// Current flag carriers (slot number, slot::bad if nobody carries the flag)
 	slot carrierBlue;
 	slot carrierRed;
 

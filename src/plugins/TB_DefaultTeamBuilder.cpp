@@ -117,7 +117,7 @@ bool DefaultTeamBuilder::buildTeams(slot_float_map playerRatings, slot_siz_map& 
     	if(it->second != TEAM_R && it->second != TEAM_B)
         	continue;
 
-    	if((client = katina.getClientSlot(it->first)) == bad_slot)
+    	if((client = katina.getClientSlot(it->first)) == slot::bad)
     		continue;
 
     	ingamePlayers.push_back(client);
@@ -223,7 +223,7 @@ bool MinimalChangesTeamBuilder::buildTeams(slot_float_map playerRatings, slot_si
     	if(it->second != TEAM_R && it->second != TEAM_B)
         	continue;
 
-    	if((client = katina.getClientSlot(it->first)) == bad_slot)
+    	if((client = katina.getClientSlot(it->first)) == slot::bad)
     		continue;
 
     	ingamePlayers.push_back(client);

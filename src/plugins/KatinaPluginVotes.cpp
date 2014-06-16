@@ -205,13 +205,13 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 			pbug("ANNOUNCING VOTE TO: " << i->second << " " << katina.getPlayerName(i->second));
 
 			bug_var(i->first);
-			if(i->first == bad_slot)
+			if(i->first == slot::bad)
 			{
 				plog("ERROR: Bad client number: " << i->first);
 				continue;
 			}
 
-			if(i->first > max_slot)
+			if(i->first > slot::max)
 			{
 				plog("ERROR: Client number too large: " << i->first);
 				continue;
@@ -256,7 +256,7 @@ bool KatinaPluginVotes::say(siz min, siz sec, const GUID& guid, const str& text)
 
 	slot say_num;
 
-	if((say_num = katina.getClientSlot(guid)) == bad_slot)
+	if((say_num = katina.getClientSlot(guid)) == slot::bad)
 	{
 		plog("ERROR: Unable to get slot number from guid: " << guid);
 		return true;

@@ -373,7 +373,7 @@ bool KatinaPluginStats::kill(siz min, siz sec, slot num1, slot num2, siz weap)
 	if(clients.find(num1) == clients.end() || clients.find(num2) == clients.end())
 		return true;
 
-	if(num1 == world_slot) // no killer
+	if(num1 == slot::world) // no killer
 		++stats[katina.getClientGuid(num2)].deaths[weap];
     
 	else if(allow_bots || (!katina.getClientGuid(num1).is_bot() && !katina.getClientGuid(num2).is_bot()))
@@ -405,9 +405,9 @@ bool KatinaPluginStats::ctf(siz min, siz sec, slot num, siz team, siz act)
 
 	// Remember who is carrying the flag
 	if(team == TEAM_R)
-		carrierRed = act == 0 ? num : bad_slot;
+		carrierRed = act == 0 ? num : slot::bad;
 	else if(team == TEAM_B)
-		carrierBlue = act == 0 ? num : bad_slot;
+		carrierBlue = act == 0 ? num : slot::bad;
 
 	if(!active)
 		return true;
@@ -623,7 +623,7 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 
 	slot say_num;
 
-	if((say_num = katina.getClientSlot(guid)) == bad_slot)
+	if((say_num = katina.getClientSlot(guid)) == slot::bad)
 	{
 		plog("ERROR: Unable to get slot number from guid: " << guid);
 		return true;

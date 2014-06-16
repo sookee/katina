@@ -56,31 +56,6 @@ using namespace katina::pki;
 using namespace katina::types;
 using namespace katina::utils;
 
-extern const slot bad_slot;
-extern const slot all_slots;
-extern const slot world_slot;
-extern const slot max_slot;
-
-//struct cvarevt
-//{
-//	str name;
-//	str value;
-//	KatinaPlugin* plugin;
-//
-//	bool operator<(const cvarevt& e)
-//	{
-//		return &plugin < &e.plugin && name < e.name;
-//	}
-//
-//	bool operator==(const cvarevt& e)
-//	{
-//		return &plugin == &e.plugin && name == e.name;
-//	}
-//};
-//
-//typedef std::list<cvarevt> cvarevt_lst;
-//typedef std::list<cvarevt>::iterator cvarevt_lst_iter;
-
 enum event_t
 {
 	LOG_NONE

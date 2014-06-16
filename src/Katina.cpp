@@ -118,7 +118,7 @@ slot Katina::getClientSlot(const GUID& guid) const
 	for(slot_guid_map_citer it = clients.cbegin(); it != clients.cend(); ++it)
 		if(it->second == guid)
 			return it->first;
-	return bad_slot;
+	return slot::bad;
 }
 
 const GUID&  Katina::getClientGuid(slot num) const
@@ -562,7 +562,7 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 
 	slot num;
 
-	if((num = getClientSlot(guid)) == bad_slot)
+	if((num = getClientSlot(guid)) == slot::bad)
 	{
 		server.s_chat("ERROR: Cannot locate client number.");
 		return;
@@ -817,7 +817,7 @@ bool Katina::initial_player_info()
 			continue;
 		}
 
-		if(num > max_slot)
+		if(num > slot::max)
 		{
 			log("ERROR: Bad client num: " << num);
 			continue;
@@ -925,25 +925,25 @@ bool Katina::parse_slot_guid_name(const str& slot_guid_name, slot& num)
 	if(slot_guid_name.size() > 2 && slot_guid_name.size() < 8) // try GUID startswith
 		for(guid_siz_map_citer i = teams.begin(); i != teams.end(); ++i)
 			if(!upper_copy(str(i->first)).find(upper_copy(slot_guid_name)))
-				if((s = getClientSlot(i->first)) != bad_slot)
-					return (num = s) != bad_slot;
+				if((s = getClientSlot(i->first)) != slot::bad)
+					return (num = s) != slot::bad;
 
 	if(slot_guid_name.size() > 3) // try name submatch
 		for(guid_str_map_citer i = players.begin(); i != players.end(); ++i)
 			if(sanitized(i->second).find(lower_copy(slot_guid_name)) != str::npos)
-				if((s = getClientSlot(i->first)) != bad_slot)
-					return (num = s) != bad_slot;
+				if((s = getClientSlot(i->first)) != slot::bad)
+					return (num = s) != slot::bad;
 
 	siss iss(slot_guid_name);
 	if(slot_guid_name.size() < 3) // try slot match
 		if(iss >> s && check_slot(s))
-			return (num = s) != bad_slot;
+			return (num = s) != slot::bad;
 
 	// try exact name match
 	for(guid_str_map_citer i = players.begin(); i != players.end(); ++i)
 		if(sanitized(i->second) == lower_copy(slot_guid_name))
-			if((s = getClientSlot(i->first)) != bad_slot)
-				return (num = s) != bad_slot;
+			if((s = getClientSlot(i->first)) != slot::bad)
+				return (num = s) != slot::bad;
 
 	return false;
 }
@@ -1042,7 +1042,7 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 			siz team;
 			if(!(sgl(sgl(sgl(iss >> num, skip, '\\'), name, '\\'), skip, '\\') >> team))
 				nlog("Error parsing ClientUserinfoChanged: "  << params);
-			else if(num > max_slot)
+			else if(num > slot::max)
 			{
 				nlog("ERROR: Client num too high: " << num);
 			}
@@ -1104,7 +1104,7 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 			slot num;
 			if(!(iss >> num))
 				nlog("Error parsing ClientDisconnect: "  << params << ": " << line_data);
-			else if(num > max_slot)
+			else if(num > slot::max)
 			{
 				nlog("ERROR: Client num too high: " << num << ": " << line_data);
 			}
@@ -1407,7 +1407,7 @@ bool Katina::start(const str& dir)
 				siz team;
 				if(!(sgl(sgl(sgl(iss >> num, skip, '\\'), name, '\\'), skip, '\\') >> team))
 					nlog("Error parsing ClientUserinfoChanged: "  << params);
-				else if(num > max_slot)
+				else if(num > slot::max)
 				{
 					nlog("ERROR: Client num too high: " << num);
 				}
@@ -1524,7 +1524,7 @@ bool Katina::start(const str& dir)
 				slot num;
 				if(!(iss >> num))
 					std::cout << "Error parsing ClientDisconnect: "  << params << '\n';
-				else if(num > max_slot)
+				else if(num > slot::max)
 				{
 					nlog("ERROR: Client num too high: " << num);
 				}

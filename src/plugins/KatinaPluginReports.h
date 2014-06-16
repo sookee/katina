@@ -111,7 +111,7 @@ private:
 	str_siz_map spam;
 	siz spam_limit;
 
-	slot fc[2] = {bad_slot, bad_slot}; // flag carriers
+	slot fc[2] = {slot::bad, slot::bad}; // flag carriers
 
 	siz flags[2];
 	guid_siz_map caps; // GUID -> <count>

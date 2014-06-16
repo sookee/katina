@@ -412,7 +412,7 @@ bool KatinaPluginReports::ctf(siz min, siz sec, slot num, siz team, siz act)
 		if(do_flags || do_caps)
 			client.raw_chat('f', hud + oa_to_IRC("^7[ ] ^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED])));
 
-		fc[team - 1] = bad_slot;
+		fc[team - 1] = slot::bad;
 	}
 	else if(act == FL_TAKEN)
 	{
@@ -435,7 +435,7 @@ bool KatinaPluginReports::ctf(siz min, siz sec, slot num, siz team, siz act)
 		}
 		if(do_flags)
 			client.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + katina.getPlayerName(num) + "^3 has killed the " + flag[ncol] + " ^3flag carrier!"));
-		fc[team - 1] = bad_slot;
+		fc[team - 1] = slot::bad;
 	}
 	else if(act == FL_RETURNED)
 	{
