@@ -41,7 +41,7 @@ using namespace katina::types;
 using namespace katina::string;
 
 KATINA_PLUGIN_TYPE(KatinaPluginPlayerDb);
-KATINA_PLUGIN_INFO("katina::playerdb", "Katina Player Database", "0.1-dev");
+KATINA_PLUGIN_INFO("katina::playerdb", "Katina Player Database", "0.1");
 
 MYSQL mysql;
 str host;
@@ -77,7 +77,7 @@ typedef player_set::iterator player_set_iter;
 player_set player_cache;
 
 typedef std::map<slot, str> ip_map; // slot -> ip
-ip_map ips;
+static ip_map ips;
 
 bool is_ip(const str& s)
 {
@@ -207,6 +207,48 @@ TYPEDEF_MAP(slot, str, slot_str_map);
 
 static slot_guid_map hold_guids;
 static slot_str_map hold_ips;
+
+str KatinaPluginPlayerDb::api(const str& cmd)
+{
+	siss iss(cmd);
+
+	str call;
+	if(!(iss >> call))
+		return "ERROR: unknown call: " + cmd;
+
+	if(call == "slot_to_ip")
+	{
+		slot num;
+		if(!(iss >> num))
+			return "ERROR: parsing slot: " + cmd;
+
+		if(num == bad_slot)
+			return "ERROR: slot number not known for guid: " + str(guid);
+
+		if(ips.find(num) == ips.end())
+			return "ERROR: ip not known for guid: " + str(guid);
+
+		return ips[num];
+	}
+	else if(call == "guid_to_ip")
+	{
+		GUID guid;
+		if(!(iss >> guid))
+			return "ERROR: parsing guid: " + cmd;
+
+		slot num = katina.getClientSlot(guid);
+
+		if(num == bad_slot)
+			return "ERROR: slot number not known for guid: " + str(guid);
+
+		if(ips.find(num) == ips.end())
+			return "ERROR: ip not known for guid: " + str(guid);
+
+		return ips[num];
+	}
+
+	return KatinaPlugin::api(cmd);
+}
 
 bool KatinaPluginPlayerDb::client_connect_info(siz min, siz sec, slot num, const GUID& guid, const str& ip)
 {

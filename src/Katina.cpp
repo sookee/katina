@@ -69,11 +69,6 @@ const str version = "0.1";
 const str tag = "";
 const str revision = REV;
 
-const slot bad_slot(-1);
-const slot all_slots(-1);
-const slot world_slot(1022);
-const slot max_slot(MAX_CLIENTS);
-
 siz Katina::getTeam(slot client) const
 {
 	slot_guid_map_citer clientsIt = clients.find(client);

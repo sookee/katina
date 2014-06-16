@@ -177,6 +177,11 @@ class slot
 {
 	siz num;
 public:
+	static const slot bad;
+	static const slot all;
+	static const slot world;
+	static const slot max;
+
 	slot(): num(-1) {}
 	explicit slot(siz num): num(num) {}
 
@@ -185,12 +190,24 @@ public:
 	bool operator==(const slot& s) const { return num == s.num; }
 	bool operator!=(const slot& s) const { return num != s.num; }
 
-	friend sos& operator<<(sos& o, const slot& s) { return o << s.num; }
-	friend sis& operator>>(sis& i, slot& s) { return i >> s.num; }
+	friend sos& operator<<(sos& o, const slot& s);
+	friend sis& operator>>(sis& i, slot& s);
 
 	explicit operator str() const { return std::to_string(num); }
 	explicit operator siz() const { return num; }
 };
+
+inline sos& operator<<(sos& o, const slot& s) { return o << s.num; }
+inline sis& operator>>(sis& i, slot& s)
+{
+	if(i >> s.num && s.num >= MAX_CLIENTS)
+	{
+		s = slot::bad;
+		i.setstate(std::ios::failbit);
+	}
+
+	return i;
+}
 
 TYPEDEF_MAP(slot, siz, slot_siz_map);
 

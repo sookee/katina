@@ -109,8 +109,9 @@ class KatinaPluginAdmin
 : public KatinaPlugin
 {
 private:
-	KatinaPlugin* stats = nullptr;
 	RemoteClient* irc = nullptr;
+	KatinaPlugin* stats = nullptr;
+	KatinaPlugin* playerdb = nullptr;
 
 	const str& mapname;
 	const slot_guid_map& clients; // slot -> GUID
@@ -182,6 +183,7 @@ private:
 	void tell_perp(slot admin_num, slot perp_num, const str& msg);
 
 	void spamkill(slot num);
+	bool fair();
 	bool fixteams();
 
 	bool mutepp(slot num);

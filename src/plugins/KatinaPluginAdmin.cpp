@@ -230,10 +230,177 @@ struct player
 typedef std::list<player> player_lst;
 typedef std::vector<player> player_vec;
 
+bool KatinaPluginAdmin::fair()
+{
+	pbug("-------------------------------------------");
+	pbug("FAIR: policy: " << policy);
+	pbug("-------------------------------------------");
+	if(policy == policy_t::FT_NONE)
+	{
+		server.msg_to_all(katina.get_name() + "^7: ^3 FAIR is turned off");
+		return true;
+	}
+//	siz_mmap rank; // skill -> slot
+	player_vec rank;
+	siz skill_r = 0;
+	siz skill_b = 0;
+	siz r = 0;
+	siz b = 0;
+
+	server.cp("^3Fixing Teams");
+
+	double cap_factor = total_caps ? total_kills / total_caps : 1.0;
+	bug_var(cap_factor);
+	bug_var(clients.size());
+	for(slot_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
+	{
+//		if(i->second.is_bot())
+//			continue;
+
+		bug_var(i->first);
+		bug_var(i->second);
+		bug_var(katina.getTeam(i->second));
+		 // 1 = red, 2 = blue, 3 = spec
+		if(katina.getTeam(i->second) != TEAM_R && katina.getTeam(i->second) != TEAM_B)
+			continue;
+
+		pbug("FAIR:  slot: " << i->first);
+		pbug("FAIR:  name: " << katina.getPlayerName(i->first));
+
+		siz skill, fph,cph;
+		if(stats && policy == policy_t::FT_EVEN_SCATTER_DB)
+		{
+			// get skill from database
+			str res = stats->api("get_skill " + str(i->second) + " " + mapname);
+			if(!res.find("ERROR"))
+				continue;
+			skill = to<siz>(res);
+		}
+		else
+		{
+			// accumulate time but keep timer running
+			if(time[i->first])
+			{
+				secs[i->first] += (katina.now - time[i->first]);
+				time[i->first] = katina.now;
+			}
+
+			fph = secs[i->first] ? (kills[i->first] * 60 * 60) / secs[i->first] : 0;
+			cph = secs[i->first] ? (caps[i->first] * 60 * 60) / secs[i->first] : 0;
+
+			pbug("FAIR: kills: " << kills[i->first]);
+			pbug("FAIR:  caps: " << caps[i->first]);
+			pbug("FAIR:  secs: " << secs[i->first]);
+			pbug("FAIR:   fph: " << fph);
+			pbug("FAIR:   cph: " << cph);
+
+			skill = sqrt(pow(fph, 2) + pow(cph * cap_factor, 2));
+		}
+
+		pbug("FAIR: skill: " << skill);
+
+		if(katina.getTeam(i->second) == TEAM_R)
+			{ skill_r += skill; ++r; }
+		else
+			{ skill_b += skill; ++b; }
+
+//		rank.insert(siz_mmap_pair(skill, i->first));
+		rank.push_back(player(skill, i->first));
+	}
+
+	if(rank.size() < 3)
+		return true;
+
+	std::sort(rank.begin(), rank.end());
+
+	pbug("-------------------------------------------");
+
+	if(policy == policy_t::FT_EVEN_SCATTER || policy == policy_t::FT_EVEN_SCATTER_DB)
+	{
+		siz team = (rand() % 2) + 1;
+		bug_var(team);
+		for(const player&  i: rank)
+		{
+			pbug("FAIR: putting: " << i.num << " [" << i.skill << "] "
+					<< "on team " << str(team == 1 ? "r" : "b"));
+
+			if(katina.getTeam(i.num) != team)
+				if(!server.command("!putteam " + to_string(i.num) + " " + str(team == 1 ? "r" : "b")))
+					server.command("!putteam " + to_string(i.num) + " " + str(team == 1 ? "r" : "b")); // one retry
+			team = team == 1 ? 2 : 1;
+		}
+	}
+	else if(policy == policy_t::FT_BEST_PERMUTATION)
+	{
+		player_vec best_rank;
+		siz best_delta = siz(-1);
+
+		if(rank.size() & 1) // odd
+		{
+			siz total = 0;
+			for(const player& p: rank)
+				total += p.skill;
+
+			rank.push_back(player(total / rank.size(), bad_slot));
+		}
+
+		std::sort(rank.begin(), rank.end());
+
+		siz start_team = (rand() % 2) + 1;
+		siz delta, team;
+		do
+		{
+			siz tot[2] = {0, 0};
+			team = start_team;
+			pbug_var(team);
+
+			str bug_sep;
+			soss bug_out;
+
+			for(siz i = 0; i < rank.size(); ++i)
+			{
+				bug_out << bug_sep << "{" << rank[i].num << ", " << rank[i].skill << "}";
+				bug_sep = " ";
+				tot[team - 1] += rank[i].skill;
+				team = team == 1 ? 2 : 1;
+			}
+
+			pbug_var(bug_out.str());
+
+			delta = tot[0] > tot[1] ? tot[0] - tot[1] : tot[1] - tot[0];
+
+			if(delta < best_delta)
+			{
+				best_rank = rank;
+				best_delta = delta;
+			}
+		}
+		while(delta && std::next_permutation(rank.begin(), rank.end()));
+
+		team = start_team;
+		pbug_var(team);
+		for(siz i = 0; i < best_rank.size(); ++i)
+		{
+			pbug("FAIR: putting: " << best_rank[i].num << " [" << best_rank[i].skill << "] "
+					<< "on team " << str(team == 1 ? "r" : "b"));
+
+			if(katina.getTeam(best_rank[i].num) != team)
+				if(!server.command("!putteam " + to_string(best_rank[i].num) + " " + str(team == 1 ? "r" : "b")))
+					server.command("!putteam " + to_string(best_rank[i].num) + " " + str(team == 1 ? "r" : "b")); // one retry
+			team = team == 1 ? 2 : 1;
+		}
+	}
+	else if(policy == policy_t::FT_NEAREST_DIFFERENCE)
+	{
+	}
+
+	return true;
+}
+
 bool KatinaPluginAdmin::fixteams()
 {
 	pbug("-------------------------------------------");
-	pbug("FIXTEAMS:policy: " << policy);
+	pbug("FIXTEAMS: policy: " << policy);
 	pbug("-------------------------------------------");
 	if(policy == policy_t::FT_NONE)
 	{
@@ -515,8 +682,8 @@ bool KatinaPluginAdmin::open()
 	bug_func();
 
 	stats = katina.get_plugin("katina::stats", "0.1");
+	playerdb = katina.get_plugin("katina::playerdb", "0.1");
 
-	//str_vec clients = katina.get_vec("remote.irc.client");
 	// remote.irc.client: insecure 127.0.0.1:7334 #zimsnew(*)
 	if(katina.has("admin.alert.irc.client"))
 		if((irc = RemoteClient::create(katina, katina.get("admin.alert.irc.client"))))
@@ -1260,8 +1427,18 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			return true;
 		}
 
-		const str_vec& banned = katina.get_vec("admin.alert.banned");
-		if(std::find(banned.begin(), banned.end(), str(guid)) != banned.end())
+		const str_vec& banned_ips = katina.get_vec("admin.alert.banned.ip");
+		const str_vec& banned_guids = katina.get_vec("admin.alert.banned.guid");
+
+		str cmd = "guid_to_ip " + str(guid);
+		str inip = playerdb ? playerdb->api(cmd):"";
+
+		if(!inip.find("ERROR:"))
+			plog("ERROR: calling playerdb::api(" << cmd);
+
+		if(std::find_if(banned_ips.begin(), banned_ips.end(), [&](const str& ip){return !ip.find(inip);}) != banned_ips.end()
+		|| std::find(banned_guids.begin(), banned_guids.end(), str(guid)) != banned_guids.end())
+//		if( std::find(banned_guids.begin(), banned_guids.end(), str(guid)) != banned_guids.end())
 		{
 			server.msg_to(say_num, katina.get_name() + "^7: "
 				+   katina.getPlayerName(guid)
@@ -1332,6 +1509,17 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			server.msg_to(say_num, "^7ADMIN: ^3!sanctions <num> = list sanctions for player.");
 			return true;
 		}
+	}
+	else if(cmd == trans("!fair") || cmd == trans("?fair"))
+	{
+		if(cmd[0] == '?')
+		{
+			server.msg_to(say_num, "^7ADMIN: ^3Check the teams for fairness.", true);
+			server.msg_to(say_num, "^7ADMIN: ^3!fair");
+			return true;
+		}
+
+		fair();
 	}
 	else if(cmd == trans("!fixteams") || cmd == trans("?fixteams"))
 	{
