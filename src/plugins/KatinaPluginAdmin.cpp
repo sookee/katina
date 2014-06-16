@@ -1340,7 +1340,7 @@ void KatinaPluginAdmin::tell_perp(slot admin_num, slot perp_num, const str& msg)
 }
 
 // TODO: make these commands use katina.parse_slot_guid_name()
-bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
+bool KatinaPluginAdmin::say(const siz min, const siz sec, const GUID& guid, const str& text)
 {
 	if(!active)
 		return true;

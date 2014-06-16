@@ -752,7 +752,7 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 	return true;
 }
 
-str KatinaPluginStats::api(const str& cmd)
+str KatinaPluginStats::api(const str& cmd, void* blob)
 {
 	bug("API CALL: " << cmd);
 	siss iss(cmd);
@@ -767,6 +767,13 @@ str KatinaPluginStats::api(const str& cmd)
 			return "ERROR: bad parameters: " + cmd;
 
 		return std::to_string(get_skill(GUID(guid), mapname));
+	}
+	else if(c == "get_stats") //guid_stat_map stats;
+	{
+//		*static_cast<guid_stat_map**>(blob) = &stats;
+		set_blob(blob, &stats);
+
+		return "OK:";
 	}
 
 	return KatinaPlugin::api(cmd);//"ERROR: unknown request";

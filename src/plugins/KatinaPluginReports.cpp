@@ -169,11 +169,17 @@ KatinaPluginReports::KatinaPluginReports(Katina& katina)
 
 bool KatinaPluginReports::open()
 {
-	if(katina.get_plugin("katina::stats", "0.0", stats))
-		plog("Found: " << stats->get_name());
+//	if(katina.get_plugin("katina::stats", "0.0", stats))
+//		plog("Found: " << stats->get_name());
+//
+//	if(katina.get_plugin("katina::votes", "0.0", votes))
+//		plog("Found: " << votes->get_name());
 
-	if(katina.get_plugin("katina::votes", "0.0", votes))
-		plog("Found: " << votes->get_name());
+	if((stats = katina.get_plugin("katina::stats", "0.0")))
+		plog("Found: " << stats->get_name() << ": " << stats->get_version());
+
+	if((votes = katina.get_plugin("katina::votes", "0.0")))
+		plog("Found: " << votes->get_name() << ": " << votes->get_version());
 
 	client.off();
 	client.clear();
@@ -223,7 +229,7 @@ bool KatinaPluginReports::open()
 	return true;
 }
 
-str KatinaPluginReports::api(const str& cmd)
+str KatinaPluginReports::api(const str& cmd, void* blob)
 {
 	if(!cmd.find("alert:"))
 	{
@@ -631,12 +637,20 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 		}
 	}
 
+	guid_stat_map* statsptr = nullptr;
+
+	if(stats->api("get_stats", set_blob(statsptr)) != "OK:" || statsptr == nullptr)
+	{
+		log("ERROR: stats api call failed: " << statsptr);
+		do_stats = false;
+	}
+
 	if(do_stats && stats)
 	{
 		std::multimap<str, str> scores;
 
 		soss oss;
-		for(guid_stat_map_citer p = stats->stats.begin(); p != stats->stats.end(); ++p)
+		for(guid_stat_map_citer p = statsptr->begin(); p != statsptr->end(); ++p)
 		{
 			// $time $fph $cph $fpd $cpd $acc[GA|MG|SG|GL|RL|LG|RG|PG|BG|GH|NG|PL|CG] $name
 

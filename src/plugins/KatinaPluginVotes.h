@@ -80,7 +80,7 @@ public:
 
 	// INTERFACE: KatinaPlugin
 
-	virtual str api(const str& call) override;
+	virtual str api(const str& call, void* blob = nullptr) override;
 
 	virtual bool open() override;
 

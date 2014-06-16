@@ -86,8 +86,10 @@ class KatinaPluginReports
 public:
 
 private:
-	KatinaPluginStats* stats;
-	KatinaPluginVotes* votes;
+//	KatinaPluginStats* stats;
+//	KatinaPluginVotes* votes;
+	KatinaPlugin* stats;
+	KatinaPlugin* votes;
 
 	RemoteClientList client;
 
@@ -130,7 +132,7 @@ public:
 
 	// INTERFACE: KatinaPlugin
 
-	virtual str api(const str& cmd) override;
+	virtual str api(const str& cmd, void* blob = nullptr) override;
 
 	virtual bool open() override;
 

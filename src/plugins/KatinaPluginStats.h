@@ -190,7 +190,7 @@ public:
 
 	virtual bool open() override;
 
-	virtual str api(const str& cmd) override;
+	virtual str api(const str& cmd, void* blob = nullptr) override;
 
 	virtual str get_id() const override;
 	virtual str get_name() const override;

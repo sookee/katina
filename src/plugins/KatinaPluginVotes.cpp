@@ -98,7 +98,7 @@ str KatinaPluginVotes::get_version() const
 	return VERSION;
 }
 
-str KatinaPluginVotes::api(const str& call)
+str KatinaPluginVotes::api(const str& call, void* blob)
 {
 	siss iss(call);
 

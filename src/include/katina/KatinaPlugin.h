@@ -86,7 +86,7 @@ public:
 	/**
 	 * Interface for other plugins to use
 	 */
-	virtual str api(const str& cmd) { return "ERROR: unknown request"; }
+	virtual str api(const str& cmd, void* blob = nullptr) { return "ERROR: unknown request"; }
 
 	// Game server log events
 
