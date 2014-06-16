@@ -164,7 +164,7 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 
 	pbug_var(logged_time);
 
-//	db.set_trace();
+	db.set_trace();
 	db_scoper on(db);
 //	db_transaction_scoper on(db);
 
