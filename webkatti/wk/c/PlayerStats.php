@@ -70,7 +70,7 @@ class PlayerStats extends \afw\c\Controller
                 $player['kct']  = sqrt($player['kills'] * $player['caps']) / ($player['time'] / 3600);
                 $player['kcdt'] = ($player['kills'] * $player['caps']) / ($player['deaths'] * ($player['time'] / 3600));
 
-                $player['acc']  = @($player['hits'] / $player['shots']);
+                $player['acc']  = empty($player['shots']) ? null : $player['hits'] / $player['shots'];
             }
             unset($player);
 
