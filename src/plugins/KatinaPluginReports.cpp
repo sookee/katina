@@ -175,8 +175,14 @@ bool KatinaPluginReports::open()
 //	if(katina.get_plugin("katina::votes", "0.0", votes))
 //		plog("Found: " << votes->get_name());
 
-	if((stats = katina.get_plugin("katina::stats", "0.0")))
-		plog("Found: " << stats->get_name() << ": " << stats->get_version());
+//	if((stats = katina.get_plugin("katina::stats", "0.0")))
+//		plog("Found: " << stats->get_name() << ": " << stats->get_version());
+//
+//	if((votes = katina.get_plugin("katina::votes", "0.0")))
+//		plog("Found: " << votes->get_name() << ": " << votes->get_version());
+
+	if(!(stats = katina.get_plugin("katina::stats", "0.0")))
+		return false;
 
 	if((votes = katina.get_plugin("katina::votes", "0.0")))
 		plog("Found: " << votes->get_name() << ": " << votes->get_version());

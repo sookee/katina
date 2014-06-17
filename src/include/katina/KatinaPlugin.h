@@ -52,6 +52,7 @@ class KatinaPlugin
 
 private:
 	void* dl;
+	bool opened = false;
 
 protected:
 	class Katina& katina;
@@ -59,6 +60,9 @@ protected:
 public:
 	KatinaPlugin(Katina& katina): dl(0), katina(katina) {}
 	virtual ~KatinaPlugin() {}
+
+	bool is_loaded() const { return dl; }
+	bool is_open() const { return opened; }
 
 	/**
 	 * This provides an opportunity for a plugin to initialise

@@ -68,6 +68,8 @@ typedef moddmg_map::const_iterator moddmg_map_citer;
 
 struct stats
 {
+	siz hc; // handicap
+
 	siz_map kills;
 	siz_map deaths;
 	siz_map flags;
@@ -101,7 +103,7 @@ struct stats
 	str name;
 
 	stats() :
-		kills(), deaths(), flags(), awards(), weapon_usage(), mod_damage(),
+		hc(100), kills(), deaths(), flags(), awards(), weapon_usage(), mod_damage(),
 		fragsFace(0), fragsBack(0), fraggedInFace(0), fraggedInBack(0),
 		spawnKills(0), spawnKillsRecv(0), pushes(0), pushesRecv(0),
 		healthPickedUp(0), armorPickedUp(0), holyShitFrags(0), holyShitFragged(0),
@@ -156,8 +158,8 @@ private:
 
 	bool allow_bots = false;
 	bool stop_stats; // are any bots playing?
-	siz human_players_r; // number of human players on red team
-	siz human_players_b; // number of human players on blue team
+	//siz human_players_r; // number of human players on red team
+	//siz human_players_b; // number of human players on blue team
 
 	// Current flag carriers (slot number, slot::bad if nobody carries the flag)
 	slot carrierBlue;

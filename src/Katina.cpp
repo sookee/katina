@@ -340,6 +340,8 @@ bool Katina::open_plugin(const str& id)
 		return false;
 	}
 
+	p->second->opened = true;
+
 	log("PLUGIN OPEN: OK: " << p->second->get_id() << ", " << p->second->get_name() << ", " << p->second->get_version());
 
 	return true;
@@ -595,38 +597,85 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 			if(!(iss >> type) || trim(type).empty())
 				type = "data";
 
+			soss oss;
+
 			if(type == "clients" || type == "data")
 			{
 				server.msg_to(num, "clients: " + std::to_string(clients.size()));
+				oss.str("");
 				for(slot_guid_map_vt p: clients)
-					server.msg_to(num, " {" + str(p.first) + ", " + str(p.second) + "}"
-						+ (p.second.is_bot()?" (BOT)":"")
-						+ (p.second.is_connected()?"":" (Disconnected)"));
+				{
+					oss <<  " {" + str(p.first) + ", " + str(p.second) + "}";
+					oss << (p.second.is_bot()?" (BOT)":"");
+					oss << (p.second.is_connected()?"":" (Disconnected)");
+
+					if(oss.str().size() > 60)
+					{
+						server.msg_to(num, oss.str());
+						oss.str("");
+					}
+				}
+				if(!oss.str().empty())
+					server.msg_to(num, oss.str());
 			}
 			else if(type == "teams" || type == "data")
 			{
 				server.msg_to(num, "teams: " + std::to_string(teams.size()));
+				oss.str("");
 				for(guid_siz_map_vt p: teams)
-					server.msg_to(num, " {" + str(p.first) + ", " + std::to_string(p.second) + "}"
-						+ (p.first.is_bot()?" (BOT)":"")
-						+ (p.first.is_connected()?"":" (Disconnected)"));
+				{
+					oss << "{" + str(p.first) + ", " + std::to_string(p.second) + "}";
+					oss << (p.first.is_bot()?" (BOT)":"");
+					oss << (p.first.is_connected()?"":" (Disconnected)");
+
+					if(oss.str().size() > 60)
+					{
+						server.msg_to(num, oss.str());
+						oss.str("");
+					}
+				}
+				if(!oss.str().empty())
+					server.msg_to(num, oss.str());
 			}
 			else if(type == "players" || type == "data")
 			{
 				server.msg_to(num, "players: " + std::to_string(players.size()));
+				oss.str("");
 				for(const guid_str_map_vt& p: players)
-					server.msg_to(num, " {" + str(p.first) + ", " + p.second + "}"
-						+ (p.first.is_bot()?" (BOT)":"")
-						+ (p.first.is_connected()?"":" (Disconnected)"));
+				{
+					oss << "{" + str(p.first) + ", " + p.second + "}";
+					oss << (p.first.is_bot()?" (BOT)":"");
+					oss << (p.first.is_connected()?"":" (Disconnected)");
+
+					if(oss.str().size() > 60)
+					{
+						server.msg_to(num, oss.str());
+						oss.str("");
+					}
+				}
+				if(!oss.str().empty())
+					server.msg_to(num, oss.str());
 			}
 			else if(type == "connected" || type == "data")
 			{
 				siz c = std::count_if(connected.begin(), connected.end(), [](const bool& b){return b;});
 				server.msg_to(num, "connected: " + std::to_string(c));
+				oss.str("");
 				c = 0;
 				for(bool b: connected)
-					if(c++ && b)
-						server.msg_to(num, " {" + std::to_string(c) + ": " + std::to_string(b) + "}");
+				{
+					if(b)
+					{
+						oss << "{" + std::to_string(c) + ": " + std::to_string(b) + "}";
+
+						if(oss.str().size() > 60)
+						{
+							server.msg_to(num, oss.str());
+							oss.str("");
+						}
+					}
+					++c;
+				}
 			}
 		}
 		else if(cmd == "plugin")
@@ -817,7 +866,7 @@ bool Katina::initial_player_info()
 			continue;
 		}
 
-		if(num > slot::max)
+		if(num >= slot::max)
 		{
 			log("ERROR: Bad client num: " << num);
 			continue;
@@ -1042,7 +1091,7 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 			siz team;
 			if(!(sgl(sgl(sgl(iss >> num, skip, '\\'), name, '\\'), skip, '\\') >> team))
 				nlog("Error parsing ClientUserinfoChanged: "  << params);
-			else if(num > slot::max)
+			else if(num >= slot::max)
 			{
 				nlog("ERROR: Client num too high: " << num);
 			}
@@ -1051,12 +1100,12 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 				siz pos = line_data.find("\\id\\");
 				if(pos == str::npos)
 					client_userinfo_bug.set(params);
-				else if(!is_connected(num))
-				{
+//				else if(!is_connected(num))
+//				{
 					// Don't trust ClientUserInfoChanged: messages until
 					// we see a ClientConnect: for this slot number
-					//nlog("Disconnected ClientUserinfoChange: ");
-				}
+//					nlog("Disconnected ClientUserinfoChange: ");
+//				}
 				else
 				{
 					str id = line_data.substr(pos + 4, 32);
@@ -1091,9 +1140,19 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 				nlog("Error parsing ClientConnect: "  << params);
 			else
 			{
-				if(!is_connected(num))
-					clients[num] = null_guid; // connecting
+//				if(!is_connected(num))
+				clients[num] = null_guid; // connecting
 				connected[siz(num)] = true;
+			}
+		}
+		else if(cmd == "ClientBegin:") // 0:04 ClientBegin: 4
+		{
+			slot num;
+			if(!(iss >> num))
+				nlog("Error parsing ClientBegin: "  << params);
+			else
+			{
+				connected[siz(num)] = true; // start trusting ClientUserinfoChanged
 			}
 		}
 		else if(cmd == "ShutdownGame:")
@@ -1104,7 +1163,7 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 			slot num;
 			if(!(iss >> num))
 				nlog("Error parsing ClientDisconnect: "  << params << ": " << line_data);
-			else if(num > slot::max)
+			else if(num >= slot::max)
 			{
 				nlog("ERROR: Client num too high: " << num << ": " << line_data);
 			}
@@ -1124,8 +1183,10 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 				}
 
 				getClientGuid(num).disconnect();
-//				shutdown_erase.push_back(guid);
+
 				teams[guid] = TEAM_U;
+				if(playerdb)
+					playerdb->client_disconnect(min, sec, num);
 				clients.erase(num);
 			}
 		}
@@ -1144,8 +1205,10 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 			else if(!is_connected(num))
 			{
 				// ignore this event until it occurs at a reliable place
-				if(mod_katina >= "0.1.1")
-					nlog("ERROR: This event should NEVER occur");
+				if(mod_katina == "0.1.1")
+					nlog("ERROR: This event should NEVER occur in 0.1.1");
+				if(mod_katina >= "0.1.2")
+					nlog("ERROR: This event should NEVER occur after 0.1.2");
 			}
 			else
 			{
@@ -1407,7 +1470,7 @@ bool Katina::start(const str& dir)
 				siz team;
 				if(!(sgl(sgl(sgl(iss >> num, skip, '\\'), name, '\\'), skip, '\\') >> team))
 					nlog("Error parsing ClientUserinfoChanged: "  << params);
-				else if(num > slot::max)
+				else if(num >= slot::max)
 				{
 					nlog("ERROR: Client num too high: " << num);
 				}
@@ -1416,12 +1479,12 @@ bool Katina::start(const str& dir)
 					siz pos = line_data.find("\\id\\");
 					if(pos == str::npos)
 						client_userinfo_bug.set(params);
-					else if(!is_connected(num))
-					{
+//					else if(!is_connected(num))
+//					{
 						// Don't trust ClientUserInfoChanged: messages until
 						// we see a ClientConnect: for this slot number
-						nlog("Disconnected ClientUserinfoChange: ");
-					}
+//						nlog("Disconnected ClientUserinfoChange: ");
+//					}
 					else
 					{
 						str id = line_data.substr(pos + 4, 32);
@@ -1466,12 +1529,12 @@ bool Katina::start(const str& dir)
 					nlog("Error parsing ClientConnect: "  << params);
 				else
 				{
-					if(!is_connected(num))
-						clients[num] = null_guid; // connecting
+					//if(!is_connected(num))
+					clients[num] = null_guid; // connecting
+					connected[siz(num)] = true;
 					for(plugin_lst_iter i = events[CLIENT_CONNECT].begin()
 						; i != events[CLIENT_CONNECT].end(); ++i)
 						(*i)->client_connect(min, sec, num);
-					connected[siz(num)] = true;
 				}
 			}
 			else if(cmd == "ClientConnectInfo:")
@@ -1492,8 +1555,10 @@ bool Katina::start(const str& dir)
 				else if(!is_connected(num))
 				{
 					// ignore this event until it occurs at a reliable place
-					if(mod_katina >= "0.1.1")
-						nlog("ERROR: This event should NEVER occur");
+					if(mod_katina == "0.1.1")
+						nlog("ERROR: This event should NEVER occur in 0.1.1");
+					if(mod_katina >= "0.1.2")
+						nlog("ERROR: This event should NEVER occur after 0.1.2");
 				}
 				else
 				{
@@ -1504,14 +1569,15 @@ bool Katina::start(const str& dir)
 			}
 			else if(cmd == "ClientBegin:") // 0:04 ClientBegin: 4
 			{
-				if(events[CLIENT_BEGIN].empty())
-					continue;
+//				if(events[CLIENT_BEGIN].empty())
+//					continue;
 
 				slot num;
 				if(!(iss >> num))
 					nlog("Error parsing ClientBegin: "  << params);
 				else
 				{
+					connected[siz(num)] = true; // start trusting ClientUserinfoChanged
 					for(plugin_lst_iter i = events[CLIENT_BEGIN].begin()
 						; i != events[CLIENT_BEGIN].end(); ++i)
 						(*i)->client_begin(min, sec, num);
@@ -1524,7 +1590,7 @@ bool Katina::start(const str& dir)
 				slot num;
 				if(!(iss >> num))
 					std::cout << "Error parsing ClientDisconnect: "  << params << '\n';
-				else if(num > slot::max)
+				else if(num >= slot::max)
 				{
 					nlog("ERROR: Client num too high: " << num);
 				}
@@ -1567,8 +1633,10 @@ bool Katina::start(const str& dir)
 
 				slot num1, num2;
 				siz weap;
+				//   9:01 Kill: 1022 0 19: <world> killed Merman by MOD_FALLING
+				// 1022 1 22: <world> killed Arachna by MOD_TRIGGER_HURT
 				if(!(iss >> num1 >> num2 >> weap))
-					nlog("Error parsing Kill:" << params);
+					nlog("Error parsing Kill: " << params);
 				else
 				{
 					for(plugin_lst_iter i = events[KILL].begin()

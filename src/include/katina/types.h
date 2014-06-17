@@ -189,6 +189,8 @@ public:
 	bool operator>(const slot& s) const { return num > s.num; }
 	bool operator==(const slot& s) const { return num == s.num; }
 	bool operator!=(const slot& s) const { return num != s.num; }
+	bool operator<=(const slot& s) const { return num <= s.num; }
+	bool operator>=(const slot& s) const { return num >= s.num; }
 
 	friend sos& operator<<(sos& o, const slot& s);
 	friend sis& operator>>(sis& i, slot& s);
@@ -200,7 +202,12 @@ public:
 inline sos& operator<<(sos& o, const slot& s) { return o << s.num; }
 inline sis& operator>>(sis& i, slot& s)
 {
-	if(i >> s.num && s.num >= MAX_CLIENTS)
+	if(!(i >> s.num))
+		return i;
+
+	if(s.num == 1022)
+		s = slot::world;
+	else if(s.num >= MAX_CLIENTS)
 	{
 		s = slot::bad;
 		i.setstate(std::ios::failbit);
