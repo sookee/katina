@@ -182,7 +182,7 @@ bool KatinaPluginReports::open()
 //		plog("Found: " << votes->get_name() << ": " << votes->get_version());
 
 	if(!(stats = katina.get_plugin("katina::stats", "0.0")))
-		return false;
+		plog("Found: " << stats->get_name() << ": " << stats->get_version());
 
 	if((votes = katina.get_plugin("katina::votes", "0.0")))
 		plog("Found: " << votes->get_name() << ": " << votes->get_version());
@@ -400,13 +400,19 @@ bool KatinaPluginReports::ctf(siz min, siz sec, slot num, siz team, siz act)
 
 	if(act == FL_CAPTURED)
 	{
+		const GUID& guid = katina.getClientGuid(num);
+
 		++flags[team - 1];
-		++caps[katina.getClientGuid(num)];
-		siz c = caps[katina.getClientGuid(num)];
-		str msg = katina.getPlayerName(num)
+		++caps[guid];
+		siz c = caps[guid];
+
+		str name = katina.getPlayerName(num);
+
+		str msg = name
 			+ "^3 has ^7" + to_string(c) + "^3 flag" + (c==1?"":"s") + "!";
 
-		katina.server.cp(msg);
+		if(!name.empty())
+			katina.server.cp(msg);
 
 		if(do_flags && do_flags_hud)
 		{

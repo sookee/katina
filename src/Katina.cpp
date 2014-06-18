@@ -95,11 +95,11 @@ str Katina::getPlayerName(slot num) const
 {
 	slot_guid_map_citer c;
 	if((c = clients.find(num)) == clients.end())
-		return "<unknown>";
+		return "";
 
 	guid_str_map_citer p;
 	if((p = players.find(c->second)) == players.cend())
-		return "<unknown>";
+		return "";
 
 	return p->second;
 }
@@ -585,6 +585,8 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 	str cmd;
 	siss iss(text);
 
+	static const siz WIDTH = 70;
+
 	if(!(iss >> cmd >> cmd >> std::ws))
 		log("Error: parsing builtin command: " << text);
 	else
@@ -605,11 +607,13 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 				oss.str("");
 				for(slot_guid_map_vt p: clients)
 				{
-					oss <<  " {" + str(p.first) + ", " + str(p.second) + "}";
-					oss << (p.second.is_bot()?" (BOT)":"");
-					oss << (p.second.is_connected()?"":" (Disconnected)");
+					oss << "{";
+					oss << (p.second.is_connected()?"C":"D");
+					oss << (p.second.is_bot()?"B":"H");
+					oss <<  ":" + str(p.first) + "," + str(p.second);
+					oss << "}";
 
-					if(oss.str().size() > 60)
+					if(oss.str().size() > WIDTH)
 					{
 						server.msg_to(num, oss.str());
 						oss.str("");
@@ -618,17 +622,27 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 				if(!oss.str().empty())
 					server.msg_to(num, oss.str());
 			}
-			else if(type == "teams" || type == "data")
+			if(type == "teams" || type == "data")
 			{
-				server.msg_to(num, "teams: " + std::to_string(teams.size()));
-				oss.str("");
-				for(guid_siz_map_vt p: teams)
-				{
-					oss << "{" + str(p.first) + ", " + std::to_string(p.second) + "}";
-					oss << (p.first.is_bot()?" (BOT)":"");
-					oss << (p.first.is_connected()?"":" (Disconnected)");
+				TYPEDEF_MMAP(siz, GUID, siz_guid_mmap);
 
-					if(oss.str().size() > 60)
+				siz_guid_mmap sorted;
+
+				for(const guid_siz_map_vt& p: teams)
+					sorted.insert({p.second, p.first});
+
+				server.msg_to(num, "teams: " + std::to_string(teams.size()));
+
+				oss.str("");
+				for(const siz_guid_mmap_vt& p: sorted)
+				{
+					oss << "{";
+					oss << (p.second.is_connected()?"C":"D");
+					oss << (p.second.is_bot()?"B":"H");
+					oss << ":" + std::to_string(p.first) + "," + str(p.second);
+					oss << "}";
+
+					if(oss.str().size() > WIDTH)
 					{
 						server.msg_to(num, oss.str());
 						oss.str("");
@@ -637,17 +651,19 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 				if(!oss.str().empty())
 					server.msg_to(num, oss.str());
 			}
-			else if(type == "players" || type == "data")
+			if(type == "players" || type == "data")
 			{
 				server.msg_to(num, "players: " + std::to_string(players.size()));
 				oss.str("");
 				for(const guid_str_map_vt& p: players)
 				{
-					oss << "{" + str(p.first) + ", " + p.second + "}";
-					oss << (p.first.is_bot()?" (BOT)":"");
-					oss << (p.first.is_connected()?"":" (Disconnected)");
+					oss << "{";
+					oss << (p.first.is_connected()?"C":"D");
+					oss << (p.first.is_bot()?"B":"H");
+					oss << ":" + str(p.first) + ", " + p.second;
+					oss << "}";
 
-					if(oss.str().size() > 60)
+					if(oss.str().size() > WIDTH)
 					{
 						server.msg_to(num, oss.str());
 						oss.str("");
@@ -656,7 +672,7 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 				if(!oss.str().empty())
 					server.msg_to(num, oss.str());
 			}
-			else if(type == "connected" || type == "data")
+			if(type == "connected" || type == "data")
 			{
 				siz c = std::count_if(connected.begin(), connected.end(), [](const bool& b){return b;});
 				server.msg_to(num, "connected: " + std::to_string(c));
@@ -668,7 +684,7 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 					{
 						oss << "{" + std::to_string(c) + ": " + std::to_string(b) + "}";
 
-						if(oss.str().size() > 60)
+						if(oss.str().size() > WIDTH)
 						{
 							server.msg_to(num, oss.str());
 							oss.str("");
@@ -676,6 +692,8 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 					}
 					++c;
 				}
+				if(!oss.str().empty())
+					server.msg_to(num, oss.str());
 			}
 		}
 		else if(cmd == "plugin")
@@ -1471,20 +1489,12 @@ bool Katina::start(const str& dir)
 				if(!(sgl(sgl(sgl(iss >> num, skip, '\\'), name, '\\'), skip, '\\') >> team))
 					nlog("Error parsing ClientUserinfoChanged: "  << params);
 				else if(num >= slot::max)
-				{
 					nlog("ERROR: Client num too high: " << num);
-				}
 				else
 				{
 					siz pos = line_data.find("\\id\\");
 					if(pos == str::npos)
 						client_userinfo_bug.set(params);
-//					else if(!is_connected(num))
-//					{
-						// Don't trust ClientUserInfoChanged: messages until
-						// we see a ClientConnect: for this slot number
-//						nlog("Disconnected ClientUserinfoChange: ");
-//					}
 					else
 					{
 						str id = line_data.substr(pos + 4, 32);
@@ -1494,21 +1504,17 @@ bool Katina::start(const str& dir)
 
 						siz hc = 100;
 						if((pos = line_data.find("\\hc\\")) == str::npos)
-						{
 							nlog("WARN: no handicap info found: " << line_data);
-						}
 						else
 						{
 							if(!(siss(line_data.substr(pos + 4)) >> hc))
 								nlog("ERROR: Parsing handicap: " << line_data.substr(pos + 4));
 						}
 
-						//shutdown_erase.remove(guid); // must have re-joined
+						siz teamBefore = teams[guid];
 
 						clients[num] = guid;
 						players[guid] = name;
-
-						siz teamBefore = teams[guid];
 						teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
 
 						for(plugin_lst_iter i = events[CLIENT_USERINFO_CHANGED].begin();
@@ -1597,31 +1603,26 @@ bool Katina::start(const str& dir)
 				else
 				{
 					connected[siz(num)] = false;
-					GUID guid = getClientGuid(num);
+					const GUID& guid = getClientGuid(num);
 
 					// Sometimes you get 2 ClientDisconnect: events with
 					// nothing created in between them. These should be ignored.
 					if(guid == null_guid)
-					{
-						// partially connected slot num?
-						clients.erase(num);
 						continue;
-					}
-					// slot numbers are defunct, but keep GUIDs until ShutdownGame
-					getClientGuid(num).disconnect();
-					//shutdown_erase.push_back(guid);
 
-					siz teamBefore = teams[getClientGuid(num)];
-					teams[guid] = TEAM_U;
+					guid.disconnect();
 
 					for(plugin_lst_iter i = events[CLIENT_DISCONNECT].begin()
 						; i != events[CLIENT_DISCONNECT].end(); ++i)
 						(*i)->client_disconnect(min, sec, num);
 
-					   if(teamBefore != TEAM_U && !guid.is_bot())
-							for(plugin_lst_iter i = events[CLIENT_SWITCH_TEAM].begin();
-									i != events[CLIENT_SWITCH_TEAM].end(); ++i)
-								(*i)->client_switch_team(min, sec, num, teamBefore, TEAM_U);
+					siz teamBefore = teams[guid];
+					teams[guid] = TEAM_U;
+
+				   if(teamBefore != TEAM_U && !guid.is_bot())
+						for(plugin_lst_iter i = events[CLIENT_SWITCH_TEAM].begin();
+								i != events[CLIENT_SWITCH_TEAM].end(); ++i)
+							(*i)->client_switch_team(min, sec, num, teamBefore, TEAM_U);
 
 					clients.erase(num);
 				}

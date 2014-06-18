@@ -119,7 +119,7 @@ bool KatinaPluginExample::client_connect_info(siz min, siz sec, slot num, const 
 	if(!active)
 		return true;
 	plog("client_connect_info(" << num << ", " << guid << ", " << ip << ")");
-	katina.server.chat("BEGIN: " + katina.getPlayerName(num));
+	katina.server.chat("CONNECT INFO: " + katina.getPlayerName(num));
 	return true;
 }
 
