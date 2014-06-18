@@ -1010,9 +1010,6 @@ struct client_userinfo_bug_t
 
 bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 {
-	bug_func();
-	nlog("pos: " << pos);
-
 	KatinaPlugin* playerdb = get_plugin("katina::playerdb", "");
 
 	if(!playerdb)
