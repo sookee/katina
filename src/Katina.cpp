@@ -1118,12 +1118,6 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 				siz pos = line_data.find("\\id\\");
 				if(pos == str::npos)
 					client_userinfo_bug.set(params);
-//				else if(!is_connected(num))
-//				{
-					// Don't trust ClientUserInfoChanged: messages until
-					// we see a ClientConnect: for this slot number
-//					nlog("Disconnected ClientUserinfoChange: ");
-//				}
 				else
 				{
 					str id = line_data.substr(pos + 4, 32);
@@ -1159,7 +1153,7 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 			else
 			{
 //				if(!is_connected(num))
-				clients[num] = null_guid; // connecting
+				//clients[num] = null_guid; // connecting
 				connected[siz(num)] = true;
 			}
 		}
@@ -1536,7 +1530,7 @@ bool Katina::start(const str& dir)
 				else
 				{
 					//if(!is_connected(num))
-					clients[num] = null_guid; // connecting
+					//clients[num] = null_guid; // connecting
 					connected[siz(num)] = true;
 					for(plugin_lst_iter i = events[CLIENT_CONNECT].begin()
 						; i != events[CLIENT_CONNECT].end(); ++i)
