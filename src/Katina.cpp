@@ -660,7 +660,7 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 					oss << "{";
 					oss << (p.first.is_connected()?"C":"D");
 					oss << (p.first.is_bot()?"B":"H");
-					oss << ":" + str(p.first) + ", " + p.second;
+					oss << ":" + str(p.first) + ", " + p.second + "^7";
 					oss << "}";
 
 					if(oss.str().size() > WIDTH)
