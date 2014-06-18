@@ -56,7 +56,9 @@ struct player_do
 	str ip;
 	str name;
 
-//	player_do(): ip(0) {}
+//	player_do() {}
+//	explicit player_do(const GUID& guid, const str& ip, const str& name)
+//	: guid(guid), ip(ip), name(name) {}
 
 	bool operator<(const player_do& p) const
 	{
@@ -76,7 +78,7 @@ typedef player_set::iterator player_set_iter;
 
 player_set player_cache;
 
-typedef std::map<slot, str> ip_map; // slot -> ip
+typedef std::map<GUID, str> ip_map; // slot -> ip
 static ip_map ips;
 
 bool is_ip(const str& s)
@@ -205,8 +207,8 @@ str KatinaPluginPlayerDb::get_version() const { return VERSION; }
 TYPEDEF_MAP(slot, GUID, slot_guid_map);
 TYPEDEF_MAP(slot, str, slot_str_map);
 
-static slot_guid_map hold_guids;
-static slot_str_map hold_ips;
+//static slot_guid_map hold_guids;
+//static slot_str_map hold_ips;
 
 str KatinaPluginPlayerDb::api(const str& cmd, void* blob)
 {
@@ -225,10 +227,15 @@ str KatinaPluginPlayerDb::api(const str& cmd, void* blob)
 		if(num == slot::bad)
 			return "ERROR: slot number not known: " + str(num);
 
-		if(ips.find(num) == ips.end())
-			return "ERROR: ip not known for slot: " + str(num);
+		GUID guid = katina.getClientGuid(num);
 
-		return ips[num];
+		if(guid == null_guid)
+			return "ERROR: guid not known for slot: " + str(num);
+
+		if(ips.find(guid) == ips.end())
+			return "ERROR: ip not known for guid: " + str(guid);
+
+		return ips.at(guid);
 	}
 	else if(call == "guid_to_ip")
 	{
@@ -236,15 +243,10 @@ str KatinaPluginPlayerDb::api(const str& cmd, void* blob)
 		if(!(iss >> guid))
 			return "ERROR: parsing guid: " + cmd;
 
-		slot num = katina.getClientSlot(guid);
-
-		if(num == slot::bad)
-			return "ERROR: slot number not known for guid: " + str(guid);
-
-		if(ips.find(num) == ips.end())
+		if(ips.find(guid) == ips.end())
 			return "ERROR: ip not known for guid: " + str(guid);
 
-		return ips[num];
+		return ips.at(guid);
 	}
 
 	return KatinaPlugin::api(cmd);
@@ -261,23 +263,26 @@ bool KatinaPluginPlayerDb::client_connect_info(siz min, siz sec, slot num, const
 	if(katina.mod_katina < "0.1.2")
 		return true;
 
-	ips[num] = ip;
+	ips[guid] = ip;
 
 	return true;
 }
 
 bool KatinaPluginPlayerDb::client_disconnect(siz min, siz sec, slot num)
 {
-	hold_ips[num].clear();
+	GUID guid = katina.getClientGuid(num);
+
+	if(guid == null_guid)
+		return true;
 
 	player_set_iter i, p;
 	for(i = player_cache.begin(); i != player_cache.end();)
 	{
 		p = i++;
-		if(p->ip == ips[num])
+		if(ips.find(guid) != ips.end() && p->ip == ips.at(guid))
 			player_cache.erase(p);
 	}
-	ips.erase(num);
+	ips.erase(guid);
 
 	return true;
 }
@@ -288,23 +293,7 @@ bool KatinaPluginPlayerDb::client_userinfo_changed(siz min, siz sec, slot num, s
 	if(guid.is_bot())
 		return true;
 
-//	if(!hold_ips[num].empty())
-//	{
-//		//katina.log_lines(false);
-//		str ip = hold_ips[num];
-//		hold_ips[num].clear();
-//		if(guid != hold_guids[num]) // then we can't trust the ip
-//		{
-//			pbug_var(guid);
-//			pbug_var(hold_guids[num]);
-//			plog("PLAYERDB: Unreliable GUID & ip, rejecting: " << str(num) << " " << str(hold_guids[num]) << " " << ip << " {" << katina.get_line_number() << "}");
-//			return true;
-//		}
-//		plog("PLAYERDB: RELIABLE GUID, USING IP: " << str(num) << " " << str(hold_guids[num]) << " " << ip << " {" << katina.get_line_number() << "}");
-//		ips[num] = ip;
-//	}
-
-	if(ips.find(num) == ips.end())
+	if(ips.find(guid) == ips.end())
 	{
 		static guid_set guids;
 		if(guids.count(guid))
@@ -315,12 +304,7 @@ bool KatinaPluginPlayerDb::client_userinfo_changed(siz min, siz sec, slot num, s
 		return true;
 	}
 
-	player_do p;
-	p.guid = guid;
-	p.name = name;
-	p.ip = ips[num];
-
-	db_add(p);
+	db_add({guid, ips.at(guid), name});
 
 	return true;
 }
