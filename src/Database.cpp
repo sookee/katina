@@ -43,6 +43,7 @@ namespace katina { namespace data {
 const game_id bad_id(-1);
 const game_id null_id(0);
 
+siz db_scoper::count = 0;
 
 Database::Database(): active(false), port(3306) { mysql_init(&mysql); }
 Database::~Database() { off(); }

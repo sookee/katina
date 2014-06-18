@@ -231,7 +231,7 @@ public:
 class db_scoper
 {
 private:
-	siz count = 0;
+	static siz count;
 
 public:
 	Database& db;
