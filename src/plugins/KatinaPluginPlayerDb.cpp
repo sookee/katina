@@ -208,7 +208,7 @@ TYPEDEF_MAP(slot, str, slot_str_map);
 static slot_guid_map hold_guids;
 static slot_str_map hold_ips;
 
-str KatinaPluginPlayerDb::api(const str& cmd)
+str KatinaPluginPlayerDb::api(const str& cmd, void* blob)
 {
 	siss iss(cmd);
 
@@ -258,15 +258,8 @@ bool KatinaPluginPlayerDb::client_connect_info(siz min, siz sec, slot num, const
 		return true;
 	}
 
-	if(katina.mod_katina < "0.1.1")
-	{
-		// untrustworthy until NEXT client_userinfo_changed when it can be checked
-		//katina.log_lines(true);
-		plog("PLAYERDB: Holding guid & ip: " << str(num) << " " << str(guid) << ", " << ip << " {" << katina.get_line_number() << "}");
-		hold_guids[num] = guid;
-		hold_ips[num] = ip;
+	if(katina.mod_katina < "0.1.2")
 		return true;
-	}
 
 	ips[num] = ip;
 
@@ -295,21 +288,21 @@ bool KatinaPluginPlayerDb::client_userinfo_changed(siz min, siz sec, slot num, s
 	if(guid.is_bot())
 		return true;
 
-	if(!hold_ips[num].empty())
-	{
-		//katina.log_lines(false);
-		str ip = hold_ips[num];
-		hold_ips[num].clear();
-		if(guid != hold_guids[num]) // then we can't trust the ip
-		{
-			pbug_var(guid);
-			pbug_var(hold_guids[num]);
-			plog("PLAYERDB: Unreliable GUID & ip, rejecting: " << str(num) << " " << str(hold_guids[num]) << " " << ip << " {" << katina.get_line_number() << "}");
-			return true;
-		}
-		plog("PLAYERDB: RELIABLE GUID, USING IP: " << str(num) << " " << str(hold_guids[num]) << " " << ip << " {" << katina.get_line_number() << "}");
-		ips[num] = ip;
-	}
+//	if(!hold_ips[num].empty())
+//	{
+//		//katina.log_lines(false);
+//		str ip = hold_ips[num];
+//		hold_ips[num].clear();
+//		if(guid != hold_guids[num]) // then we can't trust the ip
+//		{
+//			pbug_var(guid);
+//			pbug_var(hold_guids[num]);
+//			plog("PLAYERDB: Unreliable GUID & ip, rejecting: " << str(num) << " " << str(hold_guids[num]) << " " << ip << " {" << katina.get_line_number() << "}");
+//			return true;
+//		}
+//		plog("PLAYERDB: RELIABLE GUID, USING IP: " << str(num) << " " << str(hold_guids[num]) << " " << ip << " {" << katina.get_line_number() << "}");
+//		ips[num] = ip;
+//	}
 
 	if(ips.find(num) == ips.end())
 	{

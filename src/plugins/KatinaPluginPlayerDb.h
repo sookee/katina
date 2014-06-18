@@ -81,7 +81,7 @@ public:
 	virtual str get_version() const override;
 
 	//virtual void cvar_event(const str& name, const str& value);
-	virtual str api(const str& cmd);
+	virtual str api(const str& cmd, void* blob = nullptr) override;
 	
 	virtual bool client_connect_info(siz min, siz sec, slot num, const GUID& guid, const str& ip) override;
 	virtual bool client_disconnect(siz min, siz sec, slot num) override;
