@@ -228,6 +228,7 @@ public:
 	bool get_ingame_crap(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats);
 };
 
+// TODO: put the reference counting in the Database class itself
 class db_scoper
 {
 private:

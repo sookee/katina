@@ -138,6 +138,8 @@ str prev_mapname;
 
 bool KatinaPluginStats::exit(siz min, siz sec)
 {
+	bug_func();
+
 	if(!in_game)
 		return true;
 
@@ -145,8 +147,6 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 
 	if(!active)
 		return true;
-
-	bug_func();
 
 	// in game timing
 	std::time_t logged_time = 0;
@@ -164,7 +164,7 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 
 	pbug_var(logged_time);
 
-	std::async(std::launch::async, [this,logged_time]
+	static std::future<void> fut = std::async(std::launch::async, [this,logged_time]
 	{
 		// copy these to avoid synchronizing
 		std::time_t start = std::time(0);
