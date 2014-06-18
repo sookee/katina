@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef _OASTATS_KATINA_H
 #define	_OASTATS_KATINA_H
 
@@ -43,40 +43,23 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <list>
 #include <pthread.h>
 #include <memory>
+#include <map>
+#include <array>
 
-namespace oastats {
+int main(const int argc, const char* argv[]);
 
-using namespace oastats::log;
-using namespace oastats::net;
-using namespace oastats::pki;
-using namespace oastats::types;
-using namespace oastats::utils;
+namespace katina {
 
-extern const slot bad_slot;
-
-//struct cvarevt
-//{
-//	str name;
-//	str value;
-//	KatinaPlugin* plugin;
-//
-//	bool operator<(const cvarevt& e)
-//	{
-//		return &plugin < &e.plugin && name < e.name;
-//	}
-//
-//	bool operator==(const cvarevt& e)
-//	{
-//		return &plugin == &e.plugin && name == e.name;
-//	}
-//};
-//
-//typedef std::list<cvarevt> cvarevt_lst;
-//typedef std::list<cvarevt>::iterator cvarevt_lst_iter;
+using namespace katina::log;
+using namespace katina::net;
+using namespace katina::pki;
+using namespace katina::types;
+using namespace katina::utils;
 
 enum event_t
 {
-	INIT_GAME
+	LOG_NONE
+	, INIT_GAME
 	, WARMUP
 	, CLIENT_CONNECT
 	, CLIENT_BEGIN
@@ -104,9 +87,10 @@ enum event_t
 	, LOG_CALLVOTE// mod_katina >= 0.1-beta
 };
 
-typedef std::map<event_t, plugin_vec> event_map;
-typedef event_map::iterator event_map_iter;
-typedef event_map::const_iterator event_map_citer;
+TYPEDEF_MAP(event_t, plugin_lst, event_map);
+//typedef std::map<event_t, plugin_vec> event_map;
+//typedef event_map::iterator event_map_iter;
+//typedef event_map::const_iterator event_map_citer;
 
 struct cvar
 {
@@ -203,18 +187,13 @@ sos& operator<<(sos& o, const siz_set& s)
  */
 class Katina
 {
-	//friend void* cvarpoll(void* vp);
+	friend int ::main(const int argc, const char* argv[]);
 private:
 	bool done;
 	bool active;
 
-	typedef std::map<str, str_vec> property_map;
-	typedef std::pair<const str, str_vec> property_map_pair;
-	typedef property_map::iterator property_map_iter;
-	typedef property_map::const_iterator property_map_citer;
-
-	typedef std::pair<property_map_iter, property_map_iter> property_map_iter_pair;
-	typedef std::pair<property_map_iter, property_map_iter> property_map_range;
+	TYPEDEF_MAP(str, str_vec, property_map);
+	TYPEDEF_LST(slot, slot_lst);
 
 	str name;
 	str plugin;
@@ -223,7 +202,7 @@ private:
 	plugin_map plugins; // id -> KatinaPlugin*
 	str_map plugin_files; // id -> filename (for reloading))
 
-	event_map events; // event -> plugin_vec
+	event_map events; // event -> plugin_lst
 	cvar_map_map vars; // plugin* -> {name -> cvar*}
 
 	GUID guid_from_name(const str& name);
@@ -235,20 +214,21 @@ private:
     
     void load_plugins();
 	bool load_plugin(const str& file);
+	bool open_plugin(const str& id);
 	bool unload_plugin(const str& id);
 	bool reload_plugin(const str& id);
     
 	bool initial_player_info();
+	bool log_read_back(const str& logname, std::ios::streampos pos);
 	void builtin_command(const GUID& guid, const str& text);
-
-	// disconnected guid keys are kept here until ShutdownGame
-    guid_lst shutdown_erase; // disconnected list
 
 	// We try to keep map keys GUID based as slot numbers are defunct as soon
 	// as a client disconnects.
+
+    std::array<bool, MAX_CLIENTS> connected;
 	slot_guid_map clients; // slot -> GUID // cleared when players disconnect and on game_begin()
 	guid_str_map players; // GUID -> name  // cleard before game_begin()
-	guid_siz_map teams; // GUID -> 'R' | 'B' // cleared when players disconnect and on game_begin()
+	guid_siz_map teams; // GUID -> 0,1,2,3 // cleared when players disconnect and on game_begin()
 
 	/**
 	 * Location of the configuration folder.
@@ -260,6 +240,11 @@ private:
 	 * The current map name
 	 */
 	str mapname;
+
+	siz line_number = 0; // log file line number
+	str line_data; // log file lines read into this variable
+
+	bool do_log_lines = false;
 
 public:
 	Katina();
@@ -278,6 +263,13 @@ public:
 	RCon server;
 
 	/**
+	 * Get line number in log file currently being processed
+	 */
+	siz get_line_number() { return line_number; }
+
+	void log_lines(bool status) { if((do_log_lines = status)) nlog("LINE: " << line_data); }
+
+	/**
 	 * Directory of the configuration file.
 	 */
 	const str& get_config_dir() { return config_dir; }
@@ -293,7 +285,15 @@ public:
 	 */
 	bool is_disconnected(const GUID& guid) const
 	{
-		return std::find(shutdown_erase.begin(), shutdown_erase.end(), guid) != shutdown_erase.end();
+		return !guid.is_connected();
+	}
+
+	/**
+	 * DEFINITIVELY if a client slot is connected or not.
+	 */
+	bool is_connected(slot num)
+	{
+		return connected[siz(num)];
 	}
 
 	str_map svars; // server variables
@@ -305,13 +305,23 @@ public:
 	/**
 	 * Get the name of the bot (default Katina)
 	 */
-	const str& get_name() { return name; }
+	const str& get_name() const { return name; }
 
 	/**
 	 * Get a read-only reference to the clients data
-	 * structure that maps slot numbers to gUIDs.
+	 * structure that maps slot numbers to GUIDs.
 	 */
-	const slot_guid_map& getClients() { return clients; }
+	const slot_guid_map& getClients() const { return clients; }
+
+//	/**
+//	 * Get a copy of the clients data
+//	 * structure that maps slot numbers to GUIDs.
+//	 *
+//	 * NOTE: This will become out-of-date when used from
+//	 * another thread.
+//	 *
+//	 */
+//	slot_guid_map copyClients() { return clients; }
 
 	/**
 	 * Get a read-only reference to the players data
@@ -540,11 +550,22 @@ public:
 		events[e].push_back(plugin);
 	}
 
+	struct evt_erase
+	{
+		event_t e;
+		KatinaPlugin* p;
+		evt_erase(): e(event_t::LOG_NONE), p(0) {}
+		evt_erase(event_t e, KatinaPlugin* p): e(e), p(p) {}
+		bool operator==(const evt_erase& erase) const { return e == erase.e && p == erase.p; }
+	};
+	TYPEDEF_VEC(evt_erase, evt_erase_vec);
+	evt_erase_vec erase_events;
+
 	void del_log_event(class KatinaPlugin* plugin, event_t e)
 	{
-		plugin_vec_iter i = std::find(events[e].begin(), events[e].end(), plugin);
+		plugin_lst_iter i = std::find(events[e].begin(), events[e].end(), plugin);
 		if(i != events[e].end())
-			events[e].erase(i);
+			erase_events.push_back(evt_erase(e, *i));
 	}
 
 	/**

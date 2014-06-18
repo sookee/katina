@@ -162,4 +162,69 @@ class Utils
         return strftime($format, strtotime($date));
     }
 
+
+
+    static function bestLocale(array $available_locales, $http_accept_language = null)
+    {
+        if (!isset($http_accept_language))
+        {
+            $http_accept_language = @$_SERVER['HTTP_ACCEPT_LANGUAGE'];
+        }
+
+        $available_prefixes = array();
+        foreach ($available_locales as $locale)
+        {
+            $parts = explode('_', $locale);
+            $available_prefixes[$parts[0]] = $locale;
+        }
+
+        preg_match_all(
+            '/([[:alpha:]]{1,8})(-([[:alpha:]|-]{1,8}))?(\s*;\s*q\s*=\s*(1\.0{0,3}|0\.\d{0,3}))?\s*(,|$)/i',
+            $http_accept_language,
+            $hits,
+            PREG_SET_ORDER
+        );
+
+        $bestlocale = $available_locales[0];
+        $bestqval = 0;
+
+        foreach ($hits as $arr)
+        {
+            $locale = $prefix = strtolower($arr[1]);
+            if (!empty($arr[3]))
+            {
+                $locale .= '_' . strtoupper($arr[3]);
+            }
+
+            $qvalue = empty($arr[5]) ? 1.0 : floatval($arr[5]);
+
+            if (in_array($locale, $available_locales) && ($qvalue > $bestqval))
+            {
+                $bestlocale = $locale;
+                $bestqval = $qvalue;
+            }
+            else if (isset($available_prefixes[$prefix]) && (($qvalue * 0.9) > $bestqval))
+            {
+                $bestlocale = $available_prefixes[$prefix];
+                $bestqval = $qvalue * 0.9;
+            }
+        }
+
+        return $bestlocale;
+    }
+
+
+
+    static function setLocale($locale, array $available, $encoding = 'UTF-8')
+    {
+        if (!in_array($locale, $available))
+        {
+            $locale = \afw\Utils::bestLocale($available);
+        }
+        $locale .= '.' . $encoding;
+        setlocale(LC_ALL, $locale);
+        putenv('LC_ALL=' . $locale);
+        return $locale;
+    }
+
 }

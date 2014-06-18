@@ -39,10 +39,10 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace katina { namespace plugin {
 
-using namespace oastats::log;
-using namespace oastats::data;
-using namespace oastats::types;
-using namespace oastats::utils;
+using namespace katina::log;
+using namespace katina::data;
+using namespace katina::types;
+using namespace katina::utils;
 
 KATINA_PLUGIN_TYPE(KatinaPluginReports);
 KATINA_PLUGIN_INFO("katina::reports", "Katina Reports", "0.1");
@@ -156,6 +156,7 @@ KatinaPluginReports::KatinaPluginReports(Katina& katina)
 , do_caps(false)
 , do_chats(false)
 , do_kills(false)
+, do_fc_kills(false)
 , do_pushes(false)
 , do_announce_pushes(false)
 , do_infos(false)
@@ -168,11 +169,23 @@ KatinaPluginReports::KatinaPluginReports(Katina& katina)
 
 bool KatinaPluginReports::open()
 {
-	if(katina.get_plugin("katina::stats", "0.0", stats))
-		plog("Found: " << stats->get_name());
+//	if(katina.get_plugin("katina::stats", "0.0", stats))
+//		plog("Found: " << stats->get_name());
+//
+//	if(katina.get_plugin("katina::votes", "0.0", votes))
+//		plog("Found: " << votes->get_name());
 
-	if(katina.get_plugin("katina::votes", "0.0", votes))
-		plog("Found: " << votes->get_name());
+//	if((stats = katina.get_plugin("katina::stats", "0.0")))
+//		plog("Found: " << stats->get_name() << ": " << stats->get_version());
+//
+//	if((votes = katina.get_plugin("katina::votes", "0.0")))
+//		plog("Found: " << votes->get_name() << ": " << votes->get_version());
+
+	if(!(stats = katina.get_plugin("katina::stats", "0.0")))
+		return false;
+
+	if((votes = katina.get_plugin("katina::votes", "0.0")))
+		plog("Found: " << votes->get_name() << ": " << votes->get_version());
 
 	client.off();
 	client.clear();
@@ -192,7 +205,7 @@ bool KatinaPluginReports::open()
 
 	client.on();
 
-	client.chat('*', "^3Stats Reporting System v^7" + katina.get_version() + " - ^1ONLINE");
+	client.chat('*', "^3" + NAME + " " + VERSION + " - ^1ONLINE");
 
 	notspam = katina.get_vec("reports.notspam");
 
@@ -202,6 +215,7 @@ bool KatinaPluginReports::open()
 	katina.add_var_event(this, "reports.caps", do_caps, false);
 	katina.add_var_event(this, "reports.chats", do_chats, false);
 	katina.add_var_event(this, "reports.kills", do_kills, false);
+	katina.add_var_event(this, "reports.fc_kills", do_fc_kills, false);
 	katina.add_var_event(this, "reports.pushes", do_pushes, false);
 	katina.add_var_event(this, "reports.announce.pushes", do_announce_pushes, false);
 	katina.add_var_event(this, "reports.infos", do_infos, false);
@@ -221,7 +235,7 @@ bool KatinaPluginReports::open()
 	return true;
 }
 
-str KatinaPluginReports::api(const str& cmd)
+str KatinaPluginReports::api(const str& cmd, void* blob)
 {
 	if(!cmd.find("alert:"))
 	{
@@ -304,7 +318,10 @@ bool KatinaPluginReports::kill(siz min, siz sec, slot num1, slot num2, siz weap)
 	if(!active)
 		return true;
 
-	if(!do_kills)
+	// kill involves the Flag Carrier?
+	bool fc_kill = (fc[0] == num1 || fc[0] == num2 || fc[1] == num1 || fc[1] == num2);
+
+	if(!do_kills  && (!do_fc_kills || !fc_kill))
 		return true;
 
 	str hud;
@@ -406,9 +423,12 @@ bool KatinaPluginReports::ctf(siz min, siz sec, slot num, siz team, siz act)
 		}
 		if(do_flags || do_caps)
 			client.raw_chat('f', hud + oa_to_IRC("^7[ ] ^1RED^3: ^7" + to_string(flags[FL_BLUE]) + " ^3v ^4BLUE^3: ^7" + to_string(flags[FL_RED])));
+
+		fc[team - 1] = slot::bad;
 	}
 	else if(act == FL_TAKEN)
 	{
+		fc[team - 1] = num;
 		if(do_flags && do_flags_hud)
 		{
 			hud_flag[pcol] = HUD_FLAG_P;
@@ -427,6 +447,7 @@ bool KatinaPluginReports::ctf(siz min, siz sec, slot num, siz team, siz act)
 		}
 		if(do_flags)
 			client.raw_chat('f', hud + oa_to_IRC(nums_team + " ^7" + katina.getPlayerName(num) + "^3 has killed the " + flag[ncol] + " ^3flag carrier!"));
+		fc[team - 1] = slot::bad;
 	}
 	else if(act == FL_RETURNED)
 	{
@@ -622,16 +643,25 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 		}
 	}
 
+	guid_stat_map* statsptr = nullptr;
+
+	if(stats->api("get_stats", set_blob(statsptr)) != "OK:" || statsptr == nullptr)
+	{
+		log("ERROR: stats api call failed: " << statsptr);
+		do_stats = false;
+	}
+
 	if(do_stats && stats)
 	{
 		std::multimap<str, str> scores;
 
 		soss oss;
-		for(guid_stat_citer p = stats->stats.begin(); p != stats->stats.end(); ++p)
+		for(guid_stat_map_citer p = statsptr->begin(); p != statsptr->end(); ++p)
 		{
 			// $time $fph $cph $fpd $cpd $acc[GA|MG|SG|GL|RL|LG|RG|PG|BG|GH|NG|PL|CG] $name
 
-			if(p->first.is_bot() || !p->second.logged_time)
+			// must play for at least 3 minutes to be included
+			if(p->first.is_bot() || p->second.logged_time < (60 * 3))
 				continue;
             
 			str sort; // sort column
@@ -671,11 +701,11 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 					if(h)
 					{
 						siz fh = (f * 60 * 60) / h;
-						fph = to_string(fh, 3);
+						fph = to_string(fh, 4);
 					}
 
 					str s = "^7" + fph;
-					set_width(s, 3, 2);
+					set_width(s, 4, 2);
 					oss << sep << s;
 					sep = "^2|";
 					if(col == stats_sort)
@@ -792,7 +822,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 				if(col == "$time")
 					{ oss << sep << "^3time "; sep = "^2|"; }
 				else if(col == "$fph")
-					{ oss << sep << "^3fph"; sep = "^2|"; }
+					{ oss << sep << "^3fph "; sep = "^2|"; }
 				else if(col == "$cph")
 					{ oss << sep << "^3cph"; sep = "^2|"; }
 				else if(col == "$fpd")

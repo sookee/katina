@@ -1,6 +1,6 @@
 <?php
 
-ini_set('display_errors', Config::debug);
+ini_set('display_errors', Config::$debug);
 set_include_path('.');
 setlocale(LC_ALL, 'en_US.UTF-8');
 putenv('LC_ALL=en_US.UTF-8');
@@ -28,7 +28,7 @@ class Debug extends afw\InstanceFactory
         {
             global $microtime;
             $log = new afw\DebugLog($microtime);
-            $log->enabled = Config::debug;
+            $log->enabled = Config::$debug;
             $log->jsConsole = true;
 //            $log->echo = true;
         });
@@ -42,14 +42,27 @@ class Storage extends afw\InstanceFactory
 {
 
     /**
-     * @return afw\AAPC
+     * @return afw\AMemcache
      */
     static function cache()
     {
-        return !Config::cache ? null : self::instance(__FUNCTION__, function(&$cache)
+        if (Config::$cache)
         {
-            $cache = new afw\AAPC($_SERVER['HTTP_HOST'] . '.' . Config::cachePrefix, Config::cacheTtl);
-        });
+            return self::instance(__FUNCTION__, function(&$cache)
+            {
+                $cache = new afw\AMemcache(
+                    Config::$memcacheHost,
+                    Config::$memcachePort,
+                    1,
+                    $_SERVER['HTTP_HOST'] . '.webkatti',
+                    Config::$memcacheTtl
+                );
+            });
+        }
+        else
+        {
+            return null;
+        }
     }
 
 
@@ -61,15 +74,20 @@ class Storage extends afw\InstanceFactory
     {
         return self::instance(__FUNCTION__, function(&$db)
         {
-            $db = new afw\APDO('mysql:host=' . Config::dbHost . ';dbname=' . Config::dbName,
-                Config::dbUser, Config::dbPass,
+            $db = new afw\APDO('mysql:host=' . Config::$dbHost . ';dbname=' . Config::$dbName,
+                Config::$dbUser, Config::$dbPass,
                 [
                     \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES "utf8"',
                     \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION
                 ]
             );
 
-            if (Config::debug)
+            if (Config::$cache)
+            {
+                $db->cache(Storage::cache());
+            }
+
+            if (Config::$debug)
             {
                 $db->setLog(Debug::log());
             }

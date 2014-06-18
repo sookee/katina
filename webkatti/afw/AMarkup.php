@@ -18,6 +18,7 @@ class AMarkup
     public $linkMaxLength;
     public $headingDec;
     public $allowable;
+    public $linkNoFollow;
 
     private $stack = [];
     private $current = 'p';
@@ -25,11 +26,12 @@ class AMarkup
 
 
 
-    function __construct($linkMaxLength = 50, $headingDec = 0, $allowable = '=*#!-&|`')
+    function __construct($linkMaxLength = 50, $headingDec = 0, $allowable = '=*#!-&|`', $linkNoFollow = true)
     {
         $this->linkMaxLength = $linkMaxLength;
         $this->headingDec = $headingDec;
         $this->allowable = $allowable;
+        $this->linkNoFollow = $linkNoFollow;
     }
 
 
@@ -148,7 +150,9 @@ class AMarkup
                         : $text;
                     $text = htmlspecialchars($text);
                 }
-                return '<a rel="nofollow" href="'
+                return '<a'
+                    . ($this->linkNoFollow ? ' rel="nofollow"' : '')
+                    . ' href="'
                     . ($matches[3] == 'www.' ? 'http://' : '')
                     . $url
                     . '">' . $text . '</a>';

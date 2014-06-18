@@ -17,32 +17,53 @@ class AMemcache extends \Memcache implements ICache
 
     const cacheVersion = 'afw\\m\\AMemcache::version';
 
-    protected $conn;
+    protected $host;
+    protected $port;
+    protected $timeout;
     protected $prefix;
     protected $prefixInit;
     protected $ttl;
-    protected $version = 1;
+    protected $version;
+    protected $versionKey;
 
 
-
-    function __construct($prefix = '', $ttl = 0)
+    function __construct($host = 'localhost', $port = 11211, $timeout = 1, $prefix = null, $ttl = null)
     {
-        $this->prefixInit = $prefix;
+        $this->host = $host;
+        $this->port = $port;
+        $this->timeout = $timeout;
+        $this->prefixInit = isset($prefix) ? $prefix : $_SERVER['HTTP_HOST'];
         $this->ttl = $ttl;
+        $this->version = time();
+    }
 
-        if (!parent::add(self::cacheVersion, $this->version))
+
+
+    function connect()
+    {
+        if (!isset($this->prefix))
         {
-            $this->version = parent::get(self::cacheVersion);
-        }
+            if (!parent::connect($this->host, $this->port, $this->timeout))
+            {
+                throw new \Exception('Cannot connect to memcache server');
+            }
 
-        $this->prefix = $this->prefixInit . '.' . $this->version . '.';
+            $this->versionKey = $this->prefixInit . '.' . self::cacheVersion;
+            if (!parent::add($this->versionKey, $this->version))
+            {
+                $this->version = parent::get($this->versionKey);
+            }
+
+            $this->prefix = $this->prefixInit . '.' . $this->version . '.';
+        }
     }
 
 
 
     function clear()
     {
-        $this->version = parent::inc(self::cacheVersion);
+        $this->connect();
+        $this->version = parent::increment($this->versionKey);
         $this->prefix = $this->prefixInit . '.' . $this->version . '.';
     }
 
@@ -50,6 +71,7 @@ class AMemcache extends \Memcache implements ICache
 
     function add($name, $value, $compress = null, $ttl = null)
     {
+        $this->connect();
         return parent::add($this->prefix . $name, $value, $compress, isset($ttl) ? $ttl : $this->ttl);
     }
 
@@ -57,6 +79,7 @@ class AMemcache extends \Memcache implements ICache
 
     function set($name, $value, $compress = null, $ttl = null)
     {
+        $this->connect();
         return parent::set($this->prefix . $name, $value, $compress, isset($ttl) ? $ttl : $this->ttl);
     }
 
@@ -64,6 +87,7 @@ class AMemcache extends \Memcache implements ICache
 
     function inc($name, $value = 1)
     {
+        $this->connect();
         return parent::increment($this->prefix . $name, $value);
     }
 
@@ -71,6 +95,7 @@ class AMemcache extends \Memcache implements ICache
 
     function get($name)
     {
+        $this->connect();
         $r = parent::get($this->prefix . $name);
         return $r === false ? null : $r;
     }
@@ -79,6 +104,7 @@ class AMemcache extends \Memcache implements ICache
 
     function dec($name, $value = 1)
     {
+        $this->connect();
         return parent::decrement($this->prefix . $name, $value);
     }
 
@@ -86,6 +112,7 @@ class AMemcache extends \Memcache implements ICache
 
     function del($name)
     {
+        $this->connect();
         return parent::delete($this->prefix . $name);
     }
 
@@ -93,6 +120,7 @@ class AMemcache extends \Memcache implements ICache
 
     function size()
     {
+        $this->connect();
         return parent::getStats()['bytes'];
     }
 

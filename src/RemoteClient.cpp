@@ -33,10 +33,10 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <katina/Katina.h>
 #include <katina/utils.h>
 
-namespace oastats { namespace net {
+namespace katina { namespace net {
 
-using namespace oastats;
-using namespace oastats::utils;
+using namespace katina;
+using namespace katina::utils;
 	
 // TODO: This should be configurable
 const str irc_katina = "04K00at08i00na";
@@ -64,24 +64,19 @@ bool RemoteClient::say(char f, const str& text)
 	str res;
 	bool good = true;
 
-//	bug_var(chans.size());
 	for(chan_map_iter chan = chans.begin(); chan != chans.end(); ++chan)
-	{
-//		bug_var(chan->first);
-//		for(std::set<char>::iterator i = chan->second.begin(); i != chan->second.end(); ++i)
-//			bug_var(*i);
 		if(f == '*' || chan->second.count('*') || chan->second.count(f))
 			good = good && send("/say " + chan->first + " [" + irc_katina + "] " + text, res);
-	}
+
 	return good;
 }
 
-bool PKIClient::configure(const str& params)
+bool PkiClient::configure(const str& params)
 {
-	// 192.168.0.50:7334 #channel(flags)
-	str chans;
+	// 192.168.0.50:7334 remotekey_id #channel(flags)
+	str id, chans;
 	siss iss(params);
-	if(!(sgl(sgl(iss, host, ':') >> port >> std::ws, chans)))
+	if(!(sgl(sgl(iss, host, ':') >> port >> id >> std::ws, chans)))
 	{
 		log("Bad parameters: " << params);
 		return false;
@@ -111,7 +106,7 @@ bool PKIClient::configure(const str& params)
 	return true;
 }
 
-bool PKIClient::send(const str& cmd, str& res)
+bool PkiClient::send(const str& cmd, str& res)
 {
 	if(!active)
 		return true;
@@ -137,7 +132,7 @@ bool PKIClient::send(const str& cmd, str& res)
 		ss << "pki::req: " << key << ':' << sig << std::flush;
 		if(!sgl(ss, line))
 		{
-			log("ERROR: failed to connect to server");
+			log("ERROR: failed to connect to remote");
 			return false;
 		}
 
@@ -218,7 +213,7 @@ RemoteClient* RemoteClient::create(Katina& katina, const str& config)
 	{
 		RemoteClient* c = 0;
 		if(type == "pki")
-			c = new PKIClient(katina);
+			c = new PkiClient(katina);
 		else if(type == "file")
 			c = new FileClient(katina);
 		else if(type == "insecure")
@@ -241,4 +236,4 @@ RemoteClient* RemoteClient::create(Katina& katina, const str& config)
 	return 0;
 }
 
-}} // oastats::net
+}} // katina::net

@@ -39,43 +39,53 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <list>
 #include <algorithm>
 
-namespace oastats {
+namespace katina {
 
-using namespace oastats::log;
-using namespace oastats::types;
+using namespace katina::log;
+using namespace katina::types;
 
 class GUID
 {
+public:
+	const static siz SIZE = 8;
+
+private:
 	str data;
 	bool bot;
 	mutable bool connected = true;
 
+//	explicit GUID(const char data[SIZE]): data(SIZE, '0'), bot(false)
+//	{
+//		for(siz i = 0; i < SIZE; ++i)
+//			this->data[i] = data[i];
+//	}
+
+	bool is_bot_data()
+	{
+		return data.size() == 8 && data[0] == 'B' && data.substr(1) < "0000064";
+	}
+
 public:
-	const static siz SIZE = 8;
 
 	GUID(): data(SIZE, '0'), bot(false)
 	{
-		for(siz i = 0; i < SIZE; ++i)
-			this->data[i] = '0';
+		connected = false;
+//		for(siz i = 0; i < SIZE; ++i)
+//			this->data[i] = '0';
 	}
 
-	explicit GUID(const char data[SIZE]): data(SIZE, '0'), bot(false)
+	GUID(const GUID& guid): data(guid.data), bot(guid.bot)
 	{
-		for(siz i = 0; i < SIZE; ++i)
-			this->data[i] = data[i];
+		connected = guid.connected;
 	}
 
-	explicit GUID(const str& data): data(SIZE, '0'), bot(false)
+	explicit GUID(const str& s): data(SIZE, '0'), bot(false)
 	{
-		for(siz i = 0; i < SIZE && i < data.size(); ++i)
-			this->data[i] = data[i];
-	}
-
-	GUID(const GUID& guid): data(SIZE, '0'), bot(guid.bot)
-	{
-		bot = guid.bot;
-		for(siz i = 0; i < SIZE; ++i)
-			this->data[i] = guid.data[i];
+		if(s.size() == SIZE)
+			data = s;
+		else if(s.size() == 32)
+			data = s.substr(24);
+		bot = is_bot_data();
 	}
 
 	/**
@@ -87,23 +97,21 @@ public:
 		oss << num;
 		data = oss.str();
 		if(data.size() < GUID::SIZE)
-			data = str(GUID::SIZE - data.size(), '0') + data;
+			data = "B" + str(GUID::SIZE - data.size() - 1, '0') + data;
+		//bug_var(data);
 	}
 
 	const GUID& operator=(const GUID& guid)
 	{
 		bot = guid.bot;
-		for(siz i = 0; i < SIZE; ++i)
-			this->data[i] = guid.data[i];
+		connected = guid.connected;
+		data = guid.data;
 		return *this;
 	}
 
 	bool operator==(const GUID& guid) const
 	{
-		for(siz i = 0; i < SIZE; ++i)
-			if(this->data[i] != guid.data[i])
-				return false;
-		return true;
+		return data == guid.data;
 	}
 
 	bool operator!=(const GUID& guid) const
@@ -116,8 +124,8 @@ public:
 		return data < guid.data;
 	}
 
-	char& operator[](siz i) { return data[i]; }
-	const char& operator[](siz i) const { return data[i]; }
+//	char& operator[](siz i) { return data[i]; }
+//	const char& operator[](siz i) const { return data[i]; }
 	siz size() const { return SIZE; }
 
 	operator str() const { return data; }
@@ -138,84 +146,44 @@ public:
 	}
 
 	void disconnect() const { connected = false; }
-	bool is_connected() { return connected; }
+	bool is_connected() const { return connected; }
 
 	//bool is_bot() const { return data < "00001000"; }
 	bool is_bot() const { return bot; }
+
+	friend sos& operator<<(sos& os, const GUID& guid)
+	{
+		return os << guid.data;
+	}
+
+	friend sis& operator>>(sis& is, GUID& guid)
+	{
+		str s;
+		is >> s;
+
+		if(s.size() == 8)
+			guid = GUID(s);
+		else if(s.size() == 32)
+			guid = GUID(s.substr(24));
+		else
+			is.setstate(std::ios::failbit);
+//		if(guid.data.size() == 8 && guid.data[0] == 'B' && guid.data.substr(1) < "0000064")
+//			guid.bot = true;
+		guid.bot = guid.is_bot_data();
+		if(guid.data == "00000000")
+			guid.connected = false;
+		return is;
+	}
 };
 
-inline
-sos& operator<<(sos& os, const GUID& guid)
-{
-	for(siz i = 0; i < guid.size(); ++i)
-		os << guid[i];
-	return os;
-}
-
-inline
-sis& operator>>(sis& is, GUID& guid)
-{
-	for(siz i = 0; i < guid.size(); ++i)
-		is.get(guid[i]);
-	return is;
-}
-
-typedef std::list<GUID> guid_lst;
-typedef guid_lst::iterator guid_lst_iter;
-typedef guid_lst::const_iterator guid_lst_citer;
-
-typedef std::map<GUID, str> guid_str_map;
-typedef guid_str_map::value_type guid_str_map_pair;
-typedef guid_str_map::iterator guid_str_map_iter;
-typedef guid_str_map::const_iterator guid_str_map_citer;
-
-//typedef std::map<siz, GUID> siz_guid_map;
-//typedef siz_guid_map::value_type siz_guid_map_pair;
-//typedef siz_guid_map::iterator siz_guid_map_iter;
-//typedef siz_guid_map::const_iterator siz_guid_map_citer;
-
-typedef std::map<slot, GUID> slot_guid_map;
-typedef slot_guid_map::value_type slot_guid_map_pair;
-typedef slot_guid_map::iterator slot_guid_map_iter;
-typedef slot_guid_map::const_iterator slot_guid_map_citer;
-
-typedef std::map<GUID, siz> guid_siz_map;
-typedef guid_siz_map::value_type guid_siz_map_pair;
-typedef guid_siz_map::iterator guid_siz_map_iter;
-typedef guid_siz_map::const_iterator guid_siz_map_citer;
-
-typedef std::multimap<siz, str> siz_str_mmap;
-typedef siz_str_mmap::reverse_iterator siz_str_mmap_ritr;
-typedef siz_str_mmap::iterator siz_str_mmap_iter;
-typedef siz_str_mmap::const_iterator siz_str_mmap_citer;
-
-typedef std::map<GUID, int> guid_int_map;
-typedef std::pair<const GUID, int> guid_int_map_pair;
-typedef guid_int_map::iterator guid_int_map_iter;
-typedef guid_int_map::const_iterator guid_int_map_citer;
-
-typedef std::set<GUID> guid_set;
-typedef guid_set::iterator guid_set_iter;
-typedef guid_set::const_iterator guid_set_citer;
+TYPEDEF_CONTAINER_1(std::set, GUID, guid_set);
+TYPEDEF_CONTAINER_1(std::list, GUID, guid_lst);
+TYPEDEF_CONTAINER_2(std::map, GUID, str, guid_str_map);
+TYPEDEF_CONTAINER_2(std::map, GUID, siz, guid_siz_map);
+TYPEDEF_CONTAINER_2(std::map, GUID, int, guid_int_map);
+TYPEDEF_CONTAINER_2(std::map, slot, GUID, slot_guid_map);
 
 extern const GUID null_guid;
-
-/*
- * Create a GUID for bots based on their slot number
- */
-//inline GUID bot_guid(siz num)
-//{
-//	soss oss;
-//	oss << num;
-//	str id = oss.str();
-//	if(id.size() < GUID::SIZE)
-//		id = str(GUID::SIZE - id.size(), '0') + id;
-//
-//	GUID guid(id.c_str());
-//	guid.bot = true;
-//	return guid;
-//}
-
 } // oastats
 
 #endif /* _OASTATS_GUID_H_ */

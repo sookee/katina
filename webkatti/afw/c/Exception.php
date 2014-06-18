@@ -47,6 +47,7 @@ class Exception extends Controller
         if (empty($this->title))
         {
             header(HttpException::HEADER_500);
+            error_log($exception);
             $this->title = _('500 Internal Server Error');
         }
     }

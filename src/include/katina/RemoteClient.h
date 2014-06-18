@@ -36,15 +36,15 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include "log.h"
 #include "irc.h"
 
-namespace oastats {
+namespace katina {
 
 class Katina;
 	
 namespace net {
 
-using namespace oastats::irc;
-using namespace oastats::log;
-using namespace oastats::types;
+using namespace katina::irc;
+using namespace katina::log;
+using namespace katina::types;
 
 class RemoteClient
 {
@@ -56,6 +56,7 @@ protected:
 	typedef std::map<str, std::set<char> > chan_map;
 	typedef chan_map::iterator chan_map_iter;
 	typedef chan_map::const_iterator chan_map_citer;
+	typedef chan_map::value_type chan_map_vt;
 
 	chan_map chans; // #channel -> {'c','f','k'}
 
@@ -68,6 +69,14 @@ public:
 
 	void set_chans(const str& chans);
 	bool say(char f, const str& text);
+
+	str_vec get_chans_vec() const
+	{
+		str_vec v;
+		for(const chan_map_vt& c: chans)
+			v.push_back(c.first);
+		return v;
+	}
 
 	void add_flag(const str& chan, char f) { chans[chan].insert(f); }
 	void del_flag(const str& chan, char f) { chans[chan].erase(f); }
@@ -100,10 +109,16 @@ public:
 	 */
 	virtual bool send(const str& msg, str& res) = 0;
 	
+	bool send(const str& msg)
+	{
+		str res;
+		return send(msg, res);
+	}
+
 	static RemoteClient* create(Katina& katina, const str& config);
 };
 
-class PKIClient
+class PkiClient
 : public RemoteClient
 {
 	net::socketstream ss;
@@ -131,7 +146,7 @@ class PKIClient
 	//session_map sessions;
 	
 public:
-	PKIClient(Katina& katina): RemoteClient(katina), connected(false), port(0) {}
+	PkiClient(Katina& katina): RemoteClient(katina), connected(false), port(0) {}
 	// RemoteClient Interface
 
 	virtual bool configure(const str& params);
@@ -204,6 +219,6 @@ public:
 	}
 };
 
-}} // oastats::net
+}} // katina::net
 
 #endif /* _OASTATS_REMOTECLIENT_H_ */

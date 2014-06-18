@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef _OASTATS_KATINA_PLUGIN_H
 #define	_OASTATS_KATINA_PLUGIN_H
 /*
@@ -39,9 +39,9 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include "types.h"
 #include "GUID.h"
 
-namespace oastats {
+namespace katina {
 
-using namespace oastats::types;
+using namespace katina::types;
 
 /**
  * This is the abstract base class for all plugins.
@@ -52,6 +52,7 @@ class KatinaPlugin
 
 private:
 	void* dl;
+	bool opened = false;
 
 protected:
 	class Katina& katina;
@@ -59,6 +60,9 @@ protected:
 public:
 	KatinaPlugin(Katina& katina): dl(0), katina(katina) {}
 	virtual ~KatinaPlugin() {}
+
+	bool is_loaded() const { return dl; }
+	bool is_open() const { return opened; }
 
 	/**
 	 * This provides an opportunity for a plugin to initialise
@@ -86,17 +90,39 @@ public:
 	/**
 	 * Interface for other plugins to use
 	 */
-	virtual str api(const str& cmd) { return "ERROR: unknown request"; }
+	virtual str api(const str& cmd, void* blob = nullptr) { return "ERROR: unknown request"; }
 
 	// Game server log events
+
+	/**
+	 * Called at the very beginning of each game.
+	 *
+	 * When this function is called NONE of the core data structures
+	 * (clients, players, teams) contain any data.
+	 *
+	 * They will fill up on subsequent ClientUserinfoChanged: events.
+	 */
 	virtual bool init_game(siz min, siz sec, const str_map& svars) { return true; }
+
+	/**
+	 * Called IMMEDIATELY after init_game() IF this is a warmup game.
+	 *
+	 * Therefore the core data structures (clients, players, teams)
+	 * don't contain any data.
+	 *
+	 * They will fill up on subsequent ClientUserinfoChanged: events.
+	 */
 	virtual bool warmup(siz min, siz sec) { return true; }
+
 	virtual bool client_connect(siz min, siz sec, slot num) { return true; }
 
 	/**
 	 * Only with mod_katina >= 0.1-beta
+	 * Only reliable with mod_katina >= 0.1.1 (Is this true?)
 	 */
 	virtual bool client_connect_info(siz min, siz sec, slot num, const GUID& guid, const str& ip) { return true; }
+
+	// TODO: can these be used to validate client_connect_info info?
 	virtual bool client_begin(siz min, siz sec, slot num) { return true; }
 	virtual bool client_disconnect(siz min, siz sec, slot num) { return true; }
 	virtual bool client_userinfo_changed(siz min, siz sec, slot num, siz team, const GUID& guid, const str& name, siz hc) { return true; }
@@ -147,7 +173,36 @@ public:
 	 */
 	virtual void close() = 0;
     
+	/**
+	 * Potentially every time a message arrives in the log file
+	 * a HEARTBEAT event can be sent to the plugin (depending
+	 * on the "regularity" provided by the plugin's override
+	 * of the get_regularity() function.
+	 *
+	 * The default regularity (in seconds) is 0 (meaning never).
+	 *
+	 * Therefore plugins implementing this function should
+	 * also implement the get_regularity() function to tell
+	 * katina how often to call the heartbeat in seconds.
+	 */
     virtual void heartbeat(siz min, siz sec) {}
+
+    /**
+     * Override this function to contrl how often (in seconds)
+     * the heartbeat() function is called.
+     *
+     * Unless this function is overriden, it returns 0 meaning that
+     * the heartbeat() function will never be called.
+     *
+     * A return value of 2 will mean the heartbeat() event will
+     * be called once every two seconds. A return value of 5 means
+     * the heartbeat() function will be called once every five seconds, etc.
+     *
+     * @param time_in_secs The number of seconds since the first InitGame:
+     * for the currently running game. This is ((min * 60) + sec) as taken
+     * from the log file being processed.
+     */
+    virtual siz get_regularity(siz time_in_secs) const { return 0; }
 };
 
 typedef std::shared_ptr<KatinaPlugin> KatinaPluginSPtr;
@@ -155,14 +210,17 @@ typedef std::unique_ptr<KatinaPlugin> KatinaPluginUPtr;
 
 // TODO: make plugin_vec and plugin_map use KatinaPluginSptr
 
+TYPEDEF_LST(KatinaPlugin*, plugin_lst);
+
 typedef std::vector<KatinaPlugin*> plugin_vec;
 typedef plugin_vec::iterator plugin_vec_iter;
 typedef plugin_vec::const_iterator plugin_vec_citer;
 
-typedef std::map<str, KatinaPlugin*> plugin_map;
-typedef plugin_map::value_type plugin_map_vt;
-typedef plugin_map::iterator plugin_map_iter;
-typedef plugin_map::const_iterator plugin_map_citer;
+TYPEDEF_MAP(str, KatinaPlugin*, plugin_map);
+//typedef std::map<str, KatinaPlugin*> plugin_map;
+//typedef plugin_map::value_type plugin_map_vt;
+//typedef plugin_map::iterator plugin_map_iter;
+//typedef plugin_map::const_iterator plugin_map_citer;
 
 /**
  * The plugin implementation source should
@@ -188,9 +246,9 @@ extern "C" KatinaPlugin* katina_plugin_factory(Katina& katina) \
  * an interface to plugin loaders.
  */
 #define KATINA_PLUGIN_INFO(I, N, V) \
-static const char* ID = I; \
-static const char* NAME = N; \
-static const char* VERSION = V
+static const str ID = I; \
+static const str NAME = N; \
+static const str VERSION = V
 
 /**
  * Please use plog() rather than log() in your plugins

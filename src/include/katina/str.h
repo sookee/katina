@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef _OASTATS_STR_H_
 #define _OASTATS_STR_H_
 /*
@@ -33,9 +33,9 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include "types.h"
 
-namespace oastats { namespace string {
+namespace katina { namespace string {
 
-using namespace oastats::types;
+using namespace katina::types;
 
 // -- STRING -------------------------------------------------
 
@@ -231,7 +231,6 @@ str& replace(str& s, const str& from, const str& to)
 	return s;
 }
 
-
-}} // oastats::string
+}} // katina::string
 
 #endif /* _OASTATS_STR_H_ */

@@ -47,13 +47,12 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace katina { namespace plugin {
 
-using namespace oastats::pki;
-using namespace oastats::log;
-using namespace oastats::data;
-using namespace oastats::types;
+using namespace katina::pki;
+using namespace katina::log;
+using namespace katina::data;
+using namespace katina::types;
 
 class RemoteClientList
-//: public RemoteClient
 {
 	std::vector<RemoteClient*> clients;
 
@@ -87,8 +86,10 @@ class KatinaPluginReports
 public:
 
 private:
-	KatinaPluginStats* stats;
-	KatinaPluginVotes* votes;
+//	KatinaPluginStats* stats;
+//	KatinaPluginVotes* votes;
+	KatinaPlugin* stats;
+	KatinaPlugin* votes;
 
 	RemoteClientList client;
 
@@ -99,6 +100,7 @@ private:
 	bool do_caps;
 	bool do_chats;
 	bool do_kills;
+	bool do_fc_kills; // kiils when carrying the flag
 	bool do_pushes;
 	bool do_announce_pushes; // rcon them to game
 	bool do_infos;
@@ -110,6 +112,8 @@ private:
 
 	str_siz_map spam;
 	siz spam_limit;
+
+	slot fc[2] = {slot::bad, slot::bad}; // flag carriers
 
 	siz flags[2];
 	guid_siz_map caps; // GUID -> <count>
@@ -128,7 +132,7 @@ public:
 
 	// INTERFACE: KatinaPlugin
 
-	virtual str api(const str& cmd) override;
+	virtual str api(const str& cmd, void* blob = nullptr) override;
 
 	virtual bool open() override;
 

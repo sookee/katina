@@ -58,10 +58,10 @@ is granted under the same conditions.
 
 #include <ext/stdio_filebuf.h>
 
-namespace oastats { namespace net {
+namespace katina { namespace net {
 
 using namespace __gnu_cxx;
-using namespace oastats::types;
+using namespace katina::types;
 
 //typedef std::string str;
 //typedef std::size_t siz;
@@ -342,6 +342,6 @@ public:
 typedef basic_socketstream<char> socketstream;
 typedef basic_socketstream<wchar_t> wsocketstream;
 
-}} // oastats::net
+}} // katina::net
 
 #endif // _OASTATS_SOCKETSTREAM_H_

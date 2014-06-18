@@ -88,8 +88,7 @@ class Sitemap
 
     function addSelect(\afw\APDO $selector, $callback)
     {
-        $selector->connect();
-        $st = $selector->prepare($selector->buildSelect());
+        $st = $selector->pdo()->prepare($selector->buildSelect());
         $st->execute($selector->currArgs());
         while ($row = $st->fetch(\PDO::FETCH_ASSOC))
         {

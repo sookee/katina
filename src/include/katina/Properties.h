@@ -36,11 +36,11 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include "types.h"
 #include "utils.h"
 
-namespace oastats {
+namespace katina {
 
-using namespace oastats::types;
-using namespace oastats::utils;
-using namespace oastats::string;
+using namespace katina::types;
+using namespace katina::utils;
+using namespace katina::string;
 
 class Properties
 {

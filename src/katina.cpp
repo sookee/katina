@@ -42,9 +42,9 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <katina/log.h>
 #include <katina/types.h>
 
-using namespace oastats;
-using namespace oastats::log;
-using namespace oastats::types;
+using namespace katina;
+using namespace katina::log;
+using namespace katina::types;
 
 #ifndef REVISION
 #define REVISION "not set"
@@ -55,8 +55,16 @@ using namespace oastats::types;
  */
 int main(const int argc, const char* argv[])
 {
-	srand(time(0));
+	srand(std::time(0));
 	log("KATINA REVISION: " << REVISION);
 	Katina katina;
-	katina.start(str(argc == 2 ? argv[1] : "$HOME/.katina"));
+
+	// command line override log file
+	if(argc > 2)
+	{
+		katina.props["logfile"].push_back(argv[2]);
+		katina.props["run.mode"].push_back("backlog");
+	}
+
+	katina.start(str(argc > 1 ? argv[1] : "$HOME/.katina"));
 }

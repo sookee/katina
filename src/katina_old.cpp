@@ -80,13 +80,13 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include <arpa/inet.h> // IP to int
 
-using namespace oastats;
-using namespace oastats::data;
-using namespace oastats::log;
-using namespace oastats::types;
-using namespace oastats::string;
-using namespace oastats::net;
-using namespace oastats::time;
+using namespace katina;
+using namespace katina::data;
+using namespace katina::log;
+using namespace katina::types;
+using namespace katina::string;
+using namespace katina::net;
+using namespace katina::time;
 
 const std::string version = "0.5.7";
 const std::string tag = "dev";

@@ -21,9 +21,9 @@ class AAPC implements ICache
     protected $clearNeed;
 
 
-    function __construct($prefix = '', $ttl = 0, $clearDelayed = false)
+    function __construct($prefix = null, $ttl = 0, $clearDelayed = false)
     {
-        $this->prefix = $prefix . '.';
+        $this->prefix = (isset($prefix) ? $prefix : $_SERVER['HTTP_HOST']) . '.';
         $this->ttl = $ttl;
         $this->clearDelayed = $clearDelayed;
     }

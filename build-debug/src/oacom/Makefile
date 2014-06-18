@@ -2,7 +2,7 @@
 
 src_topdir = ../../../src
 
-CXXFLAGS = -std=c++11 -fPIC -D DEBUG -O0 -g3 -I$(src_topdir)/include
+CXXFLAGS = -std=c++11 -fPIC $(DEBUG_FLAGS) -I$(src_topdir)/include
 
 LIBOACOM_FLAGS = -D DEBUG -O0 -g3 -fPIC -pthread
 LIBOACOM_LIBS =  -lrt -pthread -L.. -lkatina

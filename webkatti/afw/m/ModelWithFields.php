@@ -14,6 +14,10 @@ use afw\ICache;
 
 
 
+class ModelFilterSkip extends \Exception {}
+
+
+
 class ModelWithFields
 {
 
@@ -168,7 +172,3 @@ class ModelFilterException extends \Exception
     }
 
 }
-
-
-
-class ModelFilterSkip extends \Exception {}

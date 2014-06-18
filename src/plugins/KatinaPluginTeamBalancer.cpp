@@ -7,10 +7,10 @@
 
 namespace katina { namespace plugin {
     
-using namespace oastats;
-using namespace oastats::log;
-using namespace oastats::data;
-using namespace oastats::types;
+using namespace katina;
+using namespace katina::log;
+using namespace katina::data;
+using namespace katina::types;
 
     
 
@@ -461,7 +461,7 @@ bool KatinaPluginTeamBalancer::say(siz min, siz sec, const GUID& guid, const str
     
     slot client;
 
-    if((client = katina.getClientSlot(guid)) == bad_slot)
+    if((client = katina.getClientSlot(guid)) == slot::bad)
     	return true;
 
     siss iss(text);
@@ -572,7 +572,7 @@ bool TeamBuilder::is1vs1() const
     
     for(guid_siz_map_citer it = katina.getTeams().begin(); it != katina.getTeams().end(); ++it)
     {
-    	if(!katina.check_slot(it->second)) // connected?
+    	if(!it->first.is_connected()) // connected?
     		continue;
         if(it->second == TEAM_R)
             ++r;

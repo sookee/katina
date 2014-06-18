@@ -36,12 +36,12 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace katina { namespace plugin {
 
-using namespace oastats::log;
-using namespace oastats::types;
-using namespace oastats::string;
+using namespace katina::log;
+using namespace katina::types;
+using namespace katina::string;
 
 KATINA_PLUGIN_TYPE(KatinaPluginPlayerDb);
-KATINA_PLUGIN_INFO("katina::playerdb", "Katina Player Database", "0.1-dev");
+KATINA_PLUGIN_INFO("katina::playerdb", "Katina Player Database", "0.1");
 
 MYSQL mysql;
 str host;
@@ -53,10 +53,10 @@ str base;
 struct player_do
 {
 	GUID guid;
-	uint32_t ip;
+	str ip;
 	str name;
 
-	player_do(): ip(0) {}
+//	player_do(): ip(0) {}
 
 	bool operator<(const player_do& p) const
 	{
@@ -76,8 +76,8 @@ typedef player_set::iterator player_set_iter;
 
 player_set player_cache;
 
-typedef std::map<slot, uint32_t> ip_map; // slot -> ip
-ip_map ips;
+typedef std::map<slot, str> ip_map; // slot -> ip
+static ip_map ips;
 
 bool is_ip(const str& s)
 {
@@ -122,26 +122,33 @@ bool insert(const str& sql, my_ulonglong& insert_id)
 	return true;
 }
 
+bool db_escape(const str& from, str& to)
+{
+	if(from.size() > 511)
+	{
+		plog("DATABASE ERROR: escape: string too long at line: " << __LINE__);
+		return false;
+	}
+	char buff[1024];
+	to.assign(buff, mysql_real_escape_string(&mysql, buff, from.c_str(), from.size()));
+	return true;
+}
+
 void db_add(const player_do& p)
 {
-	//bug("PLAYER DB: add: " << p.guid << " " << p.ip << " " << p.name);
-
-	if(p.ip == 0)
-	{
-		bug("ZERO: p.ip: " << p.ip);
-		return;
-	}
-
 	if(player_cache.count(p))
-	{
-		//bug("CACHE HIT DATABASE WRITE AVOIDED");
 		return;
-	}
 
-	std::ostringstream sql;
+	str safe_name;
 
+	if(!db_escape(p.name, safe_name))
+		return;
+
+	// insert into info values ('XXXXXXXX', INET_ATON('123.123.234.234'), 'testing')
+
+	soss sql;
 	sql << "insert into `" << base << "`.`info` values ('";
-	sql << p.guid << "'," << p.ip << ",'" << p.name << "')";
+	sql << p.guid << "',INET_ATON('" << p.ip << "'),'" << safe_name << "')";
 
 	insert(sql.str());
 	player_cache.insert(p);
@@ -195,26 +202,81 @@ str KatinaPluginPlayerDb::get_id() const { return ID; }
 str KatinaPluginPlayerDb::get_name() const { return NAME; }
 str KatinaPluginPlayerDb::get_version() const { return VERSION; }
 
+TYPEDEF_MAP(slot, GUID, slot_guid_map);
+TYPEDEF_MAP(slot, str, slot_str_map);
+
+static slot_guid_map hold_guids;
+static slot_str_map hold_ips;
+
+str KatinaPluginPlayerDb::api(const str& cmd)
+{
+	siss iss(cmd);
+
+	str call;
+	if(!(iss >> call))
+		return "ERROR: unknown call: " + cmd;
+
+	if(call == "slot_to_ip")
+	{
+		slot num;
+		if(!(iss >> num))
+			return "ERROR: parsing slot: " + cmd;
+
+		if(num == slot::bad)
+			return "ERROR: slot number not known: " + str(num);
+
+		if(ips.find(num) == ips.end())
+			return "ERROR: ip not known for slot: " + str(num);
+
+		return ips[num];
+	}
+	else if(call == "guid_to_ip")
+	{
+		GUID guid;
+		if(!(iss >> guid))
+			return "ERROR: parsing guid: " + cmd;
+
+		slot num = katina.getClientSlot(guid);
+
+		if(num == slot::bad)
+			return "ERROR: slot number not known for guid: " + str(guid);
+
+		if(ips.find(num) == ips.end())
+			return "ERROR: ip not known for guid: " + str(guid);
+
+		return ips[num];
+	}
+
+	return KatinaPlugin::api(cmd);
+}
+
 bool KatinaPluginPlayerDb::client_connect_info(siz min, siz sec, slot num, const GUID& guid, const str& ip)
 {
-	if(trim_copy(ip).empty())
+	if(ip.empty())
 	{
 		plog("WARN: empty ip address");
 		return true;
 	}
 
-	struct in_addr ip4;
+	if(katina.mod_katina < "0.1.1")
+	{
+		// untrustworthy until NEXT client_userinfo_changed when it can be checked
+		//katina.log_lines(true);
+		plog("PLAYERDB: Holding guid & ip: " << str(num) << " " << str(guid) << ", " << ip << " {" << katina.get_line_number() << "}");
+		hold_guids[num] = guid;
+		hold_ips[num] = ip;
+		return true;
+	}
 
-	if(!inet_pton(AF_INET, trim_copy(ip).c_str(), &ip4) || !ip4.s_addr)
-		plog("ERROR: converting IP address: " << ip << " for [" << guid << "]");
-	else
-		ips[num] = ip4.s_addr;
+	ips[num] = ip;
 
 	return true;
 }
 
 bool KatinaPluginPlayerDb::client_disconnect(siz min, siz sec, slot num)
 {
+	hold_ips[num].clear();
+
 	player_set_iter i, p;
 	for(i = player_cache.begin(); i != player_cache.end();)
 	{
@@ -230,15 +292,26 @@ bool KatinaPluginPlayerDb::client_disconnect(siz min, siz sec, slot num)
 bool KatinaPluginPlayerDb::client_userinfo_changed(siz min, siz sec, slot num, siz team
 		, const GUID& guid, const str& name, siz hc)
 {
-//	if(!active)
-//		return true;
-//	plog("client_userinfo_changed(" << num << ", " << team << ", " << guid << ", " << name << ")");
-//	plog("clients[" << num << "]         : " << clients[num]);
-//	plog("players[clients[" << num << "]]: " << players[clients[num]]);
 	if(guid.is_bot())
 		return true;
 
-	if(!ips[num])
+	if(!hold_ips[num].empty())
+	{
+		//katina.log_lines(false);
+		str ip = hold_ips[num];
+		hold_ips[num].clear();
+		if(guid != hold_guids[num]) // then we can't trust the ip
+		{
+			pbug_var(guid);
+			pbug_var(hold_guids[num]);
+			plog("PLAYERDB: Unreliable GUID & ip, rejecting: " << str(num) << " " << str(hold_guids[num]) << " " << ip << " {" << katina.get_line_number() << "}");
+			return true;
+		}
+		plog("PLAYERDB: RELIABLE GUID, USING IP: " << str(num) << " " << str(hold_guids[num]) << " " << ip << " {" << katina.get_line_number() << "}");
+		ips[num] = ip;
+	}
+
+	if(ips.find(num) == ips.end())
 	{
 		static guid_set guids;
 		if(guids.count(guid))

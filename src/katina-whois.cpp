@@ -35,10 +35,10 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include <mysql.h>
 
-using namespace oastats;
-using namespace oastats::log;
-using namespace oastats::types;
-using namespace oastats::string;
+using namespace katina;
+using namespace katina::log;
+using namespace katina::types;
+using namespace katina::string;
 
 const str NAME = "katina-whois";
 const str VERSION = "0.1";

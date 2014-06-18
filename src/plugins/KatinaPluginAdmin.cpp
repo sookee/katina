@@ -38,16 +38,66 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <katina/codes.h>
 #include <katina/time.h>
 
-
 namespace katina { namespace plugin {
 
-using namespace oastats::log;
-using namespace oastats::types;
-using namespace oastats::time;
-using namespace oastats::string;
+using namespace katina::log;
+using namespace katina::types;
+using namespace katina::time;
+using namespace katina::string;
 
 KATINA_PLUGIN_TYPE(KatinaPluginAdmin);
 KATINA_PLUGIN_INFO("katina::admin", "Katina Admin", "0.1-dev");
+
+sis& operator>>(sis& i, sanction& s)
+{
+	// 96BBD43E 4(S) 0
+	i >> s.guid >> s.type;
+
+	pbug_var(s.guid);
+	pbug_var(s.type);
+
+	str params;
+	if(!sgl(sgl(i, params, '('), params, ')'))
+	{
+		plog("ERROR parsing sanction, missing parameters");
+		i.setstate(std::ios::failbit);
+		return i;
+	}
+
+	pbug_var(params);
+
+	str param;
+	s.params.clear();
+	siss iss(params);
+	while(iss >> param)
+	{
+		pbug_var(param);
+		s.params.push_back(param);
+	}
+
+	if(!(i >> s.expires))
+	{
+		plog("ERROR parsing sanction expires date");
+		return i;
+	}
+
+	sgl(i >> std::ws, s.reason);
+	i.clear(); // optional reason
+
+	return i;
+}
+
+sos& operator<<(sos& o, const sanction& s)
+{
+	o << s.guid << ' ' << s.type << "(";
+	str sep;
+	for(const str& param: s.params)
+		{ o << sep << param; sep = " "; }
+	o << ")";
+	o << ' ' << s.expires << ' ' << s.reason;
+
+	return o;
+}
 
 KatinaPluginAdmin::KatinaPluginAdmin(Katina& katina)
 : KatinaPlugin(katina)
@@ -99,7 +149,7 @@ bool KatinaPluginAdmin::load_sanctions()
 
 	siz n = 0;
 	str line;
-	katina::plugin::sanction s;
+	sanction s;
 	while(sgl(ifs, line))
 	{
 		++n;
@@ -108,13 +158,16 @@ bool KatinaPluginAdmin::load_sanctions()
 		siss iss(line);
 		if(!(iss >> s))
 		{
-			plog("ERROR: parsing sanction file line: " << n);
+			plog("ERROR: parsing sanction file: [" << n << "] " << line);
 			return false;
 		}
 
-		if(s.expires && s.expires < std::time(0))
+		if(s.expires && s.expires < katina.now)
 			continue;
 
+		str expires = s.expires ? ctime(&s.expires) : "PERMANENT";
+
+		plog("SANCTION LOAD: [" << expires << ": " << s.type << "] " << katina.getPlayerName(s.guid));
 		sanctions.push_back(s);
 	}
 
@@ -177,10 +230,177 @@ struct player
 typedef std::list<player> player_lst;
 typedef std::vector<player> player_vec;
 
+bool KatinaPluginAdmin::fair()
+{
+	pbug("-------------------------------------------");
+	pbug("FAIR: policy: " << policy);
+	pbug("-------------------------------------------");
+	if(policy == policy_t::FT_NONE)
+	{
+		server.msg_to_all(katina.get_name() + "^7: ^3 FAIR is turned off");
+		return true;
+	}
+//	siz_mmap rank; // skill -> slot
+	player_vec rank;
+	siz skill_r = 0;
+	siz skill_b = 0;
+	siz r = 0;
+	siz b = 0;
+
+	server.cp("^3Fixing Teams");
+
+	double cap_factor = total_caps ? total_kills / total_caps : 1.0;
+	bug_var(cap_factor);
+	bug_var(clients.size());
+	for(slot_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
+	{
+//		if(i->second.is_bot())
+//			continue;
+
+		bug_var(i->first);
+		bug_var(i->second);
+		bug_var(katina.getTeam(i->second));
+		 // 1 = red, 2 = blue, 3 = spec
+		if(katina.getTeam(i->second) != TEAM_R && katina.getTeam(i->second) != TEAM_B)
+			continue;
+
+		pbug("FAIR:  slot: " << i->first);
+		pbug("FAIR:  name: " << katina.getPlayerName(i->first));
+
+		siz skill, fph,cph;
+		if(stats && policy == policy_t::FT_EVEN_SCATTER_DB)
+		{
+			// get skill from database
+			str res = stats->api("get_skill " + str(i->second) + " " + mapname);
+			if(!res.find("ERROR"))
+				continue;
+			skill = to<siz>(res);
+		}
+		else
+		{
+			// accumulate time but keep timer running
+			if(time[i->first])
+			{
+				secs[i->first] += (katina.now - time[i->first]);
+				time[i->first] = katina.now;
+			}
+
+			fph = secs[i->first] ? (kills[i->first] * 60 * 60) / secs[i->first] : 0;
+			cph = secs[i->first] ? (caps[i->first] * 60 * 60) / secs[i->first] : 0;
+
+			pbug("FAIR: kills: " << kills[i->first]);
+			pbug("FAIR:  caps: " << caps[i->first]);
+			pbug("FAIR:  secs: " << secs[i->first]);
+			pbug("FAIR:   fph: " << fph);
+			pbug("FAIR:   cph: " << cph);
+
+			skill = sqrt(pow(fph, 2) + pow(cph * cap_factor, 2));
+		}
+
+		pbug("FAIR: skill: " << skill);
+
+		if(katina.getTeam(i->second) == TEAM_R)
+			{ skill_r += skill; ++r; }
+		else
+			{ skill_b += skill; ++b; }
+
+//		rank.insert(siz_mmap_pair(skill, i->first));
+		rank.push_back(player(skill, i->first));
+	}
+
+	if(rank.size() < 3)
+		return true;
+
+	std::sort(rank.begin(), rank.end());
+
+	pbug("-------------------------------------------");
+
+	if(policy == policy_t::FT_EVEN_SCATTER || policy == policy_t::FT_EVEN_SCATTER_DB)
+	{
+		siz team = (rand() % 2) + 1;
+		bug_var(team);
+		for(const player&  i: rank)
+		{
+			pbug("FAIR: putting: " << i.num << " [" << i.skill << "] "
+					<< "on team " << str(team == 1 ? "r" : "b"));
+
+			if(katina.getTeam(i.num) != team)
+				if(!server.command("!putteam " + to_string(i.num) + " " + str(team == 1 ? "r" : "b")))
+					server.command("!putteam " + to_string(i.num) + " " + str(team == 1 ? "r" : "b")); // one retry
+			team = team == 1 ? 2 : 1;
+		}
+	}
+	else if(policy == policy_t::FT_BEST_PERMUTATION)
+	{
+		player_vec best_rank;
+		siz best_delta = siz(-1);
+
+		if(rank.size() & 1) // odd
+		{
+			siz total = 0;
+			for(const player& p: rank)
+				total += p.skill;
+
+			rank.push_back(player(total / rank.size(), slot::bad));
+		}
+
+		std::sort(rank.begin(), rank.end());
+
+		siz start_team = (rand() % 2) + 1;
+		siz delta, team;
+		do
+		{
+			siz tot[2] = {0, 0};
+			team = start_team;
+			pbug_var(team);
+
+			str bug_sep;
+			soss bug_out;
+
+			for(siz i = 0; i < rank.size(); ++i)
+			{
+				bug_out << bug_sep << "{" << rank[i].num << ", " << rank[i].skill << "}";
+				bug_sep = " ";
+				tot[team - 1] += rank[i].skill;
+				team = team == 1 ? 2 : 1;
+			}
+
+			pbug_var(bug_out.str());
+
+			delta = tot[0] > tot[1] ? tot[0] - tot[1] : tot[1] - tot[0];
+
+			if(delta < best_delta)
+			{
+				best_rank = rank;
+				best_delta = delta;
+			}
+		}
+		while(delta && std::next_permutation(rank.begin(), rank.end()));
+
+		team = start_team;
+		pbug_var(team);
+		for(siz i = 0; i < best_rank.size(); ++i)
+		{
+			pbug("FAIR: putting: " << best_rank[i].num << " [" << best_rank[i].skill << "] "
+					<< "on team " << str(team == 1 ? "r" : "b"));
+
+			if(katina.getTeam(best_rank[i].num) != team)
+				if(!server.command("!putteam " + to_string(best_rank[i].num) + " " + str(team == 1 ? "r" : "b")))
+					server.command("!putteam " + to_string(best_rank[i].num) + " " + str(team == 1 ? "r" : "b")); // one retry
+			team = team == 1 ? 2 : 1;
+		}
+	}
+	else if(policy == policy_t::FT_NEAREST_DIFFERENCE)
+	{
+	}
+
+	return true;
+}
+
 bool KatinaPluginAdmin::fixteams()
 {
 	pbug("-------------------------------------------");
-	pbug("FIXTEAMS:policy: " << policy);
+	pbug("FIXTEAMS: policy: " << policy);
 	pbug("-------------------------------------------");
 	if(policy == policy_t::FT_NONE)
 	{
@@ -288,7 +508,7 @@ bool KatinaPluginAdmin::fixteams()
 			for(const player& p: rank)
 				total += p.skill;
 
-			rank.push_back(player(total / rank.size(), bad_slot));
+			rank.push_back(player(total / rank.size(), slot::bad));
 		}
 
 		std::sort(rank.begin(), rank.end());
@@ -419,6 +639,7 @@ siz char_to_team(char t)
 
 bool KatinaPluginAdmin::reteam(slot num, char team)
 {
+	plog("RETEAM CHECK: " << katina.getPlayerName(num) << " (" << str(num) << ")" << " to team: " << team);
 	if(clients.find(num) == clients.end())
 	{
 		plog("ERROR: can't find client num: " << num);
@@ -433,12 +654,26 @@ bool KatinaPluginAdmin::reteam(slot num, char team)
 		return true;
 
 	str reply;
-	server.command("!putteam " + to_string(num) + " " + (char)tolower(team), reply);
+	if(!server.command("!putteam " + to_string(num) + " " + (char)tolower(team), reply))
+		if(!server.command("!putteam " + to_string(num) + " " + (char)tolower(team), reply))
+			server.command("!putteam " + to_string(num) + " " + (char)tolower(team), reply);
+
 	// ����
 	// ����      ^/warn: no connected player by that name or slot #
-	if(reply.find("!putteam: no connected player by that name or slot #") != str::npos
-	|| reply.find("!putteam: unknown team") != str::npos)
+	if(reply.find("!putteam: no connected player by that name or slot #") != str::npos)
+	{
+		plog("RETEAM FAIL : " << trim(reply));
 		return false;
+	}
+
+	if(reply.find("!putteam: unknown team") != str::npos)
+	{
+		plog("RETEAM FAIL : " << trim(reply));
+		return false;
+	}
+
+	plog("RETEAM ACTED: " << katina.getPlayerName(num) << " (" << str(num) << ")" << " to team: " << team);
+
 	return true;
 }
 
@@ -447,8 +682,8 @@ bool KatinaPluginAdmin::open()
 	bug_func();
 
 	stats = katina.get_plugin("katina::stats", "0.1");
+	playerdb = katina.get_plugin("katina::playerdb", "0.1");
 
-	//str_vec clients = katina.get_vec("remote.irc.client");
 	// remote.irc.client: insecure 127.0.0.1:7334 #zimsnew(*)
 	if(katina.has("admin.alert.irc.client"))
 		if((irc = RemoteClient::create(katina, katina.get("admin.alert.irc.client"))))
@@ -458,6 +693,7 @@ bool KatinaPluginAdmin::open()
 	katina.add_var_event(this, "admin.active", active, false);
 	katina.add_var_event(this, "admin.clientkick.protect", protect_admins, false);
 	katina.add_var_event(this, "admin.fixteams.policy", policy, policy_t::FT_NONE);
+	katina.add_var_event(this, "admin.detect.pushing", do_detect_pushing, false);
 
 	// allows spamkill_spams / spamkill_period else !mute for spamkill_mute
 	katina.add_var_event(this, "admin.spamkill.active", do_spamkill, false);
@@ -483,25 +719,26 @@ bool KatinaPluginAdmin::open()
 	plog("Loading sanctions");
 	load_sanctions();
 
-	slot num;
-	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end(); ++s)
-	{
-		if((num = katina.getClientSlot(s->guid)) == bad_slot)
-			continue;
-
-		if(players.find(s->guid) == players.end())
-			continue;
-
-		// !mute++
-		if(s->type == S_MUTEPP)
-			if(mutepp(num))
-				s->applied = true;
-		// !fixname
-		if(s->type == S_FIXNAME && !s->params.empty()
-		&& s->params[0] == katina.getPlayerName(s->guid))
-			if(fixname(num, s->params[0]))
-				s->applied = true;
-	}
+// TODO: how to apply sanctions on startup?
+//	slot num;
+//	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end(); ++s)
+//	{
+//		if((num = katina.getClientSlot(s->guid)) == slot::bad)
+//			continue;
+//
+//		if(players.find(s->guid) == players.end())
+//			continue;
+//
+//		// !mute++
+//		if(s->type == S_MUTEPP)
+//			if(mutepp(num))
+//				s->applied = true;
+//		// !fixname
+//		if(s->type == S_FIXNAME && !s->params.empty()
+//		&& s->params[0] == katina.getPlayerName(s->guid))
+//			if(fixname(num, s->params[0]))
+//				s->applied = true;
+//	}
 
 	return true;
 }
@@ -532,8 +769,10 @@ void KatinaPluginAdmin::heartbeat(siz min, siz sec)
 	last_min = min;
 
 	pbug("SPAMKILL HEARTBEAT check:");
-	for(slot_guid_map_pair client: katina.getClients())
+	for(slot_guid_map_vt client: katina.getClients())
 	{
+		if(!katina.is_connected(client.first))
+			continue;
 		if(mutes[client.first] && mutes[client.first] + spamkill_mute < katina.now)
 		{
 			pbug("SPAMKILL DEACTIVATED FOR: " << katina.getPlayerName(client.first) << " [" << katina.getClientGuid(client.first) << "] (" << client.first << ")");
@@ -553,7 +792,7 @@ bool KatinaPluginAdmin::init_game(siz min, siz sec, const str_map& cvars)
 	slot num;
 	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end(); ++s)
 	{
-		if((num = katina.getClientSlot(s->guid)) == bad_slot)
+		if((num = katina.getClientSlot(s->guid)) == slot::bad)
 			continue;
 
 		if(players.find(s->guid) == players.end())
@@ -653,15 +892,22 @@ bool KatinaPluginAdmin::client_userinfo_changed(siz min, siz sec, slot num, siz 
 {
 	if(!active)
 		return true;
-//	plog("client_userinfo_changed(" << num << ", " << team << ", " << guid << ", " << name << ")");
-//	plog("clients[" << num << "]         : " << clients[num]);
-//	plog("players[clients[" << num << "]]: " << katina.getPlayerName(num));
 
+	if(guid.is_bot() || !guid.is_connected())
+		return true;
+
+//	bug("SANCTION CHECK FOR: " << guid);
 	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end();)
 	{
+//		bug("SANCTION FOUND: " << s->type);
+		if(s->expires && s->expires >= katina.now)
+			{ s = sanctions.erase(s); save_sanctions(); continue; }
+
+//		bug("SANCTION CURRENT: " << (s->expires ? ctime(&s->expires):"PERMANENT"));
 		if(s->guid != guid)
 			{ ++s; continue; }
 
+//		bug("SANCTION APPLICABLE: " << s->guid);
 		if(s->type == S_FIXNAME)
 		{
 			if(!s->params.empty() && name != s->params[0])
@@ -688,6 +934,8 @@ bool KatinaPluginAdmin::client_userinfo_changed(siz min, siz sec, slot num, siz 
 				s->applied = true;
 			++s;
 		}
+		else
+			++s;
 	}
 
 	return true;
@@ -698,19 +946,20 @@ bool KatinaPluginAdmin::client_switch_team(siz min, siz sec, slot num, siz teamB
 	if(!active)
 		return true;
 
-	plog("client_switch_team(" << num << ", " << teamBefore << ", " << teamNow << ")");
+	//plog("client_switch_team(" << num << ", " << teamBefore << ", " << teamNow << ")");
 
 	if((teamNow == TEAM_R || teamNow == TEAM_B) && !time[num])
 	{
-		pbug("STARTING TIMER FOR: " << katina.getPlayerName(num) << " [" << katina.now << "]");
+		//pbug("STARTING TIMER FOR: " << katina.getPlayerName(num) << " [" << katina.now << "]");
 		time[num] = katina.now; // start timer if not running
 	}
 	else if(teamNow == TEAM_S && time[num])
 	{
-		pbug("STOPPING TIMER FOR: " << katina.getPlayerName(num) << " after " << (katina.now - time[num]) << " seconds");
+		//pbug("STOPPING TIMER FOR: " << katina.getPlayerName(num) << " after " << (katina.now - time[num]) << " seconds");
 		secs[num] += (katina.now - time[num]);
 		time[num] = 0; // stop timer if running
 	}
+
 	return true;
 }
 
@@ -791,8 +1040,12 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, slot num, const str& type, co
 
 		if(t == type && i == info)
 		{
-			votekill(katina.get_name() + "^1: ^5This vote has been disallowed" + reason);
-			plog("VOTEKILL: admin.ban.vote: " << v);
+			std::async(std::launch::async, [&]
+			{
+				thread_sleep_millis(2000);
+				votekill(katina.get_name() + "^1: ^5This vote has been disallowed" + reason);
+				plog("VOTEKILL: admin.ban.vote: " << v);
+			});
 		}
 	}
 
@@ -802,41 +1055,98 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, slot num, const str& type, co
 	for(const sanction& s: sanctions)
 		if((!s.expires || s.expires < katina.now) && s.guid == katina.getClientGuid(num))
 		{
-			votekill(katina.get_name() + "^1: " + katina.getPlayerName(num) + " is banned from voting for "
+			std::async(std::launch::async, [&]
+			{
+				thread_sleep_millis(2000);
+				votekill(katina.get_name() + "^1: " + katina.getPlayerName(num) + " is banned from voting for "
 				+ secs_to_dhms(s.expires - katina.now));
-			plog("VOTEKILL: prevented " << katina.getClientGuid(num) << ": banned: " << s.reason);
+				plog("VOTEKILL: prevented " << katina.getClientGuid(num) << ": banned: " << s.reason);
+			});
 		}
-//	siz kick_num = to<siz>(info);
-//	pbug_var(kick_num);
-//	pbug_var(clients[kick_num]);
-//	pbug_var(katina.is_admin(clients[kick_num]));
+
 	if(protect_admins)
 	{
 		pbug("VOTEKILL: PROTECTING ADMINS: " << info);
-		pbug("VOTEKILL: PROTECTING ADMINS: " << katina.getClientGuid(to<siz>(info)));
-		pbug("VOTEKILL: PROTECTING ADMINS: " << katina.is_admin(katina.getClientGuid(to<siz>(info))));
-		if(type == "clientkick" && katina.is_admin(katina.getClientGuid(to<siz>(info))))
+		pbug("VOTEKILL: PROTECTING ADMINS: " << katina.getClientGuid(to<slot>(info)));
+		pbug("VOTEKILL: PROTECTING ADMINS: " << katina.is_admin(katina.getClientGuid(to<slot>(info))));
+		if(type == "clientkick" && katina.is_admin(katina.getClientGuid(to<slot>(info))))
 		{
 			std::async(std::launch::async, [&]
 			{
-				thread_sleep_millis(1000);
+				thread_sleep_millis(2000);
 				votekill(katina.get_name() + "^1: ^7[^3NOT ALLOWED TO KICK ADMINS^7]");
-				plog("VOTEKILL: admin protection for: " << katina.getPlayerName(to<siz>(info)));
+				plog("VOTEKILL: admin protection for: " << katina.getPlayerName(to<slot>(info)));
 			});
 		}
 	}
 	return true;
 }
 
-bool KatinaPluginAdmin::kill(siz min, siz sec, slot num1, slot num2, siz weap)
+bool KatinaPluginAdmin::kill(siz min, siz sec, slot killer, slot killed, siz weap)
 {
 	if(!active)
 		return true;
 
+//	if(do_detect_pushing && killer == world_slot && weap == MOD_TRIGGER_HURT)
+//	{
+//		pbug("DETECTING HOSTILE PUSHES:");
+//		bool warned = false;
+//		siz suspicious = 0;
+//		for(push_lst_iter p = pushes.begin(); p != pushes.end();)
+//		{
+//			pbug(katina.getPlayerName(p->pusher) << " push-killed " << katina.getPlayerName(pushed));
+//			if(katina.now - p->when > 3) // 3 seconds
+//			{
+//				p = pushes.erase(p);
+//				continue;
+//			}
+//
+//			if(p->pushed != killed)
+//			{
+//				++p;
+//				continue;
+//			}
+//
+//			if(warned)
+//			{
+//				p = pushes.erase(p);
+//				continue;
+//			}
+//
+//			if(++suspicious < 3)
+//			{
+//				++p;
+//				continue;
+//			}
+//
+//			if(irc && irc->chat('a', "^3!^1ALERT^3! ^7" + katina.get("admin.alert.irc.admins")
+//				+ " ^3possible pusher: " + katina.getPlayerName(p->pusher)))
+//			{
+//				plog("HOSTILE PUSHING DETECTED!!!!");
+////				server.msg_to(p->pusher, katina.get_name() + "^7: "
+////						+   katina.getPlayerName(p->pusher)
+////								   + "^3, your ^7PUSHES ^3are suspicious, ^7ADMIN ^3alerted", true);
+//				p = pushes.erase(p);
+//				warned = true;
+//			}
+//		}
+//		return true;
+//	}
+
 	 // !fixteams
-	if(time[num1]) // is the timer running?
-		++kills[num1];
+	if(time[killer]) // is the timer running?
+		++kills[killer];
 	++total_kills;
+	return true;
+}
+
+bool KatinaPluginAdmin::push(siz min, siz sec, slot pusher, slot pushed)
+{
+//	push_evt p;
+//	p.when = katina.now;
+//	p.pusher = pusher;
+//	p.pushed = pushed;
+//	pushes.push_back(p);
 	return true;
 }
 
@@ -949,8 +1259,12 @@ bool KatinaPluginAdmin::check_slot(slot num)
 	return false;
 }
 
-std::time_t parse_duration(const str& duration, std::time_t dflt)
+std::time_t KatinaPluginAdmin::duration_to_time(const str& duration, siz dflt)
 {
+//	bug_func();
+//	pbug_var(duration);
+//	pbug_var(dflt);
+
 	std::time_t t = dflt;
 
 	// 30 w|d|h|m|s
@@ -961,8 +1275,11 @@ std::time_t parse_duration(const str& duration, std::time_t dflt)
 	if(!(iss >> t >> std::ws >> units))
 	{
 		plog("ERROR: parsing duration: " << duration);
-		return dflt;
+		return katina.now + dflt;
 	}
+
+//	pbug_var(t);
+//	pbug_var(units);
 
 	if(units == "s")
 		t *= 1;
@@ -975,7 +1292,9 @@ std::time_t parse_duration(const str& duration, std::time_t dflt)
 	else if (units == "w")
 		t *= 60 * 60 * 24 * 7;
 
-	return t;
+//	pbug_var(t);
+
+	return katina.now + t;
 }
 
 bool KatinaPluginAdmin::remove_sanctions(const GUID& guid, siz type)
@@ -1014,14 +1333,14 @@ void KatinaPluginAdmin::spamkill(slot num)
 
 void KatinaPluginAdmin::tell_perp(slot admin_num, slot perp_num, const str& msg)
 {
-	if(admin_num != bad_slot)
+	if(admin_num != slot::bad)
 		server.msg_to(admin_num, "^7ADMIN: " + msg, true);
-	if(perp_num != admin_num && perp_num != bad_slot)
+	if(perp_num != admin_num && perp_num != slot::bad)
 		server.msg_to(perp_num, "^7ADMIN: " + msg, true);
 }
 
 // TODO: make these commands use katina.parse_slot_guid_name()
-bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
+bool KatinaPluginAdmin::say(const siz min, const siz sec, const GUID& guid, const str& text)
 {
 	if(!active)
 		return true;
@@ -1031,7 +1350,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 	// !cmd <parans>
 
 	slot say_num;
-	if((say_num = katina.getClientSlot(guid)) == bad_slot)
+	if((say_num = katina.getClientSlot(guid)) == slot::bad)
 	{
 		plog("ERROR: Unable to get slot number from guid: " << guid);
 		return true;
@@ -1108,14 +1427,55 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			return true;
 		}
 
+		const str_vec& banned_ips = katina.get_vec("admin.alert.banned.ip");
+		const str_vec& banned_guids = katina.get_vec("admin.alert.banned.guid");
+
+		str cmd = "guid_to_ip " + str(guid);
+		str inip = playerdb ? playerdb->api(cmd):"";
+
+		if(!inip.find("ERROR:"))
+			plog("ERROR: calling playerdb::api(" << cmd);
+
+		if(std::find_if(banned_ips.begin(), banned_ips.end(), [&](const str& ip){return !ip.find(inip);}) != banned_ips.end()
+		|| std::find(banned_guids.begin(), banned_guids.end(), str(guid)) != banned_guids.end())
+//		if( std::find(banned_guids.begin(), banned_guids.end(), str(guid)) != banned_guids.end())
+		{
+			server.msg_to(say_num, katina.get_name() + "^7: "
+				+   katina.getPlayerName(guid)
+						   + "^3, sorry, ^7!alert ^3disabled for misuse.", true);
+			return true;
+		}
+
 		str request;
 		sgl(iss >> std::ws, request);
 
 		if(irc)
-			if(irc->chat('a', "^3!^1AERT^3! ^7" + katina.get("admin.alert.irc.admins") + " ^3" + request))
+		{
+			const str_vec& admins = katina.get_vec("admin.irc.alert");
+
+			if(admins.empty())
+			{
 				server.msg_to(say_num, katina.get_name() + "^7: "
-						+   katina.getPlayerName(guid)
-								   + "^3, admin have been alerted.", true);
+					+   katina.getPlayerName(guid)
+							   + "^3, sorry, no admins configured.", true);
+				return true;
+			}
+
+			soss msg;
+
+			msg << " ^7!^1ALERT^7! ^3" + request + " ^7[" + katina.getPlayerName(guid) + "^7]";
+
+			for(const str& admin: admins)
+			{
+				plog("ALERTING ADMIN: " << admin);
+				irc->send("/msg " + admin + " " + oa_to_IRC(msg.str()));
+			}
+
+//			if(irc->chat('a', "^3!^1ALERT^3! ^7" + katina.get("admin.alert.irc.admins") + " ^3" + request))
+//				server.msg_to(say_num, katina.get_name() + "^7: "
+//						+   katina.getPlayerName(guid)
+//								   + "^3, admin have been alerted.", true);
+		}
 	}
 	else if(cmd == trans("!request") || cmd == trans("?request"))
 	{
@@ -1150,6 +1510,17 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			return true;
 		}
 	}
+	else if(cmd == trans("!fair") || cmd == trans("?fair"))
+	{
+		if(cmd[0] == '?')
+		{
+			server.msg_to(say_num, "^7ADMIN: ^3Check the teams for fairness.", true);
+			server.msg_to(say_num, "^7ADMIN: ^3!fair");
+			return true;
+		}
+
+		fair();
+	}
 	else if(cmd == trans("!fixteams") || cmd == trans("?fixteams"))
 	{
 		if(!check_admin(guid))
@@ -1179,7 +1550,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			return true;
 		}
 
-		slot num = bad_slot;
+		slot num = slot::bad;
 		str duration = "5m";
 		str reason;
 
@@ -1198,7 +1569,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		sanction s;
 		s.type = S_MUTEPP;
 		s.guid = katina.getClientGuid(num);
-		s.expires = parse_duration(duration, 5 * 60);
+		s.expires = duration_to_time(duration, 5 * 60);
 		s.reason = reason;
 
 		if(s.guid == null_guid)
@@ -1211,7 +1582,8 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			s.applied = true;
 
 		sanctions.push_back(s);
-		save_sanctions();
+		if(save_sanctions())
+			plog("mute++ applied to " << s.guid << " " << katina.getPlayerName(guid) << " by " << katina.getPlayerName(say_num));
 	}
 	else if(cmd == trans("!voteban") || cmd == trans("?voteban"))
 	{
@@ -1228,7 +1600,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			return true;
 		}
 
-		slot perp = bad_slot;
+		slot perp = slot::bad;
 		str duration = "5m";
 		str reason;
 
@@ -1247,7 +1619,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		sanction s;
 		s.type = S_VOTEBAN;
 		s.guid = katina.getClientGuid(perp);
-		s.expires = parse_duration(duration, 5 * 60);
+		s.expires = duration_to_time(duration, 5 * 60);
 		s.reason = reason;
 
 		if(s.guid == null_guid)
@@ -1275,7 +1647,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			return true;
 		}
 
-		slot num = bad_slot;
+		slot num = slot::bad;
 		str duration = "20m";
 		str reason;
 
@@ -1300,7 +1672,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		sanction s;
 		s.type = S_MAPBAN;
 		s.guid = katina.getClientGuid(num);
-		s.expires = parse_duration(duration, 20 * 60);
+		s.expires = duration_to_time(duration, 20 * 60);
 		s.reason = reason;
 		s.params.push_back(katina.get_mapname());
 
@@ -1334,7 +1706,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			return true;
 		}
 
-		slot perp = bad_slot;
+		slot perp = slot::bad;
 		str name;
 
 		sgl(iss >> perp >> std::ws, name);
@@ -1352,7 +1724,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		sanction s;
 		s.type = S_FIXNAME;
 		s.guid = katina.getClientGuid(perp);
-		s.expires = 0;
+		s.expires = duration_to_time("1h", 60 * 60);
 		s.params.push_back(name);
 
 		if(s.guid == null_guid)
@@ -1370,7 +1742,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		sanctions.push_back(s);
 		save_sanctions();
 	}
-	else if(cmd == trans("!reteam") || cmd == trans("?reteam")
+	else if(cmd == trans("!reteam") || cmd == trans("?reteam") // working
 			|| cmd == trans("!spec") || cmd == trans("?spec"))
 	{
 		// TODO: fix these bugs
@@ -1407,15 +1779,22 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			return true;
 		}
 
-		slot perp = bad_slot;
+		slot perp = slot::bad;
 		str team, reason;
 
-		sgl(iss >> perp >> team >> std::ws, reason);
+		if(spec)
+			sgl(iss >> perp >> std::ws, reason);
+		else
+			sgl(iss >> perp >> team >> std::ws, reason);
+
+		if(spec)
+			team = "S";
 
 		pbug_var(perp);
 		pbug_var(team);
 		pbug_var(reason);
 
+		trim(team);
 		trim(reason);
 
 		pbug_var(trim(reason));
@@ -1423,7 +1802,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		if(!check_slot(perp))
 			return true;
 
-		if(team == "remove")
+		if((spec && reason == "remove") || team == "remove")
 		{
 			str sanct = spec ? "^1spec":"^1fixed team";
 			if(remove_sanctions(katina.getClientGuid(perp), S_RETEAM))
@@ -1431,10 +1810,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 			return true;
 		}
 
-		if(spec)
-			team = "S";
-
-		if(upper(team) != "R" || team != "B" || team != "S")
+		if(upper(team) != "R" && team != "B" && team != "S")
 		{
 			server.msg_to(say_num, "^7ADMIN: ^3Bad team. Needs to be: r|b|s", true);
 			return true;
@@ -1443,7 +1819,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		sanction s;
 		s.type = S_RETEAM;
 		s.guid = katina.getClientGuid(perp);
-		s.expires = 0;
+		s.expires = duration_to_time("5m", 5 * 60);
 		s.params.push_back(team);
 		s.reason = reason;
 
@@ -1496,7 +1872,7 @@ bool KatinaPluginAdmin::say(siz min, siz sec, const GUID& guid, const str& text)
 		if(reason == "remove")
 		{
 			slot num = katina.getClientSlot(perp);
-			if(remove_sanctions(perp, S_WARN_ON_SIGHT) && num != bad_slot)
+			if(remove_sanctions(perp, S_WARN_ON_SIGHT) && num != slot::bad)
 				tell_perp(say_num, num, "^7" + katina.getPlayerName(perp) + " ^3Removed warn-on-sight from: ^7" + katina.getPlayerName(perp));
 			return true;
 		}

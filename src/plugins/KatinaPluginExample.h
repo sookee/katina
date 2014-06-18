@@ -46,10 +46,10 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace katina { namespace plugin {
 
-using namespace oastats;
-using namespace oastats::log;
-using namespace oastats::data;
-using namespace oastats::types;
+using namespace katina;
+using namespace katina::log;
+using namespace katina::data;
+using namespace katina::types;
 
 class KatinaPluginExample
 : public KatinaPlugin
@@ -106,6 +106,9 @@ public:
 		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
 		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
 		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged) override;
+
+	virtual void heartbeat(siz min, siz sec) override;
+	virtual siz get_regularity(siz time_in_secs) const override;
 
 	virtual void close() override;
 };

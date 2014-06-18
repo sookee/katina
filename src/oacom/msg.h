@@ -14,7 +14,7 @@
 
 namespace oacom {
 
-using namespace oastats::types;
+using namespace katina::types;
 
 //
 // msg.c

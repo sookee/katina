@@ -70,6 +70,13 @@ class Supervisor
 
 
 
+    function isAuthedOrLocal()
+    {
+        return $_SERVER['REMOTE_ADDR'] == '127.0.0.1' || $this->isAuthed();
+    }
+
+
+
     function getName()
     {
         return $this->authed;

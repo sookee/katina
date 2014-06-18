@@ -11,17 +11,17 @@ LIBGCRYPT_LIBS=$(shell libgcrypt-config --libs)
 
 INCLUDES = $(wildcard $(src_topdir)/include/katina/*.h)
 
-CXXFLAGS = -std=c++11 -D DEBUG -O0 -g3 -Iinclude -pthread
+CXXFLAGS = -std=c++11 $(DEBUG_FLAGS) -Iinclude -pthread
 
 LIBKATINA_FLAGS =  $(CXXFLAGS) $(VER_FLAGS) -fPIC -pthread $(LIBGCRYPT_FLAGS)
 LIBKATINA_LIBS = -lrt -pthread -ldl $(LIBGCRYPT_LIBS)
-LIBKATINA_OBJS = rcon.o RemoteClient.o irc.o GUID.o Katina.o PKI.o
+LIBKATINA_OBJS = rcon.o RemoteClient.o irc.o GUID.o Katina.o PKI.o types.o Database.o
 
 LIBRARIES = libkatina.so
 
 KATINA_FLAGS =  $(CXXFLAGS) $(VER_FLAGS) $(MYSQL_FLAG) $(MYSQL_INCL)
 KATINA_LIBS = $(MYSQL_LIBS) -lrt -pthread -ldl $(LIBGCRYPT_LIBS) -L. -lkatina
-KATINA_OBJS = katina.o Database.o
+KATINA_OBJS = katina.o
 
 KATINA_IRC_FLAGS = $(CXXFLAGS) -pthread
 KATINA_IRC_LIBS = -lrt -pthread

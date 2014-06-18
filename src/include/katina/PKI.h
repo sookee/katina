@@ -34,9 +34,9 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <gcrypt.h>
 #include "types.h"
 
-namespace oastats { namespace pki {
+namespace katina { namespace pki {
 
-using namespace oastats::types;
+using namespace katina::types;
 
 class PKI
 {
@@ -58,6 +58,24 @@ private:
 	bool get_sexp_as_text(const key_t& sexp, str& text) const;
 	bool get_signature(const gcry_sexp_t& sexp, str& signature) const;
 
+	/**
+	 * Set the internal public key
+     * @return true on success else false
+     */
+	bool set_key(const str& s, key_t& key);
+
+	/**
+	 * Set the internal key
+     * @return true on success else false
+     */
+	bool set_key(std::istream& is, key_t& key);
+
+	/**
+	 * Set the internal key
+     * @return true on success else false
+     */
+	bool set_key_file(const str& file, key_t& key);
+
 public:
 	PKI();
 	virtual ~PKI();
@@ -65,12 +83,24 @@ public:
 	bool generate_keypair(siz bits = 512);
 
 	/**
+	 * Set the internal public key
+     * @return true on success else false
+     */
+	bool set_pub_key(const str& file) { return set_key(file, pkey); }
+
+	/**
+	 * Set the internal private key
+     * @return true on success else false
+     */
+	bool set_pri_key(const str& file) { return set_key(file, skey); }
+
+	/**
 	 * Add a public key for encrypting data to its owner.
      * @param id A means to identify the public key's owner
      * @param s public key in sexp form
      * @return true on success else false
      */
-	bool read_public_key(const str& id, const str& s);
+	bool add_client_key(const str& id, const str& s);
 
 	/**
 	 * Add a public key for encrypting data to its owner.
@@ -78,7 +108,7 @@ public:
      * @param is input must contain the public key in sexp form
      * @return true on success else false
      */
-	bool read_public_key(const str& id, std::istream& is);
+	bool add_client_key(const str& id, std::istream& is);
 
 	/**
 	 * Add a public key for encrypting data to its owner.
@@ -86,7 +116,7 @@ public:
      * @param file name of a file that must contain the public key in sexp form
      * @return true on success else false
      */
-	bool load_public_key(const str& id, const str& file);
+	bool add_client_key_file(const str& id, const str& file);
 
 	/**
 	 * Set the keypair
@@ -123,7 +153,7 @@ public:
 	bool verify_signature(const str& id, const str& signature, const str& text, bool& is_good) const;
 };
 
-}} // oastats::pki
+}} // katina::pki
 
 #endif	// _OASTATS_PKI_H
 

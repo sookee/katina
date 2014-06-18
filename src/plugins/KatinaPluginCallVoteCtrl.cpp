@@ -45,8 +45,8 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace katina { namespace plugin {
 
-using namespace oastats::log;
-using namespace oastats::types;
+using namespace katina::log;
+using namespace katina::types;
 
 KATINA_PLUGIN_TYPE(KatinaPluginCallVoteCtrl);
 KATINA_PLUGIN_INFO("katina::callvotectrl", "Katina CallVote Control", "0.1");
@@ -214,7 +214,7 @@ bool KatinaPluginCallVoteCtrl::say(siz min, siz sec, const GUID& guid, const str
 
 	slot say_num;
 
-	if((say_num = katina.getClientSlot(guid)) == bad_slot)
+	if((say_num = katina.getClientSlot(guid)) == slot::bad)
 	{
 		plog("ERROR: Unable to get slot number from guid: " << guid);
 		return true;

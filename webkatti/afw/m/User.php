@@ -108,6 +108,13 @@ class User extends Model
 
 
 
+    function isSupervisorOrLocal()
+    {
+        return isset($this->supervisor) ? $this->supervisor->isAuthedOrLocal() : false;
+    }
+
+
+
     /**
      * @return Supervisor
      */

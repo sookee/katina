@@ -45,10 +45,10 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace katina { namespace plugin {
 
-using namespace oastats::pki;
-using namespace oastats::log;
-using namespace oastats::data;
-using namespace oastats::types;
+using namespace katina::pki;
+using namespace katina::log;
+using namespace katina::data;
+using namespace katina::types;
 
 class KatinaPluginVotes
 : public KatinaPlugin
@@ -61,7 +61,8 @@ private:
 	// cvars
 	bool active;
 
-	siz announce_time; // seconds before announce
+	bool votes_valid = false;
+	siz announce_time = 0; // seconds before announce
 
 public:
 
@@ -79,7 +80,7 @@ public:
 
 	// INTERFACE: KatinaPlugin
 
-	virtual str api(const str& call) override;
+	virtual str api(const str& call, void* blob = nullptr) override;
 
 	virtual bool open() override;
 
@@ -88,9 +89,12 @@ public:
 	virtual str get_version() const override;
 
 	virtual bool init_game(siz min, siz sec, const str_map& cvars) override;
+	virtual bool warmup(siz min, siz sec) override;
 	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) override;
 	virtual bool sayteam(siz min, siz sec, const GUID& guid, const str& text) override;
+
 	virtual void heartbeat(siz min, siz sec) override;
+	virtual siz get_regularity(siz time_in_secs) const override { return 1; } // once per second
 
 	virtual void close() override;
 };

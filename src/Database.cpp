@@ -34,16 +34,17 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include <ctime>
 #include <cmath>
+#include <cstring>
 
 #include <katina/log.h>
 
-namespace oastats { namespace data {
+namespace katina { namespace data {
 
 const game_id bad_id(-1);
 const game_id null_id(0);
 
 
-Database::Database(): active(false) { mysql_init(&mysql); }
+Database::Database(): active(false), port(3306) { mysql_init(&mysql); }
 Database::~Database() { off(); }
 
 void Database::on()
@@ -53,10 +54,59 @@ void Database::on()
 	if(mysql_real_connect(&mysql, host.c_str(), user.c_str()
 		, pass.c_str(), base.c_str(), port, NULL, 0) != &mysql)
 	{
-		log("DATABASE ERROR: Unable to connect; " << mysql_error(&mysql));
+		log("DATABASE ERROR: Unable to connect: " << mysql_error(&mysql));
 		return;
 	}
-	log("DATABASE: on");
+
+	if(!stmt_add_playerstats)
+		stmt_add_playerstats = mysql_stmt_init(&mysql);
+
+	if(stmt_add_playerstats)
+	{
+		static const str sql = "insert into `playerstats` values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+		if(mysql_stmt_prepare(stmt_add_playerstats, sql.c_str(), sql.size()))
+		{
+			log("DATABASE ERROR: Unable to prepare add_playerstats: " << mysql_stmt_error(stmt_add_playerstats));
+			mysql_stmt_close(stmt_add_playerstats);
+			stmt_add_playerstats = 0;
+		}
+
+		try
+		{
+			memset(bind_add_playerstats.data(), 0, bind_add_playerstats.size() * sizeof(MYSQL_BIND));
+
+			for(siz i = 0, j = 0; i < bind_add_playerstats.size(); ++i)
+			{
+				if(i == 1)
+					continue;
+				bind_add_playerstats.at(i).buffer_type = MYSQL_TYPE_LONGLONG;
+				bind_add_playerstats.at(i).buffer = &(siz_add_playerstats.at(j++));
+				bind_add_playerstats.at(i).is_null = 0;
+				bind_add_playerstats.at(i).length = 0;
+				bind_add_playerstats.at(i).is_unsigned = 1;
+			}
+
+			bind_add_playerstats.at(1).buffer_type = MYSQL_TYPE_VARCHAR;
+			bind_add_playerstats.at(1).buffer = guid_add_playerstats;
+			bind_add_playerstats.at(1).buffer_length = 9;
+			bind_add_playerstats.at(1).is_null = 0;
+			bind_add_playerstats.at(1).length = &guid_length;
+		}
+		catch(const std::out_of_range& e)
+		{
+			log("DATABASE ERROR: " << e.what());
+			mysql_stmt_close(stmt_add_playerstats);
+			stmt_add_playerstats = 0;
+		}
+
+		if(mysql_stmt_bind_param(stmt_add_playerstats, bind_add_playerstats.data()))
+		{
+			log("DATABASE ERROR: Unable to bind add_playerstats: " << mysql_stmt_error(stmt_add_playerstats));
+			mysql_stmt_close(stmt_add_playerstats);
+			stmt_add_playerstats = 0;
+		}
+	}
+
 	active = true;
 }
 
@@ -65,8 +115,14 @@ void Database::off()
 	if(!active)
 		return;
 	active = false;
+
+	if(stmt_add_playerstats)
+		mysql_stmt_close(stmt_add_playerstats);
+
+	stmt_add_playerstats = 0;
+
 	mysql_close(&mysql);
-	log("DATABASE: off");
+//	log("DATABASE: off");
 }
 
 bool Database::check()
@@ -184,7 +240,8 @@ bool Database::select(const str& sql, str_vec_vec& rows, siz fields)
 
 game_id Database::add_game(const str& host, const str& port, const str& mapname)
 {
-	//log("DATABASE: add_game(" << host << ", " << port << ", " << mapname << ")");
+	if(trace)
+		log("DATABASE: add_game(" << host << ", " << port << ", " << mapname << ")");
 
 	str safe_mapname;
 	if(!escape(mapname, safe_mapname))
@@ -215,7 +272,8 @@ game_id Database::add_game(const str& host, const str& port, const str& mapname)
  */
 bool Database::add_weaps(game_id id, const str& table, const GUID& guid, siz weap, siz count)
 {
-	//log("DATABASE: add_weaps(" << id << ", " << table << ", " << guid << ", " << weap << ", " << count << ")");
+	if(trace)
+		log("DATABASE: add_weaps(" << id << ", " << table << ", " << guid << ", " << weap << ", " << count << ")");
 
 	soss oss;
 	oss << "insert into `" << table << "` (`game_id`, `guid`, `weap`, `count`) values (";
@@ -228,7 +286,8 @@ bool Database::add_weaps(game_id id, const str& table, const GUID& guid, siz wea
 
 bool Database::add_caps(game_id id, const GUID& guid, siz count)
 {
-	//log("DATABASE: add_caps(" << id << ", " << guid << ", " << count << ")");
+	if(trace)
+		log("DATABASE: add_caps(" << id << ", " << guid << ", " << count << ")");
 
 	soss oss;
 	oss << "insert into `caps` (`game_id`, `guid`, `count`) values (";
@@ -241,7 +300,8 @@ bool Database::add_caps(game_id id, const GUID& guid, siz count)
 
 bool Database::add_time(game_id id, const GUID& guid, siz count)
 {
-	//log("DATABASE: add_time(" << id << ", " << guid << ", " << count << ")");
+	if(trace)
+		log("DATABASE: add_time(" << id << ", " << guid << ", " << count << ")");
 
 	soss oss;
 	oss << "insert into `time` (`game_id`, `guid`, `count`) values (";
@@ -254,13 +314,14 @@ bool Database::add_time(game_id id, const GUID& guid, siz count)
 
 bool Database::add_player(const GUID& guid, const str& name)
 {
-	//log("DATABASE: add_player(" << guid << ", " << name << ")");
+	if(trace)
+		log("DATABASE: add_player(" << guid << ", " << name << ")");
 
 	str safe_name;
 	if(!escape(name, safe_name))
 	{
 		log("DATABASE: ERROR: failed to escape: " << name);
-		return bad_id;
+		return false;
 	}
 
 	soss oss;
@@ -274,7 +335,8 @@ bool Database::add_player(const GUID& guid, const str& name)
 
 row_count Database::add_vote(const str& type, const str& item, const GUID& guid, int count)
 {
-	//log("DATABASE: add_vote(" << type << ", " << item << ", " << guid << ", " << count << ")");
+	if(trace)
+		log("DATABASE: add_vote(" << type << ", " << item << ", " << guid << ", " << count << ")");
 
 	soss oss;
 	oss << "insert into `votes` (`type`,`item`,`guid`,`count`) values ('"
@@ -293,7 +355,8 @@ row_count Database::add_vote(const str& type, const str& item, const GUID& guid,
 
 bool Database::add_ovo(game_id id, const GUID& guid1, const GUID& guid2, siz count)
 {
-	//log("DATABASE: add_ovo(" << id << ", " << guid1 << ", " << guid2 << ", " << count << ")");
+	if(trace)
+		log("DATABASE: add_ovo(" << id << ", " << guid1 << ", " << guid2 << ", " << count << ")");
 
 	soss oss;
 	oss << "insert into `ovo` (`game_id`,`guid1`,`guid2`,`count`) values ('"
@@ -307,7 +370,8 @@ bool Database::add_ovo(game_id id, const GUID& guid1, const GUID& guid2, siz cou
 
 bool Database::add_weapon_usage(game_id id, const GUID& guid, siz weap, siz shots)
 {
-	//log("DATABASE: add_weapon_usage(" << id << ", " << guid << ", " << weap << ", " << shots << ")");
+	if(trace)
+		log("DATABASE: add_weapon_usage(" << id << ", " << guid << ", " << weap << ", " << shots << ")");
 
 	soss oss;
 	oss << "insert into `weapon_usage` (`game_id`,`guid`,`weap`,`shots`) values ('"
@@ -320,7 +384,8 @@ bool Database::add_weapon_usage(game_id id, const GUID& guid, siz weap, siz shot
 
 bool Database::add_mod_damage(game_id id, const GUID& guid, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv, float weightedHits)
 {
-	//log("DATABASE: add_mod_damage(" << id << ", " << guid << ", " << mod << ", " << hits << ", " << damage << ", " << hitsRecv << ", " << damageRecv << ", " << weightedHits << ")");
+	if(trace)
+		log("DATABASE: add_mod_damage(" << id << ", " << guid << ", " << mod << ", " << hits << ", " << damage << ", " << hitsRecv << ", " << damageRecv << ", " << weightedHits << ")");
 
 	soss oss;
 	oss << "insert into `damage` (`game_id`,`guid`,`mod`,`hits`,`dmgDone`,`hitsRecv`,`dmgRecv`,`weightedHits`) values ('"
@@ -337,12 +402,6 @@ bool Database::add_playerstats(game_id id, const GUID& guid,
 	siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,
 	siz carrierFrags, siz carrierFragsRecv)
 {
-//	log("DATABASE: add_playerstats(" << id << ", " << guid << ", " << fragsFace << ", " << fragsBack << ", " << fraggedInFace << ", " << fraggedInBack
-//		<< ", " << spawnKills << ", " << spawnKillsRecv << ", " << pushes << ", " << pushesRecv
-//		<< ", " << healthPickedUp << ", " << armorPickedUp << ", " << holyShitFrags << ", " << holyShitFragged
-//		<< ", " << carrierFrags << ", " << carrierFragsRecv << ")");
-
-
 	soss oss;
 	oss << "insert into `playerstats` ("
 	    << "`game_id`,`guid`,`fragsFace`,`fragsBack`,`fraggedInFace`,`fraggedInBack`,`spawnKillsDone`,`spawnKillsRecv`,"
@@ -356,10 +415,66 @@ bool Database::add_playerstats(game_id id, const GUID& guid,
 	return insert(sql);
 }
 
+// TODO: split these up into separate tables
+bool Database::add_playerstats_ps(game_id id, const GUID& guid,
+	siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
+	siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
+	siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,
+	siz carrierFrags, siz carrierFragsRecv)
+{
+	if(!stmt_add_playerstats)
+		return add_playerstats(id, guid, fragsFace, fragsBack, fraggedInFace, fraggedInBack,
+	spawnKills, spawnKillsRecv, pushes, pushesRecv,
+	healthPickedUp, armorPickedUp, holyShitFrags, holyShitFragged,
+	carrierFrags, carrierFragsRecv);
+
+	siz j = 0;
+	siz_add_playerstats[j++] = id;
+	std::strncpy(guid_add_playerstats, str(guid).c_str(), 9);
+	guid_length = str(guid).size();
+	siz_add_playerstats[j++] = fragsFace;
+	siz_add_playerstats[j++] = fragsBack;
+	siz_add_playerstats[j++] = fraggedInFace;
+	siz_add_playerstats[j++] = fraggedInBack;
+	siz_add_playerstats[j++] = spawnKills;
+	siz_add_playerstats[j++] = spawnKillsRecv;
+	siz_add_playerstats[j++] = pushes;
+	siz_add_playerstats[j++] = pushesRecv;
+	siz_add_playerstats[j++] = healthPickedUp;
+	siz_add_playerstats[j++] = armorPickedUp;
+	siz_add_playerstats[j++] = holyShitFrags;
+	siz_add_playerstats[j++] = holyShitFragged;
+	siz_add_playerstats[j++] = carrierFrags;
+	siz_add_playerstats[j++] = carrierFragsRecv;
+
+	if(mysql_stmt_execute(stmt_add_playerstats))
+	{
+		log("DATABASE: ERROR: " << mysql_stmt_error(stmt_add_playerstats));
+		log("DATABASE:      : using fall-back");
+		return add_playerstats(id, guid, fragsFace, fragsBack, fraggedInFace, fraggedInBack,
+			spawnKills, spawnKillsRecv, pushes, pushesRecv,
+			healthPickedUp, armorPickedUp, holyShitFrags, holyShitFragged,
+			carrierFrags, carrierFragsRecv);
+	}
+
+	if(mysql_stmt_affected_rows(stmt_add_playerstats) != 1)
+	{
+		log("DATABASE: ERROR: add_playerstats_ps: no rows affected");
+		log("DATABASE:      : using fall-back");
+		return add_playerstats(id, guid, fragsFace, fragsBack, fraggedInFace, fraggedInBack,
+			spawnKills, spawnKillsRecv, pushes, pushesRecv,
+			healthPickedUp, armorPickedUp, holyShitFrags, holyShitFragged,
+			carrierFrags, carrierFragsRecv);
+	}
+
+	return true;
+}
+
 bool Database::add_speed(game_id id, const GUID& guid,
 	siz dist, siz time, bool has_flag)
 {
-	//log("DATABASE: add_speed(" << id << ", " << guid << ", " << dist << ", " << time << ", " << has_flag << ")");
+	if(trace)
+		log("DATABASE: add_speed(" << id << ", " << guid << ", " << dist << ", " << time << ", " << has_flag << ")");
 
 	soss oss;
 	oss << "insert into `speed` ("
@@ -375,7 +490,10 @@ bool Database::add_speed(game_id id, const GUID& guid,
 
 bool Database::read_map_votes(const str& mapname, guid_int_map& map_votes)
 {
-	log("DATABASE: read_map_votes()");
+	if(trace)
+		log("DATABASE: read_map_votes(" << mapname << ")");
+
+	map_votes.clear();
 
 	str safe_mapname;
 	if(!escape(mapname, safe_mapname))
@@ -395,7 +513,8 @@ bool Database::read_map_votes(const str& mapname, guid_int_map& map_votes)
 
 	for(siz i = 0; i < rows.size(); ++i)
 	{
-		//log("DATABASE: restoring vote: " << rows[i][0] << ": " << rows[i][1]);
+		if(trace)
+		log("DATABASE: restoring vote: " << rows[i][0] << ": " << rows[i][1]);
 		map_votes[GUID(rows[i][0])] = to<int>(rows[i][1]);
 	}
 
@@ -404,7 +523,8 @@ bool Database::read_map_votes(const str& mapname, guid_int_map& map_votes)
 
 bool Database::set_preferred_name(const GUID& guid, const str& name)
 {
-	//log("DATABASE: set_preferred_name(" << guid << ", " << name << ")");
+	if(trace)
+		log("DATABASE: set_preferred_name(" << guid << ", " << name << ")");
 
 	str safe_name;
 	if(!escape(name, safe_name))
@@ -421,7 +541,8 @@ bool Database::set_preferred_name(const GUID& guid, const str& name)
 
 bool Database::get_preferred_name(const GUID& guid, str& name)
 {
-	//log("DATABASE: get_preferred_name(" << guid << ", " << name << ")");
+	if(trace)
+		log("DATABASE: get_preferred_name(" << guid << ", " << name << ")");
 
 	soss oss;
 	oss << "select name from user where guid = '" << guid << "'";
@@ -495,26 +616,34 @@ typedef std::map<str, stat_c> stat_map; // guid -> stat_c
 typedef stat_map::iterator stat_map_iter;
 typedef stat_map::const_iterator stat_map_citer;
 
-siz Database::get_kills_per_cap(const str& mapname)
+siz Database::get_kills_per_cap(const str& sql_select_games)
 {
 	// -- get ratio of frags to caps
 
-	siz syear = 0;
-	siz smonth = 0;
-	siz eyear = 0;
-	siz emonth = 0;
+	soss oss;
 
-	if(!calc_period(syear, smonth, eyear, emonth))
-		return false;
+	str subsql = sql_select_games;
+
+//	if(subsql.empty())
+//	{
+//		siz syear = 0;
+//		siz smonth = 0;
+//		siz eyear = 0;
+//		siz emonth = 0;
+//
+//		if(!calc_period(syear, smonth, eyear, emonth))
+//			return false;
+//
+//		oss.clear();
+//		oss.str("");
+//		oss << "select `game_id` from `game` where `map` = '" << mapname << "'";
+//		oss << " and `date` >= TIMESTAMP('" << syear << '-' << (smonth < 10 ? "0":"") << smonth << '-' << "01" << "')";
+//		oss << " and `date` <  TIMESTAMP('" << eyear << '-' << (emonth < 10 ? "0":"") << emonth << '-' << "01" << "')";
+//		subsql = oss.str();
+//	}
 
 	stat_map stat_cs;
 	str_set guids;
-
-	soss oss;
-	oss << "select `game_id` from `game` where `map` = '" << mapname << "'";
-	oss << " and `date` >= TIMESTAMP('" << syear << '-' << (smonth < 10 ? "0":"") << smonth << '-' << "01" << "')";
-	oss << " and `date` <  TIMESTAMP('" << eyear << '-' << (emonth < 10 ? "0":"") << emonth << '-' << "01" << "')";
-	str subsql = oss.str();
 
 	oss.clear();
 	oss.str("");
@@ -557,7 +686,8 @@ siz Database::get_kills_per_cap(const str& mapname)
 
 bool Database::get_ingame_boss(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats)
 {
-	//log("DATABASE: get_ingame_boss(" << mapname << ", " << clients.size() << ")");
+	if(trace)
+		log("DATABASE: get_ingame_boss(" << mapname << ", " << clients.size() << ")");
 	siz syear = 0;
 	siz smonth = 0;
 	siz eyear = 0;
@@ -573,7 +703,7 @@ bool Database::get_ingame_boss(const str& mapname, const slot_guid_map& clients,
 	oss << "select `game_id` from `game` where `map` = '" << mapname << "'";
 	oss << " and `date` >= TIMESTAMP('" << syear << '-' << (smonth < 10 ? "0":"") << smonth << '-' << "01" << "')";
 	oss << " and `date` <  TIMESTAMP('" << eyear << '-' << (emonth < 10 ? "0":"") << emonth << '-' << "01" << "')";
-	str subsql = oss.str();
+	str sql_select_games = oss.str();
 
 	str sep;
 	oss.clear();
@@ -581,6 +711,7 @@ bool Database::get_ingame_boss(const str& mapname, const slot_guid_map& clients,
 	for(slot_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
 		if(!i->second.is_bot())
 			{ oss << sep << "'" << i->second << "'"; sep = ",";}
+
 	str insql = oss.str();
 
 	guid = null_guid;
@@ -592,7 +723,7 @@ bool Database::get_ingame_boss(const str& mapname, const slot_guid_map& clients,
 	oss.clear();
 	oss.str("");
 	oss << "select distinct `guid`,sum(`kills`.`count`) from `kills` where `kills`.`guid` in (" << insql << ")";
-	oss << " and `game_id` in (" << subsql << ") group by `guid` order by sum(`kills`.`count`) desc";
+	oss << " and `game_id` in (" << sql_select_games << ") group by `guid` order by sum(`kills`.`count`) desc";
 
 	str sql = oss.str();
 
@@ -614,7 +745,7 @@ bool Database::get_ingame_boss(const str& mapname, const slot_guid_map& clients,
 	oss.clear();
 	oss.str("");
 	oss << "select distinct `guid`,sum(`caps`.`count`) from `caps` where `caps`.`guid` in (" << insql << ")";
-	oss << " and `game_id` in (" << subsql << ") group by `guid` order by sum(`caps`.`count`) desc";
+	oss << " and `game_id` in (" << sql_select_games << ") group by `guid` order by sum(`caps`.`count`) desc";
 
 	sql = oss.str();
 
@@ -634,7 +765,7 @@ bool Database::get_ingame_boss(const str& mapname, const slot_guid_map& clients,
 	oss.clear();
 	oss.str("");
 	oss << "select distinct `guid`,sum(`time`.`count`) from `time` where `time`.`guid` in (" << insql << ")";
-	oss << " and `game_id` in (" << subsql << ") group by `guid` order by sum(`time`.`count`) desc";
+	oss << " and `game_id` in (" << sql_select_games << ") group by `guid` order by sum(`time`.`count`) desc";
 
 	sql = oss.str();
 
@@ -657,7 +788,7 @@ bool Database::get_ingame_boss(const str& mapname, const slot_guid_map& clients,
 	// -- get ratio of kills to caps
 
 
-	double kpc = get_kills_per_cap(mapname);
+	double kpc = get_kills_per_cap(sql_select_games);
 
 //	bug_var(k);
 //	bug_var(c);
@@ -712,7 +843,8 @@ bool Database::get_ingame_boss(const str& mapname, const slot_guid_map& clients,
 
 bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, str& stats, siz& skill)
 {
-	//log("DATABASE: get_ingame_stats(" << guid << ", " << mapname << ", " << prev << ")");
+	if(trace)
+		log("DATABASE: get_ingame_stats(" << guid << ", " << mapname << ", " << prev << ")");
 
 	if(mapname.empty())
 		return false;
@@ -729,7 +861,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	sql << "select `game_id` from `game` where `map` = '" << mapname << "'";
 	sql << " and `date` >= TIMESTAMP('" << syear << '-' << (smonth < 10 ? "0":"") << smonth << '-' << "01" << "')";
 	sql << " and `date` <  TIMESTAMP('" << eyear << '-' << (emonth < 10 ? "0":"") << emonth << '-' << "01" << "')";
-	str subsql = sql.str();
+	str sql_select_games = sql.str();
 
 	// kills
 
@@ -737,7 +869,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	sql.str("");
 	sql << "select sum(`kills`.`count`) from `kills` where `kills`.`guid` = '";
 	sql << guid << "'";
-	sql << " and `game_id` in (" << subsql << ")";
+	sql << " and `game_id` in (" << sql_select_games << ")";
 
 //	bug_var(sql.str());
 
@@ -756,7 +888,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	sql << "select sum(`weapon_usage`.`shots`) from `weapon_usage`";
 	sql << " where `weapon_usage`.`guid` = '" << guid << "'";
 	sql << " and `weapon_usage`.`weap` = '7'"; // FIXME: railgun only (not good for AW)
-	sql << " and `game_id` in (" << subsql << ")";
+	sql << " and `game_id` in (" << sql_select_games << ")";
 
 //	bug_var(sql.str());
 
@@ -773,7 +905,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	sql << "select sum(`damage`.`hits`) from `damage`";
 	sql << " where `damage`.`guid` = '" << guid << "'";
 	sql << " and `damage`.`mod` = '10'"; // FIXME: railgun only (not good for AW)
-	sql << " and `game_id` in (" << subsql << ")";
+	sql << " and `game_id` in (" << sql_select_games << ")";
 
 //	bug_var(sql.str());
 
@@ -789,7 +921,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	sql.str("");
 	sql << "select sum(`caps`.`count`) from `caps` where `caps`.`guid` = '";
 	sql << guid << "'";
-	sql << " and `game_id` in (" << subsql << ")";
+	sql << " and `game_id` in (" << sql_select_games << ")";
 
 //	bug_var(sql.str());
 
@@ -805,7 +937,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	sql.str("");
 	sql << "select sum(`speed`.`time`), sum(`speed`.`dist`) from `speed` where `speed`.`guid` = '";
 	sql << guid << "'";
-	sql << " and `game_id` in (" << subsql << ")";
+	sql << " and `game_id` in (" << sql_select_games << ")";
 
 //	bug_var(sql.str());
 
@@ -843,7 +975,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	sql.str("");
 	sql << "select sum(`time`.`count`) from `time` where `time`.`guid` = '";
 	sql << guid << "'";
-	sql << " and `game_id` in (" << subsql << ")";
+	sql << " and `game_id` in (" << sql_select_games << ")";
 
 //	bug_var(sql.str());
 
@@ -882,7 +1014,7 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 		fph = (fph * 60 * 60) / sec;
 		cph = (cph * 60 * 60) / sec;
 		// Ranking
-		siz kpc = get_kills_per_cap(mapname);
+		siz kpc = get_kills_per_cap(sql_select_games);
 		skill = std::sqrt(std::pow(fph, 2) + std::pow(cph * kpc, 2));
 		// - Ranking
 
@@ -903,4 +1035,115 @@ bool Database::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, 
 	return true;
 }
 
-}} // oastats::data
+// TODO: Make bood, champ & stats return a proper GUID like this does scanning the clients
+bool Database::get_ingame_crap(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats)
+{
+	log("DATABASE: get_ingame_crap(" << mapname << ", " << clients.size() << ")");
+	siz syear = 0;
+	siz smonth = 0;
+	siz eyear = 0;
+	siz emonth = 0;
+
+	if(!calc_period(syear, smonth, eyear, emonth))
+		return false;
+
+	stat_map stat_cs;
+	//str_set guids;
+
+	soss oss;
+	oss << "select `game_id` from `game` where `map` = '" << mapname << "'";
+	oss << " and `date` >= TIMESTAMP('" << syear << '-' << (smonth < 10 ? "0":"") << smonth << '-' << "01" << "')";
+	oss << " and `date` <  TIMESTAMP('" << eyear << '-' << (emonth < 10 ? "0":"") << emonth << '-' << "01" << "')";
+	str sql_select_games = oss.str();
+
+	str sep;
+	oss.clear();
+	oss.str("");
+	for(slot_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
+		if(!i->second.is_bot())
+			{ oss << sep << "'" << i->second << "'"; sep = ",";}
+	str insql = oss.str();
+
+	guid = null_guid;
+	stats = "^3Craps/Hour^7: ^20.0";
+
+	if(insql.empty())
+		return true;
+
+	oss.clear();
+	oss.str("");
+	oss << "select distinct `guid`,sum(`playerstats`.`holyShitFrags`) from `playerstats` where `playerstats`.`guid` in (" << insql << ")";
+	oss << " and `game_id` in (" << sql_select_games << ") group by `guid` order by sum(`playerstats`.`holyShitFrags`) desc";
+
+	str sql = oss.str();
+
+	bug_var(sql);
+
+	str_vec_vec rows;
+
+	if(!select(sql, rows, 2))
+		return false;
+
+	for(siz i = 0; i < rows.size(); ++i)
+	{
+		if(rows[i][0].empty() || rows[i][1].empty())
+			continue;
+		stat_cs[rows[i][0]].kills = to<siz>(rows[i][1]);
+		//guids.insert(rows[i][0]);
+	}
+
+	oss.clear();
+	oss.str("");
+	oss << "select distinct `guid`,sum(`time`.`count`) from `time` where `time`.`guid` in (" << insql << ")";
+	oss << " and `game_id` in (" << sql_select_games << ") group by `guid` order by sum(`time`.`count`) desc";
+
+	sql = oss.str();
+
+//	bug_var(sql);
+
+	if(!select(sql, rows, 2))
+		return false;
+
+	for(siz i = 0; i < rows.size(); ++i)
+	{
+		if(rows[i][0].empty() || rows[i][1].empty())
+			continue;
+		stat_cs[rows[i][0]].secs = to<siz>(rows[i][1]);
+		//guids.insert(rows[i][0]);
+	}
+
+//	if(guids.empty())
+//		return true;
+
+	slot_guid_map_citer maxi = clients.end();
+	double maxv = 0.0;
+
+	for(slot_guid_map_citer g = clients.begin(); g != clients.end(); ++g)
+	{
+		if(stat_cs[g->second].secs)
+		{
+			stat_cs[g->second].fph = stat_cs[g->second].kills * 60 * 60 / stat_cs[g->second].secs;
+			if(stat_cs[g->second].fph > maxv)
+			{
+				maxv = stat_cs[g->second].fph;
+				maxi = g;
+			}
+		}
+	}
+
+	if(maxi != clients.end())
+	{
+		if(!maxi->second.is_bot())
+		{
+			soss oss;
+			oss << "^3FCraps/Hour^7:^2" << stat_cs[maxi->second].fph;
+			stats = oss.str();
+//			bug_var(stats);
+			guid = maxi->second;
+		}
+	}
+
+	return true;
+}
+
+}} // katina::data

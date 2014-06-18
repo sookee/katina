@@ -25,7 +25,7 @@ class InstanceFactory
         {
             if (array_key_exists($__FUNCTION__, self::$instances))
             {
-                throw new \Exception("instance '$__FUNCTION__' not yet created");
+                throw new \Exception("instance '$__FUNCTION__' is null or not yet created");
             }
             $instance(self::$instances[$__FUNCTION__]);
         }

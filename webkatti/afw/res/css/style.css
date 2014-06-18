@@ -25,12 +25,18 @@
 
 .coll
 {
-    padding-right: 1.5em;
+    padding-right: .75em;
 }
 
 .colr
 {
-    padding-left: 1.5em;
+    padding-left: .75em;
+}
+
+.colc
+{
+    padding-left: .75em;
+    padding-right: .75em;
 }
 
 .center

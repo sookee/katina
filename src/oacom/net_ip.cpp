@@ -42,7 +42,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 namespace oacom {
 
-using namespace oastats::types;
+using namespace katina::types;
 
 typedef int SOCKET;
 #define INVALID_SOCKET		-1

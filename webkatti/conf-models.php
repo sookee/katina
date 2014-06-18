@@ -13,23 +13,84 @@ class M extends \afw\InstanceFactory
     static function settings()
     {
         return self::instance(__FUNCTION__, function(&$m)
-		{
-            $m = new afw\m\Settings('.settings', Storage::cache());
+        {
+            $m = new afw\m\Settings('conf-host.php');
 
-            $m->addField('min_deaths_ovo')
+            $m->addField('title')
+                ->required()
+                ->setFormField(Element::text('Main title'));
+
+            $m->addField('minDeathsOvo')
+                ->required()
+                ->nullint()
                 ->setFormField(Element::text('Minimum deaths for 1v1'));
 
-            $m->addField('min_deaths_game')
-                ->setFormField(Element::text('Minimum deaths in game'));
-
-            $m->addField('min_time_game')
-                ->setFormField(Element::text('Minimum time in game'));
-
-            $m->addField('min_deaths_game_main')
+            $m->addField('minDeathsMain')
+                ->required()
+                ->nullint()
                 ->setFormField(Element::text('Minimum deaths for main page'));
 
-            $m->addField('min_time_game_main')
-                ->setFormField(Element::text('Minimum time for main page'));
+            $m->addField('minTimeMain')
+                ->required()
+                ->nullint()
+                ->setFormField(Element::text('Minimum time for main page (seconds)'));
+
+            $m->addField('about')
+                ->setFormField(Element::textarea('About HTML'));
+
+            $m->addField('dpmasterCacheFile')
+                ->required()
+                ->setFormField(Element::text('Dpmaster cache file (must be writable)'));
+
+            $m->addField('dpmasterCacheTtl')
+                ->nullint()
+                ->setFormField(Element::text('Dpmaster cache TTL (seconds)'));
+
+            $m->addField('urlPrefix')
+                ->setFormField(Element::text('URL prefix (without leading and trailing slashes)'));
+
+            $m->addField('dbName')
+                ->required()
+                ->setFormField(Element::text('DB name'));
+
+            $m->addField('dbHost')
+                ->required()
+                ->setFormField(Element::text('DB host'));
+
+            $m->addField('dbUser')
+                ->required()
+                ->setFormField(Element::text('DB user'));
+
+            $m->addField('dbPass')
+                ->emptyskip()
+                ->setFormField(Element::password('DB password (leave blank if you do not want to change)'));
+
+            $m->addField('cache')
+                ->bool()
+                ->setFormField(Element::select('Cache', function() {return [false => 'No', true => 'Yes'];}));
+
+            $m->addField('memcacheHost')
+                ->setFormField(Element::text('Memcache host'));
+
+            $m->addField('memcachePort')
+                ->nullint()
+                ->setFormField(Element::text('Memcache port'));
+
+            $m->addField('memcacheTtl')
+                ->nullint()
+                ->setFormField(Element::text('Memcache TTL (seconds)'));
+
+            $m->addField('adminName')
+                ->setFormField(Element::text('Admin name'));
+
+            $m->addField('adminPass')
+                ->emptyskip()
+                ->hash('md5')
+                ->setFormField(Element::password('Admin password (leave blank if you do not want to change)'));
+
+            $m->addField('debug')
+                ->bool()
+                ->setFormField(Element::select('Debug', function() {return [false => 'No', true => 'Yes'];}));
         });
     }
 
@@ -44,7 +105,7 @@ class M extends \afw\InstanceFactory
         {
             $m = new afw\m\Supervisor('md5');
 
-            $m->add('admin', '202cb962ac59075b964b07152d234b70');
+            $m->add(\Config::$adminName, \Config::$adminPass);
         });
     }
 
@@ -190,8 +251,8 @@ class M extends \afw\InstanceFactory
             $m->addReference(M::game(), 'times', 'game', 'game_id');
         });
     }
-    
-    
+
+
     /**
      * @return wk\m\Action
      */
@@ -209,8 +270,8 @@ class M extends \afw\InstanceFactory
             $m->addField('dmgRecv');
         });
     }
-    
-    
+
+
     /**
      * @return wk\m\Action
      */
@@ -239,7 +300,7 @@ class M extends \afw\InstanceFactory
         });
     }
 
-    
+
     /**
      * @return wk\m\Action
      */

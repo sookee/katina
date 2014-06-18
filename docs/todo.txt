@@ -1,23 +1,24 @@
-
+# add issues for Aeq in github
+# rebuild stats using rerun
+# add skivvy plugin to !whois -> katina's database
+# make katina respond to  Ctrl-D to clean up
+# 
 
 == v 1.0 ==
 
-Mod: finish katina-client
+Mod: : finish katina-client
 
-Add: team of player? If player switch then log as "unaligned"? Or last team joined?
+Add: : team of player to stats? If player switch then log as "unaligned"? Or last team joined?
 
-Mod: fix GUIDs in database {1.0}
-Add: make test-harness {1.0}
-Fix: finish PKI key loading (Katina) {1.0}
-Fix: finish PKI remote client {1.0}
-Mod: make each table update in the stats plugin optional {1.0}
-Mod: finish katina-irc client incl PKI interface {1.0}
-Fix: == RESULTS == 0 RED 0 BLUE  == <= flags always zero
-Fix: == RESULTS == 0 RED 0 BLUE  == <= different colored "=="
+Add: : make test-harness {1.0}
+Fix:/: finish PKI key loading (Katina) {1.0}
+Fix: : finish PKI remote client {1.0}
+Mod: : make each table update in the stats plugin optional {1.0}
+Mod: : finish katina-irc client incl PKI interface {1.0}
 
 == v 1.5 ==
 
-Fix: finish REST API {1.5}
+Fix: : finish REST API {1.5}
 
 
 

@@ -41,8 +41,8 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace katina { namespace plugin {
 
-using namespace oastats::log;
-using namespace oastats::types;
+using namespace katina::log;
+using namespace katina::types;
 
 class KatinaPluginCallVoteCtrl
 : public KatinaPlugin

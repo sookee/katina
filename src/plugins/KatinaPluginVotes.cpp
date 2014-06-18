@@ -23,17 +23,22 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include "KatinaPluginVotes.h"
 
+#include <thread>
+#include <future>
+
 #include <katina/KatinaPlugin.h>
 #include <katina/GUID.h>
 
 #include <katina/types.h>
+#include <katina/time.h>
 #include <katina/log.h>
 
 namespace katina { namespace plugin {
 
-using namespace oastats;
-using namespace oastats::log;
-using namespace oastats::types;
+using namespace katina;
+using namespace katina::log;
+using namespace katina::time;
+using namespace katina::types;
 
 KATINA_PLUGIN_TYPE(KatinaPluginVotes);
 KATINA_PLUGIN_INFO("katina::votes", "Katina Voting", "0.1");
@@ -70,9 +75,10 @@ bool KatinaPluginVotes::open()
 	katina.add_var_event(this, "votes.active", active, false);
 
 	katina.add_log_event(this, INIT_GAME);
+	katina.add_log_event(this, WARMUP);
 	katina.add_log_event(this, SAY);
 	katina.add_log_event(this, SAYTEAM);
-	katina.add_log_event(this, HEARTBEAT);
+//	katina.add_log_event(this, HEARTBEAT);
 
 	return true;
 }
@@ -92,7 +98,7 @@ str KatinaPluginVotes::get_version() const
 	return VERSION;
 }
 
-str KatinaPluginVotes::api(const str& call)
+str KatinaPluginVotes::api(const str& call, void* blob)
 {
 	siss iss(call);
 
@@ -139,7 +145,7 @@ bool KatinaPluginVotes::init_game(siz min, siz sec, const str_map& cvars)
 	bug_func();
 	
 	// NB. This MUST be done before mapname changes
-	db.on();
+	db_scoper on(db);
 	for(guid_int_map_iter i = map_votes.begin(); i != map_votes.end(); ++i)
 		db.add_vote("map", mapname, i->first, i->second);
 //	db.off();
@@ -148,15 +154,27 @@ bool KatinaPluginVotes::init_game(siz min, siz sec, const str_map& cvars)
 	mapname = katina.get_mapname();
 
 	// load map votes for new map
-//	db.on();
-	db.read_map_votes(mapname, map_votes);
-	db.off();
+	if(!db.read_map_votes(mapname, map_votes))
+	{
+		map_votes.clear();
+		plog("WARN: failed to read map votes");
+		return true;
+		announce_time = 0;
+	}
 
 	if(!announce_time)
-	{
-		announce_time = 20;
-		//katina.add_log_event(this, HEARTBEAT);
-	}
+		announce_time = sec + katina.get("votes.announce.delay", 10);
+
+	katina.add_log_event(this, HEARTBEAT);
+
+	return true;
+}
+
+bool KatinaPluginVotes::warmup(siz min, siz sec)
+{
+	// kybosch the announcement
+	announce_time = 0;
+	katina.del_log_event(this, HEARTBEAT);
 	return true;
 }
 
@@ -165,48 +183,58 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 	if(!announce_time || min || sec < announce_time)
 		return;
 
+
 	pbug("HEARTBEAT");
 
 	announce_time = 0; // turn off
-	//katina.del_log_event(this, HEARTBEAT);
 
-	for(slot_guid_map_citer i = katina.getClients().begin(); i != katina.getClients().end(); ++i)
+	const slot_guid_map& clients = katina.getClients();
+
+	std::async(std::launch::async, [this,clients]
 	{
-		if(i->second.is_bot())
-			continue;
-
-		pbug("ANNOUNCING VOTE TO: " << i->second << " " << katina.getPlayerName(i->second));
-
-		bug_var(i->first);
-		if(i->first == bad_slot)
+		for(slot_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
 		{
-			plog("ERROR: Bad client number: " << i->first);
-			continue;
+			if(i->second.is_bot())
+				continue;
+
+			if(!katina.is_connected(i->first))
+				continue;
+
+			thread_sleep_millis(2000);
+
+			pbug("ANNOUNCING VOTE TO: " << i->second << " " << katina.getPlayerName(i->second));
+
+			bug_var(i->first);
+			if(i->first == slot::bad)
+			{
+				plog("ERROR: Bad client number: " << i->first);
+				continue;
+			}
+
+			if(i->first > slot::max)
+			{
+				plog("ERROR: Client number too large: " << i->first);
+				continue;
+			}
+
+			pbug_var(i->first);
+			pbug_var(i->second);
+	//		pbug_var(map_votes[i->second]);
+
+			if(map_votes.count(i->second) && map_votes[i->second] > 0)
+				katina.server.msg_to(i->first, katina.get_name() + " ^3You ^1LOVE ^3this map");
+			else if(map_votes.count(i->second) && map_votes[i->second] < 0)
+				katina.server.msg_to(i->first, katina.get_name() + " ^3You ^1HATE ^3this map");
+			else if(map_votes.count(i->second))
+				katina.server.msg_to(i->first, katina.get_name() + " ^3You neither ^1LOVE ^3nor ^1HATE ^3this map");
+			else
+			{
+				katina.server.msg_to(i->first, katina.get_name() + " ^3You have not yet voted for this map.", true);
+				katina.server.msg_to(i->first, katina.get_name() + " ^3You can say ^1!love map ^3 or ^1!hate map ^3 to express a preference.");
+				katina.server.msg_to(i->first, katina.get_name() + " ^3If you don't care say ^1!soso map ^3 to make this message disappear.");
+			}
 		}
-
-//		if(i->first > 32)
-//		{
-//			plog("ERROR: Client number too large: " << i->first);
-//			continue;
-//		}
-
-		pbug_var(i->first);
-		pbug_var(i->second);
-//		pbug_var(map_votes[i->second]);
-
-		if(map_votes.count(i->second) && map_votes[i->second] > 0)
-			katina.server.msg_to(i->first, katina.get_name() + " ^3You ^1LOVE ^3this map");
-		else if(map_votes.count(i->second) && map_votes[i->second] < 0)
-			katina.server.msg_to(i->first, katina.get_name() + " ^3You ^1HATE ^3this map");
-		else if(map_votes.count(i->second))
-			katina.server.msg_to(i->first, katina.get_name() + " ^3You neither ^1LOVE ^3nor ^1HATE ^3this map");
-		else
-		{
-			katina.server.msg_to(i->first, katina.get_name() + " ^3You have not yet voted for this map.", true);
-			katina.server.msg_to(i->first, katina.get_name() + " ^3You can say ^1!love map ^3 or ^1!hate map ^3 to express a preference.");
-			katina.server.msg_to(i->first, katina.get_name() + " ^3If you don't care say ^1!soso map ^3 to make this message disappear.");
-		}
-	}
+	});
 }
 
 bool KatinaPluginVotes::sayteam(siz min, siz sec, const GUID& guid, const str& text)
@@ -228,7 +256,7 @@ bool KatinaPluginVotes::say(siz min, siz sec, const GUID& guid, const str& text)
 
 	slot say_num;
 
-	if((say_num = katina.getClientSlot(guid)) == bad_slot)
+	if((say_num = katina.getClientSlot(guid)) == slot::bad)
 	{
 		plog("ERROR: Unable to get slot number from guid: " << guid);
 		return true;

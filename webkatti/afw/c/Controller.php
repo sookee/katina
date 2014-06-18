@@ -18,25 +18,25 @@ class Controller
     const DIR_CONTROLLER = 'c';
     const DIR_VIEW = 'v';
 
-    private $templates = [];
-    private $template;
-    private $count;
+    private $_templates = [];
+    private $_template;
+    private $_count;
 
     /**
      * @var self[]
      */
-    private $wrappers = [];
-    private $wrapper;
+    private $_wrappers = [];
+    private $_wrapper;
 
     /**
      * @var self[]
      */
-    private $children = [];
+    private $_children = [];
 
     /**
      * @var self
      */
-    private $renderWith;
+    private $_renderWith;
 
 
 
@@ -64,14 +64,14 @@ class Controller
 
     protected function setViewFile($path)
     {
-        $this->templates [] = $path;
+        $this->_templates [] = $path;
     }
 
 
 
     function wrap(self $controller)
     {
-        $this->wrappers [] = $controller;
+        $this->_wrappers [] = $controller;
         return $this;
     }
 
@@ -79,7 +79,7 @@ class Controller
 
     function push(self $controller)
     {
-        $this->children [] = $controller;
+        $this->_children [] = $controller;
     }
 
 
@@ -93,9 +93,9 @@ class Controller
 
     function render()
     {
-        $this->template = 0;
-        $this->count = count($this->templates);
-        $this->wrapper = count($this->wrappers);
+        $this->_template = 0;
+        $this->_count = count($this->_templates);
+        $this->_wrapper = count($this->_wrappers);
         $this->__render();
     }
 
@@ -116,11 +116,11 @@ class Controller
 
     private function renderWrappers()
     {
-        if ($this->wrapper == 0)
+        if ($this->_wrapper == 0)
         {
             return true;
         }
-        $this->wrappers[--$this->wrapper]->renderWith($this);
+        $this->_wrappers[--$this->_wrapper]->renderWith($this);
         return false;
     }
 
@@ -128,20 +128,20 @@ class Controller
 
     private function renderWith(self $controller)
     {
-        $this->renderWith = $controller;
+        $this->_renderWith = $controller;
         $this->render();
-        unset($this->renderWith);
+        unset($this->_renderWith);
     }
 
 
 
     private function renderTemplates()
     {
-        if ($this->template == $this->count)
+        if ($this->_template == $this->_count)
         {
             return true;
         }
-        include $this->templates[$this->template++];
+        include $this->_templates[$this->_template++];
         return false;
     }
 
@@ -149,13 +149,13 @@ class Controller
 
     private function renderChildren()
     {
-        if (isset($this->renderWith))
+        if (isset($this->_renderWith))
         {
-            $this->renderWith->__render();
+            $this->_renderWith->__render();
         }
         else
         {
-            foreach ($this->children as $child)
+            foreach ($this->_children as $child)
             {
                 $child->render();
             }

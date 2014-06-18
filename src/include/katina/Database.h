@@ -37,14 +37,16 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <katina/str.h>
 #include <katina/log.h>
 
+#include <array>
+
 #include <mysql.h>
 
-namespace oastats { namespace data {
+namespace katina { namespace data {
 
-using namespace oastats;
-using namespace oastats::types;
-using namespace oastats::string;
-using namespace oastats::log;
+using namespace katina;
+using namespace katina::types;
+using namespace katina::string;
+using namespace katina::log;
 
 typedef my_ulonglong game_id;
 typedef my_ulonglong row_count;
@@ -59,6 +61,9 @@ typedef std::vector<str_vec> str_vec_vec;
 
 class Database
 {
+	friend struct db_scoper;
+	friend struct db_transaction_scoper;
+
 	bool active;
 
 	str host;
@@ -69,6 +74,26 @@ class Database
 
 	MYSQL mysql;
 	
+	/**
+	 * Open database connection
+	 */
+	void on();
+
+	/**
+	 * Close database connection
+	 */
+	void off();
+
+	// KatinaPluinStats
+	//struct playerstats {};
+	MYSQL_STMT *stmt_add_playerstats = 0;
+	std::array<MYSQL_BIND, 16> bind_add_playerstats;
+	std::array<siz, 15> siz_add_playerstats;
+	char guid_add_playerstats[9];
+	siz guid_length = 8;
+
+	bool trace = false;
+
 protected:
 	
 	/**
@@ -111,8 +136,6 @@ protected:
 	 */
 	bool update(const str& sql, my_ulonglong& update_count);
 
-
-
 public:
 	Database();
 	virtual ~Database();
@@ -127,19 +150,11 @@ public:
 	}
 
 	/**
-	 * Open database connection
-	 */
-	void on();
-
-	/**
-	 * Close database connection
-	 */
-	void off();
-
-	/**
 	 * Ensure connection
 	 */
 	bool check();
+
+	void set_trace(bool state = true) { trace = state; }
 
 	bool escape(const str& from, str& to);
 
@@ -153,6 +168,8 @@ public:
 	 * @return true on success else false
 	 */
 	bool select(const str& sql, str_vec_vec& rows, siz fields = 0);
+
+
 
 	game_id add_game(const str& host, const str& port, const str& mapname);
 
@@ -191,6 +208,11 @@ public:
 		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
 		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,
 		siz carrierFrags, siz carrierFragsRecv);
+	bool add_playerstats_ps(game_id id, const GUID& guid,
+		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
+		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
+		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,
+		siz carrierFrags, siz carrierFragsRecv);
 	bool add_speed(game_id id, const GUID& guid,
 			siz dist, siz time, bool has_flag);
 
@@ -199,12 +221,75 @@ public:
 	bool set_preferred_name(const GUID& guid, const str& name);
 	bool get_preferred_name(const GUID& guid, str& name);
 
-	siz get_kills_per_cap(const str& mapname);
+	siz get_kills_per_cap(const str& sql_select_games = "");
 	bool get_ingame_boss(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats);
 	bool get_ingame_champ(const str& mapname, GUID& guid, str& stats);
 	bool get_ingame_stats(const GUID& guid, const str& mapname, siz prev, str& stats, siz& skill);
+	bool get_ingame_crap(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats);
 };
 
-}} // oastats::data
+struct db_scoper
+{
+	Database& db;
+	db_scoper(Database& db): db(db)
+	{
+		bug("db_scoper:  on: " << this);
+		db.on();
+	}
+	~db_scoper()
+	{
+		db.off();
+		bug("db_scoper: off: " << this);
+	}
+};
+
+class db_transaction_scoper
+{
+private:
+	enum class trans
+	{
+		ABORT, COMMIT, ROLLBACK
+	};
+
+	Database& db;
+	bool abort = false;
+	trans state = trans::COMMIT;
+
+public:
+	db_transaction_scoper(Database& db): db(db)
+	{
+		bug("db_tx_scoper:  on: " << this);
+		db.on();
+		if(!db.query("START TRANSACTION"))
+		{
+			log("DATABASE TRANSACTION ERROR: " << db.error());
+			state = trans::ABORT;
+			db.off();
+		}
+	}
+
+	void rollback()
+	{
+		if(state != trans::ABORT)
+			state = trans::ROLLBACK;
+	}
+
+	~db_transaction_scoper()
+	{
+		bool err = false;
+		if(state == trans::COMMIT)
+			err = db.query("COMMIT");
+		else if(state == trans::COMMIT)
+			err = db.query("ROLLBACK");
+
+		if(err)
+			log("DATABASE TRANSACTION ERROR: " << db.error());
+
+		db.off();
+		bug("db_tx_scoper: off: " << this);
+	}
+};
+
+}} // katina::data
 
 #endif /* _OASTATS_DATABASE_H_ */

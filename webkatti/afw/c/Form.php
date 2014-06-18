@@ -24,11 +24,12 @@ class Form extends Controller
     protected $default = [];
     protected $exceptions = [];
     protected $elements = [];
+    protected $handler;
 
     public $action;
     public $method;
     public $maxFileSize;
-    public $error;
+    public $exception;
     public $complete = false;
     public $completeMessage;
 
@@ -79,7 +80,7 @@ class Form extends Controller
 
 
 
-    function addException($name, \Exception $exception)
+    function addException($name, $exception)
     {
         $this->exceptions[$name] = $exception;
     }
@@ -109,7 +110,7 @@ class Form extends Controller
 
     function getException($name)
     {
-        return @$this->exceptions[$name] ? $this->exceptions[$name]->getMessage() : '';
+        return @$this->exceptions[$name];
     }
 
 
@@ -143,9 +144,9 @@ class Form extends Controller
 
 
 
-    function fail($message)
+    function fail($exception)
     {
-        $this->error = $message;
+        $this->exception = $exception;
     }
 
 
@@ -164,6 +165,31 @@ class Form extends Controller
             }
         }
         parent::push($controller);
+    }
+
+
+
+    function setHandler($callback)
+    {
+        $this->callback = $callback;
+    }
+
+
+
+    function run($callback = null)
+    {
+        if (!empty($_POST))
+        {
+            if (!isset($callback))
+            {
+                $callback = $this->callback;
+            }
+            $callback();
+            if (empty($this->exception) && empty($this->exceptions))
+            {
+                $this->complete();
+            }
+        }
     }
 
 }

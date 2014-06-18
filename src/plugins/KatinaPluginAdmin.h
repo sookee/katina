@@ -50,11 +50,11 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace katina { namespace plugin {
 
-using namespace oastats;
-using namespace oastats::log;
-using namespace oastats::pki;
-using namespace oastats::data;
-using namespace oastats::types;
+using namespace katina;
+using namespace katina::log;
+using namespace katina::pki;
+using namespace katina::data;
+using namespace katina::types;
 
 struct total_ban
 {
@@ -74,15 +74,8 @@ struct sanction
 
 	sanction(): type(0), expires(0), applied(false) {}
 
-	friend sis& operator>>(sis& is, sanction& s)
-	{
-		return sgl(is >> s.guid >> s.type >> s.expires >> std::ws, s.reason);
-	}
-
-	friend sos& operator<<(sos& os, const sanction& s)
-	{
-		return os << s.guid << ' ' << s.type << ' ' << s.expires << s.reason;
-	}
+	friend sis& operator>>(sis& i, sanction& s);
+	friend sos& operator<<(sos& o, const sanction& s);
 };
 
 typedef std::list<sanction> sanction_lst;
@@ -116,8 +109,9 @@ class KatinaPluginAdmin
 : public KatinaPlugin
 {
 private:
-	KatinaPlugin* stats = nullptr;
 	RemoteClient* irc = nullptr;
+	KatinaPlugin* stats = nullptr;
+	KatinaPlugin* playerdb = nullptr;
 
 	const str& mapname;
 	const slot_guid_map& clients; // slot -> GUID
@@ -143,6 +137,8 @@ private:
 	policy_t policy;
 
 	// - /fixteams
+
+	bool do_detect_pushing = false;
 
 	bool protect_admins = false;
 
@@ -187,6 +183,7 @@ private:
 	void tell_perp(slot admin_num, slot perp_num, const str& msg);
 
 	void spamkill(slot num);
+	bool fair();
 	bool fixteams();
 
 	bool mutepp(slot num);
@@ -206,6 +203,9 @@ private:
 	bool load_sanctions();
 	bool save_sanctions();
 
+	std::time_t duration_to_time(const str& duration, siz dflt = 0);
+
+
 	/**
 	 * Remove all sanctions of a given type.
 	 * @return true on success
@@ -213,6 +213,19 @@ private:
 	bool remove_sanctions(const GUID& guid, siz type);
 //	bool apply_sanction(sanction_lst_iter& s);
 //	bool apply_sanctions();
+
+	// hostile push detection
+	struct push_evt
+	{
+		std::time_t when = 0;
+		slot pusher;
+		slot pushed;
+		//bool suspicious = false;
+	};
+
+	TYPEDEF_LST(push_evt, push_lst);
+
+	push_lst pushes;
 
 public:
 	KatinaPluginAdmin(Katina& katina);
@@ -237,6 +250,7 @@ public:
 	virtual bool client_switch_team(siz min, siz sec, slot num, siz teamBefore, siz teamNow) override;
 	virtual bool callvote(siz min, siz sec, slot num, const str& type, const str& info) override;
 	virtual bool kill(siz min, siz sec, slot num1, slot num2, siz weap) override;
+	virtual bool push(siz min, siz sec, slot num1, slot num2) override;
 	virtual bool award(siz min, siz sec, slot num, siz awd);
 	virtual bool ctf(siz min, siz sec, slot num, siz team, siz act) override;
 	virtual bool ctf_exit(siz min, siz sec, siz r, siz b) override;

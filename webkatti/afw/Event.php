@@ -15,10 +15,10 @@ namespace afw;
 class Event
 {
 
-    static $listeners;
-    static $targets;
+    protected static $listeners;
+    protected static $targets;
 
-    static function listen($event, $callback, $target = null)
+    public static function listen($event, $callback, $target = null)
     {
         $key = isset($target) ? spl_object_hash($target) : 0;
         self::$listeners[$key][$event] []= $callback;
@@ -27,7 +27,7 @@ class Event
 
 
 
-    static function unlisten($event, $target = null)
+    public static function unlisten($event, $target = null)
     {
         $key = isset($target) ? spl_object_hash($target) : 0;
         unset(self::$listeners[$key][$event]);
@@ -40,7 +40,7 @@ class Event
 
 
 
-    static function fire($event, $target = null)
+    public static function fire($event, $target = null)
     {
         $key = isset($target) ? spl_object_hash($target) : 0;
         foreach ((array)@self::$listeners[$key][$event] as $callback)

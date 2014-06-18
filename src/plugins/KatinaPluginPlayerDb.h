@@ -48,10 +48,10 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace katina { namespace plugin {
 
-using namespace oastats;
-using namespace oastats::log;
-using namespace oastats::data;
-using namespace oastats::types;
+using namespace katina;
+using namespace katina::log;
+using namespace katina::data;
+using namespace katina::types;
 
 class KatinaPluginPlayerDb
 : public KatinaPlugin
@@ -81,6 +81,7 @@ public:
 	virtual str get_version() const override;
 
 	//virtual void cvar_event(const str& name, const str& value);
+	virtual str api(const str& cmd);
 	
 	virtual bool client_connect_info(siz min, siz sec, slot num, const GUID& guid, const str& ip) override;
 	virtual bool client_disconnect(siz min, siz sec, slot num) override;

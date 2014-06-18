@@ -44,10 +44,10 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace katina { namespace plugin {
 
-using namespace oastats;
-using namespace oastats::log;
-using namespace oastats::data;
-using namespace oastats::types;
+using namespace katina;
+using namespace katina::log;
+using namespace katina::data;
+using namespace katina::types;
 
 struct mod_damage_stats
 {
@@ -68,6 +68,8 @@ typedef moddmg_map::const_iterator moddmg_map_citer;
 
 struct stats
 {
+	siz hc; // handicap
+
 	siz_map kills;
 	siz_map deaths;
 	siz_map flags;
@@ -101,7 +103,7 @@ struct stats
 	str name;
 
 	stats() :
-		kills(), deaths(), flags(), awards(), weapon_usage(), mod_damage(),
+		hc(100), kills(), deaths(), flags(), awards(), weapon_usage(), mod_damage(),
 		fragsFace(0), fragsBack(0), fraggedInFace(0), fraggedInBack(0),
 		spawnKills(0), spawnKillsRecv(0), pushes(0), pushesRecv(0),
 		healthPickedUp(0), armorPickedUp(0), holyShitFrags(0), holyShitFragged(0),
@@ -116,12 +118,12 @@ typedef std::map<GUID, guid_siz_map>::iterator onevone_iter;
 typedef std::map<GUID, guid_siz_map>::const_iterator onevone_citer;
 
 typedef std::map<GUID, stats> guid_stat_map;
-typedef std::pair<const GUID, stats> guid_stat_pair;
-typedef std::map<GUID, stats>::iterator guid_stat_iter;
-typedef std::map<GUID, stats>::const_iterator guid_stat_citer;
+typedef guid_stat_map::value_type guid_stat_vt;
+typedef std::map<GUID, stats>::iterator guid_stat_map_iter;
+typedef std::map<GUID, stats>::const_iterator guid_stat_map_citer;
 
 //class Database
-//: public oastats::data::Database
+//: public katina::data::Database
 //{
 //};
 
@@ -153,21 +155,25 @@ private:
     bool do_prev_stats;
 
 	bool in_game;
-	bool have_bots; // are any bots playing?
-	siz human_players_r; // number of human players on red team
-	siz human_players_b; // number of human players on blue team
 
-	// Current flag carriers (slot number, bad_slot if nobody carries the flag)
+	bool allow_bots = false;
+	bool stop_stats; // are any bots playing?
+	//siz human_players_r; // number of human players on red team
+	//siz human_players_b; // number of human players on blue team
+
+	// Current flag carriers (slot number, slot::bad if nobody carries the flag)
 	slot carrierBlue;
 	slot carrierRed;
 
 	siz_set db_weaps; // which weapons to record
 
-	void stall_client(slot num);
-	void unstall_client(slot num);
+	siz announce_time = 0; // seconds before announce
+
+	void stall_client(const GUID& guid);
+	void unstall_client(const GUID& guid);
 	void stall_clients();
-	void unstall_clients(slot num = siz(-1));
-	void check_bots_and_players(slot num = siz(-1));
+	void unstall_clients();
+	void check_bots_and_players();
 	bool check_slot(slot num);
 
 public:
@@ -186,7 +192,7 @@ public:
 
 	virtual bool open() override;
 
-	virtual str api(const str& cmd) override;
+	virtual str api(const str& cmd, void* blob = nullptr) override;
 
 	virtual str get_id() const override;
 	virtual str get_name() const override;
@@ -202,8 +208,6 @@ public:
 	virtual bool ctf(siz min, siz sec, slot num, siz team, siz act) override;
 	virtual bool award(siz min, siz sec, slot num, siz awd) override;
 	virtual bool init_game(siz min, siz sec, const str_map& cvars) override;
-//	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) override;
-//	virtual bool unknown(siz min, siz sec, const str& cmd, const str& params) override;
 	virtual bool speed(siz min, siz sec, slot num, siz dist, siz time, bool has_flag) override; // zim@openmafia >= 0.1-beta
 	virtual bool weapon_usage(siz min, siz sec, slot num, siz weapon, siz shots) override;
 	virtual bool mod_damage(siz min, siz sec, slot num, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv, float weightedHits) override;
@@ -213,6 +217,9 @@ public:
 		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged) override;
 	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) override;
 	virtual bool sayteam(siz min, siz sec, const GUID& guid, const str& text) override;
+
+	virtual void heartbeat(siz min, siz sec) override;
+	virtual siz get_regularity(siz time_in_secs) const override { return 1; } // once per second
 
 	virtual void close();
 };

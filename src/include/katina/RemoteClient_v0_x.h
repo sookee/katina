@@ -36,11 +36,11 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include "log.h"
 #include "irc.h"
 
-namespace oastats { namespace net {
+namespace katina { namespace net {
 
-using namespace oastats::irc;
-using namespace oastats::log;
-using namespace oastats::types;
+using namespace katina::irc;
+using namespace katina::log;
+using namespace katina::types;
 
 class RemoteClient_v0_x
 {
@@ -123,6 +123,6 @@ public:
 	}
 };
 
-}} // oastats::net
+}} // katina::net
 
 #endif /* _OASTATS_REMOTECLIENT_H_ */

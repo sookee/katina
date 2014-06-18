@@ -38,6 +38,20 @@ class FormModel extends FormModelWithFields
 
 
 
+    function run($callback = null)
+    {
+        try
+        {
+            parent::run($callback);
+        }
+        catch (\PDOException $e)
+        {
+            $this->fail($e);
+        }
+    }
+
+
+
     /**
      * @return FormModel
      */

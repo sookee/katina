@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef _OASTATS_RCON_H_
 #define _OASTATS_RCON_H_
 /*
@@ -31,15 +31,19 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 '-----------------------------------------------------------------*/
 
+#include <functional>
+
 #include "types.h"
+#include "time.h"
 #include "log.h"
 #include "str.h"
 
-namespace oastats { namespace net {
+namespace katina { namespace net {
 
-using namespace oastats::log;
-using namespace oastats::types;
-using namespace oastats::string;
+using namespace katina::log;
+using namespace katina::time;
+using namespace katina::types;
+using namespace katina::string;
 
 #define TIMEOUT 1000
 
@@ -155,7 +159,7 @@ public:
 
 	bool msg_to_all(const str& message, bool beep = false)
 	{
-		return msg_to(-1, message, beep);
+		return msg_to(slot(-1), message, beep);
 	}
 
 	str chat_nobeep(const str& msg) const
@@ -195,6 +199,44 @@ public:
 		return rcon("rcon " + pass + " chat ^1K^7at^3i^7na^8: ^7" + msg, ret, host, port);
 	}
 };
-}} // oastats::net
+
+//TYPEDEF_DEQ(std::function<void>, funky_deq);
+typedef std::deque<std::function<void()>> funky_deq;
+
+class DelayChamber
+{
+private:
+	const siz MAX_DEPTH = 100;
+
+	funky_deq dq;
+	std::mutex mtx_dq;
+
+public:
+	bool done = false;
+
+	bool add(std::function<void()>& func)
+	{
+		lock_guard lock(mtx_dq);
+		if(dq.size() >= MAX_DEPTH)
+			return false;
+		dq.push_back(func);
+		return true;
+	}
+
+	void process()
+	{
+		while(!done)
+		{
+			thread_sleep_millis(1000);
+			lock_guard lock(mtx_dq);
+			if(dq.empty())
+				continue;
+			dq.front()();
+			dq.pop_front();
+		}
+	}
+};
+
+}} // katina::net
 
 #endif /* _OASTATS_RCON_H_ */

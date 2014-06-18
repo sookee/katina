@@ -46,10 +46,10 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace katina { namespace plugin {
 
-using namespace oastats;
-using namespace oastats::log;
-using namespace oastats::data;
-using namespace oastats::types;
+using namespace katina;
+using namespace katina::log;
+using namespace katina::data;
+using namespace katina::types;
 
 struct vote
 {
@@ -82,9 +82,11 @@ private:
 
 	str_siz_map played; // when was each map last played?
 
-	str rotmap; // next map command on rotation
+	bool active = false;
+	bool enforcing = false;
 
-	bool active;
+	str nextmap;
+	str rot_nextmap; // next map command on rotation
 
 public:
 	KatinaPluginNextMap(Katina& katina);
@@ -100,8 +102,6 @@ public:
 	//virtual void cvar_event(const str& name, const str& value);
 	
 	virtual bool init_game(siz min, siz sec, const str_map& cvars) override;
-	virtual bool client_connect_info(siz min, siz sec, slot num, const GUID& guid, const str& ip) override;
-	virtual bool client_disconnect(siz min, siz sec, slot num) override;
 	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) override;
 	virtual bool exit(siz min, siz sec) override;
 

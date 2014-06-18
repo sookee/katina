@@ -13,8 +13,11 @@ class Main
 
     static function clearCache()
     {
-        Storage::cache()->clear();
-        header('location: ' . Link::prefix());
+        if (\Config::$cache)
+        {
+            Storage::cache()->clear();
+        }
+        header('location: ' . Link::prefix() . '/');
         exit;
     }
 
@@ -83,7 +86,7 @@ class Main
 
     static function settings()
     {
-        if (!M::supervisor()->isAuthed())
+        if (!M::supervisor()->isAuthedOrLocal())
         {
             throw new \afw\HttpException(404);
         }
@@ -101,6 +104,20 @@ class Main
         $db = M::game()->db()
             ->fields('game_id, game_id');
 
+        $c->type = @$_GET['type'] == 'date' ? 'date' : 'month';
+
+        $c->year = (int)@$_GET['year'];
+        if (empty($c->year))
+        {
+            $c->year = date('Y');
+        }
+
+        $c->month = (int)@$_GET['month'];
+        if (empty($c->month))
+        {
+            $c->month = date('m');
+        }
+
         $c->dateFrom = strtotime(@$_GET['from']);
         if (empty($c->dateFrom))
         {
@@ -111,7 +128,6 @@ class Main
             $c->dateFrom = time() - 60 * 60 * 24 * 30;
         }
         $c->dateFrom = date('Y-m-d', $c->dateFrom);
-        $db->where('date >= ?', $c->dateFrom . ' 00:00:00');
 
         $c->dateTo = strtotime(@$_GET['to']);
         if (empty($c->dateTo))
@@ -123,7 +139,25 @@ class Main
             $c->dateTo = time();
         }
         $c->dateTo = date('Y-m-d', $c->dateTo);
-        $db->where('date <= ?', $c->dateTo . ' 23:59:59');
+
+        switch ($c->type)
+        {
+            case 'month':
+                $t = mktime(0, 0, 0, $c->month, 1, $c->year);
+                if (empty($t))
+                {
+                    $c->error = 'Wrong value';
+                }
+                $db->where('date >= ? and date <= ?', [
+                    date('Y-m-01 00:00:00', $t),
+                    date('Y-m-t 23:59:59', $t),
+                ]);
+                break;
+            case 'date':
+                $db->where('date >= ?', $c->dateFrom . ' 00:00:00');
+                $db->where('date <= ?', $c->dateTo . ' 23:59:59');
+                break;
+        }
 
         $gameIds = $db->allK();
 
@@ -144,7 +178,7 @@ class Main
             $time = M::time()->countByGuid()
                 ->key($gameIds, 'game_id')
                 ->allK();
-            
+
             $shots = M::weapon_usage()->db()
                 ->fields('guid, sum(shots) as shots')
                 ->groupBy('guid')
@@ -174,8 +208,8 @@ class Main
             $time,
             $shots,
             $hits,
-            M::settings()->get('min_deaths_game_main'),
-            M::settings()->get('min_time_game_main')
+            \Config::$minDeathsMain,
+            \Config::$minTimeMain
         );
 
         return $c;
