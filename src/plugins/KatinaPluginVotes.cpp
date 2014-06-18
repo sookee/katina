@@ -188,10 +188,10 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 
 	announce_time = 0; // turn off
 
-	const slot_guid_map& clients = katina.getClients();
-
-	std::async(std::launch::async, [this,clients]
+	std::async(std::launch::async, [this]
 	{
+		const slot_guid_map clients = katina.getClients();
+
 		for(slot_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
 		{
 			if(i->second.is_bot())
