@@ -221,19 +221,6 @@ TYPEDEF_MAP(slot, siz, slot_siz_map);
 typedef std::lock_guard<std::mutex> lock_guard;
 typedef std::unique_lock<std::mutex> unique_lock;
 
-template<typename T>
-void set_blob(void* blob, T* t)
-{
-	*static_cast<T**>(blob) = t;
-}
-
-template<typename T>
-void* set_blob(T*& t)
-{
-	return &t;
-}
-
-
 }} // katina::types
 
 #endif /* _OASTATS_TYPES_H_ */

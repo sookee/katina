@@ -610,10 +610,10 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 					oss << "{";
 					oss << (p.second.is_connected()?"C":"D");
 					oss << (p.second.is_bot()?"B":"H");
-					oss <<  ":" + str(p.first) + "," + str(p.second);
+					oss <<  ":" + str(siz(p.first)<10?" ":"") + str(p.first) + "," + str(p.second);
 					oss << "}";
 
-					if(oss.str().size() > WIDTH)
+					if(oss.str().size() > 80)
 					{
 						server.msg_to(num, oss.str());
 						oss.str("");

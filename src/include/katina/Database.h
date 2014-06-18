@@ -228,18 +228,30 @@ public:
 	bool get_ingame_crap(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats);
 };
 
-struct db_scoper
+class db_scoper
 {
+private:
+	siz count = 0;
+
+public:
 	Database& db;
 	db_scoper(Database& db): db(db)
 	{
-		bug("db_scoper:  on: " << this);
-		db.on();
+		bug("db_scoper:init: " << this);
+		if(!count++)
+		{
+			bug("db_scoper:  on: " << this);
+			db.on();
+		}
 	}
 	~db_scoper()
 	{
-		db.off();
-		bug("db_scoper: off: " << this);
+		if(!--count)
+		{
+			db.off();
+			bug("db_scoper: off: " << this);
+		}
+		bug("db_scoper:exit: " << this);
 	}
 };
 

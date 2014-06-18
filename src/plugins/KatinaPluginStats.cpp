@@ -164,109 +164,122 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 
 	pbug_var(logged_time);
 
-	db.set_trace();
-	db_scoper on(db);
-//	db_transaction_scoper on(db);
-
- 	if(logged_time && write)
+	std::async(std::launch::async, [this,logged_time]
 	{
-		game_id id = db.add_game(host, port, mapname);
-		pbug_var(id);
+		// copy these to avoid synchronizing
+		std::time_t start = std::time(0);
+		onevone_map onevone = this->onevone;
+		guid_stat_map stats = this->stats;
 
-		if(id != null_id && id != bad_id)
+		this->onevone.clear();
+		this->stats.clear();
+
+		// lock_guard lock(mtx);
+		db.set_trace();
+		db_scoper on(db);
+
+		if(logged_time && write)
 		{
-			for(guid_stat_map_citer p = stats.begin(); p != stats.end(); ++p)
+			game_id id = db.add_game(host, port, mapname);
+			pbug_var(id);
+
+			if(id != null_id && id != bad_id)
 			{
-				if(!allow_bots && p->first.is_bot())
-				{
-					pbug("IGNORING BOT: " << katina.getPlayerName(p->first));
-					continue;
-				}
-
-				db.add_player(p->first, p->second.name);
-
-				if(p->second.hc < 100)
-				{
-					pbug("IGNORING HANDICAP PLAYER: [" << p->second.hc << "] " << katina.getPlayerName(p->first));
-					continue;
-				}
-
-				siz count;
-				for(std::set<siz>::iterator weap = db_weaps.begin(); weap != db_weaps.end(); ++weap)
-				{
-					if((count = map_get(p->second.kills, *weap)))
-						db.add_weaps(id, "kills", p->first, *weap, count);
-					if((count = map_get(p->second.deaths, *weap)))
-						db.add_weaps(id, "deaths", p->first, *weap, count);
-				}
-
-				if((count = map_get(p->second.flags, FL_CAPTURED)))
-					db.add_caps(id, p->first, count);
-
-			   if((count = p->second.logged_time))
-					db.add_time(id, p->first, count);
-
-				for(siz_map_citer wu = p->second.weapon_usage.begin(); wu != p->second.weapon_usage.end(); ++wu)
-					db.add_weapon_usage(id, p->first, wu->first, wu->second);
-
-				for(moddmg_map_citer md = p->second.mod_damage.begin(); md != p->second.mod_damage.end(); ++md)
-					db.add_mod_damage(id, p->first, md->first, md->second.hits, md->second.damage, md->second.hitsRecv, md->second.damageRecv, md->second.weightedHits);
-
-				db.add_playerstats_ps(id, p->first,
-					p->second.fragsFace, p->second.fragsBack, p->second.fraggedInFace, p->second.fraggedInBack,
-					p->second.spawnKills, p->second.spawnKillsRecv, p->second.pushes, p->second.pushesRecv,
-					p->second.healthPickedUp, p->second.armorPickedUp, p->second.holyShitFrags, p->second.holyShitFragged,
-					p->second.carrierFrags, p->second.carrierFragsRecv);
-
-				if(p->second.time && p->second.dist)
-					db.add_speed(id, p->first, p->second.dist, p->second.time, false);
-				if(p->second.time_f && p->second.dist_f)
-					db.add_speed(id, p->first, p->second.dist_f, p->second.time_f, true);
-			}
-
-			for(onevone_citer o = onevone.begin(); o != onevone.end(); ++o)
-			{
-				if(!allow_bots && o->first.is_bot())
-				{
-					pbug("IGNORING 1v1 BOT: " << katina.getPlayerName(o->first));
-					continue;
-				}
-
-				if(stats[o->first].hc < 100)
-				{
-					pbug("IGNORING 1v1 HANDICAP PLAYER: [" << stats[o->first].hc << "] " << katina.getPlayerName(o->first));
-					continue;
-				}
-
-				for(guid_siz_map_citer p = o->second.begin(); p != o->second.end(); ++p)
+				for(guid_stat_map_citer p = stats.begin(); p != stats.end(); ++p)
 				{
 					if(!allow_bots && p->first.is_bot())
 					{
-						pbug("IGNORING 1v1 BOT: " << katina.getPlayerName(p->first));
+						pbug("IGNORING BOT: " << katina.getPlayerName(p->first));
 						continue;
 					}
 
-					if(stats[p->first].hc < 100)
+					db.add_player(p->first, p->second.name);
+
+					if(p->second.hc < 100)
 					{
-						pbug("IGNORING 1v1 HANDICAP PLAYER: [" << stats[p->first].hc << "] " << katina.getPlayerName(p->first));
+						pbug("IGNORING HANDICAP PLAYER: [" << p->second.hc << "] " << katina.getPlayerName(p->first));
 						continue;
 					}
 
-					db.add_ovo(id, o->first, p->first, p->second);
+					siz count;
+					for(std::set<siz>::iterator weap = db_weaps.begin(); weap != db_weaps.end(); ++weap)
+					{
+						if((count = map_get(p->second.kills, *weap)))
+							db.add_weaps(id, "kills", p->first, *weap, count);
+						if((count = map_get(p->second.deaths, *weap)))
+							db.add_weaps(id, "deaths", p->first, *weap, count);
+					}
+
+					if((count = map_get(p->second.flags, FL_CAPTURED)))
+						db.add_caps(id, p->first, count);
+
+				   if((count = p->second.logged_time))
+						db.add_time(id, p->first, count);
+
+					for(siz_map_citer wu = p->second.weapon_usage.begin(); wu != p->second.weapon_usage.end(); ++wu)
+						db.add_weapon_usage(id, p->first, wu->first, wu->second);
+
+					for(moddmg_map_citer md = p->second.mod_damage.begin(); md != p->second.mod_damage.end(); ++md)
+						db.add_mod_damage(id, p->first, md->first, md->second.hits, md->second.damage, md->second.hitsRecv, md->second.damageRecv, md->second.weightedHits);
+
+					db.add_playerstats_ps(id, p->first,
+						p->second.fragsFace, p->second.fragsBack, p->second.fraggedInFace, p->second.fraggedInBack,
+						p->second.spawnKills, p->second.spawnKillsRecv, p->second.pushes, p->second.pushesRecv,
+						p->second.healthPickedUp, p->second.armorPickedUp, p->second.holyShitFrags, p->second.holyShitFragged,
+						p->second.carrierFrags, p->second.carrierFragsRecv);
+
+					if(p->second.time && p->second.dist)
+						db.add_speed(id, p->first, p->second.dist, p->second.time, false);
+					if(p->second.time_f && p->second.dist_f)
+						db.add_speed(id, p->first, p->second.dist_f, p->second.time_f, true);
+				}
+
+				for(onevone_citer o = onevone.begin(); o != onevone.end(); ++o)
+				{
+					if(!allow_bots && o->first.is_bot())
+					{
+						pbug("IGNORING 1v1 BOT: " << katina.getPlayerName(o->first));
+						continue;
+					}
+
+					if(stats[o->first].hc < 100)
+					{
+						pbug("IGNORING 1v1 HANDICAP PLAYER: [" << stats[o->first].hc << "] " << katina.getPlayerName(o->first));
+						continue;
+					}
+
+					for(guid_siz_map_citer p = o->second.begin(); p != o->second.end(); ++p)
+					{
+						if(!allow_bots && p->first.is_bot())
+						{
+							pbug("IGNORING 1v1 BOT: " << katina.getPlayerName(p->first));
+							continue;
+						}
+
+						if(stats[p->first].hc < 100)
+						{
+							pbug("IGNORING 1v1 HANDICAP PLAYER: [" << stats[p->first].hc << "] " << katina.getPlayerName(p->first));
+							continue;
+						}
+
+						db.add_ovo(id, o->first, p->first, p->second);
+					}
 				}
 			}
 		}
-	}
 
-	stats.clear();
-	onevone.clear();
+//		stats.clear();
+//		onevone.clear();
 
-	str boss;
-	GUID guid;
-	if(db.get_ingame_boss(mapname, clients, guid, boss) && guid != null_guid)
-		server.msg_to_all("^7BOSS: " + katina.getPlayerName(guid) + "^7: " + boss, true);
-	else
-		server.msg_to_all("^7BOSS: ^3There is no boss on this map", true);
+		str boss;
+		GUID guid;
+		if(db.get_ingame_boss(mapname, clients, guid, boss) && guid != null_guid)
+			server.msg_to_all("^7BOSS: " + katina.getPlayerName(guid) + "^7: " + boss, true);
+		else
+			server.msg_to_all("^7BOSS: ^3There is no boss on this map", true);
+
+		plog("STATS WRITTEN IN: " << (std::time(0) - start) << " seconds:");
+	});
 
 	return true;
 }
@@ -299,6 +312,7 @@ void KatinaPluginStats::stall_client(const GUID& guid)
 	if(!stats[guid].joined_time)
 		return;
 
+	// lock_guard lock(mtx);
 	stats[guid].logged_time += katina.now - stats[guid].joined_time;
 	stats[guid].joined_time = 0;
 }
@@ -311,6 +325,7 @@ void KatinaPluginStats::unstall_client(const GUID& guid)
 	if(katina.getTeam(guid) != TEAM_R && katina.getTeam(guid) != TEAM_B)
 		return;
 
+	// lock_guard lock(mtx);
 	stats[guid].joined_time = katina.now;
 }
 
@@ -383,6 +398,7 @@ bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, slot num, siz 
 {
 	if(allow_bots || !guid.is_bot())
 	{
+		// lock_guard lock(mtx);
 		stats[guid].hc = hc;
 		stats[guid].name = name;
 	}
@@ -426,6 +442,7 @@ bool KatinaPluginStats::kill(siz min, siz sec, slot num1, slot num2, siz weap)
 	if(clients.find(num1) == clients.end() || clients.find(num2) == clients.end())
 		return true;
 
+	// lock_guard lock(mtx);
 	if(num1 == slot::world) // no killer
 		++stats[katina.getClientGuid(num2)].deaths[weap];
 
@@ -467,6 +484,7 @@ bool KatinaPluginStats::ctf(siz min, siz sec, slot num, siz team, siz act)
 	if(stop_stats)
 		return true;
 
+	// lock_guard lock(mtx);
 	++stats[katina.getClientGuid(num)].flags[act];
 
 	return true;
@@ -483,6 +501,7 @@ bool KatinaPluginStats::award(siz min, siz sec, slot num, siz awd)
 	if(stop_stats)
 		return true;
 
+	// lock_guard lock(mtx);
 	++stats[katina.getClientGuid(num)].awards[awd];
 
 	return true;
@@ -494,9 +513,6 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 
 	if(!active)
 		return true;
-
-	stats.clear();
-	onevone.clear();
 
 //	if(do_prev_stats)
 //	{
@@ -522,6 +538,12 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 		announce_time = sec + katina.get("boss.announce.delay", 10);
 
 	katina.add_log_event(this, HEARTBEAT);
+
+	// lock_guard lock(mtx);
+	{
+		stats.clear();
+		onevone.clear();
+	}
 
 	return true;
 }
@@ -572,6 +594,8 @@ bool KatinaPluginStats::speed(siz min, siz sec, slot num, siz dist, siz time, bo
 	if(stop_stats)
 		return true;
 
+	// lock_guard lock(mtx);
+
 	if(has_flag)
 	{
 		stats[katina.getClientGuid(num)].time_f += time;
@@ -597,6 +621,7 @@ bool KatinaPluginStats::weapon_usage(siz min, siz sec, slot num, siz weapon, siz
 	if(stop_stats)
 		return true;
 
+	// lock_guard lock(mtx);
 	stats[katina.getClientGuid(num)].weapon_usage[weapon] += shots;
 
 	return true;
@@ -613,6 +638,7 @@ bool KatinaPluginStats::mod_damage(siz min, siz sec, slot num, siz mod, siz hits
 	if(stop_stats)
 		return true;
 
+	// lock_guard lock(mtx);
 	mod_damage_stats& moddmg = stats[katina.getClientGuid(num)].mod_damage[mod];
 	moddmg.hits		 += hits;
 	moddmg.damage	   += damage;
@@ -637,6 +663,7 @@ bool KatinaPluginStats::player_stats(siz min, siz sec, slot num,
 	if(stop_stats)
 		return true;
 
+	// lock_guard lock(mtx);
 	struct stats& s	 = stats[katina.getClientGuid(num)];
 	s.fragsFace		+= fragsFace;
 	s.fragsBack		+= fragsBack;

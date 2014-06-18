@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef _OASTATS_KATINA_PLUGIN_STATS_H
 #define	_OASTATS_KATINA_PLUGIN_STATS_H
 /*
@@ -32,6 +32,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 '-----------------------------------------------------------------*/
 #include <map>
 #include <utility>
+#include <mutex>
 
 #include <katina/Katina.h>
 #include <katina/KatinaPlugin.h>
@@ -132,6 +133,7 @@ class KatinaPluginStats
 {
 public:
 
+	//std::mutex mtx;
 	onevone_map onevone; // GUID -> GUID -> <count> //
 	guid_stat_map stats; // GUID -> <stat>
 	//guid_str_map names; // keep track of all players involed in the game

@@ -217,10 +217,6 @@ typedef plugin_vec::iterator plugin_vec_iter;
 typedef plugin_vec::const_iterator plugin_vec_citer;
 
 TYPEDEF_MAP(str, KatinaPlugin*, plugin_map);
-//typedef std::map<str, KatinaPlugin*> plugin_map;
-//typedef plugin_map::value_type plugin_map_vt;
-//typedef plugin_map::iterator plugin_map_iter;
-//typedef plugin_map::const_iterator plugin_map_citer;
 
 /**
  * The plugin implementation source should
@@ -265,6 +261,17 @@ static const str VERSION = V
  */
 #define pbug_var(v) pbug(QUOTE(v:) << std::boolalpha << " " << v)
 
+template<typename T>
+void set_blob(void* blob, T* t)
+{
+	*static_cast<T**>(blob) = t;
+}
+
+template<typename T>
+void* set_blob(T*& t)
+{
+	return &t;
+}
 
 } // oastats
 
