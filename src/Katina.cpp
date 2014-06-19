@@ -1792,7 +1792,7 @@ bool Katina::start(const str& dir)
 						std::time_t _t = std::time(0);
 						t = *gmtime(&_t);
 						t.tm_year = Y - 1900;
-						t.tm_mon = M;
+						t.tm_mon = M - 1;
 						t.tm_mday = D;
 						t.tm_hour = h;
 						t.tm_min = m;
