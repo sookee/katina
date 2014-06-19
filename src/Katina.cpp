@@ -1026,15 +1026,10 @@ struct client_userinfo_bug_t
 };
 
 
-bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
+bool Katina::read_backlog(const str& logname, std::ios::streampos pos)
 {
 	bug_func();
 	nlog("pos: " << pos);
-
-	KatinaPlugin* playerdb = get_plugin("katina::playerdb", "");
-
-	if(!playerdb)
-		log("WARN: Plugin katina::playerdb not found processing backlog");
 
 	sifs ifs(logname);
 
@@ -1139,9 +1134,6 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 					clients[num] = guid;
 					players[guid] = name;
 					teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
-
-					if(playerdb)
-						playerdb->client_userinfo_changed(min, sec, num, team, guid, name, hc);
 				}
 			}
 		}
@@ -1167,9 +1159,9 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 				connected[siz(num)] = true; // start trusting ClientUserinfoChanged
 			}
 		}
-		else if(cmd == "ShutdownGame:")
-		{
-		}
+//		else if(cmd == "ShutdownGame:")
+//		{
+//		}
 		else if(cmd == "ClientDisconnect:")
 		{
 			slot num;
@@ -1197,37 +1189,30 @@ bool Katina::log_read_back(const str& logname, std::ios::streampos pos)
 				getClientGuid(num).disconnect();
 
 				teams[guid] = TEAM_U;
-				if(playerdb)
-					playerdb->client_disconnect(min, sec, num);
 				clients.erase(num);
 			}
 		}
-		else if(cmd == "ClientConnectInfo:")
-		{
-			// scavange any client data we may have missed due to downtime etc...
-			// ClientConnectInfo: 4 87597A67B5A4E3C79544A72B7B5DA741 81.101.111.32
-			slot num;
-			str guid;
-			str ip;
-			str skip; // rest of guid needs to be skipped before ip
-
-			// 2 5E68E970866FC20242482AA396BBD43E 81.101.111.32
-			if(!(iss >> num >> std::ws >> guid >> std::ws >> ip))
-				log("Error parsing ClientConnectInfo: "  << params);
-			else if(!is_connected(num))
-			{
-				// ignore this event until it occurs at a reliable place
-				if(mod_katina == "0.1.1")
-					nlog("ERROR: This event should NEVER occur in 0.1.1");
-				if(mod_katina >= "0.1.2")
-					nlog("ERROR: This event should NEVER occur after 0.1.2");
-			}
-			else
-			{
-				if(playerdb)
-					playerdb->client_connect_info(min, sec, num, GUID(guid), ip);
-			}
-		}
+//		else if(cmd == "ClientConnectInfo:")
+//		{
+//			// scavange any client data we may have missed due to downtime etc...
+//			// ClientConnectInfo: 4 87597A67B5A4E3C79544A72B7B5DA741 81.101.111.32
+//			slot num;
+//			str guid;
+//			str ip;
+//			str skip; // rest of guid needs to be skipped before ip
+//
+//			// 2 5E68E970866FC20242482AA396BBD43E 81.101.111.32
+//			if(!(iss >> num >> std::ws >> guid >> std::ws >> ip))
+//				log("Error parsing ClientConnectInfo: "  << params);
+//			else if(!is_connected(num))
+//			{
+//				// ignore this event until it occurs at a reliable place
+//				if(mod_katina == "0.1.1")
+//					nlog("ERROR: This event should NEVER occur in 0.1.1");
+//				if(mod_katina >= "0.1.2")
+//					nlog("ERROR: This event should NEVER occur after 0.1.2");
+//			}
+//		}
 		else if(cmd == "InitGame:")
 		{
 			//bug(cmd << "(" << params << ")");
@@ -1327,7 +1312,7 @@ bool Katina::start(const str& dir)
 			// info
 			std::time_t rbt = std::time(0);
 			log("Initializing data structures");
-			if(!log_read_back(get_exp("logfile"), gpos))
+			if(!read_backlog(get_exp("logfile"), gpos))
 				log("WARN: Unable to get initial player info");
 			log("DONE: " << (std::time(0) - rbt) << " seconds");
 		}

@@ -219,7 +219,7 @@ private:
 	bool reload_plugin(const str& id);
     
 	bool initial_player_info();
-	bool log_read_back(const str& logname, std::ios::streampos pos);
+	bool read_backlog(const str& logname, std::ios::streampos pos);
 	void builtin_command(const GUID& guid, const str& text);
 
 	// We try to keep map keys GUID based as slot numbers are defunct as soon
