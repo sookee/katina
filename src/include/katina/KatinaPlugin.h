@@ -273,7 +273,7 @@ void* set_blob(T*& t)
 	return &t;
 }
 
-} // oastats
+} // katina
 
 #endif // _OASTATS_KATINA_PLUGIN_H
 

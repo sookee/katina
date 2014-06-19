@@ -297,6 +297,7 @@ public:
 	}
 
 	str_map svars; // server variables
+	str runmode;
 	siz logmode;
 	std::time_t now;
 
@@ -401,7 +402,7 @@ public:
 	template<typename T>
 	T get(const str& s, const T& dflt = T())
 	{
-		if(props[s].empty())
+		if(!have(s))
 			return dflt;
 		T t;
 		std::istringstream(props[s][0]) >> std::boolalpha >> t;
@@ -420,7 +421,7 @@ public:
 	 */
 	str get(const str& s, const str& dflt = "")
 	{
-		return props[s].empty() ? dflt : props[s][0];
+		return have(s) ? props[s][0] : dflt;
 	}
 
 	/**
@@ -436,7 +437,7 @@ public:
 	 */
 	str get_exp(const str& s, const str& dflt = "")
 	{
-		return props[s].empty() ? dflt : expand_env(props[s][0], WRDE_SHOWERR|WRDE_UNDEF);
+		return have(s) ? expand_env(props[s][0], WRDE_SHOWERR|WRDE_UNDEF) : dflt;
 	}
 
 	/**
@@ -480,8 +481,7 @@ public:
 	 */
 	bool has(const str& s)
 	{
-		property_map_range i = props.equal_range(s);
-		return i.first != i.second;
+		return(props.find(s) != props.end() && !props[s].empty());
 	}
 
 	/**
@@ -554,8 +554,8 @@ public:
 	{
 		event_t e;
 		KatinaPlugin* p;
-		evt_erase(): e(event_t::LOG_NONE), p(0) {}
-		evt_erase(event_t e, KatinaPlugin* p): e(e), p(p) {}
+//		evt_erase(): e(event_t::LOG_NONE), p(0) {}
+//		evt_erase(event_t e, KatinaPlugin* p): e(e), p(p) {}
 		bool operator==(const evt_erase& erase) const { return e == erase.e && p == erase.p; }
 	};
 	TYPEDEF_VEC(evt_erase, evt_erase_vec);
@@ -565,7 +565,15 @@ public:
 	{
 		plugin_lst_iter i = std::find(events[e].begin(), events[e].end(), plugin);
 		if(i != events[e].end())
-			erase_events.push_back(evt_erase(e, *i));
+			erase_events.push_back({e, *i}); // TODO: clang++ crashes here
+	}
+
+	void del_log_events(class KatinaPlugin* plugin)
+	{
+		for(const event_map_vt& vt: events)
+			for(const plugin_lst_vt& p: vt.second)
+				if(p == plugin)
+					erase_events.push_back({vt.first, p});
 	}
 
 	/**
@@ -586,7 +594,7 @@ public:
 	bool start(const str& dir);
 };
 
-} // oastats
+} // katina
 
 #endif	// _OASTATS_KATINA_H
 

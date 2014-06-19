@@ -179,15 +179,18 @@ bool KatinaPluginPlayerDb::open()
 {
 	//katina.add_var_event(this, "player.db.active", active);
 	//katina.add_var_event(this, "flag", "0");
+	katina.add_log_event(this, INIT_GAME);
 	katina.add_log_event(this, CLIENT_CONNECT_INFO);
 	katina.add_log_event(this, CLIENT_DISCONNECT);
 	katina.add_log_event(this, CLIENT_USERINFO_CHANGED);
 
-	host = katina.get("player.db.host", "localhost");
-	port = katina.get("player.db.port", 3306);
-	user = katina.get("player.db.user");
-	pass = katina.get("player.db.pass", "");
-	base = katina.get("player.db.base");
+	host = katina.get("player.db.host", katina.get("playerdb.db.host", katina.get("db.host", "localhost")));
+	port = katina.get("player.db.port", katina.get("playerdb.db.port", katina.get("db.port", 3306)));
+	user = katina.get("player.db.user", katina.get("playerdb.db.user", katina.get("db.user")));
+	pass = katina.get("player.db.pass", katina.get("playerdb.db.pass", katina.get("db.pass", "")));
+	base = katina.get("player.db.base", katina.get("playerdb.db.base", katina.get("db.base")));
+
+	katina.add_var_event(this, "playerdb.active", active, false);
 
 	if(mysql_real_connect(&mysql, host.c_str(), user.c_str()
 		, pass.c_str(), base.c_str(), port, NULL, 0) != &mysql)
@@ -252,8 +255,25 @@ str KatinaPluginPlayerDb::api(const str& cmd, void* blob)
 	return KatinaPlugin::api(cmd);
 }
 
+bool KatinaPluginPlayerDb::init_game(siz min, siz sec, const str_map& svars)
+{
+	if(!active)
+		return true;
+
+	if(katina.mod_katina < "0.1.2")
+	{
+		plog("ERROR: " + ID + " REQUIRES mod_katina >= 0.1.2");
+		active = false;
+		katina.del_log_events(this);
+	}
+	return true;
+}
+
 bool KatinaPluginPlayerDb::client_connect_info(siz min, siz sec, slot num, const GUID& guid, const str& ip)
 {
+	if(!active)
+		return true;
+
 	if(ip.empty())
 	{
 		plog("WARN: empty ip address");
@@ -270,6 +290,9 @@ bool KatinaPluginPlayerDb::client_connect_info(siz min, siz sec, slot num, const
 
 bool KatinaPluginPlayerDb::client_disconnect(siz min, siz sec, slot num)
 {
+	if(!active)
+		return true;
+
 	GUID guid = katina.getClientGuid(num);
 
 	if(guid == null_guid)
@@ -290,7 +313,13 @@ bool KatinaPluginPlayerDb::client_disconnect(siz min, siz sec, slot num)
 bool KatinaPluginPlayerDb::client_userinfo_changed(siz min, siz sec, slot num, siz team
 		, const GUID& guid, const str& name, siz hc)
 {
+	if(!active)
+		return true;
+
 	if(guid.is_bot())
+		return true;
+
+	if(katina.mod_katina < "0.1.2")
 		return true;
 
 	if(ips.find(guid) == ips.end())

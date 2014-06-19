@@ -76,7 +76,7 @@ KatinaPluginStats::KatinaPluginStats(Katina& katina)
 bool KatinaPluginStats::open()
 {
 	bug_func();
-	host = katina.get("rcon.host", "localhost");
+	host = katina.get("rcon.host", "127.0.0.1");
 	port = katina.get("rcon.port", "27960");
 
 	str host = katina.get("stats.db.host", katina.get("db.host", "localhost"));
@@ -139,6 +139,7 @@ str prev_mapname;
 bool KatinaPluginStats::exit(siz min, siz sec)
 {
 	bug_func();
+	plog("exit: " << min << ", " << sec);
 
 	if(!in_game)
 		return true;
@@ -163,9 +164,14 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 	}
 
 	pbug_var(logged_time);
+	pbug_var(this->onevone.size());
+	pbug_var(this->stats.size());
 
-	static std::future<void> fut = std::async(std::launch::async, [this,logged_time]
+	std::time_t now = katina.now;
+
+	/*static std::future<void> fut = */std::async(std::launch::async, [this,logged_time,now]
 	{
+		pbug("RUNNING THREAD:");
 		// copy these to avoid synchronizing
 		std::time_t start = std::time(0);
 		onevone_map onevone = this->onevone;
@@ -174,13 +180,16 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 		this->onevone.clear();
 		this->stats.clear();
 
+		pbug_var(onevone.size());
+		pbug_var(stats.size());
+
 		// lock_guard lock(mtx);
 		db.set_trace();
 		db_scoper on(db);
 
 		if(logged_time && write)
 		{
-			game_id id = db.add_game(host, port, mapname);
+			game_id id = db.add_game(now, host, port, mapname);
 			pbug_var(id);
 
 			if(id != null_id && id != bad_id)

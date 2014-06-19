@@ -64,7 +64,7 @@ private:
 	const guid_str_map& players; // GUID -> name
 	const guid_siz_map& teams; // GUID -> 'R' | 'B'
 	
-	bool active;
+	bool active = false;
 
 	void add_player(siz num);
 	void sub_player(siz num);
@@ -83,6 +83,7 @@ public:
 	//virtual void cvar_event(const str& name, const str& value);
 	virtual str api(const str& cmd, void* blob = nullptr) override;
 	
+	virtual bool init_game(siz min, siz sec, const str_map& svars) override;
 	virtual bool client_connect_info(siz min, siz sec, slot num, const GUID& guid, const str& ip) override;
 	virtual bool client_disconnect(siz min, siz sec, slot num) override;
 	virtual bool client_userinfo_changed(siz min, siz sec, slot num, siz team, const GUID& guid, const str& name, siz hc) override;

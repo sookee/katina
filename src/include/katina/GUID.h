@@ -184,6 +184,6 @@ TYPEDEF_CONTAINER_2(std::map, GUID, int, guid_int_map);
 TYPEDEF_CONTAINER_2(std::map, slot, GUID, slot_guid_map);
 
 extern const GUID null_guid;
-} // oastats
+} // katina
 
 #endif /* _OASTATS_GUID_H_ */

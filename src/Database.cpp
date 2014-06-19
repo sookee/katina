@@ -239,10 +239,10 @@ bool Database::select(const str& sql, str_vec_vec& rows, siz fields)
 
 //   game: game_id host port date map
 
-game_id Database::add_game(const str& host, const str& port, const str& mapname)
+game_id Database::add_game(std::time_t timet, const str& host, const str& port, const str& mapname)
 {
 	if(trace)
-		log("DATABASE: add_game(" << host << ", " << port << ", " << mapname << ")");
+		log("DATABASE: add_game(" << timet << ", " << host << ", " << port << ", " << mapname << ")");
 
 	str safe_mapname;
 	if(!escape(mapname, safe_mapname))
@@ -251,9 +251,18 @@ game_id Database::add_game(const str& host, const str& port, const str& mapname)
 		return bad_id;
 	}
 
+	char timef[] = "0000-00-00 00:00:00";
+
+	siz times = 0;
+	//time_t timet = std::time(0);
+	if(!(times = strftime(timef, sizeof(timef), "%F %T", gmtime(&timet))))
+	{
+		log("ERROR: converting time: " << timet);
+	}
+
 	str sql = "insert into `game`"
-		" (`host`, `port`, `map`) values (INET_ATON('"
-		+ host + "'),'" + port + "','" + safe_mapname + "')";
+		" (`host`, `port`, `date`, `map`) values (INET_ATON('"
+		+ host + "'),'" + port + "','" + str(timef, times) + "','" + safe_mapname + "')";
 
 	game_id id;
 	if(!insert(sql, id))

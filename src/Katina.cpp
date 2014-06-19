@@ -1261,11 +1261,19 @@ bool Katina::start(const str& dir)
 
 	load_config(config_dir, "katina.conf", props);
 
+	runmode = get("runmode", get("run.mode", "live"));
 	name = get("katina.name" , "^1K^7at^3i^7na^7");
+
+	bool live = (runmode == "live");
+	bool rerun = (runmode == "rerun");
+	bool backlog = (runmode == "backlog");
 
 	if(!init_pki())
 		return false;
+
 	init_rcon();
+	if(rerun || backlog)
+		server.off();
 
 	// everything the plugins need shuld be initialized before loading them
 
@@ -1274,7 +1282,7 @@ bool Katina::start(const str& dir)
 		if(!rconset("mod_katina", mod_katina))
 			mod_katina.clear();
 
-	now = get("run.time", std::time(0));
+	now = get("runtime", std::time(0));
 	std::time_t base_now = now; // rerun base time
 
 	bug_var(now);
@@ -1283,16 +1291,10 @@ bool Katina::start(const str& dir)
 
 	std::ios::openmode mode = std::ios::in|std::ios::ate;
 
-	bool rerun = get("run.mode") == "rerun";
-	bool backlog = get("run.mode") == "backlog";
-
 	if(rerun)
-	{
-		server.off();
 		mode = std::ios::in;
-	}
 
-	log("Opening logfile (" << get("run.mode") << "): " << get("logfile"));
+	log("Opening logfile (" << runmode << "): " << get("logfile"));
 
 	std::ifstream ifs;
 
@@ -1405,11 +1407,13 @@ bool Katina::start(const str& dir)
 			{
 				if(!min && !sec)
 				{
-					base_now = std::time(0);
-					//base_now = now;
-					bug("=========================");
-					bug("= BASE_TIME: " << base_now << " =");
-					bug("=========================");
+					if(live || have("runtime"))
+					{
+						base_now = std::time(0);
+						bug("=========================");
+						bug("= BASE_TIME: " << base_now << " =");
+						bug("=========================");
+					}
 				}
 				continue;
 			}
@@ -1802,7 +1806,9 @@ bool Katina::start(const str& dir)
 			}
 			else if(cmd == "InitGame:")
 			{
-				//bug(cmd << "(" << params << ")");
+				bug("== INIT GAME ==");
+				bug_var(rerun);
+				bug_var(have("runtime"));
 
 				static str key, val;
 
@@ -1818,14 +1824,19 @@ bool Katina::start(const str& dir)
 				mapname = svars["mapname"];
 				mod_katina = svars["mod_katina"];
 
-				if(rerun)
+				bug_var(svars.size());
+				bug_var(svars["g_timestamp"]);
+
+				if(rerun && !have("runtime"))
 				{
 					str skip;
 					siz Y, M, D, h, m, s;
 					char c;
 					siss iss(svars["g_timestamp"]);
 					// g_timestamp 2013-05-24 09:34:32
-					if((iss >> Y >> c >> M >> c >> D >> c >> h >> c >> m >> c >> s))
+					if(!(iss >> Y >> c >> M >> c >> D >> c >> h >> c >> m >> c >> s))
+						nlog("ERROR: parsing g_timestamp: " << svars["g_timestamp"]);
+					else
 					{
 						tm t;
 						std::time_t _t = std::time(0);
@@ -1837,7 +1848,7 @@ bool Katina::start(const str& dir)
 						t.tm_min = m;
 						t.tm_sec = s;
 						t.tm_isdst = 0;
-						base_now = std::mktime(&t);
+						now = base_now = std::mktime(&t);
 						nlog("RERUN TIMESTAMP: " << base_now);
 					}
 				}
@@ -1961,4 +1972,4 @@ bool Katina::start(const str& dir)
 	return true;
 }
 
-} // oastats
+} // katina

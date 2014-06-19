@@ -171,7 +171,7 @@ public:
 
 
 
-	game_id add_game(const str& host, const str& port, const str& mapname);
+	game_id add_game(std::time_t timet, const str& host, const str& port, const str& mapname);
 
 	/**
 	 *
