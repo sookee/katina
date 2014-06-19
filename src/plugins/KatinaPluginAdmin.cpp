@@ -201,21 +201,6 @@ enum
 	, S_MAPBAN
 };
 
-//BUG: cap_factor: 1 [../../../src/plugins/KatinaPluginAdmin.cpp] (147)
-//BUG: clients.size(): 5 [../../../src/plugins/KatinaPluginAdmin.cpp] (148)
-//BUG: i->first: 2 [../../../src/plugins/KatinaPluginAdmin.cpp] (151)
-//BUG: i->second: DFADEDA3 [../../../src/plugins/KatinaPluginAdmin.cpp] (152)
-//BUG: i->first: 3 [../../../src/plugins/KatinaPluginAdmin.cpp] (151)
-//BUG: i->second: 7B5DA741 [../../../src/plugins/KatinaPluginAdmin.cpp] (152)
-//BUG: i->first: 8 [../../../src/plugins/KatinaPluginAdmin.cpp] (151)
-//BUG: i->second: 6AAAA58B [../../../src/plugins/KatinaPluginAdmin.cpp] (152)
-//BUG: i->first: 9 [../../../src/plugins/KatinaPluginAdmin.cpp] (151)
-//BUG: i->second: 271D5815 [../../../src/plugins/KatinaPluginAdmin.cpp] (152)
-//BUG: i->first: 11 [../../../src/plugins/KatinaPluginAdmin.cpp] (151)
-//BUG: i->second: E69CED01 [../../../src/plugins/KatinaPluginAdmin.cpp] (152)
-//BUG: ------------------------------------------- [../../../src/plugins/KatinaPluginAdmin.cpp] (169)
-//BUG: team: 2 [../../../src/plugins/KatinaPluginAdmin.cpp] (171)
-
 struct player
 {
 	siz skill;
@@ -855,12 +840,12 @@ bool KatinaPluginAdmin::client_connect_info(siz min, siz sec, slot num, const GU
 	for(str_vec_citer i = katina.get_vec("admin.alert.ip").begin(); i != katina.get_vec("admin.alert.ip").end(); ++i)
 		if(!ip.find(*i)) // left substring match
 			if(irc)
-				irc->chat('a', "^1!^3ALERT^1! ^7[^2" + str(guid) + "^7] " + katina.getPlayerName(guid) + " ^3has joined the server");
+				irc->chat('a', "^1!^3ALERT^1! ^7(^2" + str(guid) + "^7) " + katina.getPlayerName(guid) + " ^3has joined the server");
 
 	for(str_vec_citer i = katina.get_vec("admin.alert.guid").begin(); i != katina.get_vec("admin.alert.guid").end(); ++i)
 		if(guid == GUID(*i))
 			if(irc)
-				irc->chat('a', "^1!^3ALERT^1! ^7[^2" + str(guid) + "^7] " + katina.getPlayerName(guid) + " ^3has joined the server");
+				irc->chat('a', "^1!^3ALERT^1! ^7(^2" + str(guid) + "^7) " + katina.getPlayerName(guid) + " ^3has joined the server");
 
 	return true;
 }
