@@ -1045,15 +1045,12 @@ bool Katina::read_backlog(const str& logname, std::ios::streampos pos)
 	line_number = 0;
 	while(sgl(ifs, line_data))
 	{
-	//	nlog("ifs.tellg(): " << ifs.tellg());
 		if(ifs.tellg() >= pos)
 			return true;
 
 		++line_number; // current line number
 		if(do_log_lines)
 			nlog("LINE: " << line_data);
-
-	//	nlog("line: " << line);
 
 		if(trim(line_data).empty())
 			continue;
@@ -1095,8 +1092,6 @@ bool Katina::read_backlog(const str& logname, std::ios::streampos pos)
 
 		iss.clear();
 		iss.str(params);
-
-	//	nlog("CMD: " << cmd);
 
 		if(cmd == "ClientUserinfoChanged:")
 		{
@@ -1144,8 +1139,6 @@ bool Katina::read_backlog(const str& logname, std::ios::streampos pos)
 				nlog("Error parsing ClientConnect: "  << params);
 			else
 			{
-//				if(!is_connected(num))
-				//clients[num] = null_guid; // connecting
 				connected[siz(num)] = true;
 			}
 		}
@@ -1159,9 +1152,6 @@ bool Katina::read_backlog(const str& logname, std::ios::streampos pos)
 				connected[siz(num)] = true; // start trusting ClientUserinfoChanged
 			}
 		}
-//		else if(cmd == "ShutdownGame:")
-//		{
-//		}
 		else if(cmd == "ClientDisconnect:")
 		{
 			slot num;
@@ -1192,31 +1182,8 @@ bool Katina::read_backlog(const str& logname, std::ios::streampos pos)
 				clients.erase(num);
 			}
 		}
-//		else if(cmd == "ClientConnectInfo:")
-//		{
-//			// scavange any client data we may have missed due to downtime etc...
-//			// ClientConnectInfo: 4 87597A67B5A4E3C79544A72B7B5DA741 81.101.111.32
-//			slot num;
-//			str guid;
-//			str ip;
-//			str skip; // rest of guid needs to be skipped before ip
-//
-//			// 2 5E68E970866FC20242482AA396BBD43E 81.101.111.32
-//			if(!(iss >> num >> std::ws >> guid >> std::ws >> ip))
-//				log("Error parsing ClientConnectInfo: "  << params);
-//			else if(!is_connected(num))
-//			{
-//				// ignore this event until it occurs at a reliable place
-//				if(mod_katina == "0.1.1")
-//					nlog("ERROR: This event should NEVER occur in 0.1.1");
-//				if(mod_katina >= "0.1.2")
-//					nlog("ERROR: This event should NEVER occur after 0.1.2");
-//			}
-//		}
 		else if(cmd == "InitGame:")
 		{
-			//bug(cmd << "(" << params << ")");
-
 			static str key, val;
 
 			clients.clear();
@@ -1230,8 +1197,6 @@ bool Katina::read_backlog(const str& logname, std::ios::streampos pos)
 
 			mapname = svars["mapname"];
 			mod_katina = svars["mod_katina"];
-
-			nlog("MAP NAME: " << mapname);
 		}
 	}
 
