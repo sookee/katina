@@ -194,11 +194,11 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 
 		for(slot_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
 		{
-			if(i->second.is_bot())
+			if(i->second.is_bot() || !i->second.is_connected())
 				continue;
 
-			if(!katina.is_connected(i->first))
-				continue;
+//			if(!katina.is_connected(i->first))
+//				continue;
 
 			thread_sleep_millis(2000);
 
