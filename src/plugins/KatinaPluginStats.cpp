@@ -422,6 +422,8 @@ bool KatinaPluginStats::client_disconnect(siz min, siz sec, slot num)
 	if(!active)
 		return true;
 
+	check_bots_and_players();
+
 	const GUID& guid = katina.getClientGuid(num);
 
 	if(guid == null_guid)
@@ -431,7 +433,6 @@ bool KatinaPluginStats::client_disconnect(siz min, siz sec, slot num)
 	}
 
 	stall_client(guid);
-	check_bots_and_players();
 
 	return true;
 }
