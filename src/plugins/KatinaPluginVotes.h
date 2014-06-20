@@ -59,8 +59,8 @@ public:
 	VotesDatabase(): Database() {}
 	virtual ~VotesDatabase() {}
 
-	virtual void init() override;
-	virtual void deinit() override;
+//	virtual void init() override;
+//	virtual void deinit() override;
 
 	void set_trace(bool state = true) { trace = state; }
 
