@@ -175,7 +175,8 @@ typedef long milliseconds;
 
 class slot
 {
-	siz num;
+	int num;
+	explicit slot(int num): num(num) {}
 public:
 	static const slot bad;
 	static const slot all;
@@ -183,7 +184,7 @@ public:
 	static const slot max;
 
 	slot(): num(-1) {}
-	explicit slot(siz num): num(num) {}
+	slot(const slot& num): num(num.num) {}
 
 	bool operator<(const slot& s) const { return num < s.num; }
 	bool operator>(const slot& s) const { return num > s.num; }

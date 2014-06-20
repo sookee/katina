@@ -66,10 +66,8 @@ KatinaPluginStats::KatinaPluginStats(Katina& katina)
 , do_prev_stats(false)
 , in_game(false)
 , stop_stats(false)
-//, human_players_r(0)
-//, human_players_b(0)
-, carrierBlue(-1)
-, carrierRed(-1)
+, carrierBlue(slot::bad)
+, carrierRed(slot::bad)
 {
 }
 
