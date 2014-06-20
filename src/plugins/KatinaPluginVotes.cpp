@@ -200,7 +200,8 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 //			if(!katina.is_connected(i->first))
 //				continue;
 
-			thread_sleep_millis(2000);
+			if(katina.is_live())
+				thread_sleep_millis(2000);
 
 			pbug("ANNOUNCING VOTE TO: " << i->second << " " << katina.getPlayerName(i->second));
 
@@ -266,7 +267,19 @@ bool KatinaPluginVotes::say(siz min, siz sec, const GUID& guid, const str& text)
 
 	lower(cmd);
 	lower(type);
-	
+
+	if(cmd == "!lovemap")
+	{
+		cmd = "!love";
+		type = "map";
+	}
+
+	if(cmd == "!hatemap")
+	{
+		cmd = "!hate";
+		type = "map";
+	}
+
 	if(cmd == "!help" || cmd == "?help")
 	{
 		katina.server.msg_to(say_num, "^7VOTES: ^2?love^7, ^2?hate^7");

@@ -41,10 +41,11 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include "log.h"
 
 #include <list>
-#include <pthread.h>
+//#include <pthread.h>
 #include <memory>
 #include <map>
 #include <array>
+#include <future>
 
 int main(const int argc, const char* argv[]);
 
@@ -246,9 +247,22 @@ private:
 
 	bool do_log_lines = false;
 
+	bool live = false;
+	bool rerun = false;
+	bool backlog = false;
+
+	TYPEDEF_LST(std::future<void>, future_lst);
+	//std::mutex futures_mtx;
+	future_lst futures;
+
 public:
 	Katina();
 	~Katina();
+
+	void add_future(std::future<void> fut)
+	{
+		futures.emplace_back(std::move(fut));
+	}
 
 	// API
 
@@ -302,6 +316,9 @@ public:
 	std::time_t now;
 
 	str mod_katina; // server enhancements
+
+	const str& get_runmode() const { return runmode; }
+	bool is_live() const { return live; }
 
 	/**
 	 * Get the name of the bot (default Katina)

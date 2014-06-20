@@ -251,7 +251,7 @@ game_id Database::add_game(std::time_t timet, const str& host, const str& port, 
 		return bad_id;
 	}
 
-	char timef[] = "0000-00-00 00:00:00";
+	char timef[32];// = "0000-00-00 00:00:00";
 
 	siz times = 0;
 	//time_t timet = std::time(0);

@@ -101,6 +101,8 @@ bool KatinaPluginNextMap::init_game(siz min, siz sec, const str_map& cvars)
 	if(rot_nextmap.empty())
 		return true;
 
+	plog("rot_nextmap: " << rot_nextmap);
+
 	if(enforcing && !server.command("set nextmap " + rot_nextmap))
 	{
 		plog("ERROR: can't reset rotation");

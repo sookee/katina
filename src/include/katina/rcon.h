@@ -81,8 +81,16 @@ public:
 		this->pass = pass;
 	}
 
-	void on() { active = true; }
-	void off() { active = false; }
+	void on()
+	{
+		active = true;
+		log("rcon: active");
+	}
+	void off()
+	{
+		active = false;
+		log("rcon: inactive");
+	}
 	
 	bool command(const str& cmd)
 	{
@@ -110,6 +118,9 @@ public:
 
 	bool has_chatnobeep() const
 	{
+		if(!active)
+			return false;
+
 		static int y = -1;
 
 		if(y < 0)
@@ -126,6 +137,9 @@ public:
 
 	bool has_msg_to() const
 	{
+		if(!active)
+			return false;
+
 		static int y = -1;
 
 		if(y < 0)
@@ -159,7 +173,7 @@ public:
 
 	bool msg_to_all(const str& message, bool beep = false)
 	{
-		return msg_to(slot(-1), message, beep);
+		return msg_to(slot::all, message, beep);
 	}
 
 	str chat_nobeep(const str& msg) const

@@ -169,7 +169,8 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 
 	std::time_t now = katina.now;
 
-	/*static std::future<void> fut = */std::async(std::launch::async, [this,logged_time,now]
+	//lock_guard lock(katina.futures_mtx);
+	katina.add_future(std::async(std::launch::async, [this,logged_time,now]
 	{
 		pbug("RUNNING THREAD:");
 		// copy these to avoid synchronizing
@@ -280,15 +281,15 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 //		stats.clear();
 //		onevone.clear();
 
-		str boss;
-		GUID guid;
-		if(db.get_ingame_boss(mapname, clients, guid, boss) && guid != null_guid)
-			server.msg_to_all("^7BOSS: " + katina.getPlayerName(guid) + "^7: " + boss, true);
-		else
-			server.msg_to_all("^7BOSS: ^3There is no boss on this map", true);
-
+//		str boss;
+//		GUID guid;
+//		if(db.get_ingame_boss(mapname, clients, guid, boss) && guid != null_guid)
+//			server.msg_to_all("^7BOSS: " + katina.getPlayerName(guid) + "^7: " + boss, true);
+//		else
+//			server.msg_to_all("^7BOSS: ^3There is no boss on this map", true);
+//
 		plog("STATS WRITTEN IN: " << (std::time(0) - start) << " seconds:");
-	});
+	}));
 
 	return true;
 }

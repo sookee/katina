@@ -40,7 +40,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <deque>
 #include <stack>
 #include <vector>
-//#include <random>
+#include <chrono>
 #include <istream>
 #include <ostream>
 #include <sstream>
@@ -220,6 +220,10 @@ TYPEDEF_MAP(slot, siz, slot_siz_map);
 
 typedef std::lock_guard<std::mutex> lock_guard;
 typedef std::unique_lock<std::mutex> unique_lock;
+
+typedef std::chrono::system_clock sys_clk;
+typedef sys_clk::period st_period;
+typedef sys_clk::time_point st_time_point;
 
 }} // katina::types
 
