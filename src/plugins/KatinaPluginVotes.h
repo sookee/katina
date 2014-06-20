@@ -56,8 +56,8 @@ class VotesDatabase
 	bool trace = false;
 
 public:
-	VotesDatabase();
-	virtual ~VotesDatabase();
+	VotesDatabase(): Database() {}
+	virtual ~VotesDatabase() {}
 
 	virtual void init() override;
 	virtual void deinit() override;
