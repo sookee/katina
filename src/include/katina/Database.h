@@ -84,7 +84,7 @@ class Database
 	 */
 	void off();
 
-protected:
+public:
 	
 	/**
 	 * Perform sql statement.

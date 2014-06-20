@@ -57,6 +57,7 @@ class KatinaPluginPlayerDb
 : public KatinaPlugin
 {
 private:
+	Database db;
 	RCon& server;
 
 	const str& mapname;
@@ -65,6 +66,34 @@ private:
 	const guid_siz_map& teams; // GUID -> 'R' | 'B'
 	
 	bool active = false;
+
+	struct player_do
+	{
+		GUID guid;
+		str ip;
+		str name;
+
+		bool operator<(const player_do& p) const
+		{
+			if(guid != p.guid)
+				return guid < p.guid;
+			if(ip != p.ip)
+				return ip < p.ip;
+			if(name != p.name)
+				return name < p.name;
+			return false;
+		}
+	};
+
+	typedef std::set<player_do> player_set;
+	typedef player_set::iterator player_set_iter;
+
+	player_set player_cache;
+
+	typedef std::map<GUID, str> ip_map; // slot -> ip
+	ip_map ips;
+
+	void db_add(const struct player_do& p);
 
 	void add_player(siz num);
 	void sub_player(siz num);

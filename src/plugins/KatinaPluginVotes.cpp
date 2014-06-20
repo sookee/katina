@@ -52,11 +52,19 @@ KatinaPluginVotes::KatinaPluginVotes(Katina& katina)
 
 bool KatinaPluginVotes::open()
 {
-	str host = katina.get("votes.db.host", katina.get("db.host", "localhost"));
-	siz port = katina.get("votes.db.port", katina.get("db.port", 3306));
-	str user = katina.get("votes.db.user", katina.get("db.user", ""));
-	str pass = katina.get("votes.db.pass", katina.get("db.pass", ""));
-	str base = katina.get("votes.db.base", katina.get("db.base"));
+	str default_db = katina.get("db");
+
+	if(!default_db.empty())
+	{
+		plog("DEFAULT DB: " << default_db);
+		default_db += ".";
+	}
+
+	str host = katina.get("votes.db.host", katina.get(default_db + "db.host", "localhost"));
+	siz port = katina.get("votes.db.port", katina.get(default_db + "db.port", 3306));
+	str user = katina.get("votes.db.user", katina.get(default_db + "db.user", ""));
+	str pass = katina.get("votes.db.pass", katina.get(default_db + "db.pass", ""));
+	str base = katina.get("votes.db.base", katina.get(default_db + "db.base"));
 
 	if(base.empty())
 	{

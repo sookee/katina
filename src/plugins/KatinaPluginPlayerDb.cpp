@@ -43,44 +43,6 @@ using namespace katina::string;
 KATINA_PLUGIN_TYPE(KatinaPluginPlayerDb);
 KATINA_PLUGIN_INFO("katina::playerdb", "Katina Player Database", "0.1");
 
-MYSQL mysql;
-str host;
-siz port = 0;
-str user;
-str pass;
-str base;
-
-struct player_do
-{
-	GUID guid;
-	str ip;
-	str name;
-
-//	player_do() {}
-//	explicit player_do(const GUID& guid, const str& ip, const str& name)
-//	: guid(guid), ip(ip), name(name) {}
-
-	bool operator<(const player_do& p) const
-	{
-		if(guid != p.guid)
-			return guid < p.guid;
-		if(ip != p.ip)
-			return ip < p.ip;
-		if(name != p.name)
-			return name < p.name;
-		return false;
-	}
-};
-
-typedef std::set<player_do> player_set;
-typedef player_set::iterator player_set_iter;
-//typedef std::pair<player_set_iter, bool> player_set_ret;
-
-player_set player_cache;
-
-typedef std::map<GUID, str> ip_map; // slot -> ip
-static ip_map ips;
-
 bool is_ip(const str& s)
 {
 	// \d{1-3}.\d{1-3}.\d{1-3}.\d{1-3}
@@ -95,64 +57,64 @@ bool is_ip(const str& s)
 	return s.size() == dot + dig;
 }
 
-bool query(const str& sql)
-{
-	if(mysql_real_query(&mysql, sql.c_str(), sql.length()) && mysql_errno(&mysql) != ER_DUP_ENTRY)
-	{
-		plog("DATABASE ERROR: [" << mysql_errno(&mysql) << "] " << mysql_error(&mysql));
-		plog("              : sql = " << sql);
-		return false;
-	}
+//bool query(const str& sql)
+//{
+//	if(mysql_real_query(&mysql, sql.c_str(), sql.length()) && mysql_errno(&mysql) != ER_DUP_ENTRY)
+//	{
+//		plog("DATABASE ERROR: [" << mysql_errno(&mysql) << "] " << mysql_error(&mysql));
+//		plog("              : sql = " << sql);
+//		return false;
+//	}
+//
+//	return true;
+//}
 
-	return true;
-}
+///**
+// * Perform an "insert" sql statement.
+// * @param sql The "insert" sql statement.
+// * @return true on success else false
+// */
+//bool insert(const str& sql) { return query(sql); }
+//
+//bool insert(const str& sql, my_ulonglong& insert_id)
+//{
+//	if(!insert(sql))
+//		return false;
+//
+//	insert_id = mysql_insert_id(&mysql);
+//
+//	return true;
+//}
+//
+//bool db_escape(const str& from, str& to)
+//{
+//	if(from.size() > 511)
+//	{
+//		plog("DATABASE ERROR: escape: string too long at line: " << __LINE__);
+//		return false;
+//	}
+//	char buff[1024];
+//	to.assign(buff, mysql_real_escape_string(&mysql, buff, from.c_str(), from.size()));
+//	return true;
+//}
 
-/**
- * Perform an "insert" sql statement.
- * @param sql The "insert" sql statement.
- * @return true on success else false
- */
-bool insert(const str& sql) { return query(sql); }
-
-bool insert(const str& sql, my_ulonglong& insert_id)
-{
-	if(!insert(sql))
-		return false;
-
-	insert_id = mysql_insert_id(&mysql);
-
-	return true;
-}
-
-bool db_escape(const str& from, str& to)
-{
-	if(from.size() > 511)
-	{
-		plog("DATABASE ERROR: escape: string too long at line: " << __LINE__);
-		return false;
-	}
-	char buff[1024];
-	to.assign(buff, mysql_real_escape_string(&mysql, buff, from.c_str(), from.size()));
-	return true;
-}
-
-void db_add(const player_do& p)
+void KatinaPluginPlayerDb::db_add(const player_do& p)
 {
 	if(player_cache.count(p))
 		return;
 
 	str safe_name;
 
-	if(!db_escape(p.name, safe_name))
+	if(!db.escape(p.name, safe_name))
 		return;
 
 	// insert into info values ('XXXXXXXX', INET_ATON('123.123.234.234'), 'testing')
 
 	soss sql;
-	sql << "insert into `" << base << "`.`info` values ('";
+	sql << "insert into `info` values ('";
 	sql << p.guid << "',INET_ATON('" << p.ip << "'),'" << safe_name << "')";
 
-	insert(sql.str());
+	db.insert(sql.str());
 	player_cache.insert(p);
 }
 
@@ -172,33 +134,44 @@ KatinaPluginPlayerDb::KatinaPluginPlayerDb(Katina& katina)
 , teams(katina.getTeams())
 , active(true)
 {
-	mysql_init(&mysql);
 }
 
 bool KatinaPluginPlayerDb::open()
 {
-	//katina.add_var_event(this, "player.db.active", active);
-	//katina.add_var_event(this, "flag", "0");
+	str default_db = katina.get("db");
+
+	if(!default_db.empty())
+	{
+		plog("DEFAULT DB: " << default_db);
+		default_db += ".";
+	}
+
+	str host = katina.get("playerdb.db.host", katina.get(default_db + "db.host", "localhost"));
+	siz port = katina.get("playerdb.db.port", katina.get(default_db + "db.port", 3306));
+	str user = katina.get("playerdb.db.user", katina.get(default_db + "db.user", ""));
+	str pass = katina.get("playerdb.db.pass", katina.get(default_db + "db.pass", ""));
+	str base = katina.get("playerdb.db.base", katina.get(default_db + "db.base"));
+
+	if(base.empty())
+	{
+		plog("FATAL: Database config not found");
+		return false;
+	}
+
+	db.config(host, port, user, pass, base);
+
+	if(!db.check())
+	{
+		plog("FATAL: Database can not connect");
+		return false;
+	}
+
+	katina.add_var_event(this, "playerdb.active", active, false);
+
 	katina.add_log_event(this, INIT_GAME);
 	katina.add_log_event(this, CLIENT_CONNECT_INFO);
 	katina.add_log_event(this, CLIENT_DISCONNECT);
 	katina.add_log_event(this, CLIENT_USERINFO_CHANGED);
-
-	host = katina.get("player.db.host", katina.get("playerdb.db.host", katina.get("db.host", "localhost")));
-	port = katina.get("player.db.port", katina.get("playerdb.db.port", katina.get("db.port", 3306)));
-	user = katina.get("player.db.user", katina.get("playerdb.db.user", katina.get("db.user")));
-	pass = katina.get("player.db.pass", katina.get("playerdb.db.pass", katina.get("db.pass", "")));
-	base = katina.get("player.db.base", katina.get("playerdb.db.base", katina.get("db.base")));
-
-	katina.add_var_event(this, "playerdb.active", active, false);
-
-	if(mysql_real_connect(&mysql, host.c_str(), user.c_str()
-		, pass.c_str(), base.c_str(), port, NULL, 0) != &mysql)
-	{
-		log("DATABASE ERROR: Unable to connect; " << mysql_error(&mysql));
-		return false;
-	}
-	plog("PLAYER DB DATABASE: on");
 
 	return true;
 }
@@ -340,7 +313,6 @@ bool KatinaPluginPlayerDb::client_userinfo_changed(siz min, siz sec, slot num, s
 
 void KatinaPluginPlayerDb::close()
 {
-	mysql_close(&mysql);
 }
 
 }} // katina::plugin
