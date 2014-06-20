@@ -181,7 +181,7 @@ private:
 public:
 	KatinaPluginStats(Katina& katina);
 
-	void updatePlayerTime(slot num);
+	//void updatePlayerTime(slot num);
     
 
     ///////////////////////////////////////////

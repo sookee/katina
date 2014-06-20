@@ -307,16 +307,6 @@ bool KatinaPluginStats::shutdown_game(siz min, siz sec)
 	return true;
 }
 
-void KatinaPluginStats::updatePlayerTime(slot num)
-{
-	struct stats& s = stats[katina.getClientGuid(num)];
-	if(s.joined_time > 0)
-	{
-		s.logged_time += katina.now - s.joined_time;
-		s.joined_time  = katina.now;
-	}
-}
-
 void KatinaPluginStats::stall_client(const GUID& guid)
 {
 	if(!stats[guid].joined_time)
@@ -432,7 +422,15 @@ bool KatinaPluginStats::client_disconnect(siz min, siz sec, slot num)
 	if(!active)
 		return true;
 
-	stall_client(katina.getClientGuid(num));
+	const GUID& guid = katina.getClientGuid(num);
+
+	if(guid == null_guid)
+	{
+		plog("ERROR: Unexpected null GUID");
+		return true;
+	}
+
+	stall_client(guid);
 	check_bots_and_players();
 
 	return true;
@@ -449,30 +447,43 @@ bool KatinaPluginStats::kill(siz min, siz sec, slot num1, slot num2, siz weap)
 	if(stop_stats)
 		return true;
 
-	if(clients.find(num1) == clients.end() || clients.find(num2) == clients.end())
+	const GUID& guid1 = katina.getClientGuid(num1);
+
+	if(guid1 == null_guid)
+	{
+		plog("ERROR: Unexpected null GUID");
 		return true;
+	}
+
+	const GUID& guid2 = katina.getClientGuid(num2);
+
+	if(guid2 == null_guid)
+	{
+		plog("ERROR: Unexpected null GUID");
+		return true;
+	}
 
 	// lock_guard lock(mtx);
 	if(num1 == slot::world) // no killer
-		++stats[katina.getClientGuid(num2)].deaths[weap];
+		++stats[guid2].deaths[weap];
 
-	else if(allow_bots || (!katina.getClientGuid(num1).is_bot() && !katina.getClientGuid(num2).is_bot()))
+	else if(allow_bots || (!guid1.is_bot() && !guid2.is_bot()))
 	{
 		if(num1 != num2)
 		{
-			++stats[katina.getClientGuid(num1)].kills[weap];
-			++onevone[katina.getClientGuid(num1)][katina.getClientGuid(num2)];
+			++stats[guid1].kills[weap];
+			++onevone[guid1][guid2];
 
 			// Target was a flag carrier
 			if(num2 == carrierRed || num2 == carrierBlue)
 			{
-				++stats[katina.getClientGuid(num1)].carrierFrags;
-				++stats[katina.getClientGuid(num2)].carrierFragsRecv;
+				++stats[guid1].carrierFrags;
+				++stats[guid2].carrierFragsRecv;
 			}
 		}
 
 		//if(!katina.getClientGuid(num2).is_bot())
-		++stats[katina.getClientGuid(num2)].deaths[weap];
+		++stats[guid2].deaths[weap];
 	}
 
 	return true;
@@ -494,8 +505,16 @@ bool KatinaPluginStats::ctf(siz min, siz sec, slot num, siz team, siz act)
 	if(stop_stats)
 		return true;
 
+	const GUID& guid = katina.getClientGuid(num);
+
+	if(guid == null_guid)
+	{
+		plog("ERROR: Unexpected null GUID");
+		return true;
+	}
+
 	// lock_guard lock(mtx);
-	++stats[katina.getClientGuid(num)].flags[act];
+	++stats[guid].flags[act];
 
 	return true;
 }
@@ -511,8 +530,16 @@ bool KatinaPluginStats::award(siz min, siz sec, slot num, siz awd)
 	if(stop_stats)
 		return true;
 
+	const GUID& guid = katina.getClientGuid(num);
+
+	if(guid == null_guid)
+	{
+		plog("ERROR: Unexpected null GUID");
+		return true;
+	}
+
 	// lock_guard lock(mtx);
-	++stats[katina.getClientGuid(num)].awards[awd];
+	++stats[guid].awards[awd];
 
 	return true;
 }
@@ -523,24 +550,6 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 
 	if(!active)
 		return true;
-
-//	if(do_prev_stats)
-//	{
-//		siz prev = siz(-1);
-//		siz rank = 0;
-//		server.msg_to_all("^7STATS ^3for previous map: ^7" + prev_mapname, true);
-//		for(std::multimap<siz, str>::reverse_iterator r = prev_game_stats.rbegin(); r != prev_game_stats.rend(); ++r)
-//		{
-//			if(prev != r->first)
-//				{ prev = r->first; ++rank; }
-//
-//			str rnk = to_string(rank);
-//			if(rnk.size() == 1)
-//				rnk = "0" + rnk;
-//			server.msg_to_all("#^5" + rnk + " " + r->second + " ^3" + to_string(r->first));
-//		}
-//		do_prev_stats = false;
-//	}
 
 	pbug("INITGAME");
 
@@ -606,15 +615,25 @@ bool KatinaPluginStats::speed(siz min, siz sec, slot num, siz dist, siz time, bo
 
 	// lock_guard lock(mtx);
 
+	const GUID& guid = katina.getClientGuid(num);
+
+	if(guid == null_guid)
+	{
+		plog("ERROR: Unexpected null GUID");
+		return true;
+	}
+
+	struct stats& s = stats[guid];
+
 	if(has_flag)
 	{
-		stats[katina.getClientGuid(num)].time_f += time;
-		stats[katina.getClientGuid(num)].dist_f += dist;
+		s.time_f += time;
+		s.dist_f += dist;
 	}
 	else
 	{
-		stats[katina.getClientGuid(num)].time += time;
-		stats[katina.getClientGuid(num)].dist += dist;
+		s.time += time;
+		s.dist += dist;
 	}
 
 	return true;
@@ -631,8 +650,16 @@ bool KatinaPluginStats::weapon_usage(siz min, siz sec, slot num, siz weapon, siz
 	if(stop_stats)
 		return true;
 
+	const GUID& guid = katina.getClientGuid(num);
+
+	if(guid == null_guid)
+	{
+		plog("ERROR: Unexpected null GUID");
+		return true;
+	}
+
 	// lock_guard lock(mtx);
-	stats[katina.getClientGuid(num)].weapon_usage[weapon] += shots;
+	stats[guid].weapon_usage[weapon] += shots;
 
 	return true;
 }
@@ -648,8 +675,16 @@ bool KatinaPluginStats::mod_damage(siz min, siz sec, slot num, siz mod, siz hits
 	if(stop_stats)
 		return true;
 
+	const GUID& guid = katina.getClientGuid(num);
+
+	if(guid == null_guid)
+	{
+		plog("ERROR: Unexpected null GUID");
+		return true;
+	}
+
 	// lock_guard lock(mtx);
-	mod_damage_stats& moddmg = stats[katina.getClientGuid(num)].mod_damage[mod];
+	mod_damage_stats& moddmg = stats[guid].mod_damage[mod];
 	moddmg.hits		 += hits;
 	moddmg.damage	   += damage;
 	moddmg.hitsRecv	 += hitsRecv;
@@ -673,8 +708,16 @@ bool KatinaPluginStats::player_stats(siz min, siz sec, slot num,
 	if(stop_stats)
 		return true;
 
+	const GUID& guid = katina.getClientGuid(num);
+
+	if(guid == null_guid)
+	{
+		plog("ERROR: Unexpected null GUID");
+		return true;
+	}
+
 	// lock_guard lock(mtx);
-	struct stats& s	 = stats[katina.getClientGuid(num)];
+	struct stats& s	 = stats[guid];
 	s.fragsFace		+= fragsFace;
 	s.fragsBack		+= fragsBack;
 	s.fraggedInFace	+= fraggedInFace;
