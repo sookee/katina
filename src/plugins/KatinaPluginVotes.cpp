@@ -356,4 +356,57 @@ void KatinaPluginVotes::close()
 
 }
 
+row_count VotesDatabase::add_vote(const str& type, const str& item, const GUID& guid, int count)
+{
+	if(trace)
+		log("DATABASE: add_vote(" << type << ", " << item << ", " << guid << ", " << count << ")");
+
+	soss oss;
+	oss << "insert into `votes` (`type`,`item`,`guid`,`count`) values ('"
+		<< type << "','" << item << "','" << guid << "','" << count << "')"
+		<< " on duplicate key update `count` = '" << count << "'";
+
+	str sql = oss.str();
+
+	my_ulonglong update_count = 0;
+
+	if(!update(sql, update_count))
+		return 0;
+
+	return update_count;
+}
+
+bool VotesDatabase::read_map_votes(const str& mapname, guid_int_map& map_votes)
+{
+	if(trace)
+		log("DATABASE: read_map_votes(" << mapname << ")");
+
+	map_votes.clear();
+
+	str safe_mapname;
+	if(!escape(mapname, safe_mapname))
+	{
+		log("DATABASE: ERROR: failed to escape: " << mapname);
+		return bad_id;
+	}
+
+	soss oss;
+	oss << "select `guid`,`count` from `votes` where `type` = 'map' and `item` = '" << safe_mapname << "'";
+
+	str sql = oss.str();
+
+	str_vec_vec rows;
+	if(!select(sql, rows, 2))
+		return false;
+
+	for(siz i = 0; i < rows.size(); ++i)
+	{
+		if(trace)
+		log("DATABASE: restoring vote: " << rows[i][0] << ": " << rows[i][1]);
+		map_votes[GUID(rows[i][0])] = to<int>(rows[i][1]);
+	}
+
+	return true;
+}
+
 }} // katina::plugin

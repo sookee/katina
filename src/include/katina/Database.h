@@ -84,16 +84,6 @@ class Database
 	 */
 	void off();
 
-	// KatinaPluinStats
-	//struct playerstats {};
-	MYSQL_STMT *stmt_add_playerstats = 0;
-	std::array<MYSQL_BIND, 16> bind_add_playerstats;
-	std::array<siz, 15> siz_add_playerstats;
-	char guid_add_playerstats[9];
-	siz guid_length = 8;
-
-	bool trace = false;
-
 protected:
 	
 	/**
@@ -136,6 +126,69 @@ protected:
 	 */
 	bool update(const str& sql, my_ulonglong& update_count);
 
+	bool init_stmt(MYSQL_STMT*& stmt, const str& sql)
+	{
+		if(!(stmt = mysql_stmt_init(&mysql)))
+		{
+			log("");
+			return false;
+		}
+
+		if(mysql_stmt_prepare(stmt, sql.c_str(), sql.size()))
+		{
+			log("DATABASE ERROR: " << mysql_stmt_error(stmt));
+			mysql_stmt_close(stmt);
+			stmt = 0;
+		}
+
+		return true;
+	}
+
+	template<siz SIZE>
+	bool init_binds(std::array<MYSQL_BIND, SIZE>& binds)
+	{
+		memset(binds.data(), 0, binds.size() * sizeof(MYSQL_BIND));
+	}
+
+	void bind_param(MYSQL_BIND& bind, siz& s)
+	{
+		bind.buffer_type = MYSQL_TYPE_LONGLONG;
+		bind.buffer = &s;
+		bind.is_null = 0;
+		bind.length = 0;
+		bind.is_unsigned = 1;
+	}
+
+	template<siz N>
+	void bind_param(MYSQL_BIND& bind, std::array<char, N>& s, siz& len)
+	{
+		bind.buffer_type = MYSQL_TYPE_VARCHAR;
+		bind.buffer = s.data();
+		bind.buffer_length = s.size();
+		bind.is_null = 0;
+		bind.length = &len;
+	}
+
+	template<siz SIZE>
+	bool bind_stmt(MYSQL_STMT*& stmt, std::array<MYSQL_BIND, SIZE>& binds)
+	{
+		if(mysql_stmt_bind_param(stmt, binds.data()))
+		{
+			log("DATABASE ERROR: " << mysql_stmt_error(stmt));
+			mysql_stmt_close(stmt);
+			stmt = 0;
+			return false;
+		}
+		return true;
+	}
+
+	bool kill_stmt(MYSQL_STMT*& stmt)
+	{
+		int err = mysql_stmt_close(stmt);
+		stmt = 0;
+		return err == 0;
+	}
+
 public:
 	Database();
 	virtual ~Database();
@@ -154,8 +207,6 @@ public:
 	 */
 	bool check();
 
-	void set_trace(bool state = true) { trace = state; }
-
 	bool escape(const str& from, str& to);
 
 	str error();
@@ -169,63 +220,18 @@ public:
 	 */
 	bool select(const str& sql, str_vec_vec& rows, siz fields = 0);
 
-
-
-	game_id add_game(std::time_t timet, const str& host, const str& port, const str& mapname);
+	// Virtual Interface
 
 	/**
+	 * Subclasses implement this to deal with things
+	 * that need initiaizing every time the database
+	 * connection is opened.
 	 *
-	 * @param id
-	 * @param table "kills" | "deaths"
-	 * @param guid
-	 * @param weap
-	 * @param count
-	 * @return
+	 * It is called fron Database::on()
 	 */
-	bool add_weaps(game_id id, const str& table, const GUID& guid, siz weap, siz count);
+	virtual void init() {}
 
-	bool add_caps(game_id id, const GUID& guid, siz count);
-	bool add_time(game_id id, const GUID& guid, siz count);
-
-	bool add_player(const GUID& guid, const str& name);
-
-	/**
-	 *
-	 * @param type
-	 * @param item
-	 * @param guid
-	 * @param count
-	 * @return 0 = error, 1 = inserted, 2 = updated
-	 */
-	row_count add_vote(const str& type, const str& item, const GUID& guid, int count);
-
-	bool add_ovo(game_id id, const GUID& guid1, const GUID& guid2, siz count);
-	
-	bool add_weapon_usage(game_id id, const GUID& guid, siz weap, siz shots);
-	bool add_mod_damage(game_id id, const GUID& guid, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv, float weightedHits);
-	bool add_playerstats(game_id id, const GUID& guid,
-		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
-		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
-		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,
-		siz carrierFrags, siz carrierFragsRecv);
-	bool add_playerstats_ps(game_id id, const GUID& guid,
-		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
-		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
-		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,
-		siz carrierFrags, siz carrierFragsRecv);
-	bool add_speed(game_id id, const GUID& guid,
-			siz dist, siz time, bool has_flag);
-
-	bool read_map_votes(const str& mapname, guid_int_map& map_votes);
-
-	bool set_preferred_name(const GUID& guid, const str& name);
-	bool get_preferred_name(const GUID& guid, str& name);
-
-	siz get_kills_per_cap(const str& sql_select_games = "");
-	bool get_ingame_boss(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats);
-	bool get_ingame_champ(const str& mapname, GUID& guid, str& stats);
-	bool get_ingame_stats(const GUID& guid, const str& mapname, siz prev, str& stats, siz& skill);
-	bool get_ingame_crap(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats);
+	virtual void deinit() {}
 };
 
 // TODO: put the reference counting in the Database class itself

@@ -50,13 +50,41 @@ using namespace katina::log;
 using namespace katina::data;
 using namespace katina::types;
 
+class VotesDatabase
+: public Database
+{
+	bool trace = false;
+
+public:
+	VotesDatabase();
+	virtual ~VotesDatabase();
+
+	virtual void init() override;
+	virtual void deinit() override;
+
+	void set_trace(bool state = true) { trace = state; }
+
+	/**
+	 *
+	 * @param type
+	 * @param item
+	 * @param guid
+	 * @param count
+	 * @return 0 = error, 1 = inserted, 2 = updated
+	 */
+	row_count add_vote(const str& type, const str& item, const GUID& guid, int count);
+
+	bool read_map_votes(const str& mapname, guid_int_map& map_votes);
+
+};
+
 class KatinaPluginVotes
 : public KatinaPlugin
 {
 public:
 
 private:
-	Database db;
+	VotesDatabase db;
 
 	// cvars
 	bool active;
