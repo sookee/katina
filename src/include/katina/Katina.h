@@ -41,10 +41,11 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include "log.h"
 
 #include <list>
-#include <pthread.h>
+//#include <pthread.h>
 #include <memory>
 #include <map>
 #include <array>
+#include <future>
 
 int main(const int argc, const char* argv[]);
 
@@ -219,12 +220,15 @@ private:
 	bool reload_plugin(const str& id);
     
 	bool initial_player_info();
-	bool log_read_back(const str& logname, std::ios::streampos pos);
+	bool read_backlog(const str& logname, std::ios::streampos pos);
 	void builtin_command(const GUID& guid, const str& text);
 
 	// We try to keep map keys GUID based as slot numbers are defunct as soon
 	// as a client disconnects.
 
+	// should only need to sync writing to data structures in Katina
+	// and reading from them in threads
+	std::mutex mtx;
     std::array<bool, MAX_CLIENTS> connected;
 	slot_guid_map clients; // slot -> GUID // cleared when players disconnect and on game_begin()
 	guid_str_map players; // GUID -> name  // cleard before game_begin()
@@ -241,14 +245,34 @@ private:
 	 */
 	str mapname;
 
+	/**
+	 * The current map timestamp
+	 */
+	str timestamp;
+
 	siz line_number = 0; // log file line number
 	str line_data; // log file lines read into this variable
 
 	bool do_log_lines = false;
 
+	bool live = false;
+	bool rerun = false;
+	bool backlog = false;
+
+	TYPEDEF_LST(std::future<void>, future_lst);
+	//std::mutex futures_mtx;
+	future_lst futures;
+
 public:
 	Katina();
 	~Katina();
+
+	std::mutex& get_data_mutex() { return mtx; }
+
+	void add_future(std::future<void> fut)
+	{
+		futures.emplace_back(std::move(fut));
+	}
 
 	// API
 
@@ -297,10 +321,14 @@ public:
 	}
 
 	str_map svars; // server variables
+	str runmode;
 	siz logmode;
 	std::time_t now;
 
 	str mod_katina; // server enhancements
+
+	const str& get_runmode() const { return runmode; }
+	bool is_live() const { return live; }
 
 	/**
 	 * Get the name of the bot (default Katina)
@@ -401,7 +429,7 @@ public:
 	template<typename T>
 	T get(const str& s, const T& dflt = T())
 	{
-		if(props[s].empty())
+		if(!have(s))
 			return dflt;
 		T t;
 		std::istringstream(props[s][0]) >> std::boolalpha >> t;
@@ -420,7 +448,7 @@ public:
 	 */
 	str get(const str& s, const str& dflt = "")
 	{
-		return props[s].empty() ? dflt : props[s][0];
+		return have(s) ? props[s][0] : dflt;
 	}
 
 	/**
@@ -436,7 +464,7 @@ public:
 	 */
 	str get_exp(const str& s, const str& dflt = "")
 	{
-		return props[s].empty() ? dflt : expand_env(props[s][0], WRDE_SHOWERR|WRDE_UNDEF);
+		return have(s) ? expand_env(props[s][0], WRDE_SHOWERR|WRDE_UNDEF) : dflt;
 	}
 
 	/**
@@ -480,8 +508,7 @@ public:
 	 */
 	bool has(const str& s)
 	{
-		property_map_range i = props.equal_range(s);
-		return i.first != i.second;
+		return(props.find(s) != props.end() && !props[s].empty());
 	}
 
 	/**
@@ -554,8 +581,8 @@ public:
 	{
 		event_t e;
 		KatinaPlugin* p;
-		evt_erase(): e(event_t::LOG_NONE), p(0) {}
-		evt_erase(event_t e, KatinaPlugin* p): e(e), p(p) {}
+//		evt_erase(): e(event_t::LOG_NONE), p(0) {}
+//		evt_erase(event_t e, KatinaPlugin* p): e(e), p(p) {}
 		bool operator==(const evt_erase& erase) const { return e == erase.e && p == erase.p; }
 	};
 	TYPEDEF_VEC(evt_erase, evt_erase_vec);
@@ -565,7 +592,15 @@ public:
 	{
 		plugin_lst_iter i = std::find(events[e].begin(), events[e].end(), plugin);
 		if(i != events[e].end())
-			erase_events.push_back(evt_erase(e, *i));
+			erase_events.push_back({e, *i}); // TODO: clang++ crashes here
+	}
+
+	void del_log_events(class KatinaPlugin* plugin)
+	{
+		for(const event_map_vt& vt: events)
+			for(const plugin_lst_vt& p: vt.second)
+				if(p == plugin)
+					erase_events.push_back({vt.first, p});
 	}
 
 	/**
@@ -586,7 +621,7 @@ public:
 	bool start(const str& dir);
 };
 
-} // oastats
+} // katina
 
 #endif	// _OASTATS_KATINA_H
 

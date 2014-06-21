@@ -34,4 +34,4 @@ namespace katina {
 
 const GUID null_guid("00000000");
 
-} // oastats
+} // katina

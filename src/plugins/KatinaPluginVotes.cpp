@@ -52,11 +52,19 @@ KatinaPluginVotes::KatinaPluginVotes(Katina& katina)
 
 bool KatinaPluginVotes::open()
 {
-	str host = katina.get("votes.db.host", katina.get("db.host", "localhost"));
-	siz port = katina.get("votes.db.port", katina.get("db.port", 3306));
-	str user = katina.get("votes.db.user", katina.get("db.user", ""));
-	str pass = katina.get("votes.db.pass", katina.get("db.pass", ""));
-	str base = katina.get("votes.db.base", katina.get("db.base"));
+	str default_db = katina.get("db");
+
+	if(!default_db.empty())
+	{
+		plog("DEFAULT DB: " << default_db);
+		default_db += ".";
+	}
+
+	str host = katina.get("votes.db.host", katina.get(default_db + "db.host", "localhost"));
+	siz port = katina.get("votes.db.port", katina.get(default_db + "db.port", 3306));
+	str user = katina.get("votes.db.user", katina.get(default_db + "db.user", ""));
+	str pass = katina.get("votes.db.pass", katina.get(default_db + "db.pass", ""));
+	str base = katina.get("votes.db.base", katina.get(default_db + "db.base"));
 
 	if(base.empty())
 	{
@@ -188,21 +196,28 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 
 	announce_time = 0; // turn off
 
-	const slot_guid_map& clients = katina.getClients();
-
-	std::async(std::launch::async, [this,clients]
+	std::async(std::launch::async, [this]
 	{
+		const slot_guid_map clients = katina.getClients();
+
 		for(slot_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
 		{
-			if(i->second.is_bot())
+			// were they connected when the thread began?
+			if(i->second.is_bot() || !i->second.is_connected())
 				continue;
 
-			if(!katina.is_connected(i->first))
-				continue;
+			{
+				// have they disconnected since the thread began?
+				lock_guard lock(katina.get_data_mutex());
+				const GUID& guid = katina.getClientGuid(i->first);
+				if(guid == null_guid || !guid.is_connected())
+					continue;
+			}
 
-			thread_sleep_millis(2000);
+			if(katina.is_live())
+				thread_sleep_millis(2000);
 
-			pbug("ANNOUNCING VOTE TO: " << i->second << " " << katina.getPlayerName(i->second));
+			pbug("ANNOUNCING VOTE TO: [" << i->first << ": " << i->second << "] " << katina.getPlayerName(i->second));
 
 			bug_var(i->first);
 			if(i->first == slot::bad)
@@ -211,7 +226,7 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 				continue;
 			}
 
-			if(i->first > slot::max)
+			if(i->first >= slot::max)
 			{
 				plog("ERROR: Client number too large: " << i->first);
 				continue;
@@ -266,7 +281,19 @@ bool KatinaPluginVotes::say(siz min, siz sec, const GUID& guid, const str& text)
 
 	lower(cmd);
 	lower(type);
-	
+
+	if(cmd == "!lovemap")
+	{
+		cmd = "!love";
+		type = "map";
+	}
+
+	if(cmd == "!hatemap")
+	{
+		cmd = "!hate";
+		type = "map";
+	}
+
 	if(cmd == "!help" || cmd == "?help")
 	{
 		katina.server.msg_to(say_num, "^7VOTES: ^2?love^7, ^2?hate^7");
@@ -341,6 +368,59 @@ bool KatinaPluginVotes::say(siz min, siz sec, const GUID& guid, const str& text)
 void KatinaPluginVotes::close()
 {
 
+}
+
+row_count VotesDatabase::add_vote(const str& type, const str& item, const GUID& guid, int count)
+{
+	if(trace)
+		log("DATABASE: add_vote(" << type << ", " << item << ", " << guid << ", " << count << ")");
+
+	soss oss;
+	oss << "insert into `votes` (`type`,`item`,`guid`,`count`) values ('"
+		<< type << "','" << item << "','" << guid << "','" << count << "')"
+		<< " on duplicate key update `count` = '" << count << "'";
+
+	str sql = oss.str();
+
+	my_ulonglong update_count = 0;
+
+	if(!update(sql, update_count))
+		return 0;
+
+	return update_count;
+}
+
+bool VotesDatabase::read_map_votes(const str& mapname, guid_int_map& map_votes)
+{
+	if(trace)
+		log("DATABASE: read_map_votes(" << mapname << ")");
+
+	map_votes.clear();
+
+	str safe_mapname;
+	if(!escape(mapname, safe_mapname))
+	{
+		log("DATABASE: ERROR: failed to escape: " << mapname);
+		return bad_id;
+	}
+
+	soss oss;
+	oss << "select `guid`,`count` from `votes` where `type` = 'map' and `item` = '" << safe_mapname << "'";
+
+	str sql = oss.str();
+
+	str_vec_vec rows;
+	if(!select(sql, rows, 2))
+		return false;
+
+	for(siz i = 0; i < rows.size(); ++i)
+	{
+		if(trace)
+		log("DATABASE: restoring vote: " << rows[i][0] << ": " << rows[i][1]);
+		map_votes[GUID(rows[i][0])] = to<int>(rows[i][1]);
+	}
+
+	return true;
 }
 
 }} // katina::plugin

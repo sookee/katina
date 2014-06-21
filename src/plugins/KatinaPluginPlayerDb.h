@@ -57,6 +57,7 @@ class KatinaPluginPlayerDb
 : public KatinaPlugin
 {
 private:
+	Database db;
 	RCon& server;
 
 	const str& mapname;
@@ -64,7 +65,35 @@ private:
 	const guid_str_map& players; // GUID -> name
 	const guid_siz_map& teams; // GUID -> 'R' | 'B'
 	
-	bool active;
+	bool active = false;
+
+	struct player_do
+	{
+		GUID guid;
+		str ip;
+		str name;
+
+		bool operator<(const player_do& p) const
+		{
+			if(guid != p.guid)
+				return guid < p.guid;
+			if(ip != p.ip)
+				return ip < p.ip;
+			if(name != p.name)
+				return name < p.name;
+			return false;
+		}
+	};
+
+	typedef std::set<player_do> player_set;
+	typedef player_set::iterator player_set_iter;
+
+	player_set player_cache;
+
+	typedef std::map<GUID, str> ip_map; // slot -> ip
+	ip_map ips;
+
+	void db_add(const struct player_do& p);
 
 	void add_player(siz num);
 	void sub_player(siz num);
@@ -81,8 +110,9 @@ public:
 	virtual str get_version() const override;
 
 	//virtual void cvar_event(const str& name, const str& value);
-	virtual str api(const str& cmd);
+	virtual str api(const str& cmd, void* blob = nullptr) override;
 	
+	virtual bool init_game(siz min, siz sec, const str_map& svars) override;
 	virtual bool client_connect_info(siz min, siz sec, slot num, const GUID& guid, const str& ip) override;
 	virtual bool client_disconnect(siz min, siz sec, slot num) override;
 	virtual bool client_userinfo_changed(siz min, siz sec, slot num, siz team, const GUID& guid, const str& name, siz hc) override;

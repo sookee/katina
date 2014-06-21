@@ -45,7 +45,7 @@ using namespace katina::time;
 using namespace katina::types;
 using namespace katina::string;
 
-#define TIMEOUT 1000
+#define TIMEOUT milliseconds(1000)
 
 /**
  * IPv4 IPv6 agnostic OOB (out Of Band) comms
@@ -57,9 +57,9 @@ using namespace katina::string;
  * @return false if failed to connect/send or receive else true
  */
 bool aocom(const str& cmd, str_vec& packets, const str& host, int port
-	, siz wait = TIMEOUT);
+	, milliseconds wait = TIMEOUT);
 
-bool rcon(const str& cmd, str& reply, const str& host, int port, siz wait = TIMEOUT);
+bool rcon(const str& cmd, str& reply, const str& host, int port, milliseconds wait = TIMEOUT);
 
 class RCon
 {
@@ -81,8 +81,16 @@ public:
 		this->pass = pass;
 	}
 
-	void on() { active = true; }
-	void off() { active = false; }
+	void on()
+	{
+		active = true;
+		log("rcon: active");
+	}
+	void off()
+	{
+		active = false;
+		log("rcon: inactive");
+	}
 	
 	bool command(const str& cmd)
 	{
@@ -96,7 +104,7 @@ public:
 	{
 		if(!active)
 			return true;
-		return rcon("rcon " + pass + " " + cmd, reply, host, port, 2000);
+		return rcon("rcon " + pass + " " + cmd, reply, host, port, seconds(2));
 	}
 
 	str chat(const str& msg) const
@@ -110,6 +118,9 @@ public:
 
 	bool has_chatnobeep() const
 	{
+		if(!active)
+			return false;
+
 		static int y = -1;
 
 		if(y < 0)
@@ -126,6 +137,9 @@ public:
 
 	bool has_msg_to() const
 	{
+		if(!active)
+			return false;
+
 		static int y = -1;
 
 		if(y < 0)
@@ -159,7 +173,7 @@ public:
 
 	bool msg_to_all(const str& message, bool beep = false)
 	{
-		return msg_to(slot(-1), message, beep);
+		return msg_to(slot::all, message, beep);
 	}
 
 	str chat_nobeep(const str& msg) const

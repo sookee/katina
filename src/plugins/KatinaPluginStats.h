@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef _OASTATS_KATINA_PLUGIN_STATS_H
 #define	_OASTATS_KATINA_PLUGIN_STATS_H
 /*
@@ -32,6 +32,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 '-----------------------------------------------------------------*/
 #include <map>
 #include <utility>
+#include <mutex>
 
 #include <katina/Katina.h>
 #include <katina/KatinaPlugin.h>
@@ -122,10 +123,72 @@ typedef guid_stat_map::value_type guid_stat_vt;
 typedef std::map<GUID, stats>::iterator guid_stat_map_iter;
 typedef std::map<GUID, stats>::const_iterator guid_stat_map_citer;
 
-//class Database
-//: public katina::data::Database
-//{
-//};
+class StatsDatabase
+: public Database
+{
+	bool trace = false;
+
+	MYSQL_STMT *stmt_add_playerstats = 0;
+	std::array<MYSQL_BIND, 16> bind_add_playerstats;
+	std::array<siz, 15> siz_add_playerstats;
+	std::array<char, 8> guid_add_playerstats;
+	siz guid_length = 8;
+
+public:
+	StatsDatabase(): Database() {};
+	virtual ~StatsDatabase() {};
+
+	virtual void init() override;
+	virtual void deinit() override;
+
+	void set_trace(bool state = true) { trace = state; }
+
+	game_id add_game(std::time_t timet, const str& host, const str& port, const str& mapname);
+
+	/**
+	 *
+	 * @param id
+	 * @param table "kills" | "deaths"
+	 * @param guid
+	 * @param weap
+	 * @param count
+	 * @return
+	 */
+	bool add_weaps(game_id id, const str& table, const GUID& guid, siz weap, siz count);
+
+	bool add_caps(game_id id, const GUID& guid, siz count);
+	bool add_time(game_id id, const GUID& guid, siz count);
+
+	bool add_player(const GUID& guid, const str& name);
+
+	bool add_ovo(game_id id, const GUID& guid1, const GUID& guid2, siz count);
+
+	bool add_weapon_usage(game_id id, const GUID& guid, siz weap, siz shots);
+	bool add_mod_damage(game_id id, const GUID& guid, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv, float weightedHits);
+	bool add_playerstats(game_id id, const GUID& guid,
+		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
+		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
+		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,
+		siz carrierFrags, siz carrierFragsRecv);
+	bool add_playerstats_ps(game_id id, const GUID& guid,
+		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
+		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
+		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,
+		siz carrierFrags, siz carrierFragsRecv);
+	bool add_speed(game_id id, const GUID& guid,
+			siz dist, siz time, bool has_flag);
+
+	bool read_map_votes(const str& mapname, guid_int_map& map_votes);
+
+	bool set_preferred_name(const GUID& guid, const str& name);
+	bool get_preferred_name(const GUID& guid, str& name);
+
+	siz get_kills_per_cap(const str& sql_select_games = "");
+	bool get_ingame_boss(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats);
+	bool get_ingame_champ(const str& mapname, GUID& guid, str& stats);
+	bool get_ingame_stats(const GUID& guid, const str& mapname, siz prev, str& stats, siz& skill);
+	bool get_ingame_crap(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats);
+};
 
 class KatinaPluginStats
 : public KatinaPlugin
@@ -134,16 +197,15 @@ public:
 
 	onevone_map onevone; // GUID -> GUID -> <count> //
 	guid_stat_map stats; // GUID -> <stat>
-	//guid_str_map names; // keep track of all players involed in the game
 
 private:
 	const str& mapname;
 	const slot_guid_map& clients; // slot -> GUID
 	const guid_str_map& players; // GUID -> name
 	const guid_siz_map& teams; // GUID -> 'R' | 'B'
-	RCon& server;
 
-	Database db;
+	RCon& server;
+	StatsDatabase db;
 
 	str host;
 	str port;
@@ -152,14 +214,11 @@ private:
 	bool active;
 	bool write;
     bool recordBotGames;
-    bool do_prev_stats;
 
 	bool in_game;
 
 	bool allow_bots = false;
 	bool stop_stats; // are any bots playing?
-	//siz human_players_r; // number of human players on red team
-	//siz human_players_b; // number of human players on blue team
 
 	// Current flag carriers (slot number, slot::bad if nobody carries the flag)
 	slot carrierBlue;
@@ -179,8 +238,8 @@ private:
 public:
 	KatinaPluginStats(Katina& katina);
 
+	// TODO: ass this as an api() call
 	void updatePlayerTime(slot num);
-    
 
     ///////////////////////////////////////////
 	// API

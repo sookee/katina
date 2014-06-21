@@ -46,13 +46,15 @@ void thread_sleep_millis(siz msecs)
 	usleep(msecs * 1000);
 }
 
-inline
-milliseconds get_millitime()
-{
-	timespec ts;
-	clock_gettime(CLOCK_REALTIME, &ts);
-	return (ts.tv_sec * 1000) + (ts.tv_nsec / 1000000);
-}
+//inline
+//hr_time_point get_millitime()
+//{
+//	timespec ts;
+//	clock_gettime(CLOCK_REALTIME, &ts);
+//	hr_time_point now;
+//	now.
+//	return milliseconds((ts.tv_sec * 1000) + (ts.tv_nsec / 1000000));
+//}
 
 }} // katina::time
 

@@ -40,7 +40,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <deque>
 #include <stack>
 #include <vector>
-//#include <random>
+#include <chrono>
 #include <istream>
 #include <ostream>
 #include <sstream>
@@ -171,11 +171,12 @@ typedef std::ofstream sofs;
 
 typedef std::stringstream sss;
 
-typedef long milliseconds;
+//typedef long milliseconds;
 
 class slot
 {
-	siz num;
+	int num;
+	explicit slot(int num): num(num) {}
 public:
 	static const slot bad;
 	static const slot all;
@@ -183,7 +184,7 @@ public:
 	static const slot max;
 
 	slot(): num(-1) {}
-	explicit slot(siz num): num(num) {}
+	slot(const slot& num): num(num.num) {}
 
 	bool operator<(const slot& s) const { return num < s.num; }
 	bool operator>(const slot& s) const { return num > s.num; }
@@ -221,18 +222,18 @@ TYPEDEF_MAP(slot, siz, slot_siz_map);
 typedef std::lock_guard<std::mutex> lock_guard;
 typedef std::unique_lock<std::mutex> unique_lock;
 
-template<typename T>
-void set_blob(void* blob, T* t)
-{
-	*static_cast<T**>(blob) = t;
-}
+typedef std::chrono::system_clock sys_clk;
+typedef sys_clk::period sys_period;
+typedef sys_clk::time_point sys_time_point;
 
-template<typename T>
-void* set_blob(T*& t)
-{
-	return &t;
-}
+typedef std::chrono::high_resolution_clock hr_clk;
+typedef hr_clk::period hr_period;
+typedef hr_clk::time_point hr_time_point;
 
+using std::chrono::milliseconds;
+using std::chrono::seconds;
+using std::chrono::minutes;
+using std::chrono::hours;
 
 }} // katina::types
 

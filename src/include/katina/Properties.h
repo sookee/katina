@@ -121,6 +121,6 @@ public:
 	}
 };
  
-} // ::oastats
+} // katina
 
 #endif // _OASTATS_PROPERTIES_H
