@@ -203,7 +203,7 @@ private:
 	bool load_sanctions();
 	bool save_sanctions();
 
-	std::time_t duration_to_time(const str& duration, siz dflt = 0);
+	std::time_t duration_to_time(const str& duration, const std::chrono::seconds& dflt = std::chrono::seconds(0));
 
 
 	/**

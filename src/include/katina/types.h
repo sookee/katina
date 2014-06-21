@@ -171,7 +171,7 @@ typedef std::ofstream sofs;
 
 typedef std::stringstream sss;
 
-typedef long milliseconds;
+//typedef long milliseconds;
 
 class slot
 {
@@ -223,8 +223,17 @@ typedef std::lock_guard<std::mutex> lock_guard;
 typedef std::unique_lock<std::mutex> unique_lock;
 
 typedef std::chrono::system_clock sys_clk;
-typedef sys_clk::period st_period;
-typedef sys_clk::time_point st_time_point;
+typedef sys_clk::period sys_period;
+typedef sys_clk::time_point sys_time_point;
+
+typedef std::chrono::high_resolution_clock hr_clk;
+typedef hr_clk::period hr_period;
+typedef hr_clk::time_point hr_time_point;
+
+using std::chrono::milliseconds;
+using std::chrono::seconds;
+using std::chrono::minutes;
+using std::chrono::hours;
 
 }} // katina::types
 

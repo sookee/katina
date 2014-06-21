@@ -61,16 +61,18 @@ using namespace katina::string;
  * @return false if failed to connect/send or receive else true
  */
 bool aocom(const str& cmd, str_vec& packets, const str& host, int port
-	, siz wait)
+	, milliseconds wait)
 {
 	addrinfo hints;
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC; // AF_INET or AF_INET6
 	hints.ai_socktype = SOCK_DGRAM;
 	
+	hr_time_point now = hr_clk::now();
+
 //	static milliseconds last = get_millitime();
 //
-	milliseconds now = get_millitime();
+//	milliseconds now = get_millitime();
 //	while((now = get_millitime()) - last < 1500)
 //		thread_sleep_millis(1500 + last - now);
 //
@@ -83,7 +85,7 @@ bool aocom(const str& cmd, str_vec& packets, const str& host, int port
 		return false;
 	}
 
-	milliseconds timeout = now + wait;
+	hr_time_point timeout = now + wait;
 
 	// try to connect to each
 	int cs;
@@ -127,7 +129,7 @@ bool aocom(const str& cmd, str_vec& packets, const str& host, int port
 	{
 		while((n = recv(cs, buf, sizeof(buf), MSG_DONTWAIT)) ==  -1 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR))
 		{
-			if(get_millitime() > timeout)
+			if(hr_clk::now() > timeout)
 			{
 				log("socket timed out connecting to: " << host << ":" << port);
 				::close(cs);
@@ -145,7 +147,7 @@ bool aocom(const str& cmd, str_vec& packets, const str& host, int port
 	return true;
 }
 
-bool rcon(const str& cmd, str& reply, const str& host, int port, siz wait)
+bool rcon(const str& cmd, str& reply, const str& host, int port, milliseconds wait)
 {
 	str_vec packets;
 	if(!aocom(cmd, packets, host, port, wait))

@@ -217,7 +217,7 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 			if(katina.is_live())
 				thread_sleep_millis(2000);
 
-			pbug("ANNOUNCING VOTE TO: " << i->second << " " << katina.getPlayerName(i->second));
+			pbug("ANNOUNCING VOTE TO: [" << i->first << ": " << i->second << "] " << katina.getPlayerName(i->second));
 
 			bug_var(i->first);
 			if(i->first == slot::bad)
