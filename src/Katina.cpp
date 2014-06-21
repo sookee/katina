@@ -1196,6 +1196,7 @@ bool Katina::read_backlog(const str& logname, std::ios::streampos pos)
 				svars[key] = val;
 
 			mapname = svars["mapname"];
+			timestamp = svars["g_timestamp"];
 			mod_katina = svars["mod_katina"];
 		}
 	}
@@ -1377,12 +1378,7 @@ bool Katina::start(const str& dir)
 			iss.clear();
 			iss.str(params);
 
-			//lock_guard lock(cvarevts_mtx);
-
-			//if(rerun)
-				now = base_now + (min * 60) + sec;
-			//else
-			//	now = std::time(0);
+			now = base_now + (min * 60) + sec;
 
 			for(const evt_erase& e: erase_events)
 			{
@@ -1407,10 +1403,6 @@ bool Katina::start(const str& dir)
 
 			if(cmd == "Exit:")
 			{
-				//bug(cmd << "(" << params << ")");
-				if(events[EXIT].empty())
-					continue;
-
 				for(plugin_lst_iter i = events[EXIT].begin()
 					; i != events[EXIT].end(); ++i)
 					(*i)->exit(min, sec);
@@ -1423,9 +1415,6 @@ bool Katina::start(const str& dir)
 			}
 			else if(cmd == "Warmup:")
 			{
-				if(events[WARMUP].empty())
-					continue;
-
 				for(plugin_lst_iter i = events[WARMUP].begin()
 					; i != events[WARMUP].end(); ++i)
 					(*i)->warmup(min, sec);
@@ -1459,11 +1448,15 @@ bool Katina::start(const str& dir)
 								nlog("ERROR: Parsing handicap: " << line_data.substr(pos + 4));
 						}
 
-						siz teamBefore = teams[guid];
+						siz teamBefore;
 
-						clients[num] = guid;
-						players[guid] = name;
-						teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
+						{
+							lock_guard lock(mtx);
+							teamBefore = teams[guid];
+							clients[num] = guid;
+							players[guid] = name;
+							teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
+						}
 
 						for(auto plugin: events[CLIENT_USERINFO_CHANGED])
 							plugin->client_userinfo_changed(min, sec, num, team, guid, name, hc);
@@ -1483,14 +1476,16 @@ bool Katina::start(const str& dir)
 				{
 					//if(!is_connected(num))
 					//clients[num] = null_guid; // connecting
-					connected[siz(num)] = true;
+					{
+						lock_guard lock(mtx);
+						connected[siz(num)] = true;
+					}
 					for(auto plugin: events[CLIENT_CONNECT])
 						plugin->client_connect(min, sec, num);
 				}
 			}
 			else if(cmd == "ClientConnectInfo:")
 			{
-				// ClientConnectInfo: 4 87597A67B5A4E3C79544A72B7B5DA741 81.101.111.32
 				nlog("ClientConnectInfo: " << params);
 				if(events[CLIENT_CONNECT_INFO].empty())
 					continue;
@@ -1524,7 +1519,10 @@ bool Katina::start(const str& dir)
 					nlog("Error parsing ClientBegin: "  << params);
 				else
 				{
-					connected[siz(num)] = true; // start trusting ClientUserinfoChanged
+					{
+						lock_guard lock(mtx);
+						connected[siz(num)] = true;
+					}
 					for(auto plugin: events[CLIENT_BEGIN])
 						plugin->client_begin(min, sec, num);
 				}
@@ -1542,7 +1540,10 @@ bool Katina::start(const str& dir)
 				}
 				else
 				{
-					connected[siz(num)] = false;
+					{
+						lock_guard lock(mtx);
+						connected[siz(num)] = false;
+					}
 					const GUID& guid = getClientGuid(num);
 
 					// Sometimes you get 2 ClientDisconnect: events with
@@ -1556,12 +1557,15 @@ bool Katina::start(const str& dir)
 						plugin->client_disconnect(min, sec, num);
 
 					siz teamBefore = teams[guid];
-					teams[guid] = TEAM_U;
-
+					{
+						lock_guard lock(mtx);
+						teams[guid] = TEAM_U;
+					}
 				   if(teamBefore != TEAM_U && !guid.is_bot())
 					   for(auto plugin: events[CLIENT_SWITCH_TEAM])
 							plugin->client_switch_team(min, sec, num, teamBefore, TEAM_U);
 
+					lock_guard lock(mtx);
 					clients.erase(num);
 				}
 			}
@@ -1732,28 +1736,32 @@ bool Katina::start(const str& dir)
 			}
 			else if(cmd == "InitGame:")
 			{
-				svars.clear();
-				teams.clear();
-				clients.clear();
-				players.clear();
+				{
+					lock_guard lock(mtx);
+					svars.clear();
+					teams.clear();
+					clients.clear();
+					players.clear();
 
-				static str key, val;
-				iss.ignore(); // skip initial '\\'
-				while(sgl(sgl(iss, key, '\\'), val, '\\'))
-					svars[key] = val;
+					static str key, val;
+					iss.ignore(); // skip initial '\\'
+					while(sgl(sgl(iss, key, '\\'), val, '\\'))
+						svars[key] = val;
 
-				mapname = svars["mapname"];
-				mod_katina = svars["mod_katina"];
+					mapname = svars["mapname"];
+					mod_katina = svars["mod_katina"];
+					timestamp = svars["g_timestamp"];
+				}
 
 				if(rerun && !have("runtime"))
 				{
 					str skip;
 					siz Y, M, D, h, m, s;
 					char c;
-					siss iss(svars["g_timestamp"]);
+					siss iss(timestamp);
 					// g_timestamp 2013-05-24 09:34:32
 					if(!(iss >> Y >> c >> M >> c >> D >> c >> h >> c >> m >> c >> s))
-						nlog("ERROR: parsing g_timestamp: " << svars["g_timestamp"]);
+						nlog("ERROR: parsing g_timestamp: " << timestamp);
 					else
 					{
 						tm t;

@@ -226,6 +226,9 @@ private:
 	// We try to keep map keys GUID based as slot numbers are defunct as soon
 	// as a client disconnects.
 
+	// should only need to sync writing to data structures in Katina
+	// and reading from them in threads
+	std::mutex mtx;
     std::array<bool, MAX_CLIENTS> connected;
 	slot_guid_map clients; // slot -> GUID // cleared when players disconnect and on game_begin()
 	guid_str_map players; // GUID -> name  // cleard before game_begin()
@@ -241,6 +244,11 @@ private:
 	 * The current map name
 	 */
 	str mapname;
+
+	/**
+	 * The current map timestamp
+	 */
+	str timestamp;
 
 	siz line_number = 0; // log file line number
 	str line_data; // log file lines read into this variable
@@ -258,6 +266,8 @@ private:
 public:
 	Katina();
 	~Katina();
+
+	std::mutex& get_data_mutex() { return mtx; }
 
 	void add_future(std::future<void> fut)
 	{

@@ -202,11 +202,17 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 
 		for(slot_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
 		{
+			// were they connected when the thread began?
 			if(i->second.is_bot() || !i->second.is_connected())
 				continue;
 
-//			if(!katina.is_connected(i->first))
-//				continue;
+			{
+				// have they disconnected since the thread began?
+				lock_guard lock(katina.get_data_mutex());
+				const GUID& guid = katina.getClientGuid(i->first);
+				if(guid == null_guid || !guid.is_connected())
+					continue;
+			}
 
 			if(katina.is_live())
 				thread_sleep_millis(2000);
@@ -220,7 +226,7 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 				continue;
 			}
 
-			if(i->first > slot::max)
+			if(i->first >= slot::max)
 			{
 				plog("ERROR: Client number too large: " << i->first);
 				continue;
