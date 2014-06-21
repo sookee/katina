@@ -140,6 +140,8 @@ bool KatinaPluginPlayerDb::open()
 {
 	str default_db = katina.get("db");
 
+	pbug_var(default_db);
+
 	if(!default_db.empty())
 	{
 		plog("DEFAULT DB: " << default_db);
@@ -151,6 +153,11 @@ bool KatinaPluginPlayerDb::open()
 	str user = katina.get("playerdb.db.user", katina.get(default_db + "db.user", ""));
 	str pass = katina.get("playerdb.db.pass", katina.get(default_db + "db.pass", ""));
 	str base = katina.get("playerdb.db.base", katina.get(default_db + "db.base"));
+
+	pbug_var(host);
+	pbug_var(port);
+	pbug_var(user);
+	pbug_var(base);
 
 	if(base.empty())
 	{

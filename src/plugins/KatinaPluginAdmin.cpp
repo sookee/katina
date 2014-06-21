@@ -1507,6 +1507,7 @@ bool KatinaPluginAdmin::say(const siz min, const siz sec, const GUID& guid, cons
 		// idx: 0-sanctions.size() - 1
 		// duration: num "s"|"m"|"h"|"d"|"w"
 
+		slot num;
 		if(!(iss >> cmd) || ((siss(cmd) >> num).eof()))
 		{
 			// list
