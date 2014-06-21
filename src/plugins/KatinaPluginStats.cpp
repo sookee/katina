@@ -63,7 +63,6 @@ KatinaPluginStats::KatinaPluginStats(Katina& katina)
 , active(true)
 , write(true)
 , recordBotGames(false)
-, do_prev_stats(false)
 , in_game(false)
 , stop_stats(false)
 , carrierBlue(slot::bad)
@@ -922,7 +921,7 @@ str KatinaPluginStats::api(const str& cmd, void* blob)
 	}
 	else if(c == "get_stats") //guid_stat_map stats;
 	{
-//		*static_cast<guid_stat_map**>(blob) = &stats;
+		bug_var(&stats);
 		set_blob(blob, &stats);
 
 		return "OK:";
@@ -1210,11 +1209,15 @@ bool StatsDatabase::add_playerstats_ps(game_id id, const GUID& guid,
 	siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,
 	siz carrierFrags, siz carrierFragsRecv)
 {
+	log("DATABASE:  WARN: stored procedure not set");
+	log("DATABASE:      : using fall-back");
 	if(!stmt_add_playerstats)
+	{
 		return add_playerstats(id, guid, fragsFace, fragsBack, fraggedInFace, fraggedInBack,
-	spawnKills, spawnKillsRecv, pushes, pushesRecv,
-	healthPickedUp, armorPickedUp, holyShitFrags, holyShitFragged,
-	carrierFrags, carrierFragsRecv);
+			spawnKills, spawnKillsRecv, pushes, pushesRecv,
+			healthPickedUp, armorPickedUp, holyShitFrags, holyShitFragged,
+			carrierFrags, carrierFragsRecv);
+	}
 
 	siz j = 0;
 	siz_add_playerstats[j++] = id;
@@ -1788,7 +1791,8 @@ bool StatsDatabase::get_ingame_stats(const GUID& guid, const str& mapname, siz p
 	return true;
 }
 
-// TODO: Make bood, champ & stats return a proper GUID like this does scanning the clients
+// TODO: Make boss, champ & stats return a proper GUID like this does scanning the clients
+// TODO: add some minumum requirements like minimum time/frags/caps etc...
 bool StatsDatabase::get_ingame_crap(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats)
 {
 	log("DATABASE: get_ingame_crap(" << mapname << ", " << clients.size() << ")");

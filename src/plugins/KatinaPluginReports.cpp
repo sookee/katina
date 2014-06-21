@@ -645,6 +645,8 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 		do_stats = false;
 	}
 
+	bug_var(statsptr);
+
 	if(do_stats && stats)
 	{
 		std::multimap<str, str> scores;

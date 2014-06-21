@@ -132,7 +132,6 @@ class StatsDatabase
 	std::array<MYSQL_BIND, 16> bind_add_playerstats;
 	std::array<siz, 15> siz_add_playerstats;
 	std::array<char, 8> guid_add_playerstats;
-//	char guid_add_playerstats[9];
 	siz guid_length = 8;
 
 public:
@@ -196,18 +195,16 @@ class KatinaPluginStats
 {
 public:
 
-	//std::mutex mtx;
 	onevone_map onevone; // GUID -> GUID -> <count> //
 	guid_stat_map stats; // GUID -> <stat>
-	//guid_str_map names; // keep track of all players involed in the game
 
 private:
 	const str& mapname;
 	const slot_guid_map& clients; // slot -> GUID
 	const guid_str_map& players; // GUID -> name
 	const guid_siz_map& teams; // GUID -> 'R' | 'B'
-	RCon& server;
 
+	RCon& server;
 	StatsDatabase db;
 
 	str host;
@@ -217,14 +214,11 @@ private:
 	bool active;
 	bool write;
     bool recordBotGames;
-    bool do_prev_stats;
 
 	bool in_game;
 
 	bool allow_bots = false;
 	bool stop_stats; // are any bots playing?
-	//siz human_players_r; // number of human players on red team
-	//siz human_players_b; // number of human players on blue team
 
 	// Current flag carriers (slot number, slot::bad if nobody carries the flag)
 	slot carrierBlue;
