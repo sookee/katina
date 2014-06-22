@@ -153,11 +153,10 @@ private:
 	typedef str_pair_vec::iterator str_pair_vec_iter;
 	typedef str_pair_vec::const_iterator str_pair_vec_citer;
 
-	typedef std::list<spam> spam_lst;
-	typedef spam_lst::iterator spam_lst_iter;
-	typedef spam_lst::const_iterator spam_lst_citer;
-	typedef std::map<str, spam_lst> spam_map;
-	typedef std::map<slot, std::time_t> mute_map;
+	TYPEDEF_LST(spam, spam_lst);
+	TYPEDEF_LST(slot, slot_lst);
+	TYPEDEF_MAP(str, spam_lst, spam_map);
+	TYPEDEF_MAP(slot, std::time_t, mute_map);
 
 	spam_map spams;
 	mute_map mutes;
@@ -167,7 +166,7 @@ private:
 	// allows spamkill_spams / spamkill_period
 	// otherwise !mute for spamkill_mute_period
 
-	bool do_spamkill = false;
+	bool spamkill_active = false;
 	siz spamkill_spams; // number of identical msgs / period before !mute
 	siz spamkill_period; // period (seconds)
 	siz spamkill_mute; // duration of mute (seconds)
@@ -182,7 +181,7 @@ private:
 
 	void tell_perp(slot admin_num, slot perp_num, const str& msg);
 
-	void spamkill(slot num);
+	bool spamkill(slot num);
 	bool fair();
 	bool fixteams();
 
@@ -251,10 +250,7 @@ public:
 	virtual bool callvote(siz min, siz sec, slot num, const str& type, const str& info) override;
 	virtual bool kill(siz min, siz sec, slot num1, slot num2, siz weap) override;
 	virtual bool push(siz min, siz sec, slot num1, slot num2) override;
-	virtual bool award(siz min, siz sec, slot num, siz awd);
 	virtual bool ctf(siz min, siz sec, slot num, siz team, siz act) override;
-	virtual bool ctf_exit(siz min, siz sec, siz r, siz b) override;
-	virtual bool score_exit(siz min, siz sec, int score, siz ping, slot num, const str& name) override;
 	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) override;
 	virtual bool chat(siz min, siz sec, const str& text) override;
 	virtual bool shutdown_game(siz min, siz sec) override;
