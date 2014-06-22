@@ -170,6 +170,7 @@ private:
 	siz spamkill_spams; // number of identical msgs / period before !mute
 	siz spamkill_period; // period (seconds)
 	siz spamkill_mute; // duration of mute (seconds)
+	slot_siz_map spamkill_stage; // warning level
 	// spamkill
 
 	// votekill

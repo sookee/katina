@@ -1301,15 +1301,44 @@ bool KatinaPluginAdmin::spamkill(slot num)
 	if(!spamkill_active)
 		return true;
 
-	pbug("SPAMKILL ACTIVATED FOR: " << katina.getPlayerName(num) << " [" << katina.getClientGuid(num) << "] (" << num << ")");
+	const GUID& guid = katina.getClientGuid(num);
 
-	return true;
-//	if(server.command("!mute " + to_string(num)))
-//	{
-//		server.msg_to(num, "^2Your ^7SPAM ^2has triggered ^7auto-mute ^2for ^7" + to_string(spamkill_mute) + " ^2seconds");
-//		mutes[num] = katina.now;
-//		return true;
-//	}
+	if(guid == null_guid)
+	{
+		plog("ERROR: Unexpected null guid for slot: " << num);
+		return false;
+	}
+
+	static const str STAGE_1 = "^3PLEASE STOP SPAMMING^7: ^2It distracts other players.";
+	static const str STAGE_2 = "^3PLEASE STOP SPAMMING^7: ^2Automatic !mute system ready.";
+	static const str STAGE_3 = "^3Your ^7SPAM ^3has triggered ^7auto-mute";
+
+	const str name = katina.getPlayerName(guid);
+
+	pbug("SPAMKILL ACTIVATED FOR: " << name << " [" << guid << "] (" << num << ")");
+
+	str prefix = katina.get_name() + "^7: " + name + " ";
+
+	if(spamkill_stage[num] == 1 /*&& server.msg_to(num, prefix + STAGE_1, true)*/)
+	{
+		pbug("SPAMKILL WARNING #1");
+		++spamkill_stage[num];
+		return true;
+	}
+	else if(spamkill_stage[num] == 2 /*&& server.msg_to(num, prefix + STAGE_2, true)*/)
+	{
+		pbug("SPAMKILL WARNING #2");
+		++spamkill_stage[num];
+		return true;
+	}
+	else if(spamkill_stage[num] > 2 /*&& server.command("!mute " + to_string(num))*/)
+	{
+		pbug("SPAMKILL MUTE");
+//		server.msg_to(num, prefix + STAGE_3 + " ^3for ^7" + to_string(spamkill_mute) + " ^3seconds");
+		mutes[num] = katina.now;
+		spamkill_stage[num] = 0;
+		return true;
+	}
 
 	return false;
 }
