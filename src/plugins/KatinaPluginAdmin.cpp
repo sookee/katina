@@ -1389,27 +1389,27 @@ bool KatinaPluginAdmin::say(const siz min, const siz sec, const GUID& guid, cons
 		for(spam_lst_iter i = list.begin(); i != list.end();)
 		{
 			if(i->num != say_num)
-				{ ++i; continue; }
-			if(i->when + spamkill_period <= katina.now)
-				{ i = list.erase(i); continue; }
-			if(++count > spamkill_spams && spamkill(say_num))
+				++i;
+			else if(i->when + spamkill_period <= katina.now)
+				i = list.erase(i);
+			else if(++count <= spamkill_spams)
+				++i;
+			else if(!spamkill(say_num))
+				++i;
+			else
 			{
 				//bug("<== SPAM FOUND & KILLED ERASING ==>");
 				for(spam_lst_iter i = list.begin(); i != list.end();)
 				{
+					(i->num != say_num && i->when + spamkill_period > katina.now) ? ++i : (i = list.erase(i));
 					// erase all spams for this player and any other expired spams
-					if(i->num == say_num || i->when + spamkill_period <= katina.now)
-					{
-						i = list.erase(i);
-//						bug_var(list.size());
-//						bug_var(spams[text].size());
-					}
-					else
-						++i;
+//					if(i->num != say_num && i->when + spamkill_period > katina.now)
+//						++i;
+//					else
+//						i = list.erase(i);
 				}
 				break;
 			}
-			++i;
 		}
 	}
 	// /spamkill
