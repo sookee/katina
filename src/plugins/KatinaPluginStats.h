@@ -63,9 +63,7 @@ struct mod_damage_stats
 	{}
 };
 
-typedef std::map<siz, mod_damage_stats> moddmg_map;
-typedef moddmg_map::const_iterator moddmg_map_citer;
-
+TYPEDEF_MAP(siz, mod_damage_stats, moddmg_map);
 
 struct stats
 {
@@ -76,8 +74,8 @@ struct stats
 	siz_map flags;
 	siz_map awards;
 
-	siz_map   	weapon_usage; // shots fired
-	moddmg_map	mod_damage;   // MOD -> mod_damage_stats
+	siz_map weapon_usage; // shots fired
+	moddmg_map mod_damage;   // MOD -> mod_damage_stats
 
 	siz fragsFace;
 	siz fragsBack;
@@ -113,15 +111,8 @@ struct stats
 	{}
 };
 
-typedef std::map<GUID, guid_siz_map> onevone_map;
-typedef std::pair<const GUID, guid_siz_map> onevone_pair;
-typedef std::map<GUID, guid_siz_map>::iterator onevone_iter;
-typedef std::map<GUID, guid_siz_map>::const_iterator onevone_citer;
-
-typedef std::map<GUID, stats> guid_stat_map;
-typedef guid_stat_map::value_type guid_stat_vt;
-typedef std::map<GUID, stats>::iterator guid_stat_map_iter;
-typedef std::map<GUID, stats>::const_iterator guid_stat_map_citer;
+TYPEDEF_MAP(GUID, guid_siz_map, onevone_map);
+TYPEDEF_MAP(GUID, stats, guid_stat_map);
 
 class StatsDatabase
 : public Database
@@ -159,7 +150,7 @@ public:
 	bool add_caps(game_id id, const GUID& guid, siz count);
 	bool add_time(game_id id, const GUID& guid, siz count);
 
-	bool add_player(const GUID& guid, const str& name);
+	bool add_player(std::time_t timet, const GUID& guid, const str& name);
 
 	bool add_ovo(game_id id, const GUID& guid1, const GUID& guid2, siz count);
 
@@ -175,6 +166,7 @@ public:
 		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
 		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,
 		siz carrierFrags, siz carrierFragsRecv);
+	bool add_playerstats_ps(game_id id, const GUID& guid, const struct stats& stats);
 	bool add_speed(game_id id, const GUID& guid,
 			siz dist, siz time, bool has_flag);
 

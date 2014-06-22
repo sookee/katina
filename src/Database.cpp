@@ -52,10 +52,17 @@ void Database::on()
 {
 	if(active)
 		return;
+
 	if(mysql_real_connect(&mysql, host.c_str(), user.c_str()
 		, pass.c_str(), base.c_str(), port, NULL, 0) != &mysql)
 	{
 		log("DATABASE ERROR: Unable to connect: " << mysql_error(&mysql));
+		return;
+	}
+
+	if(!query("SET names = 'utf8', time_zone = '+00:00', TIMESTAMP = '" + std::to_string(std::time(0)) + "'"))
+	{
+		mysql_close(&mysql);
 		return;
 	}
 
@@ -68,6 +75,7 @@ void Database::off()
 {
 	if(!active)
 		return;
+
 	active = false;
 
 	deinit();
