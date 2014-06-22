@@ -2,7 +2,7 @@ SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 
-SET time_zone = '+00:00';
+SET NAMES 'utf8', time_zone = '+00:00';
 
 -- -----------------------------------------------------
 -- Table `awards`
@@ -107,13 +107,6 @@ DEFAULT CHARACTER SET = utf8;
 -- -----------------------------------------------------
 -- Table `player`
 -- -----------------------------------------------------
-
-ALTER TABLE IF EXISTS `game` MODIFY `date` DATETIME NOT NULL;
-
-IF EXISTS (SELECT * FROM information_schema.COLUMNS
-     WHERE COLUMN_NAME = '...'
-     and TABLE_NAME = '...'
-     and TABLE_SCHEMA = '...')
 
 CREATE  TABLE IF NOT EXISTS `player` (
   `guid` VARCHAR(8) NOT NULL ,
@@ -315,7 +308,6 @@ CREATE  TABLE IF NOT EXISTS `version` (
   PRIMARY KEY (`maj`, `min`) )
 ENGINE = MyISAM
 DEFAULT CHARACTER SET = utf8;
-
 
 -- -----------------------------------------------------
 -- Table `votes`

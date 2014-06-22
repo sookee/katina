@@ -60,13 +60,14 @@ void Database::on()
 		return;
 	}
 
-	if(!query("SET names = 'utf8', time_zone = '+00:00', TIMESTAMP = '" + std::to_string(std::time(0)) + "'"))
+	active = true;
+
+	if(!query("SET NAMES 'utf8', time_zone = '+00:00', TIMESTAMP = " + std::to_string(std::time(0)) + ";"))
 	{
 		mysql_close(&mysql);
+		active = false;
 		return;
 	}
-
-	active = true;
 
 	init();
 }
