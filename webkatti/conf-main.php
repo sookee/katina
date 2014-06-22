@@ -77,7 +77,7 @@ class Storage extends afw\InstanceFactory
             $db = new afw\APDO('mysql:host=' . Config::$dbHost . ';dbname=' . Config::$dbName,
                 Config::$dbUser, Config::$dbPass,
                 [
-                    \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES "utf8"',
+                    \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES "utf8", time_zone="+00:00"',
                     \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION
                 ]
             );
