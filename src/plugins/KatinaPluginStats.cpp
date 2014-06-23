@@ -239,10 +239,6 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 						db.add_mod_damage(id, p->first, md->first, md->second.hits, md->second.damage, md->second.hitsRecv, md->second.damageRecv, md->second.weightedHits);
 
 					db.add_playerstats_ps(id, p->first, p->second);
-//						p->second.fragsFace, p->second.fragsBack, p->second.fraggedInFace, p->second.fraggedInBack,
-//						p->second.spawnKills, p->second.spawnKillsRecv, p->second.pushes, p->second.pushesRecv,
-//						p->second.healthPickedUp, p->second.armorPickedUp, p->second.holyShitFrags, p->second.holyShitFragged,
-//						p->second.carrierFrags, p->second.carrierFragsRecv);
 
 					if(p->second.time && p->second.dist)
 						db.add_speed(id, p->first, p->second.dist, p->second.time, false);
@@ -603,6 +599,8 @@ void KatinaPluginStats::heartbeat(siz min, siz sec)
 	if(!announce_time || min || sec < announce_time)
 		return;
 
+	bug_func();
+
 	announce_time = 0; // turn off
 
 	pbug("HEARTBEAT");
@@ -613,6 +611,9 @@ void KatinaPluginStats::heartbeat(siz min, siz sec)
 
 	str boss;
 	GUID guid;
+
+	bug_var(guid);
+
 	if(db.get_ingame_boss(mapname, clients, guid, boss) && guid != null_guid)
 		server.msg_to_all("^7BOSS: " + katina.getPlayerName(guid) + "^7: " + boss, true);
 	else
@@ -1989,12 +1990,13 @@ bool StatsDatabase::get_ingame_crap(const str& mapname, const slot_guid_map& cli
 
 	for(slot_guid_map_citer g = clients.begin(); g != clients.end(); ++g)
 	{
-		if(stat_cs[g->second].secs)
+		const str sguid = str(g->second);
+		if(stat_cs[sguid].secs)
 		{
-			stat_cs[g->second].fph = stat_cs[g->second].kills * 60 * 60 / stat_cs[g->second].secs;
-			if(stat_cs[g->second].fph > maxv)
+			stat_cs[sguid].fph = stat_cs[sguid].kills * 60 * 60 / stat_cs[sguid].secs;
+			if(stat_cs[sguid].fph > maxv)
 			{
-				maxv = stat_cs[g->second].fph;
+				maxv = stat_cs[sguid].fph;
 				maxi = g;
 			}
 		}
@@ -2005,7 +2007,7 @@ bool StatsDatabase::get_ingame_crap(const str& mapname, const slot_guid_map& cli
 		if(!maxi->second.is_bot())
 		{
 			soss oss;
-			oss << "^3FCraps/Hour^7:^2" << stat_cs[maxi->second].fph;
+			oss << "^3FCraps/Hour^7:^2" << stat_cs[str(maxi->second)].fph;
 			stats = oss.str();
 //			bug_var(stats);
 			guid = maxi->second;

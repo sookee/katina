@@ -198,6 +198,7 @@ public:
 
 	explicit operator str() const { return std::to_string(num); }
 	explicit operator siz() const { return num; }
+	explicit operator int() const { return num; }
 };
 
 inline sos& operator<<(sos& o, const slot& s) { return o << s.num; }

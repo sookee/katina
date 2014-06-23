@@ -47,31 +47,25 @@ using namespace katina::types;
 class GUID
 {
 //public:
-	const static siz SIZE = 8;
+//	const static siz SIZE = 8;
 
 private:
-	str data;
-	bool bot;
+	uint32_t data = 0;
+	bool bot = false;
 	mutable bool connected = true;
-
-//	explicit GUID(const char data[SIZE]): data(SIZE, '0'), bot(false)
-//	{
-//		for(siz i = 0; i < SIZE; ++i)
-//			this->data[i] = data[i];
-//	}
+	str src; // input data (if relevant) for debugging
+	bool bad = false; // created with bad string data?
 
 	bool is_bot_data() const
 	{
-		return data.size() == 8 && data[0] == 'B' && data.substr(1) < "0000064";
+//		return data[0] == 'B' && data.substr(1) < "0000064";
+		return ((data >> 28) & 0xF) == 0x0B && (data & 0x0FFFFFFF) < 64;
 	}
 
 public:
 
-	GUID(): data(SIZE, '0'), bot(false)
+	GUID(): connected(false)
 	{
-		connected = false;
-//		for(siz i = 0; i < SIZE; ++i)
-//			this->data[i] = '0';
 	}
 
 	GUID(const GUID& guid): data(guid.data), bot(guid.bot)
@@ -79,26 +73,17 @@ public:
 		connected = guid.connected;
 	}
 
-	explicit GUID(const str& s): data(SIZE, '0'), bot(false)
+	explicit GUID(const str& s): src(s)
 	{
-		if(s.size() == SIZE)
-			data = s;
-		else if(s.size() == 32)
-			data = s.substr(24);
+		bad = s.size() != 8 || !(siss(s) >> std::hex >> data);
 		bot = is_bot_data();
 	}
 
 	/**
 	 * bot constructor
 	 */
-	explicit GUID(slot num): data(SIZE, '0'), bot(true)
+	explicit GUID(slot num): data(int(num)|0xB0000000), bot(true)
 	{
-		soss oss;
-		oss << num;
-		data = oss.str();
-		if(data.size() < GUID::SIZE)
-			data = "B" + str(GUID::SIZE - data.size() - 1, '0') + data;
-		//bug_var(data);
 	}
 
 	const GUID& operator=(const GUID& guid)
@@ -106,6 +91,7 @@ public:
 		bot = guid.bot;
 		connected = guid.connected;
 		data = guid.data;
+		bad = guid.bad;
 		return *this;
 	}
 
@@ -124,36 +110,32 @@ public:
 		return data < guid.data;
 	}
 
-//	char& operator[](siz i) { return data[i]; }
-//	const char& operator[](siz i) const { return data[i]; }
-	siz size() const { return SIZE; }
-
-	operator str() const { return data; }
+	explicit operator str() const
+	{
+		str s = ((sss&)(sss() << std::hex << std::uppercase << data)).str();
+		if(s.size() < 8)
+			s = str(8 - s.size(), '0') + s;
+		return s;
+	}
 
 	explicit operator uint32_t() const
 	{
-		uint32_t i = 0;
-		siss iss(data);
-		iss >> std::hex >> i;
-		return i;
+		return data;
 	}
 
 	operator bool() const
 	{
-		if(data.size() != SIZE)
-			return false;
-		return std::count_if(data.begin(), data.end(), std::ptr_fun<int,int>(isxdigit)) == SIZE;
+		return !bad;
 	}
 
 	void disconnect() const { connected = false; }
 	bool is_connected() const { return connected; }
 
-	//bool is_bot() const { return data < "00001000"; }
 	bool is_bot() const { return bot; }
 
 	friend sos& operator<<(sos& os, const GUID& guid)
 	{
-		return os << guid.data;
+		return os << str(guid);
 	}
 
 	friend sis& operator>>(sis& is, GUID& guid)
@@ -166,9 +148,12 @@ public:
 		else if(s.size() == 32)
 			guid = GUID(s.substr(24));
 		else
+		{
 			is.setstate(std::ios::failbit);
+			guid.bad = true;
+		}
 		guid.bot = guid.is_bot_data();
-		if(guid.data == "00000000")
+		if(!guid.data)
 			guid.connected = false;
 		return is;
 	}
