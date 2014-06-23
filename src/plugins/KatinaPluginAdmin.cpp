@@ -1017,7 +1017,7 @@ bool KatinaPluginAdmin::votekill(const str& reason)
 
 bool KatinaPluginAdmin::callvote(siz min, siz sec, slot num, const str& type, const str& info)
 {
-	plog("CALLVOTE: " << katina.getPlayerName(num) << " " << type << " " << info);
+	plog("CALLVOTE: " << num << ", " << katina.getPlayerName(num) << " " << type << " " << info);
 
 	for(const str& v: katina.get_vec("admin.ban.vote"))
 	{
@@ -1043,7 +1043,7 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, slot num, const str& type, co
 			std::async(std::launch::async, [&]
 			{
 				thread_sleep_millis(2000);
-				votekill(katina.get_name() + "^1: ^5This vote has been disallowed" + reason);
+				votekill(katina.get_name() + "^1: ^5This vote has been disallowed: " + reason);
 				plog("VOTEKILL: admin.ban.vote: " << v);
 			});
 		}
@@ -1066,9 +1066,6 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, slot num, const str& type, co
 
 	if(protect_admins)
 	{
-		pbug("VOTEKILL: PROTECTING ADMINS: " << info);
-		pbug("VOTEKILL: PROTECTING ADMINS: " << katina.getClientGuid(to<slot>(info)));
-		pbug("VOTEKILL: PROTECTING ADMINS: " << katina.is_admin(katina.getClientGuid(to<slot>(info))));
 		if(type == "clientkick" && katina.is_admin(katina.getClientGuid(to<slot>(info))))
 		{
 			std::async(std::launch::async, [&]
@@ -1774,7 +1771,7 @@ bool KatinaPluginAdmin::say(const siz min, const siz sec, const GUID& guid, cons
 		sanction s;
 		s.type = S_FIXNAME;
 		s.guid = katina.getClientGuid(perp);
-		s.expires = duration_to_time("1h", hours(1));
+		s.expires = 0; //duration_to_time("1h", hours(1));
 		s.params.push_back(name);
 
 		if(s.guid == null_guid)

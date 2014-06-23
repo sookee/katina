@@ -122,6 +122,11 @@ bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& tex
 	return true;
 }
 
+bool contains(const str_vec& v, const str& s)
+{
+	return std::find(v.cbegin(), v.cend(), s) != v.cend();
+}
+
 bool KatinaPluginNextMap::exit(siz min, siz sec)
 {
 	if(!active)
@@ -130,8 +135,9 @@ bool KatinaPluginNextMap::exit(siz min, siz sec)
 	str sep;
 	soss sql;
 	for(slot_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
-		if(!i->second.is_bot() && katina.is_connected(i->first))
-			{ sql << sep << "'" << i->second << "'"; sep = ",";}
+		if(!i->second.is_bot() && i->second.is_connected())
+			if(!contains(katina.get_vec("nextmap.ignore.guid"), str(i->second)))
+				{ sql << sep << "'" << i->second << "'"; sep = ",";}
 
 	if(sql.str().empty())
 		return true; // no one connected
@@ -191,6 +197,12 @@ bool KatinaPluginNextMap::exit(siz min, siz sec)
 		total += (maps[v.first] = vote);
 	}
 
+	if(maps.size() < katina.get("nextmap.min.samples", 10))
+	{
+		plog("NEXTMAP: not enough maps to select from: " << maps.size());
+		return true;
+	}
+
 	siz select = total ? rand() % total : 0;
 
 	total = 0;
@@ -208,7 +220,6 @@ bool KatinaPluginNextMap::exit(siz min, siz sec)
 		plog("NEXTMAP: failed to select a map");
 		return true;
 	}
-
 
 	plog("NEXTMAP SUGGESTS: " << nextmap << " from " << maps.size() << (enforcing?" ENFORCING":" NOT ENFORCING"));
 
