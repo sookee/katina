@@ -1,16 +1,28 @@
+#!/bin/bash
+EXEC=
 
 REVISION=$(git log -n 1 --pretty=format:%h|tr [:lower:] [:upper:])
+CLEAN=$(git status|grep 'Changes to be committed:')
 
 USER=$(grep 'user:' ~/.db-unit|cut -d ' ' -f 2)
 PASS=$(grep 'pass:' ~/.db-unit|cut -d ' ' -f 2)
+BASE="oadb_test" # must be same t=one that katina-rerun.sh script uses
 
 AUTH="-u$USER -p$PASS"
 
-mysql $AUTH -e "drop database oadb_test; create database oadb_test;"
-mysql $AUTH oadb_test < $HOME/dev/oastats/katina-schema-1.0.sql
-mysql $AUTH -e "ALTER TABLE `game` AUTO_INCREMENT = 0;"
+$EXEC mysql $AUTH -e "drop database if exists $BASE; create database $BASE;"
+$EXEC mysql $AUTH $BASE < $HOME/dev/oastats/katina-schema-1.0.sql
+$EXEC mysql $AUTH $BASE -e "ALTER TABLE game AUTO_INCREMENT = 0;"
 
-katina-rerun.sh unit-test-katina-stats.log
+$EXEC katina-rerun.sh unit-test-katina-stats.log
 
-mysqldump --skip-opt --skip-dump-date --compact $AUTH oadb_test > unit-test-katina-stats-$(stamp.sh).sql
+if(($CLEAN)); then
+	STAMP=$REVISION
+else
+	STAMP=$(stamp.sh)
+fi
+
+OPTIONS="--skip-opt --skip-dump-date --compact"
+
+$EXEC mysqldump $OPTIONS $AUTH $BASE > unit-test-katina-stats-${STAMP}.sql
 
