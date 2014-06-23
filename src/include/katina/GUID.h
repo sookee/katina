@@ -60,7 +60,7 @@ private:
 //			this->data[i] = data[i];
 //	}
 
-	bool is_bot_data()
+	bool is_bot_data() const
 	{
 		return data.size() == 8 && data[0] == 'B' && data.substr(1) < "0000064";
 	}

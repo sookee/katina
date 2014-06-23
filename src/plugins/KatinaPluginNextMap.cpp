@@ -23,6 +23,8 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include "KatinaPluginNextMap.h"
 
+#include <cstdint>
+
 #include <katina/types.h>
 #include <katina/log.h>
 
@@ -98,19 +100,6 @@ bool KatinaPluginNextMap::init_game(siz min, siz sec, const str_map& cvars)
 	if(!active)
 		return true;
 
-	if(rot_nextmap.empty())
-		return true;
-
-	plog("rot_nextmap: " << rot_nextmap);
-
-	if(enforcing && !server.command("set nextmap " + rot_nextmap))
-	{
-		plog("ERROR: can't reset rotation");
-		return true;
-	}
-
-	rot_nextmap.clear();
-
 	return true;
 }
 
@@ -127,6 +116,16 @@ bool contains(const str_vec& v, const str& s)
 	return std::find(v.cbegin(), v.cend(), s) != v.cend();
 }
 
+struct opine
+{
+	siz love, hate, soso;
+	opine(): love(0), hate(0), soso(0) {}
+};
+
+TYPEDEF_MAP(str, opine, opine_map);
+
+TYPEDEF_MAP(uint16_t, opine, guid_opine_map);
+
 bool KatinaPluginNextMap::exit(siz min, siz sec)
 {
 	if(!active)
@@ -140,10 +139,9 @@ bool KatinaPluginNextMap::exit(siz min, siz sec)
 				{ sql << sep << "'" << i->second << "'"; sep = ",";}
 
 	if(sql.str().empty())
-		return true; // no one connected
+		return true; // no one connected/not ignored
 
 	str insql = "(" + sql.str() + ")";
-
 
 	sql.clear();
 	sql.str("");
@@ -155,14 +153,6 @@ bool KatinaPluginNextMap::exit(siz min, siz sec)
 
 	if(!db.select(sql.str(), rows, 2))
 		return true;
-
-	struct opine
-	{
-		siz love, hate, soso;
-		opine(): love(0), hate(0), soso(0) {}
-	};
-
-	TYPEDEF_MAP(str, opine, opine_map);
 
 	opine_map votes; // mapname -> { love, hate, soso }
 
@@ -223,23 +213,26 @@ bool KatinaPluginNextMap::exit(siz min, siz sec)
 
 	plog("NEXTMAP SUGGESTS: " << nextmap << " from " << maps.size() << (enforcing?" ENFORCING":" NOT ENFORCING"));
 
-	if(rot_nextmap.empty())  // don't splat a rot_nextmap that failed to take
-		if(!katina.rconset("nextmap", rot_nextmap))
-			return true; // no action
+	if(!enforcing)
+		return true;
+
+	if(!katina.rconset("nextmap", rot_nextmap))
+		return true; // no action
 
 	if(!server.command("set katina \"map " + nextmap + "; set nextmap " + rot_nextmap + "\""))
 		return true;
 
-	if(enforcing)
-		if(!server.command("set nextmap vstr katina"))
-			plog("ERROR: can't inject nextmap: " << nextmap);
+	if(!server.command("set nextmap vstr katina"))
+		plog("ERROR: Failed to inject nextmap: " << nextmap);
+
+	// rot_nextmap contains original rotation script
+	// running with script katina as 'nextmap'
 
 	return true;
 }
 
 void KatinaPluginNextMap::close()
 {
-//	db.off();
 }
 
 }} // katina::plugin
