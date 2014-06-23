@@ -1666,7 +1666,7 @@ bool KatinaPluginAdmin::say(const siz min, const siz sec, const GUID& guid, cons
 		sanction s;
 		s.type = S_VOTEBAN;
 		s.guid = katina.getClientGuid(perp);
-		s.expires = duration_to_time(duration, minutes(5));
+		s.expires = duration_to_time(duration, minutes(10));
 		s.reason = reason;
 
 		if(s.guid == null_guid)

@@ -22,7 +22,7 @@ $EXEC katina-rerun.sh unit-test-katina-stats.log
 if [[ -n $DIRTY ]]; then
 	STAMP=$(stamp.sh)
 else
-	STAMP=$REVISION
+	STAMP=$(stamp.sh)-$REVISION
 fi
 
 #echo STAMP: $STAMP

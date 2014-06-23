@@ -38,6 +38,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <cinttypes>
 #include <list>
 #include <algorithm>
+#include <iomanip>
 
 namespace katina {
 
@@ -112,10 +113,8 @@ public:
 
 	explicit operator str() const
 	{
-		str s = ((sss&)(sss() << std::hex << std::uppercase << data)).str();
-		if(s.size() < 8)
-			s = str(8 - s.size(), '0') + s;
-		return s;
+		using namespace std;
+		return ((sss&)(sss() << setw(8) << setfill('0') << hex << uppercase << data)).str();
 	}
 
 	explicit operator uint32_t() const
