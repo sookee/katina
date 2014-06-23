@@ -1053,7 +1053,7 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, slot num, const str& type, co
 		return true;
 
 	for(const sanction& s: sanctions)
-		if((!s.expires || s.expires < katina.now) && s.guid == katina.getClientGuid(num))
+		if((!s.expires || s.expires < katina.now) && s.type == S_VOTEBAN && s.guid == katina.getClientGuid(num))
 		{
 			std::async(std::launch::async, [&]
 			{
