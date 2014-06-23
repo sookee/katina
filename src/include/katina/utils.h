@@ -60,6 +60,24 @@ sis& sgl(sis& is, str& line, char delim = '\n')
 }
 
 inline
+std::istream& sgl(std::istream&& is, str& s, char d = '\n')
+{
+	return sgl(is, s, d);
+}
+
+template<typename T>
+sos& operator<<(sos&& o, const T& t)
+{
+	return o << t;
+}
+
+template<typename T>
+sis& operator>>(sis&& i, T& t)
+{
+	return i >> t;
+}
+
+inline
 str expand_env(const str& var, int flags = 0)
 {
 	str exp = var;

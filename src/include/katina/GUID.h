@@ -46,7 +46,7 @@ using namespace katina::types;
 
 class GUID
 {
-public:
+//public:
 	const static siz SIZE = 8;
 
 private:
@@ -167,8 +167,6 @@ public:
 			guid = GUID(s.substr(24));
 		else
 			is.setstate(std::ios::failbit);
-//		if(guid.data.size() == 8 && guid.data[0] == 'B' && guid.data.substr(1) < "0000064")
-//			guid.bot = true;
 		guid.bot = guid.is_bot_data();
 		if(guid.data == "00000000")
 			guid.connected = false;

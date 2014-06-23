@@ -403,9 +403,9 @@ bool Katina::chat_to(const str& name, const str& text)
 
 bool Katina::is_admin(const GUID& guid)
 {
-	bug_func();
-	bug_var(guid);
-	bug_var(getPlayerName(guid));
+//	bug_func();
+//	bug_var(guid);
+//	bug_var(getPlayerName(guid));
 	str_vec admins = get_vec("admin.guid");
 	for(str_vec_iter i = admins.begin(); i != admins.end(); ++i)
 		if(guid == GUID(*i))
@@ -413,8 +413,12 @@ bool Katina::is_admin(const GUID& guid)
 
 	// now try admin.dat file
 	str admin_dat = get_exp("admin.dat.file");
+
+//	bug("check: " << admin_dat);
+
 	if(admin_dat.empty())
 		return false;
+
 	sifs ifs(admin_dat.c_str());
 	if(!ifs)
 	{
@@ -427,10 +431,22 @@ bool Katina::is_admin(const GUID& guid)
 	// name	= ^1S^2oo^3K^5ee
 	// guid	= 87597A67B5A4E3C79544A72B7B5DA741
 	while(sgl(ifs, line))
-		if(trim(line) == "[admin]")
-			if(sgl(sgl(ifs, line), line))
-				if(trim(line).size() == 32 && guid == GUID(line.substr(0, 8)))
-					return true;
+	{
+		bug_var(line);
+		if(trim(line) != "[admin]")
+			continue;
+
+		str keep = line;
+		if(!(sgl(sgl(ifs, line), line))
+		|| !(siss(line) >> line >> line >> line))
+		{
+			log("ERROR: parsing [admin]: " << keep);
+			continue;
+		}
+//		bug("sub: line: " << line);
+		if(trim(line).size() == 32 && guid == GUID(line))
+			return true;
+	}
 	return false;
 }
 
