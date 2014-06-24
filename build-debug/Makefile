@@ -1,17 +1,17 @@
 -include Makefile.local
 
 all:
-	make -C src
-#	make -C src/oacom
-	make -C src/plugins
+	$(MAKE) -C src
+#	$(MAKE) -C src/oacom
+	$(MAKE) -C src/plugins
 	
 clean:
-	make -C src clean
-#	make -C src/oacom clean
-	make -C src/plugins clean
+	$(MAKE) -C src clean
+#	$(MAKE) -C src/oacom clean
+	$(MAKE) -C src/plugins clean
 	
 install:
-	make -C src install
-#	make -C src/oacom install
-	make -C src/plugins install
+	$(MAKE) -C src install
+#	$(MAKE) -C src/oacom install
+	$(MAKE) -C src/plugins install
 

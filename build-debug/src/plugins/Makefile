@@ -71,41 +71,56 @@ PLUGINS = \
 all: $(PLUGINS)
 
 katina-plugin-example.so: $(PLUGIN_EXAMPLE_OBJS)
-	$(CXX) $(PLUGIN_EXAMPLE_FLAGS) -o $@ $(PLUGIN_EXAMPLE_OBJS) $(PLUGIN_EXAMPLE_LIBS)
+	@echo Compiling $@
+	@$(CXX) $(PLUGIN_EXAMPLE_FLAGS) -o $@ $(PLUGIN_EXAMPLE_OBJS) $(PLUGIN_EXAMPLE_LIBS)
 
 katina-plugin-admin.so: $(PLUGIN_ADMIN_OBJS)
-	$(CXX) $(PLUGIN_ADMIN_FLAGS) -o $@ $(PLUGIN_ADMIN_OBJS) $(PLUGIN_ADMIN_LIBS)
+	@echo Compiling $@
+	@$(CXX) $(PLUGIN_ADMIN_FLAGS) -o $@ $(PLUGIN_ADMIN_OBJS) $(PLUGIN_ADMIN_LIBS)
 
 katina-plugin-stats.so: $(PLUGIN_STATS_OBJS)
-	$(CXX) $(PLUGIN_STATS_FLAGS) -o $@ $(PLUGIN_STATS_OBJS) $(PLUGIN_STATS_LIBS)
+	@echo Compiling $@
+	@$(CXX) $(PLUGIN_STATS_FLAGS) -o $@ $(PLUGIN_STATS_OBJS) $(PLUGIN_STATS_LIBS)
 
 katina-plugin-votes.so: $(PLUGIN_VOTES_OBJS)
-	$(CXX) $(PLUGIN_VOTES_FLAGS) -o $@ $(PLUGIN_VOTES_OBJS) $(PLUGIN_VOTES_LIBS)
+	@echo Compiling $@
+	@$(CXX) $(PLUGIN_VOTES_FLAGS) -o $@ $(PLUGIN_VOTES_OBJS) $(PLUGIN_VOTES_LIBS)
 
 katina-plugin-nextmap.so: $(PLUGIN_NEXTMAP_OBJS)
-	$(CXX) $(PLUGIN_NEXTMAP_FLAGS) -o $@ $(PLUGIN_NEXTMAP_OBJS) $(PLUGIN_NEXTMAP_LIBS)
+	@echo Compiling $@
+	@$(CXX) $(PLUGIN_NEXTMAP_FLAGS) -o $@ $(PLUGIN_NEXTMAP_OBJS) $(PLUGIN_NEXTMAP_LIBS)
 
 katina-plugin-reports.so: $(PLUGIN_REPORTS_OBJS)
-	$(CXX) $(PLUGIN_REPORTS_FLAGS) -o $@ $(PLUGIN_REPORTS_OBJS) $(PLUGIN_REPORTS_LIBS)
+	@echo Compiling $@
+	@$(CXX) $(PLUGIN_REPORTS_FLAGS) -o $@ $(PLUGIN_REPORTS_OBJS) $(PLUGIN_REPORTS_LIBS)
 
 katina-plugin-wso.so: $(PLUGIN_WSO_OBJS)
-	$(CXX) $(PLUGIN_WSO_FLAGS) -o $@ $(PLUGIN_WSO_OBJS) $(PLUGIN_WSO_LIBS)
+	@echo Compiling $@
+	@$(CXX) $(PLUGIN_WSO_FLAGS) -o $@ $(PLUGIN_WSO_OBJS) $(PLUGIN_WSO_LIBS)
 
 katina-plugin-votectrl.so: $(PLUGIN_VOTECTRL_OBJS)
-	$(CXX) $(PLUGIN_VOTECTRL_FLAGS) -o $@ $(PLUGIN_VOTECTRL_OBJS) $(PLUGIN_VOTECTRL_LIBS)
+	@echo Compiling $@
+	@$(CXX) $(PLUGIN_VOTECTRL_FLAGS) -o $@ $(PLUGIN_VOTECTRL_OBJS) $(PLUGIN_VOTECTRL_LIBS)
 	
 katina-plugin-teambalancer.so: $(PLUGIN_TEAMBALANCER_OBJS)
-	$(CXX) $(PLUGIN_TEAMBALANCER_FLAGS) -o $@ $(PLUGIN_TEAMBALANCER_OBJS) $(PLUGIN_TEAMBALANCER_LIBS)
+	@echo Compiling $@
+	@$(CXX) $(PLUGIN_TEAMBALANCER_FLAGS) -o $@ $(PLUGIN_TEAMBALANCER_OBJS) $(PLUGIN_TEAMBALANCER_LIBS)
 
 katina-plugin-player-db.so: $(PLUGIN_PLAYER_DB_OBJS)
-	$(CXX) $(PLUGIN_PLAYER_DB_FLAGS) -o $@ $(PLUGIN_PLAYER_DB_OBJS) $(PLUGIN_PLAYER_DB_LIBS)
+	@echo Compiling $@
+	@$(CXX) $(PLUGIN_PLAYER_DB_FLAGS) -o $@ $(PLUGIN_PLAYER_DB_OBJS) $(PLUGIN_PLAYER_DB_LIBS)
 
 %.o: $(src_topdir)/plugins/%.cpp $(src_topdir)/plugins/%.h
-	$(CXX) $(CXXFLAGS) $(MYSQL_INCL) -c -o $@ $<
+	@echo Compiling $@
+	@$(CXX) $(CXXFLAGS) $(MYSQL_INCL) -c -o $@ $<
 
 install: $(PLUGINS)
-	mkdir -p $(PREFIX)/lib
-	for plugin in $(PLUGINS); do cp -f $$plugin $(PREFIX)/lib; done
+	@mkdir -p $(PREFIX)/lib
+	@for plugin in $(PLUGINS); \
+	do \
+		echo Installing $$plugin to $(PREFIX)/lib; \
+		cp -f $$plugin $(PREFIX)/lib; \
+	done
 
 clean:
 	rm -f *.o *.so $(PLUGINS)

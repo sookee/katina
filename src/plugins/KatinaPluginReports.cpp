@@ -169,11 +169,18 @@ KatinaPluginReports::KatinaPluginReports(Katina& katina)
 
 bool KatinaPluginReports::open()
 {
+	str_vec after;
 	if((stats = katina.get_plugin("katina::stats", "0.0")))
+	{
 		plog("Found: " << stats->get_name() << ": " << stats->get_version());
+		after.push_back("katina::stats");
+	}
 
 	if((votes = katina.get_plugin("katina::votes", "0.0")))
+	{
 		plog("Found: " << votes->get_name() << ": " << votes->get_version());
+		after.push_back("katina::votes");
+	}
 
 	client.off();
 	client.clear();
@@ -213,7 +220,7 @@ bool KatinaPluginReports::open()
 	katina.add_var_event(this, "reports.spam.kill", spamkill, false);
 	katina.add_var_event(this, "reports.spam.limit", spam_limit, (siz) 2);
 
-	katina.add_log_event(this, EXIT);
+	katina.add_log_event(this, EXIT, after);
 	katina.add_log_event(this, KILL);
 	katina.add_log_event(this, PUSH);
 	katina.add_log_event(this, CTF);
@@ -471,8 +478,10 @@ bool KatinaPluginReports::say(siz min, siz sec, const GUID& guid, const str& tex
 		if(do_flags && do_flags_hud)
 			hud = get_hud(min, sec, hud_flag);
 
-		if(!spamkill || ++spam[text] < spam_limit || std::find(notspam.begin(), notspam.end(), text) != notspam.end())
-			client.raw_chat('c', hud + oa_to_IRC(nums_team + " ^7" + katina.getPlayerName(guid) + "^7: ^2" + text));
+		const str_vec& banned = katina.get_vec("reports.banned.say.guid");
+		if(std::find(banned.begin(), banned.end(), str(guid)) == banned.end() && text.size() < 120)
+			if(!spamkill || ++spam[text] < spam_limit || std::find(notspam.begin(), notspam.end(), text) != notspam.end())
+				client.raw_chat('c', hud + oa_to_IRC(nums_team + " ^7" + katina.getPlayerName(guid) + "^7: ^2" + text));
 	}
 
 	return true;

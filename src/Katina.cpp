@@ -1396,7 +1396,31 @@ bool Katina::start(const str& dir)
 
 			now = base_now + (min * 60) + sec;
 
-			for(const evt_erase& e: erase_events)
+			event_hold_vec defer_events_tmp;
+			do
+			{
+				defer_events_tmp = defer_events;
+				defer_events.clear(); // ready to be filled up again
+
+				for(const evtent_hold& e: defer_events_tmp)
+					add_log_event(e.p, e.e, e.after);
+
+			} while(!defer_events.empty() && defer_events.size() < defer_events_tmp.size());
+
+			if(!defer_events.empty())
+			{
+				nlog("WARN: deferred events not set: " << defer_events.size());
+				for(const evtent_hold& e: defer_events)
+					nlog("Event: " << e.e << " after: " << join(e.after));
+
+				nlog("WARN: adding deferred events to end of list:");
+				for(const evtent_hold& e: defer_events)
+					add_log_event(e.p, e.e);
+
+				defer_events.clear();
+			}
+
+			for(const evtent_hold& e: erase_events)
 			{
 				plugin_lst_iter i = std::find(events[e.e].begin(), events[e.e].end(), e.p);
 				if(i != events[e.e].end())

@@ -589,7 +589,7 @@ bool KatinaPluginStats::warmup(siz min, siz sec)
 
 	// kybosch the announcement
 	announce_time = 0;
-	//katina.del_log_event(this, HEARTBEAT);
+	katina.del_log_event(this, HEARTBEAT);
 
 	return true;
 }
@@ -602,6 +602,7 @@ void KatinaPluginStats::heartbeat(siz min, siz sec)
 	bug_func();
 
 	announce_time = 0; // turn off
+	katina.del_log_event(this, HEARTBEAT);
 
 	pbug("HEARTBEAT");
 

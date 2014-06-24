@@ -39,7 +39,7 @@ KATINA_CLIENT_FLAGS = $(CXXFLAGS) $(MYSQL_FLAG) $(MYSQL_INCL)
 KATINA_CLIENT_LIBS = $(MYSQL_LIBS) -lrt -pthread
 KATINA_CLIENT_OBJS = katina-client.o
 
-PROGRAMS = katina katina-irc katina-votes katina-whois
+PROGRAMS = katina katina-votes
 
 PREFIX ?= $(HOME)
 
@@ -52,49 +52,43 @@ PREFIX ?= $(HOME)
 all: $(addsuffix .0.0.0, $(LIBRARIES)) $(PROGRAMS)
 
 libkatina.so.0.0.0: $(LIBKATINA_OBJS)
-	@echo
 	@echo Compiling $@
-	g++ -shared -Wl,-soname,libkatina.so.0 -o libkatina.so.0.0.0 $(LIBKATINA_OBJS) $(LIBKATINA_LIBS)
+	@g++ -shared -Wl,-soname,libkatina.so.0 -o libkatina.so.0.0.0 $(LIBKATINA_OBJS) $(LIBKATINA_LIBS)
 	@ln -f -s libkatina.so.0.0.0 libkatina.so.0.0
 	@ln -f -s libkatina.so.0.0 libkatina.so.0
 	@ln -f -s libkatina.so.0 libkatina.so
-	@echo
 
-katina: $(KATINA_OBJS)
-	@echo
+katina: libkatina.so.0.0.0 $(KATINA_OBJS)
 	@echo Compiling $@
-	$(CXX) -o $@ $(KATINA_OBJS) $(KATINA_LIBS)
-	@echo
+	@$(CXX) -o $@ $(KATINA_OBJS) $(KATINA_LIBS)
 
 katina.o: $(src_topdir)/katina.cpp $(INCLUDES)
-	$(CXX) -c -I$(src_topdir)/include $(KATINA_FLAGS) -o $@ $<
-
-katina-irc: $(KATINA_IRC_OBJS)
-	@echo
 	@echo Compiling $@
-	$(CXX) -o $@ $(KATINA_IRC_OBJS) $(KATINA_IRC_LIBS)
-	@echo
+	@$(CXX) -c -I$(src_topdir)/include $(KATINA_FLAGS) -o $@ $<
 
-katina-irc.o: $(src_topdir)/katina-irc.cpp $(INCLUDES)
-	$(CXX) -c -I$(src_topdir)/include $(KATINA_IRC_FLAGS) -o $@ $<
+#katina-irc: $(KATINA_IRC_OBJS)
+#	@echo Compiling $@
+#	@$(CXX) -o $@ $(KATINA_IRC_OBJS) $(KATINA_IRC_LIBS)
+#
+#katina-irc.o: $(src_topdir)/katina-irc.cpp $(INCLUDES)
+#	@echo Compiling $@
+#	@$(CXX) -c -I$(src_topdir)/include $(KATINA_IRC_FLAGS) -o $@ $<
 
 katina-votes: $(KATINA_VOTES_OBJS)
-	@echo
 	@echo Compiling $@
-	$(CXX) -o $@ $(KATINA_VOTES_OBJS) $(KATINA_VOTES_LIBS)
-	@echo
+	@$(CXX) -o $@ $(KATINA_VOTES_OBJS) $(KATINA_VOTES_LIBS)
 
 katina-votes.o: $(src_topdir)/katina-votes.cpp $(INCLUDES)
-	$(CXX) -c -I$(src_topdir)/include $(KATINA_VOTES_FLAGS) -o $@ $<
-
-katina-whois: $(KATINA_WHOIS_OBJS)
-	@echo
 	@echo Compiling $@
-	$(CXX) -o $@ $(KATINA_WHOIS_OBJS) $(KATINA_WHOIS_LIBS)
-	@echo
+	@$(CXX) -c -I$(src_topdir)/include $(KATINA_VOTES_FLAGS) -o $@ $<
 
-katina-whois.o: $(src_topdir)/katina-whois.cpp $(INCLUDES)
-	$(CXX) -c -I$(src_topdir)/include $(KATINA_WHOIS_FLAGS) -o $@ $<
+#katina-whois: $(KATINA_WHOIS_OBJS)
+#	@echo Compiling $@
+#	@$(CXX) -o $@ $(KATINA_WHOIS_OBJS) $(KATINA_WHOIS_LIBS)
+#
+#katina-whois.o: $(src_topdir)/katina-whois.cpp $(INCLUDES)
+#	@echo Compiling $@
+#	@$(CXX) -c -I$(src_topdir)/include $(KATINA_WHOIS_FLAGS) -o $@ $<
 
 #katina-client: $(KATINA_CLIENT_OBJS)
 #	@echo
@@ -106,18 +100,20 @@ katina-whois.o: $(src_topdir)/katina-whois.cpp $(INCLUDES)
 #	$(CXX) -c -I$(src_topdir)/include $(KATINA_CLIENT_FLAGS) -o $@ $<
 
 %.o: $(src_topdir)/%.cpp $(src_topdir)/include/katina/%.h
-	@echo -n "AUTO: "
-	$(CXX) -fPIC -I$(src_topdir)/include $(CXXFLAGS) $(MYSQL_INCL) -c -o $@ $<
+	@echo Compiling $@
+	@$(CXX) -fPIC -I$(src_topdir)/include $(CXXFLAGS) $(MYSQL_INCL) -c -o $@ $<
 
 install: $(PROGRAMS) $(LIBRARIES)
-	mkdir -p $(PREFIX)/bin
+	@mkdir -p $(PREFIX)/bin
 	@for program in $(PROGRAMS); \
 	do \
+		echo Installing $$program to $(PREFIX)/bin \
 		cp -f $$program $(PREFIX)/bin; \
 	done
-	mkdir -p $(PREFIX)/lib
+	@mkdir -p $(PREFIX)/lib
 	@for library in $(LIBRARIES); \
 	do \
+		echo Installing $$library to $(PREFIX)/lib; \
 		cp -f $$library.0.0.0 $(PREFIX)/lib; \
 		cd $(PREFIX)/lib; \
 		ln -f -s $$library.0.0.0 $$library.0.0; \
