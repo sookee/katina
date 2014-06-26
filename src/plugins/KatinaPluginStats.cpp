@@ -1812,7 +1812,6 @@ bool StatsDatabase::get_ingame_stats_c(const str& mapname, const slot_guid_map& 
 		for(const str_vec& row: rows)
 			cache[GUID(row[0])].caps = to<siz>(row[1]);
 
-
 		// speed
 
 		sql.clear();
@@ -1851,8 +1850,10 @@ bool StatsDatabase::get_ingame_stats_c(const str& mapname, const slot_guid_map& 
 
 	// speed
 
-	siz t = cache[guid].time;
-	siz d = cache[guid].dist;
+	const core_stat& s = cache[guid];
+
+	siz t = s.time;
+	siz d = s.dist;
 
 	siz ups = 0; // u/sec
 
@@ -1861,11 +1862,11 @@ bool StatsDatabase::get_ingame_stats_c(const str& mapname, const slot_guid_map& 
 
 	//
 
-	siz fph = cache[guid].kills;
-	siz acc = cache[guid].shots;
-	siz hit = cache[guid].hits;
-	siz cph = cache[guid].caps;
-	siz sec = cache[guid].secs;
+	siz fph = s.kills;
+	siz acc = s.shots;
+	siz hit = s.hits;
+	siz cph = s.caps;
+	siz sec = s.secs;
 
 	stats = "^7<^3not recorded for this map^7>";
 
