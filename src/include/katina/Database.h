@@ -64,7 +64,8 @@ class Database
 	friend struct db_scoper;
 	friend struct db_transaction_scoper;
 
-	bool active;
+	bool active = false;
+	bool write = false;
 
 	str host;
 	siz port;
@@ -86,6 +87,9 @@ class Database
 
 public:
 	
+	//void set_write(bool state) { write = state; }
+	bool& get_write_flag() { return write; }
+
 	/**
 	 * Perform sql statement.
 	 * @param sql The sql statement.

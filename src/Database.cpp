@@ -53,6 +53,12 @@ void Database::on()
 	if(active)
 		return;
 
+	if(!write)
+	{
+		active = true;
+		return;
+	}
+
 	if(mysql_real_connect(&mysql, host.c_str(), user.c_str()
 		, pass.c_str(), base.c_str(), port, NULL, 0) != &mysql)
 	{
@@ -79,6 +85,9 @@ void Database::off()
 
 	active = false;
 
+	if(!write)
+		return;
+
 	deinit();
 
 	mysql_close(&mysql);
@@ -86,6 +95,11 @@ void Database::off()
 
 bool Database::check()
 {
+	if(!active)
+		return true;
+	if(!write)
+		return true;
+
 	const bool was_active = active;
 
 	if(!was_active)
@@ -123,13 +137,19 @@ bool Database::escape(const str& from, str& to)
 
 str Database::error()
 {
+	if(!active)
+		return "";
+	if(!write)
+		return "";
 	return mysql_error(&mysql);
 }
 
 bool Database::query(const str& sql)
 {
 	if(!active)
-		return false;
+		return true;
+	if(!write)
+		return true;
 
 	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
 	{
@@ -143,6 +163,17 @@ bool Database::query(const str& sql)
 
 bool Database::insert(const str& sql, my_ulonglong& insert_id)
 {
+	if(!active)
+	{
+		insert_id = my_ulonglong(-1);
+		return true;
+	}
+	if(!write)
+	{
+		insert_id = my_ulonglong(-1);
+		return true;
+	}
+
 	if(!insert(sql))
 		return false;
 
@@ -153,6 +184,17 @@ bool Database::insert(const str& sql, my_ulonglong& insert_id)
 
 bool Database::update(const str& sql, my_ulonglong& update_count)
 {
+	if(!active)
+	{
+		update_count = 0;
+		return true;
+	}
+	if(!write)
+	{
+		update_count = 0;
+		return true;
+	}
+
 	if(!update(sql))
 		return false;
 
@@ -163,6 +205,11 @@ bool Database::update(const str& sql, my_ulonglong& update_count)
 
 bool Database::select(const str& sql, str_vec_vec& rows, siz fields)
 {
+	if(!active)
+		return true;
+	if(!write)
+		return true;
+
 	if(!query(sql))
 		return false;
 

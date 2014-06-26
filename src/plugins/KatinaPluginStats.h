@@ -65,7 +65,7 @@ struct mod_damage_stats
 
 TYPEDEF_MAP(siz, mod_damage_stats, moddmg_map);
 
-struct stats
+struct stat
 {
 	siz hc; // handicap
 
@@ -101,7 +101,7 @@ struct stats
 
 	str name;
 
-	stats() :
+	stat() :
 		hc(100), kills(), deaths(), flags(), awards(), weapon_usage(), mod_damage(),
 		fragsFace(0), fragsBack(0), fraggedInFace(0), fraggedInBack(0),
 		spawnKills(0), spawnKillsRecv(0), pushes(0), pushesRecv(0),
@@ -112,12 +112,12 @@ struct stats
 };
 
 TYPEDEF_MAP(GUID, guid_siz_map, onevone_map);
-TYPEDEF_MAP(GUID, stats, guid_stat_map);
+TYPEDEF_MAP(GUID, stat, guid_stat_map);
 
 class StatsDatabase
 : public Database
 {
-	bool trace = false;
+	bool dbtrace = false;
 
 	MYSQL_STMT *stmt_add_playerstats = 0;
 	std::array<MYSQL_BIND, 16> bind_add_playerstats;
@@ -132,7 +132,7 @@ public:
 	virtual void init() override;
 	virtual void deinit() override;
 
-	void set_trace(bool state = true) { trace = state; }
+	void set_trace(bool state = true) { dbtrace = state; }
 
 	game_id add_game(std::time_t timet, const str& host, const str& port, const str& mapname);
 
@@ -166,7 +166,7 @@ public:
 		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
 		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,
 		siz carrierFrags, siz carrierFragsRecv);
-	bool add_playerstats_ps(game_id id, const GUID& guid, const struct stats& stats);
+	bool add_playerstats_ps(game_id id, const GUID& guid, const struct stat& s);
 	bool add_speed(game_id id, const GUID& guid,
 			siz dist, siz time, bool has_flag);
 
@@ -204,7 +204,7 @@ private:
 
 	// cvars
 	bool active;
-	bool write;
+//	bool write;
     bool recordBotGames;
 
 	bool in_game;
@@ -237,6 +237,7 @@ public:
 	// API
 
 	siz get_skill(const GUID& guid, const str& mapname);
+	const guid_stat_map* get_stats() { return &stats; }
 
     ///////////////////////////////////////////
 	// INTERFACE: KatinaPlugin

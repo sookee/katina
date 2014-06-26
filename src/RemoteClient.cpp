@@ -188,14 +188,13 @@ bool FileClient::configure(const str& params)
 	ofs.open(ofile.c_str());
 	if(!ofs.is_open())
 	{
-		log("error: " << std::strerror(errno));
+		log("ERROR: " << std::strerror(errno));
 		return false;
 	}
 	ifs.open(ifile.c_str());
-	if(!ofs.is_open())
+	if(!ifs.is_open())
 	{
-		log("error: " << std::strerror(errno));
-		return false;
+		log("WARN: " << std::strerror(errno));
 	}
 		
 	return true;	

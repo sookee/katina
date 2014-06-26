@@ -122,6 +122,41 @@ typedef unsigned char byte;
 typedef std::size_t siz;
 
 typedef std::string str;
+
+//class str
+//{
+//	std::string rep;
+//public:
+//	const static siz npos;
+//
+//	typedef str* pointer;
+//	typedef const str* const_pointer;
+//    typedef __gnu_cxx::__normal_iterator<pointer, str>  iterator;
+//    typedef __gnu_cxx::__normal_iterator<const_pointer, str> const_iterator;
+//public:
+//	str() {}
+//	str(const std::string& s): rep(s) {}
+//	str(const str& s):rep(s.rep) {}
+//	str(const str& s, size_t pos, size_t len = str::npos): rep(s.rep, pos, len) {}
+//	str(const char* s): rep(s?s:"") {}
+//	str(const char* s, siz n): rep(s?s:"", s?n:0) {}
+//	str(siz n, char c): rep(n, c) {}
+//
+//	template <class InputIterator>
+//	str(InputIterator first, InputIterator last): rep(first, last) {}
+//	str(std::initializer_list<char> il): rep(il) {}
+//	str(str&& s) rep(std::move(s.rep)) {} noexcept;
+//
+//	bool operator<(const str& s) const { return rep < s.rep; }
+//	bool operator==(const str& s) const { return rep == s.rep; }
+//	siz size() const { return rep.size(); }
+//
+//	friend std::istream& operator>>(std::istream& i, class str& s) { return i >> s.rep; }
+//	friend std::ostream& operator<<(std::ostream& o, const class str& s) { return o << s.rep; }
+//};
+//
+//const siz str::npos = std::string::npos;
+
 typedef str::iterator str_iter;
 typedef str::const_iterator str_citer;
 

@@ -35,7 +35,8 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include "types.h"
 #include "log.h"
 
-#include <cinttypes>
+//#include <cinttypes>
+#include <cstdint>
 #include <list>
 #include <algorithm>
 #include <iomanip>
@@ -47,19 +48,17 @@ using namespace katina::types;
 
 class GUID
 {
-//public:
-//	const static siz SIZE = 8;
-
 private:
 	uint32_t data = 0;
+
 	bool bot = false;
-	mutable bool connected = true;
-	str src; // input data (if relevant) for debugging
 	bool bad = false; // created with bad string data?
+
+	mutable str src; // input data (if relevant) for debugging
+	mutable bool connected = true;
 
 	bool is_bot_data() const
 	{
-//		return data[0] == 'B' && data.substr(1) < "0000064";
 		return ((data >> 28) & 0xF) == 0x0B && (data & 0x0FFFFFFF) < 64;
 	}
 
@@ -67,11 +66,6 @@ public:
 
 	GUID(): connected(false)
 	{
-	}
-
-	GUID(const GUID& guid): data(guid.data), bot(guid.bot)
-	{
-		connected = guid.connected;
 	}
 
 	explicit GUID(const str& s): src(s)
@@ -85,15 +79,6 @@ public:
 	 */
 	explicit GUID(slot num): data(int(num)|0xB0000000), bot(true)
 	{
-	}
-
-	const GUID& operator=(const GUID& guid)
-	{
-		bot = guid.bot;
-		connected = guid.connected;
-		data = guid.data;
-		bad = guid.bad;
-		return *this;
 	}
 
 	bool operator==(const GUID& guid) const
@@ -114,7 +99,9 @@ public:
 	explicit operator str() const
 	{
 		using namespace std;
-		return ((sss&)(sss() << setw(8) << setfill('0') << hex << uppercase << data)).str();
+		if(!src.empty())
+			return src;
+		return src = ((sss&)(sss() << setw(8) << setfill('0') << hex << uppercase << data)).str();
 	}
 
 	explicit operator uint32_t() const

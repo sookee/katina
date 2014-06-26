@@ -52,6 +52,9 @@ KatinaPluginVotes::KatinaPluginVotes(Katina& katina)
 
 bool KatinaPluginVotes::open()
 {
+	katina.add_var_event(this, "votes.active", active, false);
+	katina.add_var_event(this, "votes.write", db.get_write_flag(), false);
+
 	str default_db = katina.get("db");
 
 	if(!default_db.empty())
@@ -79,8 +82,6 @@ bool KatinaPluginVotes::open()
 		plog("FATAL: Database can not connect");
 		return false;
 	}
-
-	katina.add_var_event(this, "votes.active", active, false);
 
 	katina.add_log_event(this, INIT_GAME);
 	katina.add_log_event(this, WARMUP);
@@ -372,7 +373,7 @@ void KatinaPluginVotes::close()
 
 row_count VotesDatabase::add_vote(const str& type, const str& item, const GUID& guid, int count)
 {
-	if(trace)
+	if(dbtrace)
 		log("DATABASE: add_vote(" << type << ", " << item << ", " << guid << ", " << count << ")");
 
 	soss oss;
@@ -392,7 +393,7 @@ row_count VotesDatabase::add_vote(const str& type, const str& item, const GUID& 
 
 bool VotesDatabase::read_map_votes(const str& mapname, guid_int_map& map_votes)
 {
-	if(trace)
+	if(dbtrace)
 		log("DATABASE: read_map_votes(" << mapname << ")");
 
 	map_votes.clear();
@@ -415,8 +416,8 @@ bool VotesDatabase::read_map_votes(const str& mapname, guid_int_map& map_votes)
 
 	for(siz i = 0; i < rows.size(); ++i)
 	{
-		if(trace)
-		log("DATABASE: restoring vote: " << rows[i][0] << ": " << rows[i][1]);
+		if(dbtrace)
+			log("DATABASE: restoring vote: " << rows[i][0] << ": " << rows[i][1]);
 		map_votes[GUID(rows[i][0])] = to<int>(rows[i][1]);
 	}
 

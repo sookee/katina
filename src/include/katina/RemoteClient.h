@@ -215,7 +215,7 @@ public:
 			return true;
 
 		ofs << IRC_to_plain(cmd) << std::endl;
-		return std::getline(ifs, res);
+		return ifs ? std::getline(ifs, res) : "";
 	}
 };
 
