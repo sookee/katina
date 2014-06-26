@@ -841,14 +841,23 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 
 		str stats;
 		siz idx = 0;
+		str stats_c;
+		siz idx_c = 0;
 		db_scoper on(db);
-		if(db.get_ingame_stats_c(mapname, clients, guid, prev, stats, idx))
-//		if(db.get_ingame_stats(guid, mapname, prev, stats, idx))
+		if(db.get_ingame_stats(guid, mapname, prev, stats, idx))
 		{
 			str skill = to_string(idx);
 			for(siz i = 0; i < 3; ++i)
 				skill = skill.size() < 4 ? (" " + skill) : skill;
 			server.msg_to_all(stats + " ^7" + katina.getPlayerName(guid));
+		}
+		if(db.get_ingame_stats_c(mapname, clients, guid, prev, stats_c, idx_c))
+		{
+			if(stats_c != stats || idx_c != idx)
+			{
+				log("ERROR: get_ingame_stats()  -> " << stats << "(" << idx << ")");
+				log("ERROR: get_ingame_stats_c()-> " << stats_c << "(" << idx_c << ")");
+			}
 		}
 	}
 /*	else if(cmd == "!champ") // last month's champion
@@ -939,11 +948,20 @@ siz KatinaPluginStats::get_skill(const GUID& guid, const str& mapname)
 {
 	static str stats;
 	static siz skill;
+	static siz skill_c;
 
 	db_scoper on(db);
-	if(!db.get_ingame_stats_c(mapname, clients, guid, 0, stats, skill))
-//	if(!db.get_ingame_stats(guid, mapname, 0, stats, skill))
+	if(!db.get_ingame_stats_c(mapname, clients, guid, 0, stats, skill_c))
+		skill_c = 0;
+	if(!db.get_ingame_stats(guid, mapname, 0, stats, skill))
 		skill = 0;
+
+	if(skill != skill_c)
+	{
+		log("ERROR: get_ingame_stats()  -> " << skill);
+		log("ERROR: get_ingame_stats_c()-> " << skill_c);
+	}
+
 	return skill;
 }
 
@@ -1766,7 +1784,7 @@ bool StatsDatabase::get_ingame_stats_c(const str& mapname, const slot_guid_map& 
 		sql.clear();
 		sql.str("");
 		sql << "select distinct guid,sum(hits) from damage";
-		sql << " where mod = '10'"; // FIXME: railgun only (not good for AW)
+		sql << " where `mod` = '10'"; // FIXME: railgun only (not good for AW)
 		sql << " and game_id in (" << sql_select_games << ")";
 		sql << " and guid in (" << insql << ")";
 		sql << " group by guid";
