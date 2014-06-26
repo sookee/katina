@@ -174,22 +174,12 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 
 	std::time_t now = katina.now;
 
-	onevone_map onevone = this->onevone;
-	guid_stat_map stats = this->stats;
-
-	this->onevone.clear();
-	this->stats.clear();
-
 	//lock_guard lock(katina.futures_mtx);
-	katina.add_future(std::async(std::launch::async, [=]//,&onevone,&stats]
+	katina.add_future(std::async(std::launch::async, [=]
 	{
 		pbug("RUNNING THREAD:");
-		// copy these to avoid synchronizing
 		std::time_t start = std::time(0);
-		pbug_var(onevone.size());
-		pbug_var(stats.size());
 
-		// lock_guard lock(mtx);
 		db.set_trace();
 		db_scoper on(db);
 
@@ -279,8 +269,8 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 			}
 		}
 
-//		stats.clear();
-//		onevone.clear();
+		stats.clear();
+		onevone.clear();
 
 //		str boss;
 //		GUID guid;
@@ -852,7 +842,8 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 		str stats;
 		siz idx = 0;
 		db_scoper on(db);
-		if(db.get_ingame_stats(guid, mapname, prev, stats, idx))
+		if(db.get_ingame_stats_c(mapname, clients, guid, prev, stats, idx))
+//		if(db.get_ingame_stats(guid, mapname, prev, stats, idx))
 		{
 			str skill = to_string(idx);
 			for(siz i = 0; i < 3; ++i)
@@ -937,12 +928,7 @@ str KatinaPluginStats::api(const str& cmd, void* blob)
 	}
 	else if(c == "get_stats") //guid_stat_map stats;
 	{
-		pbug_var(&stats);
-		stats[null_guid].name = "burt";
-		pbug_var(stats[null_guid].name);
-		//set_blob(blob, &stats);
-		*((guid_stat_map**)blob) = &stats;
-
+		set_blob(blob, stats);
 		return "OK:";
 	}
 
@@ -955,7 +941,8 @@ siz KatinaPluginStats::get_skill(const GUID& guid, const str& mapname)
 	static siz skill;
 
 	db_scoper on(db);
-	if(!db.get_ingame_stats(guid, mapname, 0, stats, skill))
+	if(!db.get_ingame_stats_c(mapname, clients, guid, 0, stats, skill))
+//	if(!db.get_ingame_stats(guid, mapname, 0, stats, skill))
 		skill = 0;
 	return skill;
 }
@@ -1684,6 +1671,217 @@ bool StatsDatabase::get_ingame_boss(const str& mapname, const slot_guid_map& cli
 	return true;
 }
 
+bool StatsDatabase::get_ingame_stats_c(const str& mapname, const slot_guid_map& clients, const GUID& guid, siz prev, str& stats, siz& skill)
+{
+	if(dbtrace)
+		log("DATABASE: get_ingame_stats_c(" << guid << ", " << mapname << ", " << prev << ")");
+
+	if(mapname.empty())
+		return false;
+
+	// cache
+	struct core_stat
+	{
+		siz kills;
+		siz shots;
+		siz hits;
+		siz caps;
+		siz secs;
+
+		siz time; // speed
+		siz dist; // speed
+	};
+
+	TYPEDEF_MAP(GUID, core_stat, guid_cstat_map);
+
+	static siz cache_kpc = 0;
+	static str cache_mapname = mapname;
+	static guid_cstat_map cache;
+
+	if(cache_mapname != mapname)
+	{
+		cache.clear();
+		cache_kpc = 0;
+		cache_mapname = mapname;
+	}
+
+//	const str key = str(guid) + "-" + std::to_string(prev);
+
+	if(cache.find(guid) != cache.end())
+		bug("CACHE  HIT: " << str(guid));
+	else
+	{
+		bug("CACHE MISS: " << str(guid));
+
+		str sql_select_games = get_game_select_period(mapname, prev);
+		cache_kpc = get_kills_per_cap(sql_select_games);
+
+		soss sql;
+
+		str sep;
+		sql.clear();
+		sql.str("");
+		for(slot_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
+			if(!i->second.is_bot() && cache.find(i->second) == cache.end())
+				{ sql << sep << "'" << i->second << "'"; sep = ",";}
+		str insql = sql.str();
+
+		// kills
+
+		sql.clear();
+		sql.str("");
+		sql << "select distinct guid,sum(count) from kills";
+		sql << " where game_id in (" << sql_select_games << ")";
+		sql << " and guid in (" << insql << ")";
+		sql << " group by guid";
+		bug_var(sql.str());
+
+		str_vec_vec rows;
+
+		if(!select(sql.str(), rows, 2))
+			return false;
+
+		for(const str_vec& row: rows)
+			cache[GUID(row[0])].kills = to<siz>(row[1]);
+
+		// shots
+
+		sql.clear();
+		sql.str("");
+		sql << "select distinct guid,sum(shots) from weapon_usage";
+		sql << " where weap = '7'"; // FIXME: railgun only (not good for AW)
+		sql << " and game_id in (" << sql_select_games << ")";
+		sql << " and guid in (" << insql << ")";
+		sql << " group by guid";
+		bug_var(sql.str());
+
+		if(!select(sql.str(), rows, 2))
+			return false;
+
+		for(const str_vec& row: rows)
+			cache[GUID(row[0])].shots = to<siz>(row[1]);
+
+		// hits
+
+		sql.clear();
+		sql.str("");
+		sql << "select distinct guid,sum(hits) from damage";
+		sql << " where mod = '10'"; // FIXME: railgun only (not good for AW)
+		sql << " and game_id in (" << sql_select_games << ")";
+		sql << " and guid in (" << insql << ")";
+		sql << " group by guid";
+		bug_var(sql.str());
+
+		if(!select(sql.str(), rows, 2))
+			return false;
+
+		for(const str_vec& row: rows)
+			cache[GUID(row[0])].hits = to<siz>(row[1]);
+
+		// caps
+
+		sql.clear();
+		sql.str("");
+		sql << "select distinct guid,sum(count) from caps";
+		sql << " where game_id in (" << sql_select_games << ")";
+		sql << " and guid in (" << insql << ")";
+		sql << " group by guid";
+		bug_var(sql.str());
+
+		if(!select(sql.str(), rows, 2))
+			return false;
+
+		for(const str_vec& row: rows)
+			cache[GUID(row[0])].caps = to<siz>(row[1]);
+
+
+		// speed
+
+		sql.clear();
+		sql.str("");
+		sql << "select distinct guid,sum(time),sum(dist) from speed";
+		sql << " where game_id in (" << sql_select_games << ")";
+		sql << " and guid in (" << insql << ")";
+		sql << " group by guid";
+		bug_var(sql.str());
+
+		if(!select(sql.str(), rows, 3))
+			return false;
+
+		for(const str_vec& row: rows)
+		{
+			cache[GUID(row[0])].time = to<siz>(row[1]);
+			cache[GUID(row[0])].dist = to<siz>(row[2]);
+		}
+
+		// secs
+
+		sql.clear();
+		sql.str("");
+		sql << "select distinct guid,sum(count) from time";
+		sql << " where game_id in (" << sql_select_games << ")";
+		sql << " and guid in (" << insql << ")";
+		sql << " group by guid";
+		bug_var(sql.str());
+
+		if(!select(sql.str(), rows, 2))
+			return false;
+
+		for(const str_vec& row: rows)
+			cache[GUID(row[0])].secs = to<siz>(row[1]);
+	}
+
+	// speed
+
+	siz t = cache[guid].time;
+	siz d = cache[guid].dist;
+
+	siz ups = 0; // u/sec
+
+	if(t)
+		ups = d / t;
+
+	//
+
+	siz fph = cache[guid].kills;
+	siz acc = cache[guid].shots;
+	siz hit = cache[guid].hits;
+	siz cph = cache[guid].caps;
+	siz sec = cache[guid].secs;
+
+	stats = "^7<^3not recorded for this map^7>";
+
+	if(acc)
+		acc = (hit * 100) / acc;
+	else
+		acc = 0;
+
+	skill = 0;
+	if(sec)
+	{
+		fph = (fph * 60 * 60) / sec;
+		cph = (cph * 60 * 60) / sec;
+		// Ranking
+		siz kpc = cache_kpc;
+		skill = std::sqrt(std::pow(fph, 2) + std::pow(cph * kpc, 2));
+		// - Ranking
+
+		str fpad = fph < 10 ? "  " : (fph < 100 ? " " : "");
+		str cpad = cph < 10 ? " " : "";
+		str apad = acc < 10 ? " " : "";
+		str spad = ups < 10 ? "  " : (ups < 100 ? " " : "");
+		soss oss;
+		oss << std::fixed;
+		oss.precision(1);
+		oss << "^3FH^7:^2" << fpad << fph << " ^3CH^7:^2" << cpad << cph << " ^3AC^7:^2" << apad << acc;
+		oss << " ^3SP^7:^2" << spad << ups << "u/s" << " ^3SK^7:^2" << skill;
+		stats = oss.str();
+//		bug_var(stats);
+	}
+
+	return true;
+}
+
 bool StatsDatabase::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, str& stats, siz& skill)
 {
 	if(dbtrace)
@@ -1691,20 +1889,6 @@ bool StatsDatabase::get_ingame_stats(const GUID& guid, const str& mapname, siz p
 
 	if(mapname.empty())
 		return false;
-
-//	siz syear = 0;
-//	siz smonth = 0;
-//	siz eyear = 0;
-//	siz emonth = 0;
-//
-//	if(!calc_period(syear, smonth, eyear, emonth, prev))
-//		return false;
-//
-//	soss sql;
-//	sql << "select `game_id` from `game` where `map` = '" << mapname << "'";
-//	sql << " and `date` >= TIMESTAMP('" << syear << '-' << (smonth < 10 ? "0":"") << smonth << '-' << "01" << "')";
-//	sql << " and `date` <  TIMESTAMP('" << eyear << '-' << (emonth < 10 ? "0":"") << emonth << '-' << "01" << "')";
-//	str sql_select_games = sql.str();
 
 	str sql_select_games = get_game_select_period(mapname, prev);
 

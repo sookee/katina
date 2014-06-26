@@ -262,9 +262,9 @@ static const str VERSION = V
 #define pbug_var(v) pbug(QUOTE(v:) << std::boolalpha << " " << v)
 
 template<typename T>
-void set_blob(void* blob, T* t)
+void set_blob(void* blob, T& t)
 {
-	*static_cast<T**>(blob) = t;
+	*static_cast<T**>(blob) = &t;
 }
 
 template<typename T>

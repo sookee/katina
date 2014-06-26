@@ -179,6 +179,7 @@ public:
 	bool get_ingame_boss(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats);
 	bool get_ingame_champ(const str& mapname, GUID& guid, str& stats);
 	bool get_ingame_stats(const GUID& guid, const str& mapname, siz prev, str& stats, siz& skill);
+	bool get_ingame_stats_c(const str& mapname, const slot_guid_map& clients, const GUID& guid, siz prev, str& stats, siz& skill);
 	bool get_ingame_crap(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats);
 };
 

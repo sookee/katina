@@ -654,18 +654,12 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 		}
 	}
 
-	const guid_stat_map* statsptr = dynamic_cast<KatinaPluginStats*>(stats)->get_stats();
-
-//	guid_stat_map** statsptrptr = &statsptr;
-//
-//	if(stats->api("get_stats", statsptrptr) != "OK:" || statsptr == nullptr)
-//	{
-//		log("ERROR: stats api call failed: " << statsptr);
-//		do_stats = false;
-//	}
-//
-//	pbug_var(statsptr);
-//	pbug_var((*statsptr)[null_guid].name);
+	guid_stat_map* statsptr = nullptr;
+	if(stats->api("get_stats", set_blob(statsptr)) != "OK:" || statsptr == nullptr)
+	{
+		log("ERROR: stats api call failed: " << statsptr);
+		do_stats = false;
+	}
 
 	if(do_stats && stats)
 	{
@@ -811,10 +805,9 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 				}
 				else if(col == "$name")
 				{
-					//bug_var(p->second.name);
-					oss << sep << "^7" << p->second.name;// << " [" << p->first << "] " << (p->first.is_bot()?"BOT":"NOT");
+					oss << sep << "^7" << p->second.name;
 					if(col == stats_sort)
-						sort_value = p->second.name; // todo strip this of control codes
+						sort_value = p->second.name; // TODO: strip this of control codes
 				}
 			}
 
