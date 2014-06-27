@@ -135,7 +135,7 @@ bool aocom(const str& cmd, str_vec& packets, const str& host, int port
 				::close(cs);
 				return false;
 			}
-			thread_sleep_millis(10);
+			std::this_thread::sleep_for(milliseconds(100));
 		}
 		if(n < 0)
 			log("cs recv: " << strerror(errno));

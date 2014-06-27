@@ -35,16 +35,17 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include <ctime>
 #include <unistd.h>
+#include <thread>
 
 namespace katina { namespace time {
 
 using namespace katina::types;
 
-inline
-void thread_sleep_millis(siz msecs)
-{
-	usleep(msecs * 1000);
-}
+//inline
+//void thread_sleep_millis(siz msecs)
+//{
+//	usleep(msecs * 1000);
+//}
 
 //inline
 //hr_time_point get_millitime()

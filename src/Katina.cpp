@@ -1320,7 +1320,7 @@ bool Katina::start(const str& dir)
 			{
 				if(rerun)
 					done = true;
-				thread_sleep_millis(100);
+				std::this_thread::sleep_for(milliseconds(100));
 				is.clear();
 				is.seekg(gpos);
 				continue;

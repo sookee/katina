@@ -48,6 +48,22 @@ using namespace katina::string;
 KATINA_PLUGIN_TYPE(KatinaPluginAdmin);
 KATINA_PLUGIN_INFO("katina::admin", "Katina Admin", "0.1-dev");
 
+str sanct_escape(const str& param)
+{
+	str s = param;
+	replace(s, R"(\)", R"(\0)"); // escape delimiters
+	replace(s, R"(,)", R"(\1)");
+	return s;
+}
+
+str sanct_unescape(const str& param)
+{
+	str s = param;
+	replace(s, R"(\1)", R"(,)");
+	replace(s, R"(\0)", R"(\)");
+	return s;
+}
+
 sis& operator>>(sis& i, sanction& s)
 {
 	// 96BBD43E 4(S) 0
@@ -69,10 +85,9 @@ sis& operator>>(sis& i, sanction& s)
 	str param;
 	s.params.clear();
 	siss iss(params);
-	while(iss >> param)
+	while(sgl(iss, param, ','))
 	{
-		pbug_var(param);
-		s.params.push_back(param);
+		s.params.push_back(sanct_unescape(param));
 	}
 
 	if(!(i >> s.expires))
@@ -92,7 +107,7 @@ sos& operator<<(sos& o, const sanction& s)
 	o << s.guid << ' ' << s.type << "(";
 	str sep;
 	for(const str& param: s.params)
-		{ o << sep << param; sep = " "; }
+		{ o << sep << sanct_escape(param); sep = ","; }
 	o << ")";
 	o << ' ' << s.expires << ' ' << s.reason;
 
@@ -1017,7 +1032,11 @@ bool KatinaPluginAdmin::votekill(const str& reason)
 
 bool KatinaPluginAdmin::callvote(siz min, siz sec, slot num, const str& type, const str& info)
 {
-	plog("CALLVOTE: " << num << ", " << katina.getPlayerName(num) << " " << type << " " << info);
+	const GUID guid = katina.getClientGuid(num);
+	const str cname = katina.getPlayerName(guid);
+	const str kname = katina.get_name();
+
+	plog("CALLVOTE: " << num << " [" << guid << "] " << cname << " " << type << " " << info);
 
 	for(const str& v: katina.get_vec("admin.ban.vote"))
 	{
@@ -1040,40 +1059,64 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, slot num, const str& type, co
 
 		if(t == type && i == info)
 		{
-			std::async(std::launch::async, [&]
+			std::thread([this,kname,reason,v]
 			{
-				thread_sleep_millis(2000);
-				votekill(katina.get_name() + "^1: ^5This vote has been disallowed: " + reason);
+				std::this_thread::sleep_for(milliseconds(1000));
+				votekill(kname + "^1: ^5This vote has been disallowed: " + reason);
 				plog("VOTEKILL: admin.ban.vote: " << v);
-			});
+			}).detach();
+//			std::async(std::launch::async, [&]
+//			{
+//				thread_sleep_millis(2000);
+//				votekill(katina.get_name() + "^1: ^5This vote has been disallowed: " + reason);
+//				plog("VOTEKILL: admin.ban.vote: " << v);
+//			});
 		}
 	}
 
-	if(!katina.check_slot(num))
-		return true;
-
 	for(const sanction& s: sanctions)
-		if((!s.expires || s.expires < katina.now) && s.type == S_VOTEBAN && s.guid == katina.getClientGuid(num))
+		if((!s.expires || s.expires < katina.now) && s.type == S_VOTEBAN && s.guid == guid)
 		{
-			std::async(std::launch::async, [&]
+			std::thread([this,cname,kname](str expires, const str& reason)
 			{
-				thread_sleep_millis(2000);
-				votekill(katina.get_name() + "^1: " + katina.getPlayerName(num) + " is banned from voting for "
-				+ secs_to_dhms(s.expires - katina.now));
-				plog("VOTEKILL: prevented " << katina.getClientGuid(num) << ": banned: " << s.reason);
-			});
+				std::this_thread::sleep_for(milliseconds(1000));
+				votekill(kname + "^1: " + cname + " is banned from voting for " + expires);
+				plog("VOTEKILL: prevented " << cname << ": banned: " << reason);
+			}, secs_to_dhms(s.expires - katina.now), s.reason).detach();
+//			std::async(std::launch::async, [&]
+//			{
+//				thread_sleep_millis(2000);
+//				votekill(katina.get_name() + "^1: " + cname + " is banned from voting for "
+//				+ secs_to_dhms(s.expires - katina.now));
+//				plog("VOTEKILL: prevented " << guid << ": banned: " << s.reason);
+//			});
 		}
 
 	if(protect_admins)
 	{
-		if(type == "clientkick" && katina.is_admin(katina.getClientGuid(to<slot>(info))))
+		const GUID& voted_guid = katina.getClientGuid(to<slot>(info));
+		const str& kicked_name = katina.getPlayerName(voted_guid);
+
+		if(katina.is_admin(voted_guid))
 		{
-			std::async(std::launch::async, [&]
+			if(type == "clientkick")
 			{
-				thread_sleep_millis(2000);
-				votekill(katina.get_name() + "^1: ^7[^3NOT ALLOWED TO KICK ADMINS^7]");
-				plog("VOTEKILL: admin protection for: " << katina.getPlayerName(to<slot>(info)));
-			});
+				std::thread([this,kname,kicked_name]
+				{
+					std::this_thread::sleep_for(milliseconds(1000));
+					votekill(kname + "^1: ^7[^3NOT ALLOWED TO KICK ADMINS^7]");
+					plog("VOTEKILL: admin protection for: " << kicked_name);
+				}).detach();
+			}
+			else if(type == "clientmute")
+			{
+				std::thread([this,kname,kicked_name]
+				{
+					std::this_thread::sleep_for(milliseconds(1000));
+					votekill(kname + "^1: ^7[^3NOT ALLOWED TO KICK ADMINS^7]");
+					plog("VOTEKILL: admin protection for: " << kicked_name);
+				}).detach();
+			}
 		}
 	}
 	return true;
