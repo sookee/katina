@@ -197,9 +197,9 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 
 	announce_time = 0; // turn off
 
-	std::async(std::launch::async, [this]
+	std::async(std::launch::async, [this](slot_guid_map clients)
 	{
-		const slot_guid_map clients = katina.getClients();
+//		const slot_guid_map clients = katina.getClients();
 
 		for(slot_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
 		{
@@ -250,7 +250,7 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 				katina.server.msg_to(i->first, katina.get_name() + " ^3If you don't care say ^1!soso map ^3 to make this message disappear.");
 			}
 		}
-	});
+	}, katina.getClients());
 }
 
 bool KatinaPluginVotes::sayteam(siz min, siz sec, const GUID& guid, const str& text)
