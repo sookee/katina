@@ -1430,7 +1430,7 @@ str get_game_select_period(const str& mapname, siz prev = 0)
 	siz emonth = 0;
 
 	if(!calc_period(syear, smonth, eyear, emonth, prev))
-		return false;
+		return "";
 
 	soss sql;
 	sql << "select `game_id` from `game` where `map` = '" << mapname << "'";
