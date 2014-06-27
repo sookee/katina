@@ -169,13 +169,13 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 	}
 
 	pbug_var(logged_time);
-	pbug_var(this->onevone.size());
 	pbug_var(this->stats.size());
+	pbug_var(this->onevone.size());
 
 	std::time_t now = katina.now;
 
 	//lock_guard lock(katina.futures_mtx);
-	katina.add_future(std::async(std::launch::async, [=]
+	katina.add_future(std::async(std::launch::async, [this,now,logged_time](guid_stat_map stats, onevone_map onevone)
 	{
 		pbug("RUNNING THREAD:");
 		std::time_t start = std::time(0);
@@ -186,7 +186,9 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 		if(logged_time)
 		{
 			game_id id = db.add_game(now, host, port, mapname);
+
 			pbug_var(id);
+			pbug_var(stats.size());
 
 			if(id != null_id && id != bad_id)
 			{
@@ -269,19 +271,11 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 			}
 		}
 
-		stats.clear();
-		onevone.clear();
-
-//		str boss;
-//		GUID guid;
-//		if(db.get_ingame_boss(mapname, clients, guid, boss) && guid != null_guid)
-//			server.msg_to_all("^7BOSS: " + katina.getPlayerName(guid) + "^7: " + boss, true);
-//		else
-//			server.msg_to_all("^7BOSS: ^3There is no boss on this map", true);
-//
 		plog("STATS WRITTEN IN: " << (std::time(0) - start) << " seconds:");
-	}));
+	}, stats, onevone));
 
+	stats.clear();
+	onevone.clear();
 	return true;
 }
 
@@ -453,7 +447,7 @@ bool KatinaPluginStats::kill(siz min, siz sec, slot num1, slot num2, siz weap)
 	if(stop_stats)
 		return true;
 
-//	bug("STATS NOT STOPPED");
+//	pbug("STATS NOT STOPPED");
 
 	const GUID& guid1 = katina.getClientGuid(num1);
 
@@ -1052,7 +1046,8 @@ game_id StatsDatabase::add_game(const std::time_t timet, const str& host, const 
 		+ host + "'),'" + port + "','" + timestamp + "','" + safe_mapname + "')";
 
 	game_id id;
-	if(!insert(sql, id))
+
+	if(!insert(sql, id)||id == my_ulonglong(-1))
 		return bad_id;
 
 	return id;

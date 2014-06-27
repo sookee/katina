@@ -163,16 +163,11 @@ bool Database::query(const str& sql)
 
 bool Database::insert(const str& sql, my_ulonglong& insert_id)
 {
+	insert_id = my_ulonglong(-1);
 	if(!active)
-	{
-		insert_id = my_ulonglong(-1);
 		return true;
-	}
 	if(!write)
-	{
-		insert_id = my_ulonglong(-1);
 		return true;
-	}
 
 	if(!insert(sql))
 		return false;
@@ -184,16 +179,11 @@ bool Database::insert(const str& sql, my_ulonglong& insert_id)
 
 bool Database::update(const str& sql, my_ulonglong& update_count)
 {
+	update_count = 0;
 	if(!active)
-	{
-		update_count = 0;
 		return true;
-	}
 	if(!write)
-	{
-		update_count = 0;
 		return true;
-	}
 
 	if(!update(sql))
 		return false;
@@ -205,6 +195,7 @@ bool Database::update(const str& sql, my_ulonglong& update_count)
 
 bool Database::select(const str& sql, str_vec_vec& rows, siz fields)
 {
+	rows.clear();
 	if(!active)
 		return true;
 	if(!write)
@@ -225,8 +216,6 @@ bool Database::select(const str& sql, str_vec_vec& rows, siz fields)
 
 	if(fields != mysql_num_fields(result))
 		log("DATABASE: WARNING: parameter fields different from table");
-
-	rows.clear();
 
 	MYSQL_ROW row;
 	while((row = mysql_fetch_row(result)))

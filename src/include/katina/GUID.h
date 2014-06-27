@@ -64,6 +64,7 @@ private:
 
 public:
 
+//	GUID() = delete;
 	GUID(): connected(false)
 	{
 	}

@@ -186,27 +186,24 @@ GUID Katina::guid_from_name(const str& name)
 	return null_guid;
 }
 
-bool Katina::extract_name_from_text(const str& line, GUID& guid, str& text)
+GUID Katina::extract_name_from_text(const str& line, str& text)
 {
-//	GUID candidate;
 	siz pos = 0;
 	siz beg = 0;
 	if((beg = line.find(": ")) == str::npos) // "say: "
-		return false;
+		return null_guid;
 
 	beg += 2;
 
-	bool found = false;
 	for(pos = beg; (pos = line.find(": ", pos)) != str::npos; pos += 2)
 	{
-		GUID candidate(guid_from_name(line.substr(beg, pos - beg)));
-		if(candidate == null_guid)
+		GUID guid = guid_from_name(line.substr(beg, pos - beg));
+		if(guid == null_guid)
 			continue;
-		guid = candidate;
 		text = line.substr(pos + 2);
-		found = true;
+		return guid;
 	}
-	return found;
+	return null_guid;
 }
 
 bool Katina::load_plugin(const str& file)
@@ -1850,25 +1847,31 @@ bool Katina::start(const str& dir)
 					continue;
 
 				str text;
-				GUID guid;
+				GUID guid = extract_name_from_text(line_data, text);
 
-				if(extract_name_from_text(line_data, guid, text))
+				if(guid == null_guid)
+					nlog("ERROR: Unable to locate GUID when parsing sayteam: " << line_data);
+				else
+				{
 					for(auto plugin: events[SAYTEAM])
 						plugin->say(min, sec, guid, text);
+				}
 			}
 			else if(cmd == "say:")
 			{
 				str text;
-				GUID guid;
+				GUID guid = extract_name_from_text(line_data, text);
 
-				if(extract_name_from_text(line_data, guid, text))
+				if(guid == null_guid)
+					nlog("ERROR: Unable to locate GUID when parsing say: " << line_data);
+				else
 				{
 					if(!text.find("!katina"))
 						builtin_command(guid, text);
 					else
 					{
 						for(auto plugin: events[SAY])
-							plugin->say(min, sec, guid, text);
+							plugin->say(min, sec, GUID(guid), text);
 					}
 				}
 			}

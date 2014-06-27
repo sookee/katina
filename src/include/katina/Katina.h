@@ -207,7 +207,7 @@ private:
 	cvar_map_map vars; // plugin* -> {name -> cvar*}
 
 	GUID guid_from_name(const str& name);
-	bool extract_name_from_text(const str& line, GUID& guid, str& text);
+	GUID extract_name_from_text(const str& line, str& text);
     
 	bool load_config(const str& dir, const str& file, property_map& props);
     bool init_pki();

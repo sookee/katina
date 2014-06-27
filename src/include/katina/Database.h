@@ -248,21 +248,27 @@ public:
 	Database& db;
 	db_scoper(Database& db): db(db)
 	{
-		bug("db_scoper:init: " << this);
-		if(!count++)
+		if(db.get_write_flag())
 		{
-			bug("db_scoper:  on: " << this);
-			db.on();
+			bug("db_scoper:init: " << this);
+			if(!count++)
+			{
+				bug("db_scoper:  on: " << this);
+				db.on();
+			}
 		}
 	}
 	~db_scoper()
 	{
-		if(!--count)
+		if(db.get_write_flag())
 		{
-			db.off();
-			bug("db_scoper: off: " << this);
+			if(!--count)
+			{
+				db.off();
+				bug("db_scoper: off: " << this);
+			}
+			bug("db_scoper:exit: " << this);
 		}
-		bug("db_scoper:exit: " << this);
 	}
 };
 
