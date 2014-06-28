@@ -251,15 +251,21 @@ static const str VERSION = V
  */
 #define plog(m) log(ID << ": " << m)
 
+#define ptlog(m) plog("[" << std::this_thread::get_id() << "] " << m)
+
 /**
  * Please use pbug() rather than bug() in your plugins
  */
 #define pbug(m) bug(ID << ": " << m)
 
+#define ptbug(m) pbug("[" << std::this_thread::get_id() << "] " << m)
+
 /**
  * Please use pbug_var() rather than bug_var() in your plugins
  */
 #define pbug_var(v) pbug(QUOTE(v:) << std::boolalpha << " " << v)
+
+#define ptbug_var(v) pbug("[" << std::this_thread::get_id() << "] " << QUOTE(v:) << std::boolalpha << " " << v)
 
 template<typename T>
 void set_blob(void* blob, T& t)

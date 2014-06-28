@@ -40,16 +40,44 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace katina { namespace data {
 
-const game_id bad_id(-1);
-const game_id null_id(0);
-
 siz db_scoper::count = 0;
+siz Database::initialized = 0;
+std::mutex Database::initialized_mtx;
 
-Database::Database(): active(false), port(3306) { mysql_init(&mysql); }
-Database::~Database() { off(); }
+Database::Database(): active(false), port(3306)
+{
+	if(!initialized)
+	{
+		log("DATABASE LIBRARY INIT");
+		lock_guard lock(initialized_mtx);
+		if(mysql_library_init(0, NULL, NULL))
+		{
+			log("ERROR: initializing mysql library");
+			return;
+		}
+	}
+	++initialized;
+	mysql_init(&mysql);
+}
+
+Database::~Database()
+{
+	if(!initialized)
+		return;
+	off();
+	if(!--initialized)
+	{
+		log("DATABASE LIBRARY END");
+		lock_guard lock(initialized_mtx);
+		mysql_library_end();
+	}
+}
 
 void Database::on()
 {
+	if(!initialized)
+		return;
+
 	if(active)
 		return;
 
@@ -229,6 +257,36 @@ bool Database::select(const str& sql, str_vec_vec& rows, siz fields)
 
 	mysql_free_result(result);
 	return true;
+}
+
+bool Database::transaction()
+{
+	if(!active)
+		return true;
+	if(!write)
+		return true;
+
+	return query("START TRANSACTION");
+}
+
+bool Database::rollback()
+{
+	if(!active)
+		return true;
+	if(!write)
+		return true;
+
+	return !mysql_rollback(&mysql);
+}
+
+bool Database::commit()
+{
+	if(!active)
+		return true;
+	if(!write)
+		return true;
+
+	return !mysql_commit(&mysql);
 }
 
 }} // katina::data

@@ -31,11 +31,17 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include "ansi.h"
 #include "types.h"
 
-namespace katina { namespace log {
+namespace katina {
+
+class GUID;
+katina::types::sos& operator<<(katina::types::sos& os, const katina::GUID& guid);
+
+namespace log {
 
 using namespace katina::ansi;
 using katina::ansi::ANSI;
 using namespace katina::types;
+
 
 // -- LOGGING ------------------------------------------------
 
@@ -64,6 +70,13 @@ str get_stamp()
 	return ansify(str(buffer), ATTS(FG_YELLOW));
 }
 
+inline void log_out(sss& s)
+{
+	static std::mutex mtx;
+	lock_guard lock(mtx);
+	std::cout << s.rdbuf();
+}
+
 #define QUOTE(s) #s
 
 #ifndef TRACE
@@ -77,8 +90,8 @@ str get_stamp()
 #define bug_var(v)
 #define bug_func()
 #define con(m) do{std::cout << m << std::endl;}while(false)
-#define log(m) do{std::cout << katina::log::get_stamp() << ": " << m << std::endl;}while(false)
-#define nlog(m) do{std::cout << katina::log::get_stamp() << ": " << m << " {" << line_number << "}" << std::endl;}while(false)
+#define log(m) do{sss __s;__s << katina::log::get_stamp() << ": " << m << std::endl;katina::log::log_out(__s);}while(false)
+#define nlog(m) do{sss __s;__s << katina::log::get_stamp() << ": " << m << " {" << line_number << "}" << std::endl;katina::log::log_out(__s);}while(false)
 #else
 inline str _fixfile(const char* f)
 {
@@ -102,7 +115,7 @@ inline str _fixfunc(const char* f)
 		fixed = fixed.substr(pos + 2);
 	return fixed;
 }
-#define bug(m) do{std::cout << "BUG: " << m << " [" << _fixfile(__FILE__) << "]" << " (" << __LINE__ << ")" << std::endl;}while(false)
+#define bug(m) do{sss __s;__s << "BUG: " << m << " [" << _fixfile(__FILE__) << "]" << " (" << __LINE__ << ")" << std::endl;katina::log::log_out(__s);}while(false)
 #define bug_var(v) bug(QUOTE(v:) << std::boolalpha << " " << v)
 struct _
 {
@@ -110,14 +123,21 @@ struct _
 	str f;
 	_(const char* n, const char* f): n(_fixfunc(n)), f(_fixfile(f))
 	{
-		std::cout << ansify("\n---> ", ATTS(BOLD_ON)) << ansify(this->n, ATTS(FG_RED)) << " [" << this->f << "]\n\n";
+		sss __s;
+		__s << ansify("\n---> ", ATTS(BOLD_ON)) << ansify(this->n, ATTS(FG_RED)) << " [" << this->f << "]\n\n";
+		katina::log::log_out(__s);
 	}
-	~_() { std::cout << "\n<--- " << ansify(n, ATTS(FG_RED,FAINT_ON)) << " [" << f << "]\n\n"; }
+	~_()
+	{
+		sss __s;
+		__s << "\n<--- " << ansify(n, ATTS(FG_RED,FAINT_ON)) << " [" << f << "]\n\n";
+		katina::log::log_out(__s);
+	}
 };
 #define bug_func() katina::log::_ __(__PRETTY_FUNCTION__, __FILE__)
 #define con(m) do{std::cout << m << " [" << _fixfile(__FILE__) << "]" << " (" << __LINE__ << ")" << std::endl;}while(false)
-#define log(m) do{std::cout << katina::log::get_stamp() << ": " << m << " [" << _fixfile(__FILE__) << "]" << " (" << __LINE__ << ")" << std::endl;}while(false)
-#define nlog(m) do{std::cout << katina::log::get_stamp() << ": " << m << " {" << line_number << "}" << " [" << _fixfile(__FILE__) << "]" << " (" << __LINE__ << ")" << std::endl;}while(false)
+#define log(m) do{sss __s;__s << katina::log::get_stamp() << ": " << m << " [" << _fixfile(__FILE__) << "]" << " (" << __LINE__ << ")" << std::endl;katina::log::log_out(__s);}while(false)
+#define nlog(m) do{sss __s;__s << katina::log::get_stamp() << ": " << m << " {" << line_number << "}" << " [" << _fixfile(__FILE__) << "]" << " (" << __LINE__ << ")" << std::endl;katina::log::log_out(__s);}while(false)
 #endif
 
 

@@ -30,6 +30,8 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <thread>
 #include <future>
 
+#include <arpa/inet.h>
+
 #include <ctime>
 
 #include <katina/types.h>
@@ -47,6 +49,17 @@ using namespace katina::string;
 
 KATINA_PLUGIN_TYPE(KatinaPluginAdmin);
 KATINA_PLUGIN_INFO("katina::admin", "Katina Admin", "0.1-dev");
+
+static const std::array<str, S_MAX> SANCT =
+{
+	"NONE"
+	, "MUTEPP"
+	, "FIXNAME"
+	, "WARN_ON_SIGHT"
+	, "RETEAM"
+	, "VOTEBAN"
+	, "MAPBAN"
+};
 
 str sanct_escape(const str& param)
 {
@@ -132,24 +145,10 @@ KatinaPluginAdmin::KatinaPluginAdmin(Katina& katina)
 {
 }
 
-bool is_ip(const str& s)
+bool is_ip(const str& ip)
 {
-	siz dot = std::count(s.begin(), s.end(), '.');
-	if(dot > 3)
-		return false;
-
-	siz dig = std::count_if(s.begin(), s.end(), std::ptr_fun<int, int>(isdigit));
-	if(dig > dot * 3 + 3)
-		return false;
-
-	return s.size() == dot + dig;
-}
-
-bool is_guid(const str& s)
-{
-	//assert(min <= 8);
-	return s.size() == 8
-		&& std::count_if(s.begin(), s.end(), std::ptr_fun<int, int>(isxdigit)) == s.size();
+	struct in_addr addr;
+	return inet_pton(AF_INET, ip.c_str(), &addr) > 0;
 }
 
 bool KatinaPluginAdmin::load_sanctions()
@@ -182,7 +181,7 @@ bool KatinaPluginAdmin::load_sanctions()
 
 		str expires = s.expires ? ctime(&s.expires) : "PERMANENT";
 
-		plog("SANCTION LOAD: [" << expires << ": " << s.type << "] " << katina.getPlayerName(s.guid));
+		plog("SANCTION LOAD: [" << expires << ": " << SANCT[s.type] << "] " << katina.getPlayerName(s.guid));
 		sanctions.push_back(s);
 	}
 
@@ -204,17 +203,6 @@ bool KatinaPluginAdmin::save_sanctions()
 
 	return true;
 }
-
-enum
-{
-	S_NONE = 0
-	, S_MUTEPP
-	, S_FIXNAME
-	, S_WARN_ON_SIGHT
-	, S_RETEAM
-	, S_VOTEBAN
-	, S_MAPBAN
-};
 
 struct player
 {

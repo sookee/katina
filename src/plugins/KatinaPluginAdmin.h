@@ -62,6 +62,18 @@ struct total_ban
 	str_vec ips;
 };
 
+enum
+{
+	S_NONE = 0
+	, S_MUTEPP
+	, S_FIXNAME
+	, S_WARN_ON_SIGHT
+	, S_RETEAM
+	, S_VOTEBAN
+	, S_MAPBAN
+	, S_MAX
+};
+
 struct sanction
 {
 	GUID guid;

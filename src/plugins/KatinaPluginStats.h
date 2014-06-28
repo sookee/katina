@@ -114,6 +114,10 @@ struct stat
 TYPEDEF_MAP(GUID, guid_siz_map, onevone_map);
 TYPEDEF_MAP(GUID, stat, guid_stat_map);
 
+typedef my_ulonglong game_id;
+extern const game_id bad_id;
+extern const game_id null_id;
+
 class StatsDatabase
 : public Database
 {
