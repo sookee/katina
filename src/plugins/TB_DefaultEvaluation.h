@@ -19,12 +19,12 @@ class DefaultEvaluation : public PlayerEvaluation
 private:
     Database db;
     
-    void loadStats(GUID guid, stats& dest);
+    void loadStats(GUID guid, stat& dest);
     
-    static siz getNumFrags(stats s);
-    static siz getNumDeaths(stats s);
+    static siz getNumFrags(const stat& s);
+    static siz getNumDeaths(const stat& s);
     
-    static std::pair<siz, float> getShotsHits(stats s);
+    static std::pair<siz, float> getShotsHits(const stat& s);
     
     
 public:

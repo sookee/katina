@@ -56,6 +56,7 @@ private:
 	time_t wait;
 	time_t restart_vote;
 	bool votes_disabled;
+	bool enable_failed = false; // tried to enable but failed
 	
 	bool command(const str& cmd);
 	bool vote_enable();

@@ -207,7 +207,7 @@ private:
 	cvar_map_map vars; // plugin* -> {name -> cvar*}
 
 	GUID guid_from_name(const str& name);
-	bool extract_name_from_text(const str& line, GUID& guid, str& text);
+	GUID extract_name_from_text(const str& line, str& text);
     
 	bool load_config(const str& dir, const str& file, property_map& props);
     bool init_pki();
@@ -252,6 +252,7 @@ private:
 
 	siz line_number = 0; // log file line number
 	str line_data; // log file lines read into this variable
+	str line_data2; // used if ClientUserInfo bug found
 
 	bool do_log_lines = false;
 
@@ -572,27 +573,57 @@ public:
 			log("CVAR: " << plugin->get_id() << ": " << name << " = " << var);
 	}
 
+	struct evtent_hold
+	{
+		event_t e;
+		KatinaPlugin* p;
+		str_vec after;
+		bool operator==(const evtent_hold& erase) const { return e == erase.e && p == erase.p; }
+	};
+
+	TYPEDEF_VEC(evtent_hold, event_hold_vec);
+	event_hold_vec erase_events;
+	event_hold_vec defer_events;
+
 	void add_log_event(class KatinaPlugin* plugin, event_t e)
 	{
 		events[e].push_back(plugin);
 	}
 
-	struct evt_erase
+	void add_log_event(class KatinaPlugin* plugin, event_t e, const str_vec& after)
 	{
-		event_t e;
-		KatinaPlugin* p;
-//		evt_erase(): e(event_t::LOG_NONE), p(0) {}
-//		evt_erase(event_t e, KatinaPlugin* p): e(e), p(p) {}
-		bool operator==(const evt_erase& erase) const { return e == erase.e && p == erase.p; }
-	};
-	TYPEDEF_VEC(evt_erase, evt_erase_vec);
-	evt_erase_vec erase_events;
+		if(after.empty())
+			add_log_event(plugin, e);
+
+		plugin_vec found;
+		plugin_map_citer p;
+		for(const str& id: after)
+			if((p = plugins.find(id)) != plugins.cend())
+				found.push_back(p->second);
+
+		plugin_lst& list = events[e];
+
+		plugin_vec_iter pvi;
+		for(plugin_lst_iter pli = list.begin(); pli != list.end(); ++pli)
+		{
+			if((pvi = std::find(found.begin(), found.end(), *pli)) == found.end())
+				continue;
+
+			found.erase(pvi);
+
+			if(found.empty())
+				{ list.insert(++pli, plugin); break; }
+		}
+
+		if(!found.empty())
+			defer_events.push_back({e, plugin, after});
+	}
 
 	void del_log_event(class KatinaPlugin* plugin, event_t e)
 	{
 		plugin_lst_iter i = std::find(events[e].begin(), events[e].end(), plugin);
 		if(i != events[e].end())
-			erase_events.push_back({e, *i}); // TODO: clang++ crashes here
+			erase_events.push_back({e, plugin}); // TODO: clang++ crashes here
 	}
 
 	void del_log_events(class KatinaPlugin* plugin)

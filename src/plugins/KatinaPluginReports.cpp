@@ -94,7 +94,7 @@ str weapons[] =
 	, "grappled"
 };
 
-siz map_get(const siz_map& m, siz key)
+static siz map_get(const siz_map& m, siz key)
 {
 	return m.find(key) == m.end() ? 0 : m.at(key);
 }
@@ -169,11 +169,18 @@ KatinaPluginReports::KatinaPluginReports(Katina& katina)
 
 bool KatinaPluginReports::open()
 {
+	str_vec after;
 	if((stats = katina.get_plugin("katina::stats", "0.0")))
+	{
 		plog("Found: " << stats->get_name() << ": " << stats->get_version());
+		after.push_back("katina::stats");
+	}
 
 	if((votes = katina.get_plugin("katina::votes", "0.0")))
+	{
 		plog("Found: " << votes->get_name() << ": " << votes->get_version());
+		after.push_back("katina::votes");
+	}
 
 	client.off();
 	client.clear();
@@ -213,7 +220,7 @@ bool KatinaPluginReports::open()
 	katina.add_var_event(this, "reports.spam.kill", spamkill, false);
 	katina.add_var_event(this, "reports.spam.limit", spam_limit, (siz) 2);
 
-	katina.add_log_event(this, EXIT);
+	katina.add_log_event(this, EXIT, after);
 	katina.add_log_event(this, KILL);
 	katina.add_log_event(this, PUSH);
 	katina.add_log_event(this, CTF);
@@ -471,35 +478,35 @@ bool KatinaPluginReports::say(siz min, siz sec, const GUID& guid, const str& tex
 		if(do_flags && do_flags_hud)
 			hud = get_hud(min, sec, hud_flag);
 
-		if(!spamkill || ++spam[text] < spam_limit || std::find(notspam.begin(), notspam.end(), text) != notspam.end())
-			client.raw_chat('c', hud + oa_to_IRC(nums_team + " ^7" + katina.getPlayerName(guid) + "^7: ^2" + text));
+		const str_vec& banned = katina.get_vec("reports.banned.say.guid");
+		if(std::find(banned.begin(), banned.end(), str(guid)) == banned.end() && text.size() < 120)
+			if(!spamkill || ++spam[text] < spam_limit || std::find(notspam.begin(), notspam.end(), text) != notspam.end())
+				client.raw_chat('c', hud + oa_to_IRC(nums_team + " ^7" + katina.getPlayerName(guid) + "^7: ^2" + text));
 	}
 
 	return true;
 }
 
 // weapon = siz(-1) => all weapons totalled
-str get_acc(const stats& stats, siz weapon = siz(-1))//, siz mod)
+str get_acc(const stat& stats, siz weapon = siz(-1))//, siz mod)
 {
 	bug_func();
 	bug_var(weapon);
-	static siz_map weap_to_mod;
-	if(weap_to_mod.empty())
-	{
-		weap_to_mod[WP_GAUNTLET] = MOD_GAUNTLET;
-		weap_to_mod[WP_MACHINEGUN] = MOD_MACHINEGUN;
-		weap_to_mod[WP_SHOTGUN] = MOD_SHOTGUN;
-		weap_to_mod[WP_GRENADE_LAUNCHER] = MOD_GRENADE;
-		weap_to_mod[WP_ROCKET_LAUNCHER] = MOD_ROCKET;
-		weap_to_mod[WP_LIGHTNING] = MOD_LIGHTNING;
-		weap_to_mod[WP_RAILGUN] = MOD_RAILGUN;
-		weap_to_mod[WP_PLASMAGUN] = MOD_PLASMA;
-		weap_to_mod[WP_BFG] = MOD_BFG;
-		weap_to_mod[WP_GRAPPLING_HOOK] = MOD_GRAPPLE;
-		weap_to_mod[WP_NAILGUN] = MOD_NAIL;
-		weap_to_mod[WP_PROX_LAUNCHER] = MOD_PROXIMITY_MINE;
-		weap_to_mod[WP_CHAINGUN] = MOD_CHAINGUN;
-	}
+	const static siz_map weap_to_mod({
+		{WP_GAUNTLET, MOD_GAUNTLET}
+		, {WP_MACHINEGUN, MOD_MACHINEGUN}
+		, {WP_SHOTGUN, MOD_SHOTGUN}
+		, {WP_GRENADE_LAUNCHER, MOD_GRENADE}
+		, {WP_ROCKET_LAUNCHER, MOD_ROCKET}
+		, {WP_LIGHTNING, MOD_LIGHTNING}
+		, {WP_RAILGUN, MOD_RAILGUN}
+		, {WP_PLASMAGUN, MOD_PLASMA}
+		, {WP_BFG, MOD_BFG}
+		, {WP_GRAPPLING_HOOK, MOD_GRAPPLE}
+		, {WP_NAILGUN, MOD_NAIL}
+		, {WP_PROX_LAUNCHER, MOD_PROXIMITY_MINE}
+		, {WP_CHAINGUN, MOD_CHAINGUN}
+	});
 
 	siz ws = WP_GAUNTLET;
 	siz we = WP_CHAINGUN;
@@ -509,6 +516,8 @@ str get_acc(const stats& stats, siz weapon = siz(-1))//, siz mod)
 
 	bug_var(ws);
 	bug_var(we);
+
+	str acc = "0.00";
 
 	siz shots = 0;
 	siz hits  = 0;
@@ -522,7 +531,15 @@ str get_acc(const stats& stats, siz weapon = siz(-1))//, siz mod)
 		bug_var(multi);
 
 		shots += map_get(stats.weapon_usage, w) * multi;
-		moddmg_map_citer it = stats.mod_damage.find(weap_to_mod[w]);
+//		moddmg_map_citer it = stats.mod_damage.find(weap_to_mod[w]);
+		siz_map_citer wi = weap_to_mod.find(w);
+		if(wi == weap_to_mod.cend())
+		{
+			plog("ERROR: Unknown weapon: " << w);
+			return acc;
+		}
+		siz m = wi->second;
+		moddmg_map_citer it = stats.mod_damage.find(m);
 		if(it != stats.mod_damage.end())
 			hits += it->second.hits;
 		if(w == WP_RAILGUN)
@@ -531,9 +548,8 @@ str get_acc(const stats& stats, siz weapon = siz(-1))//, siz mod)
 
 	bug_var(shots);
 	bug_var(hits);
-	bug_var(stats.pushes);
+//	bug_var(stats.pushes);
 
-	str acc = "0.00";
 	if(shots > 0)
 	{
 		double a = ((double) hits / shots) * 100.0;
@@ -569,6 +585,7 @@ siz weapon_to_siz(const str& weapon)
 
 bool KatinaPluginReports::exit(siz min, siz sec)
 {
+	bug_func();
 	if(!active)
 		return true;
 
@@ -638,14 +655,11 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 	}
 
 	guid_stat_map* statsptr = nullptr;
-
 	if(stats->api("get_stats", set_blob(statsptr)) != "OK:" || statsptr == nullptr)
 	{
 		log("ERROR: stats api call failed: " << statsptr);
 		do_stats = false;
 	}
-
-	bug_var(statsptr);
 
 	if(do_stats && stats)
 	{
@@ -791,9 +805,9 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 				}
 				else if(col == "$name")
 				{
-					oss << sep << "^7" << p->second.name;// << " [" << p->first << "] " << (p->first.is_bot()?"BOT":"NOT");
+					oss << sep << "^7" << p->second.name;
 					if(col == stats_sort)
-						sort_value = p->second.name; // todo strip this of control codes
+						sort_value = p->second.name; // TODO: strip this of control codes
 				}
 			}
 

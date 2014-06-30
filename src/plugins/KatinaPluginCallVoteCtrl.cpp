@@ -63,10 +63,12 @@ static KatinaPluginCallVoteCtrl* plugin = 0;
 void handler(int sig, siginfo_t* si, void* uc)
 {
 	log("INFO: Signal handler invoked");
+
 	if(!plugin)
 		log("ERROR: votectrl plugin not set");
 	else
 		plugin->vote_enable();
+
 	signal(sig, SIG_IGN);
 	
 	sa.sa_flags = SA_SIGINFO;
@@ -155,28 +157,45 @@ str KatinaPluginCallVoteCtrl::get_version() const
 
 bool KatinaPluginCallVoteCtrl::command(const str& cmd)
 {
-	if(!server.command(cmd))
-		if(!server.command(cmd))
+//	if(!server.command(cmd))
+//		if(!server.command(cmd))
 			return server.command(cmd); // two retry
-	return true;
+//	return true;
 }
 
 bool KatinaPluginCallVoteCtrl::vote_enable()
 {
 	if(!votes_disabled)
 		return true;
+
 	plog("CALLVOTE CONTROL: ON");
-	server.cp("^2V^7oting ^3on");
-	return (votes_disabled = !command("set g_allowVote 1"));
+
+	enable_failed = false;
+	if(!command("set g_allowVote 1"))
+		enable_failed = true;
+	else
+	{
+		votes_disabled = false;
+		server.cp("^2V^7oting ^3on");
+	}
+
+	return !votes_disabled;
 }
 
 bool KatinaPluginCallVoteCtrl::vote_disable()
 {
 	if(votes_disabled)
 		return true;
+
 	plog("CALLVOTE CONTROL: OFF");
-	server.cp("^2V^7oting ^3off");
-	return (votes_disabled = command("set g_allowVote 0"));
+
+	if(command("set g_allowVote 0"))
+	{
+		votes_disabled = true;
+		server.cp("^2V^7oting ^3off");
+	}
+
+	return votes_disabled;
 }
 
 
@@ -192,6 +211,7 @@ bool KatinaPluginCallVoteCtrl::init_game(siz min, siz sec, const str_map& cvars)
 	its.it_interval.tv_sec = 0;
 	its.it_interval.tv_nsec = 0;
 	
+	enable_failed = false;
 	if(timer_settime(timerid, 0, &its, NULL) != -1)
 		log("CALLVOTE CONTROL: TIMED: " << wait << " secs");
 	else
@@ -205,6 +225,9 @@ bool KatinaPluginCallVoteCtrl::init_game(siz min, siz sec, const str_map& cvars)
 
 bool KatinaPluginCallVoteCtrl::say(siz min, siz sec, const GUID& guid, const str& text)
 {
+	if(enable_failed)
+		plog("WARN: ENABLE FAILED, REBOOTING: " << (vote_enable() ? "OK":"FAIL"));
+
 	str cmd;
 	siss iss(text);
 	if(!(iss >> cmd) || cmd.empty() || (cmd[0] != '!' && cmd[0] != '?'))

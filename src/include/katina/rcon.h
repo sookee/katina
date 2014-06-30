@@ -241,7 +241,7 @@ public:
 	{
 		while(!done)
 		{
-			thread_sleep_millis(1000);
+			std::this_thread::sleep_for(milliseconds(1000));
 			lock_guard lock(mtx_dq);
 			if(dq.empty())
 				continue;

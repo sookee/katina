@@ -60,6 +60,24 @@ sis& sgl(sis& is, str& line, char delim = '\n')
 }
 
 inline
+std::istream& sgl(std::istream&& is, str& s, char d = '\n')
+{
+	return sgl(is, s, d);
+}
+
+template<typename T>
+sos& operator<<(sos&& o, const T& t)
+{
+	return o << t;
+}
+
+template<typename T>
+sis& operator>>(sis&& i, T& t)
+{
+	return i >> t;
+}
+
+inline
 str expand_env(const str& var, int flags = 0)
 {
 	str exp = var;
@@ -83,20 +101,20 @@ void stack_handler(int sig)
 	size = backtrace(array, 2048);
 
 	// print out all the frames to stderr
-	char** trace = backtrace_symbols(array, size);
+	char** bt = backtrace_symbols(array, size);
 
 	int status;
 	str obj, func;
 	for(siz i = 0; i < size; ++i)
 	{
-		siss iss(trace[i]);
+		siss iss(bt[i]);
 		std::getline(std::getline(iss, obj, '('), func, '+');
 
 		char* func_name = abi::__cxa_demangle(func.c_str(), 0, 0, &status);
 		std::cerr << "function: " << func_name << '\n';
 		free(func_name);
 	}
-	free(trace);
+	free(bt);
 	exit(1);
 }
 

@@ -1,15 +1,10 @@
-//#pragma once
-#ifndef _OASTATS_TIME_H_
-#define _OASTATS_TIME_H_
 /*
- * rcon.h
- *
- *  Created on: 07 Apr 2013
- *      Author: oaskivvy@gmail.com
+ *  Created on: 25 June 2014
+ *      Author: SooKee oasookee@gmail.com
  */
 
 /*-----------------------------------------------------------------.
-| Copyright (C) 2013 SooKee oaskivvy@gmail.com               |
+| Copyright (C) 2014 SooKee oasookee@gmail.com                     |
 '------------------------------------------------------------------'
 
 This program is free software; you can redistribute it and/or
@@ -31,32 +26,11 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 '-----------------------------------------------------------------*/
 
-#include "types.h"
+#include <katina/ansi.h>
 
-#include <ctime>
-#include <unistd.h>
-#include <thread>
+namespace katina { namespace ansi {
 
-namespace katina { namespace time {
+const std::string norm = "\033[0m";
+const std::string col = "\033[";
 
-using namespace katina::types;
-
-//inline
-//void thread_sleep_millis(siz msecs)
-//{
-//	usleep(msecs * 1000);
-//}
-
-//inline
-//hr_time_point get_millitime()
-//{
-//	timespec ts;
-//	clock_gettime(CLOCK_REALTIME, &ts);
-//	hr_time_point now;
-//	now.
-//	return milliseconds((ts.tv_sec * 1000) + (ts.tv_nsec / 1000000));
-//}
-
-}} // katina::time
-
-#endif /* _OASTATS_TIME_H_ */
+}} // katina::ansi

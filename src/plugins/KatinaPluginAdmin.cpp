@@ -30,6 +30,8 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <thread>
 #include <future>
 
+#include <arpa/inet.h>
+
 #include <ctime>
 
 #include <katina/types.h>
@@ -47,6 +49,33 @@ using namespace katina::string;
 
 KATINA_PLUGIN_TYPE(KatinaPluginAdmin);
 KATINA_PLUGIN_INFO("katina::admin", "Katina Admin", "0.1-dev");
+
+static const std::array<str, S_MAX> SANCT =
+{
+	"NONE"
+	, "MUTEPP"
+	, "FIXNAME"
+	, "WARN_ON_SIGHT"
+	, "RETEAM"
+	, "VOTEBAN"
+	, "MAPBAN"
+};
+
+str sanct_escape(const str& param)
+{
+	str s = param;
+	replace(s, R"(\)", R"(\0)"); // escape delimiters
+	replace(s, R"(,)", R"(\1)");
+	return s;
+}
+
+str sanct_unescape(const str& param)
+{
+	str s = param;
+	replace(s, R"(\1)", R"(,)");
+	replace(s, R"(\0)", R"(\)");
+	return s;
+}
 
 sis& operator>>(sis& i, sanction& s)
 {
@@ -69,10 +98,9 @@ sis& operator>>(sis& i, sanction& s)
 	str param;
 	s.params.clear();
 	siss iss(params);
-	while(iss >> param)
+	while(sgl(iss, param, ','))
 	{
-		pbug_var(param);
-		s.params.push_back(param);
+		s.params.push_back(sanct_unescape(param));
 	}
 
 	if(!(i >> s.expires))
@@ -92,7 +120,7 @@ sos& operator<<(sos& o, const sanction& s)
 	o << s.guid << ' ' << s.type << "(";
 	str sep;
 	for(const str& param: s.params)
-		{ o << sep << param; sep = " "; }
+		{ o << sep << sanct_escape(param); sep = ","; }
 	o << ")";
 	o << ' ' << s.expires << ' ' << s.reason;
 
@@ -117,24 +145,10 @@ KatinaPluginAdmin::KatinaPluginAdmin(Katina& katina)
 {
 }
 
-bool is_ip(const str& s)
+bool is_ip(const str& ip)
 {
-	siz dot = std::count(s.begin(), s.end(), '.');
-	if(dot > 3)
-		return false;
-
-	siz dig = std::count_if(s.begin(), s.end(), std::ptr_fun<int, int>(isdigit));
-	if(dig > dot * 3 + 3)
-		return false;
-
-	return s.size() == dot + dig;
-}
-
-bool is_guid(const str& s)
-{
-	//assert(min <= 8);
-	return s.size() == 8
-		&& std::count_if(s.begin(), s.end(), std::ptr_fun<int, int>(isxdigit)) == s.size();
+	struct in_addr addr;
+	return inet_pton(AF_INET, ip.c_str(), &addr) > 0;
 }
 
 bool KatinaPluginAdmin::load_sanctions()
@@ -167,7 +181,7 @@ bool KatinaPluginAdmin::load_sanctions()
 
 		str expires = s.expires ? ctime(&s.expires) : "PERMANENT";
 
-		plog("SANCTION LOAD: [" << expires << ": " << s.type << "] " << katina.getPlayerName(s.guid));
+		plog("SANCTION LOAD: [" << expires << ": " << SANCT[s.type] << "] " << katina.getPlayerName(s.guid));
 		sanctions.push_back(s);
 	}
 
@@ -189,17 +203,6 @@ bool KatinaPluginAdmin::save_sanctions()
 
 	return true;
 }
-
-enum
-{
-	S_NONE = 0
-	, S_MUTEPP
-	, S_FIXNAME
-	, S_WARN_ON_SIGHT
-	, S_RETEAM
-	, S_VOTEBAN
-	, S_MAPBAN
-};
 
 struct player
 {
@@ -622,7 +625,7 @@ siz char_to_team(char t)
 	return 3;
 }
 
-bool KatinaPluginAdmin::reteam(slot num, char team)
+bool KatinaPluginAdmin::reteam(slot num, const char team)
 {
 	plog("RETEAM CHECK: " << katina.getPlayerName(num) << " (" << str(num) << ")" << " to team: " << team);
 	if(clients.find(num) == clients.end())
@@ -635,6 +638,7 @@ bool KatinaPluginAdmin::reteam(slot num, char team)
 		plog("ERROR: can't find team guid: " << katina.getClientGuid(num));
 		return true;
 	}
+
 	if(katina.getTeam(num) == char_to_team(team))
 		return true;
 
@@ -681,7 +685,7 @@ bool KatinaPluginAdmin::open()
 	katina.add_var_event(this, "admin.detect.pushing", do_detect_pushing, false);
 
 	// allows spamkill_spams / spamkill_period else !mute for spamkill_mute
-	katina.add_var_event(this, "admin.spamkill.active", do_spamkill, false);
+	katina.add_var_event(this, "admin.spamkill.active", spamkill_active, false);
 	katina.add_var_event(this, "admin.spamkill.spams", spamkill_spams, siz(2));
 	katina.add_var_event(this, "admin.spamkill.period", spamkill_period, siz(6));
 	katina.add_var_event(this, "admin.spamkill.mute", spamkill_mute, siz(60));
@@ -748,22 +752,32 @@ void KatinaPluginAdmin::heartbeat(siz min, siz sec)
 	// once a minute only
 	static siz last_min = min;
 
-	if(!do_spamkill || last_min == min)
+	if(last_min == min)
 		return;
 
 	last_min = min;
 
 	pbug("SPAMKILL HEARTBEAT check:");
-	for(slot_guid_map_vt client: katina.getClients())
+
+	slot_lst eraseures;
+	for(mute_map_vt m: mutes)
+		if((m.second + spamkill_mute) < katina.now)
+			eraseures.push_back(m.first);
+
+	for(const slot& num: eraseures)
 	{
-		if(!katina.is_connected(client.first))
-			continue;
-		if(mutes[client.first] && mutes[client.first] + spamkill_mute < katina.now)
+		const GUID& guid = katina.getClientGuid(num);
+
+		str name = katina.getPlayerName(guid);
+
+		if(guid == null_guid || name.empty()) // disconnected?
+			mutes.erase(num);
+		else
 		{
-			pbug("SPAMKILL DEACTIVATED FOR: " << katina.getPlayerName(client.first) << " [" << katina.getClientGuid(client.first) << "] (" << client.first << ")");
-//			if(!server.command("!unmute " + to_string(client.first)))
-//				server.command("!unmute " + to_string(client.first));
-			mutes.erase(client.first);
+			pbug("SPAMKILL DEACTIVATED FOR: " << name << " [" << guid << "] (" << str(num) << ")");
+
+//			if(server.command("!unmute " + str(num)))
+				mutes.erase(num);
 		}
 	}
 }
@@ -775,19 +789,33 @@ bool KatinaPluginAdmin::init_game(siz min, siz sec, const str_map& cvars)
 
 	// !muted become unstuck after every game
 	slot num;
-	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end(); ++s)
+	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end();)
 	{
-		if((num = katina.getClientSlot(s->guid)) == slot::bad)
-			continue;
+		// expired?
+		if(s->expires && s->expires >= katina.now)
+			{ s = sanctions.erase(s); save_sanctions(); continue; }
+
+		if((num = katina.getClientSlot(s->guid)) == slot::bad) // not connected
+			{ ++s; continue; }
 
 		if(players.find(s->guid) == players.end())
-			continue;
+			{ ++s; continue; }
 
 		if(s->type == S_MUTEPP)
 			if(mutepp(num))
 				s->applied = true;
+
+		if(s->type == S_RETEAM && !s->params.empty() && !s->params[0].empty())
+			if(reteam(num, s->params[0][0]))
+				s->applied = true;
+
+		if(s->type == S_MAPBAN && !s->params.empty() && s->params[0] == katina.get_mapname())
+			if(reteam(num, 's'))
+				s->applied = true;
+		++s;
 	}
 
+	// fixteams
 	for(slot_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
 	{
 		if((katina.getTeam(i->second) == TEAM_R || katina.getTeam(i->second) == TEAM_B))
@@ -893,11 +921,10 @@ bool KatinaPluginAdmin::client_userinfo_changed(siz min, siz sec, slot num, siz 
 			{ ++s; continue; }
 
 //		bug("SANCTION APPLICABLE: " << s->guid);
-		if(s->type == S_FIXNAME)
+		if(s->type == S_FIXNAME && !s->params.empty() && name != s->params[0])
 		{
-			if(!s->params.empty() && name != s->params[0])
-				if(fixname(num, s->params[0]))
-					s->applied = true;
+			if(fixname(num, s->params[0]))
+				s->applied = true;
 			++s;
 		}
 		else if(s->type == S_WARN_ON_SIGHT)
@@ -985,8 +1012,7 @@ bool KatinaPluginAdmin::votekill(const str& reason)
 {
 	pbug("VOTEKILL ACTIVATED: " << reason);
 	if(!server.command("!cancelvote"))
-		if(!server.command("!cancelvote"))
-			return false;
+		return false;
 	server.msg_to_all(reason);
 	plog("VOTEKILL ACTIVATED: " << reason);
 	return true;
@@ -994,14 +1020,14 @@ bool KatinaPluginAdmin::votekill(const str& reason)
 
 bool KatinaPluginAdmin::callvote(siz min, siz sec, slot num, const str& type, const str& info)
 {
-	plog("CALLVOTE: " << katina.getPlayerName(num) << " " << type << " " << info);
-//	bug_func();
-//	pbug_var(type);
-//	pbug_var(info);
-	//for(str_vec_citer ci = katina.get_vec("admin.ban.vote").begin(); ci != katina.get_vec("admin.ban.vote").end(); ++ci)
+	const GUID guid = katina.getClientGuid(num);
+	const str cname = katina.getPlayerName(guid);
+	const str kname = katina.get_name();
+
+	plog("CALLVOTE: " << num << " [" << guid << "] " << cname << " " << type << " " << info);
+
 	for(const str& v: katina.get_vec("admin.ban.vote"))
 	{
-		//pbug_var(*ci);
 		str t;
 		str i;
 		str reason;
@@ -1016,52 +1042,69 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, slot num, const str& type, co
 		if(!sgl(iss >> std::ws, reason))
 			plog("WARN: missing reason from admin.ban.vote: " << v);
 
-//		pbug_var(t);
-//		pbug_var(i);
-//		pbug_var(reason);
-
 		if(!trim(reason).empty())
 			reason = " ^7[^3" + reason + "^7]";
 
 		if(t == type && i == info)
 		{
-			std::async(std::launch::async, [&]
+			std::thread([this,kname,reason,v]
 			{
-				thread_sleep_millis(2000);
-				votekill(katina.get_name() + "^1: ^5This vote has been disallowed" + reason);
+				std::this_thread::sleep_for(milliseconds(1000));
+				votekill(kname + "^1: ^5This vote has been disallowed: " + reason);
 				plog("VOTEKILL: admin.ban.vote: " << v);
-			});
+			}).detach();
+//			std::async(std::launch::async, [&]
+//			{
+//				thread_sleep_millis(2000);
+//				votekill(katina.get_name() + "^1: ^5This vote has been disallowed: " + reason);
+//				plog("VOTEKILL: admin.ban.vote: " << v);
+//			});
 		}
 	}
 
-	if(!katina.check_slot(num))
-		return true;
-
 	for(const sanction& s: sanctions)
-		if((!s.expires || s.expires < katina.now) && s.guid == katina.getClientGuid(num))
+		if((!s.expires || s.expires < katina.now) && s.type == S_VOTEBAN && s.guid == guid)
 		{
-			std::async(std::launch::async, [&]
+			std::thread([this,cname,kname](str expires, const str& reason)
 			{
-				thread_sleep_millis(2000);
-				votekill(katina.get_name() + "^1: " + katina.getPlayerName(num) + " is banned from voting for "
-				+ secs_to_dhms(s.expires - katina.now));
-				plog("VOTEKILL: prevented " << katina.getClientGuid(num) << ": banned: " << s.reason);
-			});
+				std::this_thread::sleep_for(milliseconds(1000));
+				votekill(kname + "^1: " + cname + " is banned from voting for " + expires);
+				plog("VOTEKILL: prevented " << cname << ": banned: " << reason);
+			}, secs_to_dhms(s.expires - katina.now), s.reason).detach();
+//			std::async(std::launch::async, [&]
+//			{
+//				thread_sleep_millis(2000);
+//				votekill(katina.get_name() + "^1: " + cname + " is banned from voting for "
+//				+ secs_to_dhms(s.expires - katina.now));
+//				plog("VOTEKILL: prevented " << guid << ": banned: " << s.reason);
+//			});
 		}
 
 	if(protect_admins)
 	{
-		pbug("VOTEKILL: PROTECTING ADMINS: " << info);
-		pbug("VOTEKILL: PROTECTING ADMINS: " << katina.getClientGuid(to<slot>(info)));
-		pbug("VOTEKILL: PROTECTING ADMINS: " << katina.is_admin(katina.getClientGuid(to<slot>(info))));
-		if(type == "clientkick" && katina.is_admin(katina.getClientGuid(to<slot>(info))))
+		const GUID& voted_guid = katina.getClientGuid(to<slot>(info));
+		const str& kicked_name = katina.getPlayerName(voted_guid);
+
+		if(katina.is_admin(voted_guid))
 		{
-			std::async(std::launch::async, [&]
+			if(type == "clientkick")
 			{
-				thread_sleep_millis(2000);
-				votekill(katina.get_name() + "^1: ^7[^3NOT ALLOWED TO KICK ADMINS^7]");
-				plog("VOTEKILL: admin protection for: " << katina.getPlayerName(to<slot>(info)));
-			});
+				std::thread([this,kname,kicked_name]
+				{
+					std::this_thread::sleep_for(milliseconds(1000));
+					votekill(kname + "^1: ^7[^3NOT ALLOWED TO KICK ADMINS^7]");
+					plog("VOTEKILL: admin protection for: " << kicked_name);
+				}).detach();
+			}
+			else if(type == "clientmute")
+			{
+				std::thread([this,kname,kicked_name]
+				{
+					std::this_thread::sleep_for(milliseconds(1000));
+					votekill(kname + "^1: ^7[^3NOT ALLOWED TO KICK ADMINS^7]");
+					plog("VOTEKILL: admin protection for: " << kicked_name);
+				}).detach();
+			}
 		}
 	}
 	return true;
@@ -1147,30 +1190,6 @@ bool KatinaPluginAdmin::ctf(siz min, siz sec, slot num, siz team, siz act)
 		++total_caps;
 	}
 //	plog("ctf(" << num << ", " << team << ", " << act << ")");
-	return true;
-}
-
-bool KatinaPluginAdmin::ctf_exit(siz min, siz sec, siz r, siz b)
-{
-	if(!active)
-		return true;
-//	plog("ctf_exit(" << r << ", " << b << ")");
-	return true;
-}
-
-bool KatinaPluginAdmin::score_exit(siz min, siz sec, int score, siz ping, slot num, const str& name)
-{
-	if(!active)
-		return true;
-//	plog("score_exit(" << score << ", " << ping << ", " << num << ", " << name << ")");
-	return true;	
-}
-
-bool KatinaPluginAdmin::award(siz min, siz sec, slot num, siz awd)
-{
-	if(!active)
-		return true;
-//	plog("award(" << num << ", " << awd << ")");
 	return true;
 }
 
@@ -1305,18 +1324,51 @@ bool KatinaPluginAdmin::remove_sanctions(const GUID& guid, siz type)
 	return save_sanctions();
 }
 
-void KatinaPluginAdmin::spamkill(slot num)
+bool KatinaPluginAdmin::spamkill(slot num)
 {
-	if(!do_spamkill)
-		return;
+	if(!spamkill_active)
+		return true;
 
-	pbug("SPAMKILL ACTIVATED FOR: " << katina.getPlayerName(num) << " [" << katina.getClientGuid(num) << "] (" << num << ")");
+	const GUID& guid = katina.getClientGuid(num);
 
-//	if(!server.command("!mute " + to_string(num)))
-//		if(!server.command("!mute " + to_string(num))) // 1 retry
-//			return;
-//	server.msg_to(num, "^2Your ^7SPAM ^2has triggered ^7auto-mute ^2for ^7" + to_string(spamkill_mute) + " ^2seconds");
-	mutes[num] = katina.now;
+	if(guid == null_guid)
+	{
+		plog("ERROR: Unexpected null guid for slot: " << num);
+		return false;
+	}
+
+	static const str STAGE_1 = "^3PLEASE STOP SPAMMING^7: ^2It distracts other players.";
+	static const str STAGE_2 = "^3PLEASE STOP SPAMMING^7: ^2Automatic !mute system ready.";
+	static const str STAGE_3 = "^3Your ^7SPAM ^3has triggered ^7auto-mute";
+
+	const str name = katina.getPlayerName(guid);
+
+	pbug("SPAMKILL ACTIVATED FOR: " << name << " [" << guid << "] (" << num << ")");
+
+	str prefix = katina.get_name() + "^7: " + name + " ";
+
+	if(spamkill_stage[num] == 1 /*&& server.msg_to(num, prefix + STAGE_1, true)*/)
+	{
+		pbug("SPAMKILL WARNING #1");
+		++spamkill_stage[num];
+		return true;
+	}
+	else if(spamkill_stage[num] == 2 /*&& server.msg_to(num, prefix + STAGE_2, true)*/)
+	{
+		pbug("SPAMKILL WARNING #2");
+		++spamkill_stage[num];
+		return true;
+	}
+	else if(spamkill_stage[num] > 2 /*&& server.command("!mute " + to_string(num))*/)
+	{
+		pbug("SPAMKILL MUTE");
+//		server.msg_to(num, prefix + STAGE_3 + " ^3for ^7" + to_string(spamkill_mute) + " ^3seconds");
+		mutes[num] = katina.now;
+		spamkill_stage[num] = 0;
+		return true;
+	}
+
+	return false;
 }
 
 void KatinaPluginAdmin::tell_perp(slot admin_num, slot perp_num, const str& msg)
@@ -1349,31 +1401,41 @@ bool KatinaPluginAdmin::say(const siz min, const siz sec, const GUID& guid, cons
 
 	// spamkill
 
-	if(do_spamkill && !mutes.count(say_num))
+	if(spamkill_active && !mutes.count(say_num))
 	{
 		spam s;
 		s.num = say_num;
 		s.when = katina.now;
+//		bug_var(spams[text].size());
 		spam_lst& list = spams[text];
 		list.push_back(s);
+//		bug_var(spams[text].size());
+
+//		bug("<== SPAMCHECK ==>");
 
 		siz count = 0;
 		for(spam_lst_iter i = list.begin(); i != list.end();)
 		{
 			if(i->num != say_num)
-				{ ++i; continue; }
-			if(katina.now - i->when > spamkill_period)
-				{ i = list.erase(i); continue; }
-			if(++count > spamkill_spams)
+				++i;
+			else if(i->when + spamkill_period <= katina.now)
+				i = list.erase(i);
+			else if(++count <= spamkill_spams)
+				++i;
+			else if(!spamkill(say_num))
+				++i;
+			else
 			{
+				//bug("<== SPAM FOUND & KILLED ERASING ==>");
 				for(spam_lst_iter i = list.begin(); i != list.end();)
 				{
-					if(i->num == say_num)
-						i = list.erase(i);
-					else
-						++i;
+					(i->num != say_num && i->when + spamkill_period > katina.now) ? ++i : (i = list.erase(i));
+					// erase all spams for this player and any other expired spams
+//					if(i->num != say_num && i->when + spamkill_period > katina.now)
+//						++i;
+//					else
+//						i = list.erase(i);
 				}
-				spamkill(say_num);
 				break;
 			}
 		}
@@ -1635,7 +1697,7 @@ bool KatinaPluginAdmin::say(const siz min, const siz sec, const GUID& guid, cons
 		sanction s;
 		s.type = S_VOTEBAN;
 		s.guid = katina.getClientGuid(perp);
-		s.expires = duration_to_time(duration, minutes(5));
+		s.expires = duration_to_time(duration, minutes(10));
 		s.reason = reason;
 
 		if(s.guid == null_guid)
@@ -1740,7 +1802,7 @@ bool KatinaPluginAdmin::say(const siz min, const siz sec, const GUID& guid, cons
 		sanction s;
 		s.type = S_FIXNAME;
 		s.guid = katina.getClientGuid(perp);
-		s.expires = duration_to_time("1h", hours(1));
+		s.expires = 0; //duration_to_time("1h", hours(1));
 		s.params.push_back(name);
 
 		if(s.guid == null_guid)

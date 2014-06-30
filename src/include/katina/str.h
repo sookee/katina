@@ -231,6 +231,15 @@ str& replace(str& s, const str& from, const str& to)
 	return s;
 }
 
+template<typename Container>
+str join(const Container& c, const str& delim = " ")
+{
+	str ret, sep;
+	for(const str& s: c)
+		{ ret += sep + s; sep = delim; }
+	return ret;
+}
+
 }} // katina::string
 
 #endif /* _OASTATS_STR_H_ */

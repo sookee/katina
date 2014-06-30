@@ -47,6 +47,8 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include <katina/log.h>
 
+#include <katina/radp.h>
+
 #ifndef REVISION
 #define REVISION unset
 #endif
@@ -64,6 +66,8 @@ using namespace katina::time;
 using namespace katina::types;
 using namespace katina::utils;
 using namespace katina::string;
+
+using namespace sookee::radp;
 
 const str version = "0.2";
 const str tag = "dev";
@@ -186,27 +190,24 @@ GUID Katina::guid_from_name(const str& name)
 	return null_guid;
 }
 
-bool Katina::extract_name_from_text(const str& line, GUID& guid, str& text)
+GUID Katina::extract_name_from_text(const str& line, str& text)
 {
-//	GUID candidate;
 	siz pos = 0;
 	siz beg = 0;
 	if((beg = line.find(": ")) == str::npos) // "say: "
-		return false;
+		return null_guid;
 
 	beg += 2;
 
-	bool found = false;
 	for(pos = beg; (pos = line.find(": ", pos)) != str::npos; pos += 2)
 	{
-		GUID candidate(guid_from_name(line.substr(beg, pos - beg)));
-		if(candidate == null_guid)
+		GUID guid = guid_from_name(line.substr(beg, pos - beg));
+		if(guid == null_guid)
 			continue;
-		guid = candidate;
 		text = line.substr(pos + 2);
-		found = true;
+		return guid;
 	}
-	return found;
+	return null_guid;
 }
 
 bool Katina::load_plugin(const str& file)
@@ -403,9 +404,9 @@ bool Katina::chat_to(const str& name, const str& text)
 
 bool Katina::is_admin(const GUID& guid)
 {
-	bug_func();
-	bug_var(guid);
-	bug_var(getPlayerName(guid));
+//	bug_func();
+//	bug_var(guid);
+//	bug_var(getPlayerName(guid));
 	str_vec admins = get_vec("admin.guid");
 	for(str_vec_iter i = admins.begin(); i != admins.end(); ++i)
 		if(guid == GUID(*i))
@@ -413,8 +414,12 @@ bool Katina::is_admin(const GUID& guid)
 
 	// now try admin.dat file
 	str admin_dat = get_exp("admin.dat.file");
+
+//	bug("check: " << admin_dat);
+
 	if(admin_dat.empty())
 		return false;
+
 	sifs ifs(admin_dat.c_str());
 	if(!ifs)
 	{
@@ -427,10 +432,22 @@ bool Katina::is_admin(const GUID& guid)
 	// name	= ^1S^2oo^3K^5ee
 	// guid	= 87597A67B5A4E3C79544A72B7B5DA741
 	while(sgl(ifs, line))
-		if(trim(line) == "[admin]")
-			if(sgl(sgl(ifs, line), line))
-				if(trim(line).size() == 32 && guid == GUID(line.substr(0, 8)))
-					return true;
+	{
+		bug_var(line);
+		if(trim(line) != "[admin]")
+			continue;
+
+		str keep = line;
+		if(!(sgl(sgl(ifs, line), line))
+		|| !(siss(line) >> line >> line >> line))
+		{
+			log("ERROR: parsing [admin]: " << keep);
+			continue;
+		}
+//		bug("sub: line: " << line);
+		if(trim(line).size() == 32 && guid == GUID(line))
+			return true;
+	}
 	return false;
 }
 
@@ -1021,6 +1038,7 @@ struct client_userinfo_bug_t
 {
 	str params;
 	void set(const str& params) { this->params = params; }
+//	void set(const char* params) { this->params = params; }
 	void reset() { params.clear(); }
 	operator bool() { return !params.empty(); }
 };
@@ -1299,7 +1317,8 @@ bool Katina::start(const str& dir)
 		siz min, sec;
 		siz prev_sec = siz(-1);
 		str skip, name, cmd;
-		siss iss;
+//		siss iss;
+		const char* iss;
 
 		while(!done)
 		{
@@ -1307,7 +1326,7 @@ bool Katina::start(const str& dir)
 			{
 				if(rerun)
 					done = true;
-				thread_sleep_millis(100);
+				std::this_thread::sleep_for(milliseconds(100));
 				is.clear();
 				is.seekg(gpos);
 				continue;
@@ -1325,13 +1344,20 @@ bool Katina::start(const str& dir)
 			if(trim(line_data).empty())
 				continue;
 
-			iss.clear();
-			iss.str(line_data);
+//			iss.clear();
+//			iss.str(line_data);
 
-			if(!(sgl(iss >> min >> c >> sec >> std::ws, cmd, ':') >> std::ws))
+//			if(!(sgl(iss >> min >> c >> sec >> std::ws, cmd, ':') >> std::ws))
+//			iss = psw(rsp(line_data.c_str(), min, m::adv, sec), cmd, ':');
+
+			// 0:00 ------------------------------------------------------------
+			if(*(iss = psw(pz(adv(psz(line_data.c_str(), min), 1), sec), cmd, ':')) && *iss != ':')
 			{
 				if(!client_userinfo_bug)
 				{
+					bug_var(line_data.size());
+					bug_var(iss - line_data.c_str());
+					bug_var((siz)*iss);
 					nlog("ERROR: parsing logfile command: " << line_data);
 					continue;
 				}
@@ -1346,14 +1372,16 @@ bool Katina::start(const str& dir)
 				{
 					nlog("INFO: ClientUserinfoChanged bug detected");
 					cmd = "ClientUserinfoChanged";
-					iss.clear();
-					iss.str(client_userinfo_bug.params + line_data);
+//					iss.clear();
+//					iss.str(client_userinfo_bug.params + line_data);
+					line_data2 = client_userinfo_bug.params + line_data;
+					iss = line_data2.c_str();
 					nlog("INFO: params: " << client_userinfo_bug.params << line_data);
 				}
 			}
 
 			client_userinfo_bug.reset();
-
+//			nlog("cmd parsed: " << cmd);
 			if(!cmd.find("----"))
 			{
 				if(!min && !sec)
@@ -1371,16 +1399,48 @@ bool Katina::start(const str& dir)
 
 			cmd += ":";
 
-			str params;
+//			str params;
+//
+//			sgl(iss, params); // not all commands have params
+//
+//			iss.clear();
+//			iss.str(params);
 
-			sgl(iss, params); // not all commands have params
+//			bug_var(iss);
 
-			iss.clear();
-			iss.str(params);
+			const char* const params = ps(adv(iss, 1)); // skip ':'
+//			bug_var(params);
+//			bug_var(params - iss);
+
+			iss = params;
 
 			now = base_now + (min * 60) + sec;
 
-			for(const evt_erase& e: erase_events)
+			event_hold_vec defer_events_tmp;
+			do
+			{
+				defer_events_tmp = defer_events;
+				defer_events.clear(); // ready to be filled up again
+
+				for(const evtent_hold& e: defer_events_tmp)
+					add_log_event(e.p, e.e, e.after);
+
+			} while(!defer_events.empty() && defer_events.size() < defer_events_tmp.size());
+
+			if(!defer_events.empty())
+			{
+				nlog("WARN: deferred events not set: " << defer_events.size());
+				for(const evtent_hold& e: defer_events)
+					nlog("Event: " << e.e << " after: " << join(e.after));
+
+				nlog("WARN: adding deferred events to end of list:");
+				for(const evtent_hold& e: defer_events)
+					add_log_event(e.p, e.e);
+
+				defer_events.clear();
+			}
+
+			for(const evtent_hold& e: erase_events)
 			{
 				plugin_lst_iter i = std::find(events[e.e].begin(), events[e.e].end(), e.p);
 				if(i != events[e.e].end())
@@ -1395,57 +1455,117 @@ bool Katina::start(const str& dir)
 
 				siz time_in_secs = (min * 60) + sec;
 				siz regularity;
-				for(plugin_lst_iter i = events[HEARTBEAT].begin(); i != events[HEARTBEAT].end(); ++i)
-					if((regularity = (*i)->get_regularity(time_in_secs)) && !(time_in_secs % regularity))
-						(*i)->heartbeat(min, sec);
+				for(auto plugin: events[HEARTBEAT])
+					if((regularity = plugin->get_regularity(time_in_secs)) && !(time_in_secs % regularity))
+						plugin->heartbeat(min, sec);
 			}
 			bool flagspeed = false; // speed carrying a flag
 
-			if(cmd == "Exit:")
+			if(cmd == "Kill:")
 			{
-				for(plugin_lst_iter i = events[EXIT].begin()
-					; i != events[EXIT].end(); ++i)
-					(*i)->exit(min, sec);
+				if(events[KILL].empty())
+					continue;
+
+				int num1, num2;
+				siz weap;
+
+				if(*(iss = rsp(iss, num1, num2, weap)) != ':')
+					nlog("Error parsing Kill: ");
+				else
+				{
+					for(auto plugin: events[KILL])
+						plugin->kill(min, sec, slot(num1), slot(num2), weap);
+				}
 			}
-			else if(cmd == "ShutdownGame:")
+			else if(cmd == "Award:")
 			{
-				for(plugin_lst_iter i = events[SHUTDOWN_GAME].begin()
-					; i != events[SHUTDOWN_GAME].end(); ++i)
-					(*i)->shutdown_game(min, sec);
+				if(events[AWARD].empty())
+					continue;
+
+				int num;
+				siz awd;
+				// Award: 1 4:
+//				if(!(iss >> num >> awd))
+
+				if(*(iss = rsp(iss, num, awd)) != ':')
+					nlog("Error parsing Award:");
+				else
+				{
+					for(auto plugin: events[AWARD])
+						plugin->award(min, sec, slot(num), awd);
+				}
 			}
-			else if(cmd == "Warmup:")
+			else if(cmd == "CTF:")
 			{
-				for(plugin_lst_iter i = events[WARMUP].begin()
-					; i != events[WARMUP].end(); ++i)
-					(*i)->warmup(min, sec);
+				if(events[CTF].empty())
+					continue;
+
+				int num;
+				siz col, act;
+				// CTF: 1 2 1:
+				// CTF: -1 1 3: RED flag returned after timeout
+				if(*(iss = rsp(iss, num, col, act)) != ':' || col < 1 || col > 2)
+					nlog("Error parsing CTF: ");
+				else
+				{
+					for(auto plugin: events[CTF])
+						plugin->ctf(min, sec, slot(num), col, act);
+				}
+			}
+			else if(cmd == "Speed:" || cmd == "SpeedFlag:") // mod_katina >= 0.1
+			{
+				if(events[SPEED].empty())
+					continue;
+
+				int num;
+				siz dist, time;
+				// 0:34 SpeedFlag: 8 1735 4 : Client 8 ran 1735u in 4s while holding the flag.
+				// mod_katina <= 0.2 has a bug in Speed: & SpeedFlag: (space beore ':')
+				// if(*(iss = rsp(iss, num, dist, time)) != ':') <= so this won't work before mod_katina 0.2.1
+				if(*(iss = ps(rsp(iss, num, dist, time))) != ':')
+					nlog("Error parsing " << cmd << ":");
+				else
+				{
+					bool flagspeed = (cmd.size() > 6); // SpeedFlag
+					for(auto plugin: events[SPEED])
+						plugin->speed(min, sec, slot(num), dist, time, flagspeed);
+				}
 			}
 			else if(cmd == "ClientUserinfoChanged:")
 			{
-				slot num;
+				// 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+
+				int num;
 				siz team;
-				if(!(sgl(sgl(sgl(iss >> num, skip, '\\'), name, '\\'), skip, '\\') >> team))
-					nlog("Error parsing ClientUserinfoChanged: "  << params);
-				else if(num >= slot::max)
+
+				if(*(iss = pz(adv(pw(adv(pt(pi(iss, num), '\\'), 1), name, '\\'), 3), team)) != '\\')
+					nlog("Error parsing " << cmd << ":");
+				else if(num >= siz(slot::max))
 					nlog("ERROR: Client num too high: " << num);
 				else
 				{
-					siz pos = line_data.find("\\id\\");
-					if(pos == str::npos)
+					const char* pos = fnd(params, "\\id\\");
+					if(!pos)
 						client_userinfo_bug.set(params);
 					else
 					{
-						str id = line_data.substr(pos + 4, 32);
-						GUID guid(num);
+						str id;
+						if(*(pw(adv(pos, 4), id)))
+						{
+							nlog("ERROR: parsing guid" << params);
+							continue;
+						}
+						GUID guid = GUID(slot(num));
 						if(id.size() == 32)
-							guid = GUID(id.substr(24));
+							guid =  GUID(id.substr(24));
 
 						siz hc = 100;
-						if((pos = line_data.find("\\hc\\")) == str::npos)
-							nlog("WARN: no handicap info found: " << line_data);
+						if(!(pos = fnd(params, "\\hc\\")))
+							nlog("WARN: no handicap info found: " << params);
 						else
 						{
-							if(!(siss(line_data.substr(pos + 4)) >> hc))
-								nlog("ERROR: Parsing handicap: " << line_data.substr(pos + 4));
+							if(*(pos = pz(adv(pos, 4), hc)) != '\\')
+								nlog("ERROR: Parsing handicap: " << params);
 						}
 
 						siz teamBefore;
@@ -1453,162 +1573,31 @@ bool Katina::start(const str& dir)
 						{
 							lock_guard lock(mtx);
 							teamBefore = teams[guid];
-							clients[num] = guid;
+							clients[slot(num)] = guid;
 							players[guid] = name;
 							teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
 						}
 
 						for(auto plugin: events[CLIENT_USERINFO_CHANGED])
-							plugin->client_userinfo_changed(min, sec, num, team, guid, name, hc);
+							plugin->client_userinfo_changed(min, sec, slot(num), team, guid, name, hc);
 
 						if(team != teamBefore && !guid.is_bot())
 							for(auto plugin: events[CLIENT_SWITCH_TEAM])
-								plugin->client_switch_team(min, sec, num, teamBefore, team);
+								plugin->client_switch_team(min, sec, slot(num), teamBefore, team);
 					}
-				}
-			}
-			else if(cmd == "ClientConnect:")
-			{
-				slot num;
-				if(!(iss >> num))
-					nlog("Error parsing ClientConnect: "  << params);
-				else
-				{
-					//if(!is_connected(num))
-					//clients[num] = null_guid; // connecting
-					{
-						lock_guard lock(mtx);
-						connected[siz(num)] = true;
-					}
-					for(auto plugin: events[CLIENT_CONNECT])
-						plugin->client_connect(min, sec, num);
-				}
-			}
-			else if(cmd == "ClientConnectInfo:")
-			{
-				nlog("ClientConnectInfo: " << params);
-				if(events[CLIENT_CONNECT_INFO].empty())
-					continue;
-
-				slot num;
-				str guid;
-				str ip;
-				str skip; // rest of guid needs to be skipped before ip
-
-				// 2 5E68E970866FC20242482AA396BBD43E 81.101.111.32
-				if(!(iss >> num >> std::ws >> guid >> std::ws >> ip))
-					nlog("Error parsing ClientConnectInfo: "  << params);
-				else if(!is_connected(num))
-				{
-					// ignore this event until it occurs at a reliable place
-					if(mod_katina == "0.1.1")
-						nlog("ERROR: This event should NEVER occur in 0.1.1");
-					if(mod_katina >= "0.1.2")
-						nlog("ERROR: This event should NEVER occur after 0.1.2");
-				}
-				else
-				{
-					for(auto plugin: events[CLIENT_CONNECT_INFO])
-						plugin->client_connect_info(min, sec, num, GUID(guid), ip);
-				}
-			}
-			else if(cmd == "ClientBegin:") // 0:04 ClientBegin: 4
-			{
-				slot num;
-				if(!(iss >> num))
-					nlog("Error parsing ClientBegin: "  << params);
-				else
-				{
-					{
-						lock_guard lock(mtx);
-						connected[siz(num)] = true;
-					}
-					for(auto plugin: events[CLIENT_BEGIN])
-						plugin->client_begin(min, sec, num);
-				}
-			}
-			else if(cmd == "ClientDisconnect:")
-			{
-				//bug(cmd << "(" << params << ")");
-
-				slot num;
-				if(!(iss >> num))
-					std::cout << "Error parsing ClientDisconnect: "  << params << '\n';
-				else if(num >= slot::max)
-				{
-					nlog("ERROR: Client num too high: " << num);
-				}
-				else
-				{
-					{
-						lock_guard lock(mtx);
-						connected[siz(num)] = false;
-					}
-					const GUID& guid = getClientGuid(num);
-
-					// Sometimes you get 2 ClientDisconnect: events with
-					// nothing created in between them. These should be ignored.
-					if(guid == null_guid)
-						continue;
-
-					guid.disconnect();
-
-					for(auto plugin: events[CLIENT_DISCONNECT])
-						plugin->client_disconnect(min, sec, num);
-
-					siz teamBefore = teams[guid];
-					{
-						lock_guard lock(mtx);
-						teams[guid] = TEAM_U;
-					}
-				   if(teamBefore != TEAM_U && !guid.is_bot())
-					   for(auto plugin: events[CLIENT_SWITCH_TEAM])
-							plugin->client_switch_team(min, sec, num, teamBefore, TEAM_U);
-
-					lock_guard lock(mtx);
-					clients.erase(num);
-				}
-			}
-			else if(cmd == "Kill:")
-			{
-				if(events[KILL].empty())
-					continue;
-
-				static siz weap;
-				static slot num1, num2;
-				if(!(iss >> num1 >> num2 >> weap))
-					nlog("Error parsing Kill: " << params);
-				else
-				{
-					for(auto plugin: events[KILL])
-						plugin->kill(min, sec, num1, num2, weap);
-				}
-			}
-			else if(cmd == "Push:") // mod_katina only
-			{
-				if(events[PUSH].empty())
-					continue;
-
-				slot num1, num2;
-				if(!(iss >> num1 >> num2))
-					nlog("Error parsing Push:" << params);
-				else
-				{
-					for(auto plugin: events[PUSH])
-						plugin->push(min, sec, num1, num2);
 				}
 			}
 			else if(cmd == "WeaponUsage:")
 			{
 				// Weapon Usage Update
 				// WeaponUsage: <client#> <weapon#> <#shotsFired>
-				slot num;
+				int num;
 				siz weap, shots;
 
-				if(iss >> num >> weap >> shots)
+				if(*(iss = rsp(iss, num, weap, shots)) != ':')
 				{
 					for(auto plugin: events[WEAPON_USAGE])
-						plugin->weapon_usage(min, sec, num, weap, shots);
+						plugin->weapon_usage(min, sec, slot(num), weap, shots);
 				}
 				else
 					nlog("Error parsing WeaponUsage: " << params);
@@ -1617,16 +1606,83 @@ bool Katina::start(const str& dir)
 			{
 				// MOD (Means of Death = Damage Type) Damage Update
 				// MODDamage: <client#> <mod#> <#hits> <damageDone> <#hitsRecv> <damageRecv> <weightedHits>
-				slot num;
+				int num;
 				siz mod, hits, dmg, hitsRecv, dmgRecv;
 				float weightedHits;
-				if(iss >> num >> mod >> hits >> dmg >> hitsRecv >> dmgRecv >> weightedHits)
+				// MODDamage: 1 10 1 560 0 0 1.000000
+
+				if(*(iss = rsp(iss, num, mod, hits, dmg, hitsRecv, dmgRecv, weightedHits)) != ':')
 				{
 					for(auto plugin: events[MOD_DAMAGE])
-						plugin->mod_damage(min, sec, num, mod, hits, dmg, hitsRecv, dmgRecv, weightedHits);
+						plugin->mod_damage(min, sec, slot(num), mod, hits, dmg, hitsRecv, dmgRecv, weightedHits);
 				}
 				else
 					nlog("Error parsing MODDamage: " << params);
+			}
+			else if(cmd == "ClientBegin:") // 0:04 ClientBegin: 4
+			{
+				int num;
+				if(*(iss = rsp(iss, num))) // should be zero terminator
+					nlog("Error parsing ClientBegin: "  << params);
+				else
+				{
+					{
+						lock_guard lock(mtx);
+						connected[siz(num)] = true;
+					}
+					for(auto plugin: events[CLIENT_BEGIN])
+						plugin->client_begin(min, sec, slot(num));
+				}
+			}
+			else if(cmd == "ClientConnect:")
+			{
+				int num;
+				if(*(iss = rsp(iss, num))) // should be zero terminator
+					nlog("Error parsing ClientConnect: "  << params);
+				else
+				{
+					//if(!is_connected(num))
+					//clients[num] = null_guid; // connecting
+					{
+						lock_guard lock(mtx);
+						connected[num] = true;
+					}
+					for(auto plugin: events[CLIENT_CONNECT])
+						plugin->client_connect(min, sec, slot(num));
+				}
+			}
+			else if(cmd == "say:")
+			{
+				str text;
+				GUID guid = extract_name_from_text(line_data, text);
+
+				if(guid == null_guid)
+					nlog("ERROR: Unable to locate GUID when parsing say: " << line_data);
+				else
+				{
+					if(!text.find("!katina"))
+						builtin_command(guid, text);
+					else
+					{
+						for(auto plugin: events[SAY])
+							plugin->say(min, sec, GUID(guid), text);
+					}
+				}
+			}
+			else if(cmd == "Push:") // mod_katina only
+			{
+				if(events[PUSH].empty())
+					continue;
+
+				int num1, num2;
+				// Push: 5 2:
+				if(*(iss = rsp(iss, num1, num2)) != ':')
+					nlog("Error parsing Push:" << params);
+				else
+				{
+					for(auto plugin: events[PUSH])
+						plugin->push(min, sec, slot(num1), slot(num2));
+				}
 			}
 			else if(cmd == "PlayerStats:")
 			{
@@ -1637,16 +1693,18 @@ bool Katina::start(const str& dir)
 				// 				<pushesDone> <pushesRecv>
 				// 				<healthPickedUp> <armorPickedUp>
 				//				<holyShitFrags> <holyShitFragged>
-				static slot num;
+				static int num;
 				static siz fragsFace, fragsBack, fraggedFace, fraggedBack, spawnKills, spawnKillsRecv;
 				static siz pushes, pushesRecv, health, armor, holyShitFrags, holyShitFragged;
 
-				if(iss >> num >> fragsFace >> fragsBack >> fraggedFace >> fraggedBack >> spawnKills >> spawnKillsRecv
-					   >> pushes >> pushesRecv >> health >> armor >> holyShitFrags >> holyShitFragged)
+				// TODO: consider separating (health/armour & holyshitfrags/fragged)
+				// PlayerStats: 7 0 0 0 0 0 0 1 2 0 0 0 0
+				if(*(iss = rsp(iss, num, fragsFace, fragsBack, fraggedFace, fraggedBack, spawnKills, spawnKillsRecv
+					  , pushes, pushesRecv, health, armor, holyShitFrags, holyShitFragged)) != ':')
 				{
 					for(auto plugin: events[PLAYER_STATS])
 					{
-						plugin->player_stats(min, sec, num,
+						plugin->player_stats(min, sec, slot(num),
 							fragsFace, fragsBack, fraggedFace, fraggedBack,
 							spawnKills, spawnKillsRecv, pushes, pushesRecv,
 							health, armor, holyShitFrags, holyShitFragged);
@@ -1655,35 +1713,61 @@ bool Katina::start(const str& dir)
 				else
 					nlog("Error parsing PlayerStats: " << params);
 			}
-			else if(cmd == "CTF:")
+			else if(cmd == "sayteam:")
 			{
-				if(events[CTF].empty())
+				if(events[SAYTEAM].empty())
 					continue;
 
-				slot num;
-				siz col, act;
-				if(!(iss >> num >> col >> act) || col < 1 || col > 2)
-					nlog("Error parsing CTF: " << params);
+				str text;
+				GUID guid = extract_name_from_text(line_data, text);
+
+				if(guid == null_guid)
+					nlog("ERROR: Unable to locate GUID when parsing sayteam: " << line_data);
 				else
 				{
-					for(auto plugin: events[CTF])
-						plugin->ctf(min, sec, num, col, act);
+					for(auto plugin: events[SAYTEAM])
+						plugin->say(min, sec, guid, text);
 				}
 			}
-			else if(cmd == "red:") // BUG: red:(8  blue:6) [Katina.cpp] (662)
+			else if(cmd == "ClientDisconnect:")
 			{
-				if(events[CTF_EXIT].empty())
-					continue;
-
-				siz r = 0;
-				siz b = 0;
-				str skip;
-				if(!(sgl(iss >> r >> std::ws, skip, ':') >> b))
-					nlog("Error parsing CTF_EXIT:" << params);
+				int num;
+				if(*(iss = rsp(iss, num))) // should be zero terminator
+					std::cout << "Error parsing ClientDisconnect: "  << params << '\n';
+				else if(num >= siz(slot::max))
+				{
+					nlog("ERROR: Client num too high: " << num);
+				}
 				else
 				{
-					for(auto plugin: events[CTF_EXIT])
-						plugin->ctf_exit(min, sec, r, b);
+					{
+						lock_guard lock(mtx);
+						connected[num] = false;
+					}
+					const GUID& guid = getClientGuid(slot(num));
+
+					// Sometimes you get 2 ClientDisconnect: events with
+					// nothing created in between them. These should be ignored.
+					if(guid == null_guid)
+						continue;
+
+					guid.disconnect();
+
+					for(auto plugin: events[CLIENT_DISCONNECT])
+						plugin->client_disconnect(min, sec, slot(num));
+
+					siz teamBefore = teams[guid];
+					{
+						lock_guard lock(mtx);
+						teams[guid] = TEAM_U;
+					}
+
+				   if(teamBefore != TEAM_U && !guid.is_bot())
+					   for(auto plugin: events[CLIENT_SWITCH_TEAM])
+							plugin->client_switch_team(min, sec, slot(num), teamBefore, TEAM_U);
+
+					lock_guard lock(mtx);
+					clients.erase(slot(num));
 				}
 			}
 			else if(cmd == "score:")
@@ -1693,46 +1777,49 @@ bool Katina::start(const str& dir)
 
 				int score = 0;
 				siz ping = 0;
-				slot num;
+				int num;
 				str name;
-
-				if(!sgl(iss >> score >> skip >> ping >> skip >> num >> std::ws, name))
+				// score: 78  ping: 68  client: 3 ^4ebtwajumac ^3[UA]^7
+				if(*(iss = p0(adv(psi(adv(pt(adv(pt(pi(iss, score), ':'), 1), ':'), 1), num), 1), name)))
 					nlog("Error parsing SCORE_EXIT:" << params);
 				else
 				{
 					for(auto plugin: events[SCORE_EXIT])
-						plugin->score_exit(min, sec, score, ping, num, name);
+						plugin->score_exit(min, sec, score, ping, slot(num), name);
 				}
 			}
-			else if((flagspeed = (cmd == "SpeedFlag:")) || (cmd == "Speed:")) // mod_katina >= 0.1
+			else if(cmd == "ClientConnectInfo:")
 			{
-				if(events[SPEED].empty())
+				nlog("ClientConnectInfo: " << params);
+				if(events[CLIENT_CONNECT_INFO].empty())
 					continue;
 
-				slot num;
-				siz dist, time;
-				if(!(iss >> num >> dist >> time))
-					nlog("Error parsing Speed:" << params);
+				int num;
+				str guid;
+				str ip;
+				str skip; // rest of guid needs to be skipped before ip
+
+				// 2 5E68E970866FC20242482AA396BBD43E 81.101.111.32
+				if(*(iss = rsp(iss, num, guid, ip))) // null termintor
+					nlog("Error parsing ClientConnectInfo: "  << params);
+				else if(!is_connected(slot(num)))
+				{
+					// ignore this event until it occurs at a reliable place
+					if(mod_katina == "0.1.1")
+						nlog("ERROR: This event should NEVER occur in 0.1.1");
+					if(mod_katina >= "0.1.2")
+						nlog("ERROR: This event should NEVER occur after 0.1.2");
+				}
 				else
 				{
-					for(auto plugin: events[SPEED])
-						plugin->speed(min, sec, num, dist, time, flagspeed);
+					for(auto plugin: events[CLIENT_CONNECT_INFO])
+						plugin->client_connect_info(min, sec, slot(num), GUID(guid), ip);
 				}
 			}
-			else if(cmd == "Award:")
+			else if(cmd == "chat:")
 			{
-				if(events[AWARD].empty())
-					continue;
-
-				slot num;
-				siz awd;
-				if(!(iss >> num >> awd))
-					nlog("Error parsing Award:" << params);
-				else
-				{
-					for(auto plugin: events[AWARD])
-						plugin->award(min, sec, num, awd);
-				}
+				for(auto plugin: events[CHAT])
+					plugin->chat(min, sec, params);
 			}
 			else if(cmd == "InitGame:")
 			{
@@ -1744,13 +1831,18 @@ bool Katina::start(const str& dir)
 					players.clear();
 
 					static str key, val;
-					iss.ignore(); // skip initial '\\'
-					while(sgl(sgl(iss, key, '\\'), val, '\\'))
+					iss = adv(iss, 1); // skip initial '\\'
+					while(*(iss = adv(pw(adv(pw(iss, key, '\\'), 1), val, '\\'), 1)))
 						svars[key] = val;
+					svars[key] = val;
 
 					mapname = svars["mapname"];
 					mod_katina = svars["mod_katina"];
 					timestamp = svars["g_timestamp"];
+
+					bug_var(mapname);
+					bug_var(mod_katina);
+					bug_var(timestamp);
 				}
 
 				if(rerun && !have("runtime"))
@@ -1787,55 +1879,54 @@ bool Katina::start(const str& dir)
 				for(auto plugin: events[INIT_GAME])
 					plugin->init_game(min, sec, svars);
 			}
+			else if(cmd == "ShutdownGame:")
+			{
+				for(auto plugin: events[SHUTDOWN_GAME])
+					plugin->shutdown_game(min, sec);
+			}
+			else if(cmd == "Warmup:")
+			{
+				for(auto plugin: events[WARMUP])
+					plugin->warmup(min, sec);
+			}
+			else if(cmd == "red:") // BUG: red:(8  blue:6) [Katina.cpp] (662)
+			{
+				if(events[CTF_EXIT].empty())
+					continue;
+
+				siz r = 0;
+				siz b = 0;
+				str skip;
+				// red:8  blue:5
+				if(*(iss = pz(adv(pt(pz(iss, r), ':'), 1), b))) // EOS
+					nlog("Error parsing CTF_EXIT:" << params);
+				else
+				{
+					for(auto plugin: events[CTF_EXIT])
+						plugin->ctf_exit(min, sec, r, b);
+				}
+			}
+			else if(cmd == "Exit:")
+			{
+				for(auto plugin: events[EXIT])
+					plugin->exit(min, sec);
+			}
 			else if(cmd == "Callvote:") // mod_katina >= 0.1-beta
 			{
 				if(events[LOG_CALLVOTE].empty())
 					continue;
 
-				slot num;
+				int num;
 				str type;
 				str info;
-
-				if(!sgl(iss >> num >> std::ws >> type >> std::ws, info, ':'))
+				// Callvote: 6 map ps37ctf:
+				if(*(iss = pw(adv(pw(adv(pi(iss, num), 1), type), 1), info, ':')) != ':')
 					nlog("Error parsing Callvote: "  << params);
 				else
 				{
 					for(auto plugin: events[LOG_CALLVOTE])
-						plugin->callvote(min, sec, num, type, info);
+						plugin->callvote(min, sec, slot(num), type, info);
 				}
-			}
-			else if(cmd == "sayteam:")
-			{
-				if(events[SAYTEAM].empty())
-					continue;
-
-				str text;
-				GUID guid;
-
-				if(extract_name_from_text(line_data, guid, text))
-					for(auto plugin: events[SAYTEAM])
-						plugin->say(min, sec, guid, text);
-			}
-			else if(cmd == "say:")
-			{
-				str text;
-				GUID guid;
-
-				if(extract_name_from_text(line_data, guid, text))
-				{
-					if(!text.find("!katina"))
-						builtin_command(guid, text);
-					else
-					{
-						for(auto plugin: events[SAY])
-							plugin->say(min, sec, guid, text);
-					}
-				}
-			}
-			else if(cmd == "chat:")
-			{
-				for(auto plugin: events[CHAT])
-					plugin->chat(min, sec, params);
 			}
 			else
 			{

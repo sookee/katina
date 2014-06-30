@@ -2,6 +2,8 @@ SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 
+SET NAMES 'utf8', time_zone = '+00:00';
+
 -- -----------------------------------------------------
 -- Table `awards`
 -- -----------------------------------------------------
@@ -67,11 +69,10 @@ CREATE  TABLE IF NOT EXISTS `game` (
   `game_id` INT(4) UNSIGNED NOT NULL AUTO_INCREMENT ,
   `host` INT(4) UNSIGNED NOT NULL ,
   `port` INT(2) UNSIGNED NOT NULL ,
-  `date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP ,
+  `date` TIMESTAMP NOT NULL ,
   `map` VARCHAR(32) NOT NULL ,
   PRIMARY KEY USING BTREE (`game_id`) )
 ENGINE = MyISAM
-AUTO_INCREMENT = 47
 DEFAULT CHARACTER SET = utf8;
 
 
@@ -111,7 +112,7 @@ CREATE  TABLE IF NOT EXISTS `player` (
   `guid` VARCHAR(8) NOT NULL ,
   `name` VARCHAR(32) NOT NULL ,
   `count` INT(4) UNSIGNED NOT NULL ,
-  `date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP ,
+  `date` DATETIME NOT NULL ,
   PRIMARY KEY (`guid`, `name`) )
 ENGINE = MyISAM
 DEFAULT CHARACTER SET = utf8;
@@ -307,7 +308,6 @@ CREATE  TABLE IF NOT EXISTS `version` (
   PRIMARY KEY (`maj`, `min`) )
 ENGINE = MyISAM
 DEFAULT CHARACTER SET = utf8;
-
 
 -- -----------------------------------------------------
 -- Table `votes`

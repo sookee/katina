@@ -52,6 +52,9 @@ KatinaPluginVotes::KatinaPluginVotes(Katina& katina)
 
 bool KatinaPluginVotes::open()
 {
+	katina.add_var_event(this, "votes.active", active, false);
+	katina.add_var_event(this, "votes.write", db.get_write_flag(), false);
+
 	str default_db = katina.get("db");
 
 	if(!default_db.empty())
@@ -79,8 +82,6 @@ bool KatinaPluginVotes::open()
 		plog("FATAL: Database can not connect");
 		return false;
 	}
-
-	katina.add_var_event(this, "votes.active", active, false);
 
 	katina.add_log_event(this, INIT_GAME);
 	katina.add_log_event(this, WARMUP);
@@ -196,10 +197,8 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 
 	announce_time = 0; // turn off
 
-	std::async(std::launch::async, [this]
+	katina.add_future(std::async(std::launch::async, [this](slot_guid_map clients)
 	{
-		const slot_guid_map clients = katina.getClients();
-
 		for(slot_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
 		{
 			// were they connected when the thread began?
@@ -215,7 +214,7 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 			}
 
 			if(katina.is_live())
-				thread_sleep_millis(2000);
+				std::this_thread::sleep_for(milliseconds(2000));
 
 			pbug("ANNOUNCING VOTE TO: [" << i->first << ": " << i->second << "] " << katina.getPlayerName(i->second));
 
@@ -249,7 +248,7 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 				katina.server.msg_to(i->first, katina.get_name() + " ^3If you don't care say ^1!soso map ^3 to make this message disappear.");
 			}
 		}
-	});
+	}, katina.getClients()));
 }
 
 bool KatinaPluginVotes::sayteam(siz min, siz sec, const GUID& guid, const str& text)
@@ -372,7 +371,7 @@ void KatinaPluginVotes::close()
 
 row_count VotesDatabase::add_vote(const str& type, const str& item, const GUID& guid, int count)
 {
-	if(trace)
+	if(dbtrace)
 		log("DATABASE: add_vote(" << type << ", " << item << ", " << guid << ", " << count << ")");
 
 	soss oss;
@@ -392,7 +391,7 @@ row_count VotesDatabase::add_vote(const str& type, const str& item, const GUID& 
 
 bool VotesDatabase::read_map_votes(const str& mapname, guid_int_map& map_votes)
 {
-	if(trace)
+	if(dbtrace)
 		log("DATABASE: read_map_votes(" << mapname << ")");
 
 	map_votes.clear();
@@ -415,8 +414,8 @@ bool VotesDatabase::read_map_votes(const str& mapname, guid_int_map& map_votes)
 
 	for(siz i = 0; i < rows.size(); ++i)
 	{
-		if(trace)
-		log("DATABASE: restoring vote: " << rows[i][0] << ": " << rows[i][1]);
+		if(dbtrace)
+			log("DATABASE: restoring vote: " << rows[i][0] << ": " << rows[i][1]);
 		map_votes[GUID(rows[i][0])] = to<int>(rows[i][1]);
 	}
 

@@ -40,18 +40,53 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace katina { namespace data {
 
-const game_id bad_id(-1);
-const game_id null_id(0);
-
 siz db_scoper::count = 0;
+siz Database::initialized = 0;
+std::mutex Database::initialized_mtx;
 
-Database::Database(): active(false), port(3306) { mysql_init(&mysql); }
-Database::~Database() { off(); }
+Database::Database(): active(false), port(3306)
+{
+	if(!initialized)
+	{
+		log("DATABASE LIBRARY INIT");
+		lock_guard lock(initialized_mtx);
+		if(mysql_library_init(0, NULL, NULL))
+		{
+			log("ERROR: initializing mysql library");
+			return;
+		}
+	}
+	++initialized;
+	mysql_init(&mysql);
+}
+
+Database::~Database()
+{
+	if(!initialized)
+		return;
+	off();
+	if(!--initialized)
+	{
+		log("DATABASE LIBRARY END");
+		lock_guard lock(initialized_mtx);
+		mysql_library_end();
+	}
+}
 
 void Database::on()
 {
+	if(!initialized)
+		return;
+
 	if(active)
 		return;
+
+	if(!write)
+	{
+		active = true;
+		return;
+	}
+
 	if(mysql_real_connect(&mysql, host.c_str(), user.c_str()
 		, pass.c_str(), base.c_str(), port, NULL, 0) != &mysql)
 	{
@@ -61,6 +96,13 @@ void Database::on()
 
 	active = true;
 
+	if(!query("SET NAMES 'utf8', time_zone = '+00:00', TIMESTAMP = " + std::to_string(std::time(0)) + ";"))
+	{
+		mysql_close(&mysql);
+		active = false;
+		return;
+	}
+
 	init();
 }
 
@@ -68,7 +110,11 @@ void Database::off()
 {
 	if(!active)
 		return;
+
 	active = false;
+
+	if(!write)
+		return;
 
 	deinit();
 
@@ -77,6 +123,11 @@ void Database::off()
 
 bool Database::check()
 {
+	if(!active)
+		return true;
+	if(!write)
+		return true;
+
 	const bool was_active = active;
 
 	if(!was_active)
@@ -114,13 +165,19 @@ bool Database::escape(const str& from, str& to)
 
 str Database::error()
 {
+	if(!active)
+		return "";
+	if(!write)
+		return "";
 	return mysql_error(&mysql);
 }
 
 bool Database::query(const str& sql)
 {
 	if(!active)
-		return false;
+		return true;
+	if(!write)
+		return true;
 
 	if(mysql_real_query(&mysql, sql.c_str(), sql.length()))
 	{
@@ -134,6 +191,12 @@ bool Database::query(const str& sql)
 
 bool Database::insert(const str& sql, my_ulonglong& insert_id)
 {
+	insert_id = my_ulonglong(-1);
+	if(!active)
+		return true;
+	if(!write)
+		return true;
+
 	if(!insert(sql))
 		return false;
 
@@ -144,6 +207,12 @@ bool Database::insert(const str& sql, my_ulonglong& insert_id)
 
 bool Database::update(const str& sql, my_ulonglong& update_count)
 {
+	update_count = 0;
+	if(!active)
+		return true;
+	if(!write)
+		return true;
+
 	if(!update(sql))
 		return false;
 
@@ -154,6 +223,12 @@ bool Database::update(const str& sql, my_ulonglong& update_count)
 
 bool Database::select(const str& sql, str_vec_vec& rows, siz fields)
 {
+	rows.clear();
+	if(!active)
+		return true;
+	if(!write)
+		return true;
+
 	if(!query(sql))
 		return false;
 
@@ -170,8 +245,6 @@ bool Database::select(const str& sql, str_vec_vec& rows, siz fields)
 	if(fields != mysql_num_fields(result))
 		log("DATABASE: WARNING: parameter fields different from table");
 
-	rows.clear();
-
 	MYSQL_ROW row;
 	while((row = mysql_fetch_row(result)))
 	{
@@ -184,6 +257,36 @@ bool Database::select(const str& sql, str_vec_vec& rows, siz fields)
 
 	mysql_free_result(result);
 	return true;
+}
+
+bool Database::transaction()
+{
+	if(!active)
+		return true;
+	if(!write)
+		return true;
+
+	return query("START TRANSACTION");
+}
+
+bool Database::rollback()
+{
+	if(!active)
+		return true;
+	if(!write)
+		return true;
+
+	return !mysql_rollback(&mysql);
+}
+
+bool Database::commit()
+{
+	if(!active)
+		return true;
+	if(!write)
+		return true;
+
+	return !mysql_commit(&mysql);
 }
 
 }} // katina::data

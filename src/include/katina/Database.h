@@ -48,11 +48,7 @@ using namespace katina::types;
 using namespace katina::string;
 using namespace katina::log;
 
-typedef my_ulonglong game_id;
 typedef my_ulonglong row_count;
-
-extern const game_id bad_id;
-extern const game_id null_id;
 
 typedef std::vector<str_vec> str_vec_vec;
 
@@ -64,7 +60,11 @@ class Database
 	friend struct db_scoper;
 	friend struct db_transaction_scoper;
 
-	bool active;
+	static siz initialized;
+	static std::mutex initialized_mtx;
+
+	bool active = false;
+	bool write = false;
 
 	str host;
 	siz port;
@@ -86,6 +86,9 @@ class Database
 
 public:
 	
+	//void set_write(bool state) { write = state; }
+	bool& get_write_flag() { return write; }
+
 	/**
 	 * Perform sql statement.
 	 * @param sql The sql statement.
@@ -202,6 +205,11 @@ public:
 		this->base = base;
 	}
 
+	void config(const Database& db)
+	{
+		config(db.host, db.port, db.user, db.pass, db.base);
+	}
+
 	/**
 	 * Ensure connection
 	 */
@@ -219,6 +227,10 @@ public:
 	 * @return true on success else false
 	 */
 	bool select(const str& sql, str_vec_vec& rows, siz fields = 0);
+
+	bool transaction();
+	bool rollback();
+	bool commit();
 
 	// Virtual Interface
 
@@ -244,21 +256,24 @@ public:
 	Database& db;
 	db_scoper(Database& db): db(db)
 	{
-		bug("db_scoper:init: " << this);
-		if(!count++)
+		if(!db.get_write_flag())
+			return;
+
+		bug("db_scoper:  on: " << this);
+		db.on();
+		if(count++)
 		{
-			bug("db_scoper:  on: " << this);
-			db.on();
+			db.off();
+			log("ALERT: on() called from multiple places: " << count << " times, turning off()");
 		}
 	}
 	~db_scoper()
 	{
-		if(!--count)
-		{
-			db.off();
-			bug("db_scoper: off: " << this);
-		}
-		bug("db_scoper:exit: " << this);
+		if(!db.get_write_flag())
+			return;
+
+		db.off();
+		--count;
 	}
 };
 
@@ -279,7 +294,7 @@ public:
 	{
 		bug("db_tx_scoper:  on: " << this);
 		db.on();
-		if(!db.query("START TRANSACTION"))
+		if(!db.transaction())
 		{
 			log("DATABASE TRANSACTION ERROR: " << db.error());
 			state = trans::ABORT;
@@ -287,22 +302,39 @@ public:
 		}
 	}
 
+	bool operator()(bool error)
+	{
+		if(error)
+			rollback();
+		return error;
+	}
+
 	void rollback()
 	{
-		if(state != trans::ABORT)
-			state = trans::ROLLBACK;
+		if(state == trans::ABORT)
+			return;
+
+		state = trans::ROLLBACK;
+		if(!db.rollback())
+		{
+			log("DATABASE ROLLBACK ERROR: " << db.error());
+			state = trans::ABORT;
+		}
+		db.off();
 	}
 
 	~db_transaction_scoper()
 	{
-		bool err = false;
-		if(state == trans::COMMIT)
-			err = db.query("COMMIT");
-		else if(state == trans::COMMIT)
-			err = db.query("ROLLBACK");
+		if(state == trans::ABORT)
+			return;
 
-		if(err)
-			log("DATABASE TRANSACTION ERROR: " << db.error());
+		if(state == trans::ROLLBACK)
+			return;
+
+		if(!db.query("COMMIT"))
+		{
+			log("DATABASE COMMIT ERROR: " << db.error());
+		}
 
 		db.off();
 		bug("db_tx_scoper: off: " << this);

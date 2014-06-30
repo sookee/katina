@@ -18,7 +18,7 @@ DefaultEvaluation::DefaultEvaluation(Katina& katina, KatinaPluginTeamBalancer& p
 
 
 
-void DefaultEvaluation::loadStats(GUID guid, stats& dest)
+void DefaultEvaluation::loadStats(GUID guid, stat& dest)
 {
     db_scoper on(db);
     
@@ -55,7 +55,7 @@ void DefaultEvaluation::loadStats(GUID guid, stats& dest)
     
     
     
-siz DefaultEvaluation::getNumFrags(stats s)
+siz DefaultEvaluation::getNumFrags(const stat& s)
 {
     siz frags = 0;
     for(siz_map_citer it = s.kills.begin(); it != s.kills.end(); ++it)
@@ -66,7 +66,7 @@ siz DefaultEvaluation::getNumFrags(stats s)
 
 
 
-siz DefaultEvaluation::getNumDeaths(stats s)
+siz DefaultEvaluation::getNumDeaths(const stat& s)
 {
     siz deaths = 0;
     for(siz_map_citer it = s.deaths.begin(); it != s.deaths.end(); ++it)
@@ -77,7 +77,7 @@ siz DefaultEvaluation::getNumDeaths(stats s)
 
 
     
-std::pair<siz, float> DefaultEvaluation::getShotsHits(stats s)
+std::pair<siz, float> DefaultEvaluation::getShotsHits(const stat& s)
 {
     siz shots = 0;
     float hits  = 0;
@@ -104,7 +104,7 @@ float DefaultEvaluation::calcRating(slot client)
     //    return 1000.0f;
     
     // Sum up values of multiple games
-    stats& sref = statsPlugin->stats[guid];
+    stat& sref = statsPlugin->stats[guid];
     
     siz frags  = getNumFrags(sref);
     siz caps   = sref.flags[FL_CAPTURED];
@@ -135,7 +135,7 @@ float DefaultEvaluation::calcRating(slot client)
     
     
     // Add values from DB
-    stats s;
+    stat s;
     loadStats(guid, s);
     
     frags  += getNumFrags(s);

@@ -53,7 +53,7 @@ using namespace katina::types;
 class VotesDatabase
 : public Database
 {
-	bool trace = false;
+	bool dbtrace = false;
 
 public:
 	VotesDatabase(): Database() {}
@@ -62,7 +62,7 @@ public:
 //	virtual void init() override;
 //	virtual void deinit() override;
 
-	void set_trace(bool state = true) { trace = state; }
+	void set_trace(bool state = true) { dbtrace = state; }
 
 	/**
 	 *
@@ -88,6 +88,7 @@ private:
 
 	// cvars
 	bool active;
+//	bool write;
 
 	bool votes_valid = false;
 	siz announce_time = 0; // seconds before announce
