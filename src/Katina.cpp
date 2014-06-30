@@ -192,6 +192,7 @@ GUID Katina::guid_from_name(const str& name)
 
 GUID Katina::extract_name_from_text(const str& line, str& text)
 {
+	// say: ^1B^7lood^1y ^0[^1B^7o^1y^0]: :-)
 	siz pos = 0;
 	siz beg = 0;
 	if((beg = line.find(": ")) == str::npos) // "say: "
@@ -1840,9 +1841,9 @@ bool Katina::start(const str& dir)
 					mod_katina = svars["mod_katina"];
 					timestamp = svars["g_timestamp"];
 
-					bug_var(mapname);
-					bug_var(mod_katina);
-					bug_var(timestamp);
+//					bug_var(mapname);
+//					bug_var(mod_katina);
+//					bug_var(timestamp);
 				}
 
 				if(rerun && !have("runtime"))
