@@ -15,7 +15,7 @@ CXXFLAGS = -std=c++11 $(DEBUG_FLAGS) -Iinclude -pthread
 
 LIBKATINA_FLAGS = $(CXXFLAGS) $(VER_FLAGS) -fPIC -pthread $(LIBGCRYPT_FLAGS)
 LIBKATINA_LIBS = -lrt -pthread -ldl $(LIBGCRYPT_LIBS)
-LIBKATINA_OBJS = ansi.o rcon.o RemoteClient.o irc.o GUID.o PKI.o types.o Database.o Katina.o
+LIBKATINA_OBJS = ansi.o rcon.o RemoteClient.o irc.o GUID.o PKI.o types.o Database.o Katina.o radp.o
 
 KATINA_FLAGS = $(CXXFLAGS) $(VER_FLAGS) $(MYSQL_FLAG) $(MYSQL_INCL)
 KATINA_LIBS = $(MYSQL_LIBS) -lrt -pthread -ldl $(LIBGCRYPT_LIBS) -L. -lkatina
@@ -101,7 +101,7 @@ install: $(PROGRAMS) $(LIBRARIES)
 	@mkdir -p $(PREFIX)/bin
 	@for program in $(PROGRAMS); \
 	do \
-		echo Installing $$program to $(PREFIX)/bin \
+		echo Installing $$program to $(PREFIX)/bin; \
 		cp -f $$program $(PREFIX)/bin; \
 	done
 	@mkdir -p $(PREFIX)/lib

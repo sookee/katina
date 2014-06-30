@@ -1,11 +1,8 @@
-#pragma once
-#ifndef _OASTATS_TYPES_H_
-#define _OASTATS_TYPES_H_
+#ifndef _KATINA_TYPES_H_
+#define _KATINA_TYPES_H_
 /*
- * tyoes.h
- *
  *  Created on: 9 Jan 2012
- *      Author: oasookee@gmail.com
+ *      Author: SooKee oasookee@gmail.com
  */
 
 /*-----------------------------------------------------------------.
@@ -211,7 +208,6 @@ typedef std::stringstream sss;
 class slot
 {
 	int num;
-	explicit slot(int num): num(num) {}
 public:
 	static const slot bad;
 	static const slot all;
@@ -219,6 +215,7 @@ public:
 	static const slot max;
 
 	slot(): num(-1) {}
+	explicit slot(int num): num(num) {}
 	slot(const slot& num): num(num.num) {}
 
 	bool operator<(const slot& s) const { return num < s.num; }
@@ -271,6 +268,88 @@ using std::chrono::seconds;
 using std::chrono::minutes;
 using std::chrono::hours;
 
+// Precedence for two pre-release versions with the
+// same major, minor, and patch version MUST be
+// determined by comparing each dot separated
+// identifier from left to right until a difference
+// is found as follows: identifiers consisting of
+// only digits are compared numerically and
+// identifiers with letters or hyphens are compared
+// lexically in ASCII sort order. Numeric identifiers
+// always have lower precedence than non-numeric
+// identifiers. A larger set of pre-release fields
+// has a higher precedence than a smaller set, if all
+// of the preceding identifiers are equal.
+//
+// Example: 1.0.0-alpha < 1.0.0-alpha.1
+// < 1.0.0-alpha.beta < 1.0.0-beta < 1.0.0-beta.2
+// < 1.0.0-beta.11 < 1.0.0-rc.1 < 1.0.0.
+
+struct version_t
+{
+	siz maj = 0;
+	siz min = 0;
+	siz fix = 0;
+	str_vec pre;
+
+	bool operator<(const version_t& v) const
+	{
+		if(maj < v.maj)
+			return true;
+		if(maj > v.maj)
+			return false;
+		if(min < v.min)
+			return true;
+		if(min > v.min)
+			return false;
+		if(fix < v.fix)
+			return true;
+		if(fix > v.fix)
+			return false;
+
+		siz p = 0;
+		for(; p < pre.size(); ++p)
+		{
+			if(p == v.pre.size())
+				return false;
+
+			if(pre[p].find_first_not_of("0123456789") == str::npos)
+			{
+				if(v.pre[p].find_first_not_of("0123456789") == str::npos)
+				{
+					if(std::stoi(pre[p]) < std::stoi(v.pre[p]))
+						return true;
+					if(std::stoi(pre[p]) > std::stoi(v.pre[p]))
+						return false;
+				}
+				else
+				{
+					return true;
+				}
+			}
+			else
+			{
+				if(v.pre[p].find_first_not_of("0123456789") == str::npos)
+				{
+					return false;
+				}
+				else
+				{
+					if(pre[p] < v.pre[p])
+						return true;
+					if(pre[p] > v.pre[p])
+						return false;
+				}
+			}
+		}
+
+		if(p == v.pre.size()) // equal
+			return false;
+
+		return true; // less
+	}
+};
+
 }} // katina::types
 
-#endif /* _OASTATS_TYPES_H_ */
+#endif /* _KATINA_TYPES_H_ */

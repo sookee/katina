@@ -1,6 +1,8 @@
 #!/bin/bash
 
-#EXEC=echo
+if [[ $1 == "-d" ]]; then
+	EXEC=echo
+fi
 
 REFERENCE_SQL="unit-test-katina-stats-20140623-155705-49F98C8.sql"
 
@@ -52,7 +54,7 @@ OPTIONS="--skip-opt --skip-dump-date --compact"
 
 $EXEC mysqldump $OPTIONS $AUTH $BASE > unit-test-katina-stats-${STAMP}.sql
 
-diff -q $REFERENCE_SQL unit-test-katina-stats-${STAMP}.sql
+$EXEC diff -q $REFERENCE_SQL unit-test-katina-stats-${STAMP}.sql
 
-rm -i unit-test-katina-stats-${STAMP}.sql
+$EXEC rm -i unit-test-katina-stats-${STAMP}.sql
 

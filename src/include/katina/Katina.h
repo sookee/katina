@@ -252,6 +252,7 @@ private:
 
 	siz line_number = 0; // log file line number
 	str line_data; // log file lines read into this variable
+	str line_data2; // used if ClientUserInfo bug found
 
 	bool do_log_lines = false;
 
