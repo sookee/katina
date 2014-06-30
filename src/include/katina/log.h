@@ -74,7 +74,7 @@ inline void log_out(sss& s)
 {
 	static std::mutex mtx;
 	lock_guard lock(mtx);
-	std::cout << s.rdbuf();
+	std::cout << s.str();
 }
 
 #define QUOTE(s) #s
