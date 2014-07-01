@@ -40,6 +40,8 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <katina/codes.h>
 #include <katina/time.h>
 
+// TODO: Fix !alert player joining server
+
 namespace katina { namespace plugin {
 
 using namespace katina::log;

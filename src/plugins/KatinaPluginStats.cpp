@@ -188,6 +188,9 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 
 	katina.add_future(std::async(std::launch::async, [this,now,logged_time](str mapname, guid_stat_map stats, onevone_map onevone)
 	{
+//		static std::mutex mtx;
+//		lock_guard lock(mtx);
+
 		pbug("RUNNING THREAD: " << std::this_thread::get_id());
 		std::time_t start = std::time(0);
 
@@ -215,15 +218,15 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 		{
 			if(!allow_bots && p->first.is_bot())
 			{
-				ptbug("IGNORING BOT: " << katina.getPlayerName(p->first));
+				ptbug("IGNORING BOT: " << p->second.name);
 				continue;
 			}
 
-			db.add_player(katina.now, p->first, p->second.name);
+			db.add_player(now, p->first, p->second.name);
 
 			if(p->second.hc < 100)
 			{
-				ptbug("IGNORING HANDICAP PLAYER: [" << p->second.hc << "] " << katina.getPlayerName(p->first));
+				ptbug("IGNORING HANDICAP PLAYER: [" << p->second.hc << "] " << p->second.name);
 				continue;
 			}
 

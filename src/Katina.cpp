@@ -2077,7 +2077,7 @@ bool Katina::start(const str& dir)
 			}
 
 			// clear some threads
-			sys_time_point end = sys_clk::now() + std::chrono::seconds(1);
+			sys_time_point end = sys_clk::now() + std::chrono::microseconds(1);
 			std::future_status fs;
 			for(future_lst_iter i = futures.begin(); i != futures.end();)
 			{

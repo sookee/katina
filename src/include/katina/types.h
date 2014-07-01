@@ -255,6 +255,9 @@ TYPEDEF_MAP(slot, siz, slot_siz_map);
 typedef std::lock_guard<std::mutex> lock_guard;
 typedef std::unique_lock<std::mutex> unique_lock;
 
+typedef std::lock_guard<std::recursive_mutex> r_lock_guard;
+typedef std::unique_lock<std::recursive_mutex> r_unique_lock;
+
 typedef std::chrono::system_clock sys_clk;
 typedef sys_clk::period sys_period;
 typedef sys_clk::time_point sys_time_point;

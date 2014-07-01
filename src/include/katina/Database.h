@@ -38,6 +38,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <katina/log.h>
 
 #include <array>
+#include <mutex>
 
 #include <mysql.h>
 
@@ -57,6 +58,8 @@ typedef std::vector<str_vec> str_vec_vec;
 
 class Database
 {
+	static std::recursive_mutex r_mtx;
+
 	friend struct db_scoper;
 	friend struct db_transaction_scoper;
 

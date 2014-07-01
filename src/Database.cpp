@@ -43,9 +43,12 @@ namespace katina { namespace data {
 siz db_scoper::count = 0;
 siz Database::initialized = 0;
 std::mutex Database::initialized_mtx;
+std::recursive_mutex Database::r_mtx;
 
 Database::Database(): active(false), port(3306)
 {
+	r_lock_guard syncronized(r_mtx);
+
 	if(!initialized)
 	{
 		log("DATABASE LIBRARY INIT");
@@ -62,6 +65,8 @@ Database::Database(): active(false), port(3306)
 
 Database::~Database()
 {
+	r_lock_guard syncronized(r_mtx);
+
 	if(!initialized)
 		return;
 	off();
@@ -75,6 +80,8 @@ Database::~Database()
 
 void Database::on()
 {
+	r_lock_guard syncronized(r_mtx);
+
 	if(!initialized)
 		return;
 
@@ -108,6 +115,8 @@ void Database::on()
 
 void Database::off()
 {
+	r_lock_guard syncronized(r_mtx);
+
 	if(!active)
 		return;
 
@@ -123,6 +132,8 @@ void Database::off()
 
 bool Database::check()
 {
+	r_lock_guard syncronized(r_mtx);
+
 	if(!active)
 		return true;
 	if(!write)
@@ -153,6 +164,8 @@ bool Database::check()
 
 bool Database::escape(const str& from, str& to)
 {
+	r_lock_guard syncronized(r_mtx);
+
 	if(from.size() > 511)
 	{
 		log("DATABASE ERROR: escape: string too long at line: " << __LINE__);
@@ -165,6 +178,8 @@ bool Database::escape(const str& from, str& to)
 
 str Database::error()
 {
+	r_lock_guard syncronized(r_mtx);
+
 	if(!active)
 		return "";
 	if(!write)
@@ -174,6 +189,8 @@ str Database::error()
 
 bool Database::query(const str& sql)
 {
+	r_lock_guard syncronized(r_mtx);
+
 	if(!active)
 		return true;
 	if(!write)
@@ -191,6 +208,8 @@ bool Database::query(const str& sql)
 
 bool Database::insert(const str& sql, my_ulonglong& insert_id)
 {
+	r_lock_guard syncronized(r_mtx);
+
 	insert_id = my_ulonglong(-1);
 	if(!active)
 		return true;
@@ -207,6 +226,8 @@ bool Database::insert(const str& sql, my_ulonglong& insert_id)
 
 bool Database::update(const str& sql, my_ulonglong& update_count)
 {
+	r_lock_guard syncronized(r_mtx);
+
 	update_count = 0;
 	if(!active)
 		return true;
@@ -223,6 +244,8 @@ bool Database::update(const str& sql, my_ulonglong& update_count)
 
 bool Database::select(const str& sql, str_vec_vec& rows, siz fields)
 {
+	r_lock_guard syncronized(r_mtx);
+
 	rows.clear();
 	if(!active)
 		return true;
@@ -261,6 +284,8 @@ bool Database::select(const str& sql, str_vec_vec& rows, siz fields)
 
 bool Database::transaction()
 {
+	r_lock_guard syncronized(r_mtx);
+
 	if(!active)
 		return true;
 	if(!write)
@@ -271,6 +296,8 @@ bool Database::transaction()
 
 bool Database::rollback()
 {
+	r_lock_guard syncronized(r_mtx);
+
 	if(!active)
 		return true;
 	if(!write)
@@ -281,6 +308,8 @@ bool Database::rollback()
 
 bool Database::commit()
 {
+	r_lock_guard syncronized(r_mtx);
+
 	if(!active)
 		return true;
 	if(!write)
