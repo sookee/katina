@@ -48,6 +48,7 @@ else
 	STAMP=$(stamp.sh)-$REVISION
 fi
 
+STAMP=X
 #echo STAMP: $STAMP
 
 OPTIONS="--skip-opt --skip-dump-date --compact"

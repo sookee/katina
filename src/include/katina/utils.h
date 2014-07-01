@@ -141,13 +141,12 @@ bool ls(const str& folder, str_vec &files)
 	return true;
 }
 
-//class lock_guard
+//template<typename T>
+//struct on_scoper
 //{
-//	pthread_mutex_t& mtx;
-//
-//public:
-//	lock_guard(pthread_mutex_t& mtx): mtx(mtx) { pthread_mutex_lock(&mtx); }
-//	~lock_guard() { pthread_mutex_unlock(&mtx); }
+//	T& rep;
+//	on_scoper(T& rep): rep(rep) { rep.on(); }
+//	~on_scoper() { rep.off(); }
 //};
 
 }} // katina::utils

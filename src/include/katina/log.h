@@ -70,28 +70,49 @@ str get_stamp()
 	return ansify(str(buffer), ATTS(FG_YELLOW));
 }
 
-inline void log_out(sss& s)
+enum
 {
+	LOG_OFF = -1, NOCHANGE = 0, LOG_ON = 1
+};
+
+inline void log_out(sss& s)//, int mode = NOCHANGE)
+{
+//	static bool active = false;
+//	bool state = active;
+//	if(mode < 0)
+//		active = false;
+//	if(mode > 0)
+//		active = true;
 	static std::mutex mtx;
 	lock_guard lock(mtx);
 	std::cout << s.str() << std::flush;
+//	return state;
 }
 
 #define QUOTE(s) #s
 
+//#define log_on() do{sss s; katina::log::log_out(s, LOG_ON);}while(0)
+//#define log_off() do{sss s; katina::log::log_out(s, LOG_OFF);}while(0)
+
+//inline bool log_on() {sss s; return log_out(s, LOG_ON);}
+//inline bool log_off() {sss s; return log_out(s, LOG_OFF);}
+//
+//struct on_scoper { bool a = false; on_scoper() { a = log_on(); } ~on_scoper() { if(!a) log_off(); } };
+//struct off_scoper { bool a = false; off_scoper() { a = log_off(); } ~off_scoper() { if(a) log_on(); } };
+
 #ifndef TRACE
 #define trace
 #else
-#define trace do{std::cout << __FILE__ << ":" << __LINE__ << ":0 trace:";}while(0);
+#define trace do{std::cout << __FILE__ << ":" << __LINE__ << ":0 trace:";}while(0)
 #endif
 //../../src/RemoteClient.cpp:238:2: error: expected ‘}’ at end of input
 #ifndef DEBUG
 #define bug(m)
 #define bug_var(v)
 #define bug_func()
-#define con(m) do{std::cout << m << std::endl;}while(false)
-#define log(m) do{sss __s;__s << katina::log::get_stamp() << ": " << m << std::endl;katina::log::log_out(__s);}while(false)
-#define nlog(m) do{sss __s;__s << katina::log::get_stamp() << ": " << m << " {" << line_number << "}" << std::endl;katina::log::log_out(__s);}while(false)
+#define con(m) do{std::cout << m << std::endl;}while(0)
+#define log(m) do{sss __s;__s << katina::log::get_stamp() << ": " << m << std::endl;katina::log::log_out(__s);}while(0)
+#define nlog(m) do{sss __s;__s << katina::log::get_stamp() << ": " << m << " {" << line_number << "}" << std::endl;katina::log::log_out(__s);}while(0)
 #else
 inline str _fixfile(const char* f)
 {

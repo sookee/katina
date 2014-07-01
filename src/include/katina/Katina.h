@@ -39,6 +39,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include "utils.h"
 #include "PKI.h"
 #include "log.h"
+#include "radp.h"
 
 #include <list>
 //#include <pthread.h>
@@ -183,6 +184,12 @@ sos& operator<<(sos& o, const siz_set& s)
 	return o;
 }
 
+// const rad chk_Kill = line_data + sizeof("Kill");
+// 15:13 Speed: 0 9622 45 : Client 0 ran 9622u in 45s without the flag.
+#define EVT_PARSE_INFO(e) \
+const rad chk_ ## e = line_data + 7 + sizeof(QUOTE(e)) - 1; \
+const rad param_ ## e = chk_ ## e + 2
+
 /**
  * This is the main log-file processing class.
  */
@@ -207,7 +214,7 @@ private:
 	cvar_map_map vars; // plugin* -> {name -> cvar*}
 
 	GUID guid_from_name(const str& name);
-	GUID extract_name_from_text(const str& line, str& text);
+	GUID extract_name(const str& line);//, str& text);
     
 	bool load_config(const str& dir, const str& file, property_map& props);
     bool init_pki();
@@ -234,6 +241,8 @@ private:
 	guid_str_map players; // GUID -> name  // cleard before game_begin()
 	guid_siz_map teams; // GUID -> 0,1,2,3 // cleared when players disconnect and on game_begin()
 
+	const static siz BUFFSIZE = 1024; // log buffer size
+
 	/**
 	 * Location of the configuration folder.
 	 * Typically something like $HOME/.katina
@@ -251,8 +260,49 @@ private:
 	str timestamp;
 
 	siz line_number = 0; // log file line number
-	str line_data; // log file lines read into this variable
-	str line_data2; // used if ClientUserInfo bug found
+	char line_data[BUFFSIZE]; // log file lines read into this variable
+	const rad cmd = line_data + 7;
+
+	EVT_PARSE_INFO(Kill);
+
+	EVT_PARSE_INFO(Award);
+
+	EVT_PARSE_INFO(Challenge);
+	EVT_PARSE_INFO(CTF);
+	EVT_PARSE_INFO(ClientUserinfoChanged);
+	EVT_PARSE_INFO(ClientBegin);
+	EVT_PARSE_INFO(ClientConnect);
+	EVT_PARSE_INFO(ClientDisconnect);
+	EVT_PARSE_INFO(ClientConnectInfo);
+	EVT_PARSE_INFO(Callvote);
+
+	EVT_PARSE_INFO(Speed);
+	EVT_PARSE_INFO(SpeedFlag);
+	EVT_PARSE_INFO(ShutdownGame);
+
+	EVT_PARSE_INFO(WeaponUsage);
+	EVT_PARSE_INFO(Warmup);
+
+	EVT_PARSE_INFO(MODDamage);
+
+	EVT_PARSE_INFO(client);
+	EVT_PARSE_INFO(chat);
+
+	EVT_PARSE_INFO(say);
+	EVT_PARSE_INFO(sayteam);
+
+	EVT_PARSE_INFO(Push);
+	EVT_PARSE_INFO(PlayerStats);
+
+	EVT_PARSE_INFO(score);
+
+	EVT_PARSE_INFO(Item);
+	EVT_PARSE_INFO(Info);
+	EVT_PARSE_INFO(InitGame);
+
+	EVT_PARSE_INFO(red) - 1;
+
+	EVT_PARSE_INFO(Exit);
 
 	bool do_log_lines = false;
 

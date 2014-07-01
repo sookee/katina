@@ -186,7 +186,7 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 
 	std::time_t now = katina.now;
 
-	katina.add_future(std::async(std::launch::async, [this,now,logged_time](guid_stat_map stats, onevone_map onevone)
+	katina.add_future(std::async(std::launch::async, [this,now,logged_time](str mapname, guid_stat_map stats, onevone_map onevone)
 	{
 		pbug("RUNNING THREAD: " << std::this_thread::get_id());
 		std::time_t start = std::time(0);
@@ -236,6 +236,7 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 					db.add_weaps(id, "deaths", p->first, *weap, count);
 			}
 
+			pbug_var(katina.get_line_number());
 			if((count = map_get(p->second.flags, FL_CAPTURED)))
 				db.add_caps(id, p->first, count);
 
@@ -289,10 +290,10 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 		}
 
 		ptlog("STATS WRITTEN IN: " << (std::time(0) - start) << " seconds:");
-	}, stats, onevone));
+	}, mapname, stats, onevone));
 
-//	stats.clear();
-//	onevone.clear();
+	stats.clear();
+	onevone.clear();
 	return true;
 }
 

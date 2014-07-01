@@ -47,6 +47,20 @@ inline rad ps(rad s)
 	return s;
 }
 
+/**
+ *
+ * @param s
+ * @param c
+ * @return returned value == s on error (EOS)
+ * else return value == s + 1
+ */
+inline rad pc(rad s, char& c)
+{
+	if(*s)
+		c = *s++;
+	return s;
+}
+
 inline rad pz(rad s, siz& i)
 {
 	for(i = 0; *s >= '0' && *s <= '9'; ++s)
