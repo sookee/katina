@@ -39,6 +39,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include <katina/Database.h>
 #include <katina/GUID.h>
+#include <katina/codes.h>
 
 #include <katina/types.h>
 #include <katina/log.h>
@@ -101,13 +102,15 @@ struct stat
 
 	str name;
 
+	siz team;
+
 	stat() :
 		hc(100), kills(), deaths(), flags(), awards(), weapon_usage(), mod_damage(),
 		fragsFace(0), fragsBack(0), fraggedInFace(0), fraggedInBack(0),
 		spawnKills(0), spawnKillsRecv(0), pushes(0), pushesRecv(0),
 		healthPickedUp(0), armorPickedUp(0), holyShitFrags(0), holyShitFragged(0),
 		carrierFrags(0), carrierFragsRecv(0), time(0), dist(0), time_f(0), dist_f(0),
-		joined_time(0), logged_time(0)
+		joined_time(0), logged_time(0), team(TEAM_U)
 	{}
 };
 

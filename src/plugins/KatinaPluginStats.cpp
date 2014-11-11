@@ -68,12 +68,13 @@ KatinaPluginStats::KatinaPluginStats(Katina& katina)
 , carrierBlue(slot::bad)
 , carrierRed(slot::bad)
 {
+	trace();
 }
 
 
 bool KatinaPluginStats::open()
 {
-	bug_func();
+	trace();
 	katina.add_var_event(this, "stats.active", active, false);
 	katina.add_var_event(this, "stats.write", db.get_write_flag(), false);
 	katina.add_var_event(this, "stats.allow.bots", allow_bots, false);
@@ -151,8 +152,7 @@ struct clear_scoper
 
 bool KatinaPluginStats::exit(siz min, siz sec)
 {
-	bug_func();
-	plog("exit: " << min << ", " << sec);
+	trace();
 
 	if(!in_game)
 		return true;
@@ -186,8 +186,10 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 
 	std::time_t now = katina.now;
 
-	katina.add_future(std::async(std::launch::async, [this,now,logged_time](str mapname, guid_stat_map stats, onevone_map onevone)
-	{
+//	katina.add_future(std::async(std::launch::async, [this,now,logged_time](str mapname, guid_stat_map stats, onevone_map onevone)
+//	{
+//		trace();
+//
 //		static std::mutex mtx;
 //		lock_guard lock(mtx);
 
@@ -199,7 +201,7 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 		if(!db.check())
 		{
 			ptlog("ERROR: STATS NOT WRITTEN");
-			return;
+			return true;
 		}
 
 		db.get_write_flag() = true;
@@ -212,7 +214,7 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 		ptbug_var(stats.size());
 
 		if(id == null_id || id == bad_id)
-			return;
+			return true;
 
 		for(guid_stat_map_citer p = stats.begin(); p != stats.end(); ++p)
 		{
@@ -293,16 +295,17 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 		}
 
 		ptlog("STATS WRITTEN IN: " << (std::time(0) - start) << " seconds:");
-	}, mapname, stats, onevone));
+//	}, mapname, stats, onevone));
 
 	stats.clear();
 	onevone.clear();
 	return true;
 }
 
-
 bool KatinaPluginStats::shutdown_game(siz min, siz sec)
 {
+	trace();
+
 	in_game = false;
 
 	if(!active)
@@ -315,7 +318,9 @@ bool KatinaPluginStats::shutdown_game(siz min, siz sec)
 
 void KatinaPluginStats::updatePlayerTime(slot num)
 {
-    struct stat& s = stats[katina.getClientGuid(num)];
+	trace();
+
+	struct stat& s = stats[katina.getClientGuid(num)];
     if(s.joined_time > 0)
     {
         s.logged_time += katina.now - s.joined_time;
@@ -325,6 +330,14 @@ void KatinaPluginStats::updatePlayerTime(slot num)
 
 void KatinaPluginStats::stall_client(const GUID& guid)
 {
+	trace();
+
+	if(guid == null_guid)
+	{
+		plog("ERROR: null guid: {" << katina.get_line_number() << "}");
+		return;
+	}
+
 	if(!stats[guid].joined_time)
 		return;
 
@@ -335,6 +348,14 @@ void KatinaPluginStats::stall_client(const GUID& guid)
 
 void KatinaPluginStats::unstall_client(const GUID& guid)
 {
+	trace();
+
+	if(guid == null_guid)
+	{
+		plog("ERROR: null guid: {" << katina.get_line_number() << "}");
+		return;
+	}
+
 	if(stats[guid].joined_time)
 		return;
 
@@ -347,12 +368,16 @@ void KatinaPluginStats::unstall_client(const GUID& guid)
 
 void KatinaPluginStats::stall_clients()
 {
+	trace();
+
 	for(guid_stat_map_citer ci = stats.begin(); ci != stats.end(); ++ci)
 		stall_client(ci->first);
 }
 
 void KatinaPluginStats::unstall_clients()
 {
+	trace();
+
 	for(guid_stat_map_citer ci = stats.begin(); ci != stats.end(); ++ci)
 //		if(!katina.is_disconnected(ci->first))
 			unstall_client(ci->first);
@@ -360,6 +385,8 @@ void KatinaPluginStats::unstall_clients()
 
 void KatinaPluginStats::check_bots_and_players()
 {
+	trace();
+
 	bool stats_stopped = stop_stats;
 
 	stop_stats = false;
@@ -367,6 +394,23 @@ void KatinaPluginStats::check_bots_and_players()
 	siz human_players_b = 0;
 	siz bot_players_r = 0;
 	siz bot_players_b = 0;
+
+//	for(const auto& s: stats)
+//	{
+//		if(s.first.is_bot())
+//		{
+//			if(s.second.team == TEAM_R)
+//				++bot_players_r;
+//			else if(s.second.team == TEAM_B)
+//				++bot_players_b;
+//			if(!allow_bots)
+//				stop_stats = true;
+//		}
+//		else if(s.second.team == TEAM_R)
+//			++human_players_r;
+//		else if(s.second.team == TEAM_B)
+//			++human_players_b;
+//	}
 
 	for(guid_siz_map_citer ci = teams.begin(); ci != teams.end(); ++ci)
 	{
@@ -412,11 +456,20 @@ void KatinaPluginStats::check_bots_and_players()
 
 bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, slot num, siz team, const GUID& guid, const str& name, siz hc)
 {
+	trace();
+
+	if(guid == null_guid)
+	{
+		plog("ERROR: null guid: {" << katina.get_line_number() << "}");
+		return true;
+	}
+
 	if(allow_bots || !guid.is_bot())
 	{
 		// lock_guard lock(mtx);
 		stats[guid].hc = hc;
 		stats[guid].name = name;
+		stats[guid].team = team;
 	}
 
 	if(!in_game)
@@ -432,6 +485,8 @@ bool KatinaPluginStats::client_userinfo_changed(siz min, siz sec, slot num, siz 
 
 bool KatinaPluginStats::client_disconnect(siz min, siz sec, slot num)
 {
+	trace();
+
 	if(!in_game)
 		return true;
 
@@ -448,6 +503,8 @@ bool KatinaPluginStats::client_disconnect(siz min, siz sec, slot num)
 		return true;
 	}
 
+	stats[guid].team = TEAM_U;
+
 	stall_client(guid);
 
 	return true;
@@ -455,6 +512,8 @@ bool KatinaPluginStats::client_disconnect(siz min, siz sec, slot num)
 
 bool KatinaPluginStats::kill(siz min, siz sec, slot num1, slot num2, siz weap)
 {
+	trace();
+
 	if(!in_game)
 		return true;
 
@@ -472,9 +531,9 @@ bool KatinaPluginStats::kill(siz min, siz sec, slot num1, slot num2, siz weap)
 
 	const GUID& guid1 = katina.getClientGuid(num1);
 
-	if(guid1 == null_guid)
+	if(num1 != slot::world && guid1 == null_guid)
 	{
-		plog("ERROR: Unexpected null GUID for slot: " << num1 << "{" << katina.get_line_number() << "}");
+		plog("ERROR: null guid: {" << katina.get_line_number() << "}");
 		return true;
 	}
 
@@ -482,7 +541,7 @@ bool KatinaPluginStats::kill(siz min, siz sec, slot num1, slot num2, siz weap)
 
 	if(guid2 == null_guid)
 	{
-		plog("ERROR: Unexpected null GUID for slot: " << num2 << "{" << katina.get_line_number() << "}");
+		plog("ERROR: null guid: {" << katina.get_line_number() << "}");
 		return true;
 	}
 
@@ -514,14 +573,16 @@ bool KatinaPluginStats::kill(siz min, siz sec, slot num1, slot num2, siz weap)
 
 bool KatinaPluginStats::ctf(siz min, siz sec, slot num, siz team, siz act)
 {
+	trace();
+
 	if(!in_game)
 		return true;
 
 	// Remember who is carrying the flag
 	if(team == TEAM_R)
-		carrierRed = act == 0 ? num : slot::bad;
+		carrierRed = act == FL_TAKEN ? num : slot::bad;
 	else if(team == TEAM_B)
-		carrierBlue = act == 0 ? num : slot::bad;
+		carrierBlue = act == FL_TAKEN ? num : slot::bad;
 
 	if(!active)
 		return true;
@@ -531,9 +592,9 @@ bool KatinaPluginStats::ctf(siz min, siz sec, slot num, siz team, siz act)
 
 	const GUID& guid = katina.getClientGuid(num);
 
-	if(guid == null_guid)
+	if(num != slot::bad && guid == null_guid)
 	{
-		plog("ERROR: Unexpected null GUID for slot: " << num << "{" << katina.get_line_number() << "}");
+		plog("ERROR: null guid: {" << katina.get_line_number() << "}");
 		return true;
 	}
 
@@ -545,6 +606,8 @@ bool KatinaPluginStats::ctf(siz min, siz sec, slot num, siz team, siz act)
 
 bool KatinaPluginStats::award(siz min, siz sec, slot num, siz awd)
 {
+	trace();
+
 	if(!in_game)
 		return true;
 
@@ -570,6 +633,8 @@ bool KatinaPluginStats::award(siz min, siz sec, slot num, siz awd)
 
 bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 {
+	trace();
+
 	in_game = true;
 
 	if(!active)
@@ -593,6 +658,8 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 
 bool KatinaPluginStats::warmup(siz min, siz sec)
 {
+	trace();
+
 	pbug("WARMUP");
 	in_game = false;
 	//stall_clients();
@@ -634,6 +701,8 @@ void KatinaPluginStats::heartbeat(siz min, siz sec)
 // mod_katina >= 0.1-beta
 bool KatinaPluginStats::speed(siz min, siz sec, slot num, siz dist, siz time, bool has_flag)
 {
+	trace();
+
 	if(!in_game)
 		return true;
 
@@ -649,7 +718,7 @@ bool KatinaPluginStats::speed(siz min, siz sec, slot num, siz dist, siz time, bo
 
 	if(guid == null_guid)
 	{
-		plog("ERROR: Unexpected null GUID");
+		plog("ERROR: null guid: {" << katina.get_line_number() << "}");
 		return true;
 	}
 
@@ -671,6 +740,8 @@ bool KatinaPluginStats::speed(siz min, siz sec, slot num, siz dist, siz time, bo
 
 bool KatinaPluginStats::weapon_usage(siz min, siz sec, slot num, siz weapon, siz shots)
 {
+	trace();
+
 	if(!in_game)
 		return true;
 
@@ -696,6 +767,8 @@ bool KatinaPluginStats::weapon_usage(siz min, siz sec, slot num, siz weapon, siz
 
 bool KatinaPluginStats::mod_damage(siz min, siz sec, slot num, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv, float weightedHits)
 {
+	trace();
+
 	if(!in_game)
 		return true;
 
@@ -709,7 +782,7 @@ bool KatinaPluginStats::mod_damage(siz min, siz sec, slot num, siz mod, siz hits
 
 	if(guid == null_guid)
 	{
-		plog("ERROR: Unexpected null GUID");
+		plog("ERROR: null guid: {" << katina.get_line_number() << "}");
 		return true;
 	}
 
@@ -729,6 +802,8 @@ bool KatinaPluginStats::player_stats(siz min, siz sec, slot num,
 	siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
 	siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged)
 {
+	trace();
+
 	if(!in_game)
 		return true;
 
@@ -742,7 +817,7 @@ bool KatinaPluginStats::player_stats(siz min, siz sec, slot num,
 
 	if(guid == null_guid)
 	{
-		plog("ERROR: Unexpected null GUID");
+		plog("ERROR: null guid: {" << katina.get_line_number() << "}");
 		return true;
 	}
 
@@ -766,11 +841,15 @@ bool KatinaPluginStats::player_stats(siz min, siz sec, slot num,
 
 bool KatinaPluginStats::sayteam(siz min, siz sec, const GUID& guid, const str& text)
 {
+	trace();
+
 	return say(min, sec, guid, text);
 }
 
 bool KatinaPluginStats::check_slot(slot num)
 {
+	trace();
+
 	if(clients.find(num) == clients.end())
 	{
 		plog("WARN: Unknown client number: " << num);
@@ -782,6 +861,8 @@ bool KatinaPluginStats::check_slot(slot num)
 
 bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 {
+	trace();
+
 	if(!active)
 		return true;
 
@@ -936,6 +1017,8 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 
 str KatinaPluginStats::api(const str& cmd, void* blob)
 {
+	trace();
+
 	bug("API CALL: " << cmd);
 	siss iss(cmd);
 	str c;
@@ -961,6 +1044,8 @@ str KatinaPluginStats::api(const str& cmd, void* blob)
 
 siz KatinaPluginStats::get_skill(const GUID& guid, const str& mapname)
 {
+	trace();
+
 	static str stats;
 	static siz skill;
 	static siz skill_c;
@@ -982,7 +1067,7 @@ siz KatinaPluginStats::get_skill(const GUID& guid, const str& mapname)
 
 void KatinaPluginStats::close()
 {
-
+	trace();
 }
 
 // StatsDatabase
@@ -1149,7 +1234,7 @@ bool StatsDatabase::add_player(const std::time_t timet, const GUID& guid, const 
 
 	soss oss;
 	oss << "insert into `player` (`guid`,`name`,`date`) values ('" << guid << "','" << safe_name
-		<< "','" << timestamp + "') ON DUPLICATE KEY UPDATE count = count + 1";
+		<< "','" << timestamp << "') ON DUPLICATE KEY UPDATE count = count + 1, `date` = '" << timestamp << "'";
 
 	str sql = oss.str();
 

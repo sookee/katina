@@ -1,5 +1,5 @@
-#ifndef _SOOKEE_RAD_PARSER_H_
-#define _SOOKEE_RAD_PARSER_H_
+#ifndef LIBSOOKEE_RAD_PARSER_H_
+#define LIBSOOKEE_RAD_PARSER_H_
 /**
  * RAD PARSER = Rapid And Dangerous Parser
  */
@@ -283,4 +283,4 @@ struct m
 
 }} // sookee::rad
 
-#endif // _SOOKEE_RAD_PARSER_H_
+#endif // LIBSOOKEE_RAD_PARSER_H_

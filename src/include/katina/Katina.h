@@ -10,7 +10,7 @@
  */
 
 /*-----------------------------------------------------------------.
-| Copyright (C) 2013 SooKee oasookee@gmail.com               |
+| Copyright (C) 2013 SooKee oasookee@gmail.com                     |
 '------------------------------------------------------------------'
 
 This program is free software; you can redistribute it and/or
@@ -213,8 +213,10 @@ private:
 	event_map events; // event -> plugin_lst
 	cvar_map_map vars; // plugin* -> {name -> cvar*}
 
-	GUID guid_from_name(const str& name);
-	GUID extract_name(const str& line);//, str& text);
+	slot slot_from_name(const str& name);
+	slot extract_num(const str& line);
+//	GUID guid_from_name(const str& name);
+//	GUID extract_name(const str& line);//, str& text);
     
 	bool load_config(const str& dir, const str& file, property_map& props);
     bool init_pki();
@@ -240,6 +242,7 @@ private:
 	slot_guid_map clients; // slot -> GUID // cleared when players disconnect and on game_begin()
 	guid_str_map players; // GUID -> name  // cleard before game_begin()
 	guid_siz_map teams; // GUID -> 0,1,2,3 // cleared when players disconnect and on game_begin()
+    std::array<str, MAX_CLIENTS> names;
 
 	const static siz BUFFSIZE = 1024; // log buffer size
 
@@ -299,6 +302,8 @@ private:
 	EVT_PARSE_INFO(Item);
 	EVT_PARSE_INFO(Info);
 	EVT_PARSE_INFO(InitGame);
+
+	EVT_PARSE_INFO(KatinaFlags);
 
 	EVT_PARSE_INFO(red) - 1;
 
@@ -376,7 +381,8 @@ public:
 	siz logmode;
 	std::time_t now;
 
-	str mod_katina; // server enhancements
+	str mod_katina; // server enhancements version
+	siz mod_katina_flags = 0; // server enhancement configuration
 
 	const str& get_runmode() const { return runmode; }
 	bool is_live() const { return live; }

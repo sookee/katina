@@ -14,6 +14,8 @@ REVISION_FLAGS = -D REVISION=\"$(REVISION)\"
 
 MYSQL_INCL = $(shell mysql_config --include)
 MYSQL_LIBS = $(shell mysql_config --libs)
+SQLITE_INCL = $(shell pkg-config sqlite3 --cflags)
+SQLITE_INCL = $(shell pkg-config sqlite3 --libs) -lvsqlitepp
 
 LIBGCRYPT_FLAGS = $(shell libgcrypt-config --cflags)
 LIBGCRYPT_LIBS = $(shell libgcrypt-config --libs)

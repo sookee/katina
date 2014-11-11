@@ -129,6 +129,16 @@ public:
     virtual bool client_switch_team(siz min, siz sec, slot num, siz teamBefore, siz teamNow) { return true; }
 	virtual bool kill(siz min, siz sec, slot num1, slot num2, siz weap) { return true; }
 	virtual bool push(siz min, siz sec, slot num1, slot num2) { return true; }
+
+	/**
+	 *
+	 * @param min
+	 * @param sec
+	 * @param num slot::bad = flag returned after timaout
+	 * @param team
+	 * @param act
+	 * @return
+	 */
 	virtual bool ctf(siz min, siz sec, slot num, siz team, siz act) { return true; }
 	
 	/**

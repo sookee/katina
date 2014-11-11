@@ -50,14 +50,11 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include <katina/radp.h>
 
-#ifndef REVISION
-#define REVISION unset
-#endif
-
 #define ID "katina"
 
 //#define QUOTE(x) #x
-#define REV QUOTE(REVISION)
+//#define REV QUOTE(REVISION)
+//#define REV QUOTE(REVISION)
 
 namespace katina {
 
@@ -70,11 +67,9 @@ using namespace katina::string;
 
 using namespace sookee::radp;
 
-const str version = "0.2";
-const str tag = "dev";
-const str revision = REV;
-
-//char Katina::line_data[BUFFSIZE];
+static const str version = "0.3";
+static const str tag = QUOTE(DEV);
+static const str revision = QUOTE(REVISION);
 
 siz Katina::getTeam(slot client) const
 {
@@ -185,30 +180,88 @@ bool Katina::rconset(const str& cvar, str& val)
 	return true;
 }
 
-GUID Katina::guid_from_name(const str& name)
+//GUID Katina::guid_from_name(const str& name)
+//{
+////	bug("XX LOOKING FOR: " << name);
+//	for(guid_str_map_iter i = players.begin(); i != players.end(); ++i)
+//	{
+////		if(i->second == name && std::find_if(clients.begin(), clients.end()
+////			, [&](const slot_guid_map_vt& vt){ return vt.second == i->first; }) != clients.end())
+//		if(i->second == name)
+//			return i->first;
+//	}
+//	TYPEDEF_VEC(GUID, guid_vec);
+//	guid_vec guids;
+//	for(const auto& p: players)
+//		if(p.second == name)
+//			guids.push_back(p.first);
+//
+//	if(guids.empty())
+//		return null_guid;
+//
+//	if(guids.size() > 1)
+//	{
+//		log("ERROR: " << std::to_string(guids.size()) << " GUIDs match name: " << name << " finding connected one");
+//
+//		guid_vec cons;
+//
+//		for(const auto& guid: guids)
+//			if(std::find_if(clients.begin(), clients.end(),
+//				[&](const slot_guid_map_vt& vt)
+//				{
+//					return vt.second == guid;
+//				}) != clients.end())
+//				cons.push_back(guid);
+//
+//		if(cons.empty())
+//			log("ERROR: None are connected, returning first: " << guids[0]);
+//		else if(cons.size() > 1)
+//			log("ERROR: " << std::to_string(cons.size()) << " are connected, returning first: " << guids[0]);
+//		return guids[0];
+//	}
+//
+//	return null_guid;
+//}
+
+slot Katina::slot_from_name(const str& name)
 {
-//	bug("XX LOOKING FOR: " << name);
-	for(guid_str_map_iter i = players.begin(); i != players.end(); ++i)
-	{
-//		bug("XX CHECKING: " << i->second);
-		if(i->second == name)
-			return i->first;
-	}
-	return null_guid;
+	for(siz i = 0; i < names.size(); ++i)
+		if(names[i] == name)
+			return slot(i);
+	return slot::bad;
 }
 
-GUID Katina::extract_name(const str& line)//, str& text)
+slot Katina::extract_num(const str& line)
 {
+	slot num;
 	for(siz pos = 0; (pos = line.find(": ", pos)) != str::npos; pos += 2)
 	{
-		GUID guid = guid_from_name(line.substr(0, pos));
-		if(guid == null_guid)
+		if((num = slot_from_name(line.substr(0, pos))) == slot::bad)
 			continue;
-		//text = line.substr(pos + 2);
-		return guid;
+
+		if(!clients.count(num))
+			continue;
+
+		return num;
 	}
-	return null_guid;
+	return slot::bad;
 }
+
+//GUID Katina::extract_name(const str& line)//, str& text)
+//{
+//	slot num;
+//	for(siz pos = 0; (pos = line.find(": ", pos)) != str::npos; pos += 2)
+//	{
+//		if((num = slot_from_name(line.substr(0, pos))) == slot::bad)
+//			continue;
+//
+//		if(!clients.count(num))
+//			continue;
+//
+//		return clients[num];
+//	}
+//	return null_guid;
+//}
 
 bool Katina::load_plugin(const str& file)
 {
@@ -404,9 +457,6 @@ bool Katina::chat_to(const str& name, const str& text)
 
 bool Katina::is_admin(const GUID& guid)
 {
-//	bug_func();
-//	bug_var(guid);
-//	bug_var(getPlayerName(guid));
 	str_vec admins = get_vec("admin.guid");
 	for(str_vec_iter i = admins.begin(); i != admins.end(); ++i)
 		if(guid == GUID(*i))
@@ -414,8 +464,6 @@ bool Katina::is_admin(const GUID& guid)
 
 	// now try admin.dat file
 	str admin_dat = get_exp("admin.dat.file");
-
-//	bug("check: " << admin_dat);
 
 	if(admin_dat.empty())
 		return false;
@@ -444,7 +492,7 @@ bool Katina::is_admin(const GUID& guid)
 			log("ERROR: parsing [admin]: " << keep);
 			continue;
 		}
-//		bug("sub: line: " << line);
+
 		if(trim(line).size() == 32 && guid == GUID(line))
 			return true;
 	}
@@ -1126,10 +1174,10 @@ bool Katina::read_backlog(const str& logname, std::ios::streampos pos)
 			siz team;
 			if(!(sgl(sgl(sgl(iss >> num, skip, '\\'), name, '\\'), skip, '\\') >> team))
 				nlog("Error parsing ClientUserinfoChanged: "  << params);
+			else if(trim_copy(name).empty())
+				nlog("ERROR: name is empty: " << params);
 			else if(num >= slot::max)
-			{
 				nlog("ERROR: Client num too high: " << num);
-			}
 			else
 			{
 				siz pos = line_data_s.find("\\id\\");
@@ -1276,10 +1324,10 @@ bool Katina::start(const str& dir)
 
 	load_plugins();
 
-	std::ios::openmode mode = std::ios::in|std::ios::ate;
+	std::ios::openmode mode = std::ios::in | std::ios::ate;
 
-	if(rerun)
-		mode = std::ios::in;
+//	if(rerun)
+//		mode = std::ios::in;
 
 	log("Opening logfile (" << runmode << "): " << get("logfile"));
 
@@ -1303,6 +1351,11 @@ bool Katina::start(const str& dir)
 			log("WARN: Logfile not found: " << get("logfile"));
 			continue;
 		}
+
+		const std::ios::streampos rerun_end = ifs.tellg();
+
+		if(rerun)
+			ifs.seekg(0);
 
 		std::istream& is = ifs;
 		std::ios::streampos gpos = is.tellg();
@@ -1363,6 +1416,14 @@ bool Katina::start(const str& dir)
 
 			gpos = is.tellg();
 
+			siz rerun_pc = 0;
+			siz prev_rerun_pc = siz(-1);
+			if(rerun && prev_rerun_pc != (rerun_pc = ((gpos * 100) / rerun_end)))
+			{
+				std::cerr << "\rProgress: " << rerun_pc << "%" << std::flush;
+				prev_rerun_pc = rerun_pc;
+			}
+
 			if(!active)
 				continue;
 
@@ -1388,16 +1449,6 @@ bool Katina::start(const str& dir)
 					nlog("INFO: ClientUserinfoChanged bug detected");
 					str broken = line_data; // second half of ClientUserinfoChanged: params
 					*line_data = 0;
-					if(client_userinfo_bug.min < 100)
-						strcat(line_data, " ");
-					if(client_userinfo_bug.min < 10)
-						strcat(line_data, " ");
-					strcat(line_data, std::to_string(client_userinfo_bug.min).c_str());
-					strcat(line_data, ":");
-					if(client_userinfo_bug.sec < 10)
-						strcat(line_data, "0");
-					strcat(line_data, std::to_string(client_userinfo_bug.sec).c_str());
-					strcat(line_data, " ClientUserinfoChanged: ");
 					strcat(line_data, client_userinfo_bug.params.c_str());
 					strcat(line_data, broken.c_str());
 					nlog("INFO: line_data: " << line_data);
@@ -1483,18 +1534,27 @@ bool Katina::start(const str& dir)
 				// Possible events sorted by frequency
 				// most frequent first
 				// Kill:
+				// KatinaFlags:
 
-				if(events[KILL].empty())
-					break;
-
-				siz weap;
-
-				if(*rsp(param_Kill, num1, num2, weap) != ':')
-					nlog("Error parsing Kill: " << param_Kill);
-				else
+				if((*chk_Kill) == ':')
 				{
-					for(auto plugin: events[KILL])
-						plugin->kill(min, sec, slot(num1), slot(num2), weap);
+					if(events[KILL].empty())
+						break;
+
+					siz weap;
+
+					if(*rsp(param_Kill, num1, num2, weap) != ':')
+						nlog("ERROR: parsing: " << cmd);
+					else
+					{
+						for(auto plugin: events[KILL])
+							plugin->kill(min, sec, slot(num1), slot(num2), weap);
+					}
+				}
+				else if((*chk_KatinaFlags) == ':')
+				{
+					if(*rsp(param_KatinaFlags, mod_katina_flags))
+						nlog("ERROR: parsing: " << cmd);
 				}
 			break;
 
@@ -1569,10 +1629,8 @@ bool Katina::start(const str& dir)
 						nlog("Error parsing ClientBegin: "  << param_ClientBegin);
 					else
 					{
-						{
-							lock_guard lock(mtx);
-							connected[siz(num)] = true;
-						}
+						connected[num] = true;
+
 						for(auto plugin: events[CLIENT_BEGIN])
 							plugin->client_begin(min, sec, slot(num));
 					}
@@ -1583,32 +1641,22 @@ bool Katina::start(const str& dir)
 						nlog("Error parsing ClientConnect: " << param_ClientConnect);
 					else
 					{
-						{
-							lock_guard lock(mtx);
-							connected[num] = true;
-						}
+						connected[num] = true;
+
 						for(auto plugin: events[CLIENT_CONNECT])
 							plugin->client_connect(min, sec, slot(num));
 					}
 				}
 				else if((*chk_ClientDisconnect) == ':')
 				{
-//					bug_var(std::hex << siz(cmd));
-//					bug_var(std::hex << siz(chk_ClientDisconnect));
-//					bug_var(std::hex << siz(param_ClientDisconnect));
-					// ClientConnectInfo: 3 AD81D07EF6BF8CA3ED4DD684216C5E35 58.166.97.73 [Katina.cpp] (1598)
-
-					// Error parsing ClientDisconnect: 12 6764DC61AE21159AE285F95CADF5051B 93.147.158.91
 					if(*rsp(param_ClientDisconnect, num)) // should be zero terminator
-						nlog("Error parsing ClientDisconnect: "  << param_ClientDisconnect);
-					else if(num >= siz(slot::max))
-						nlog("ERROR: Client num too high: " << num);
+						nlog("Error parsing: "  << cmd);
+					else if(num < 0 || num >= MAX_CLIENTS)
+						nlog("ERROR: Client num range: " << num);
 					else
 					{
-						{
-							lock_guard lock(mtx);
-							connected[num] = false;
-						}
+						connected[num] = false;
+
 						const GUID& guid = getClientGuid(slot(num));
 
 						// Sometimes you get 2 ClientDisconnect: events with
@@ -1616,16 +1664,16 @@ bool Katina::start(const str& dir)
 						if(guid == null_guid)
 							break;
 
-						guid.disconnect();
-
-						for(auto plugin: events[CLIENT_DISCONNECT])
-							plugin->client_disconnect(min, sec, slot(num));
-
 						siz teamBefore = teams[guid];
+
 						{
 							lock_guard lock(mtx);
 							teams[guid] = TEAM_U;
+							guid.disconnect();
 						}
+
+						for(auto plugin: events[CLIENT_DISCONNECT])
+							plugin->client_disconnect(min, sec, slot(num));
 
 					   if(teamBefore != TEAM_U && !guid.is_bot())
 						   for(auto plugin: events[CLIENT_SWITCH_TEAM])
@@ -1633,6 +1681,7 @@ bool Katina::start(const str& dir)
 
 						lock_guard lock(mtx);
 						clients.erase(slot(num));
+						// names[num].clear(); // TODO: needed
 					}
 				}
 				else if((*chk_ClientConnectInfo) == ':')
@@ -1647,7 +1696,7 @@ bool Katina::start(const str& dir)
 					// 2 5E68E970866FC20242482AA396BBD43E 81.101.111.32
 					if(*rsp(param_ClientConnectInfo, num, guid, ip)) // null termintor
 						nlog("Error parsing ClientConnectInfo: "  << param_ClientConnectInfo);
-					else if(!is_connected(slot(num)))
+					else if(!connected[num])
 					{
 						// ignore this event until it occurs at a reliable place
 						if(mod_katina == "0.1.1")
@@ -1669,10 +1718,16 @@ bool Katina::start(const str& dir)
 
 					if(*pz(adv(pw(adv(pt(pi(param_ClientUserinfoChanged, num), '\\'), 1), name, '\\'), 3), team) != '\\')
 						nlog("Error parsing ClientUserinfoChanged: " << param_ClientUserinfoChanged);
-					else if(num >= siz(slot::max))
+					else if(trim_copy(name).empty())
+						nlog("ERROR: name empty: " << param_ClientUserinfoChanged);
+					else if(num < 0 || num >= MAX_CLIENTS)
 						nlog("ERROR: Client num too high: " << num);
 					else
 					{
+						{
+							lock_guard lock(mtx);
+							names[num] = name;
+						}
 //						bug("=================================================");
 //						bug("== ClientUserinfoChanged                       ==");
 //						bug("==---------------------------------------------==");
@@ -1685,7 +1740,10 @@ bool Katina::start(const str& dir)
 //						bug_var(pos);
 
 						if(!pos)
-							client_userinfo_bug.set(min, sec, param_ClientUserinfoChanged);
+						{
+							log("WARN: possible client_userinfo_bug: " << cmd);
+							client_userinfo_bug.set(min, sec, line_data);
+						}
 						else
 						{
 							str id;
@@ -1700,6 +1758,11 @@ bool Katina::start(const str& dir)
 								guid = GUID(id.substr(24));
 
 //							bug_var(guid);
+							if(!guid)
+							{
+								nlog("ERROR: bad guid: " << param_ClientUserinfoChanged);
+								break;
+							}
 
 							siz hc = 100;
 							if(!(pos = fnd(param_ClientUserinfoChanged, "\\hc\\")))
@@ -1717,11 +1780,28 @@ bool Katina::start(const str& dir)
 							{
 								lock_guard lock(mtx);
 								teamBefore = teams[guid];
+
+//								auto f = clients.find(slot(num));
+//								if(f != clients.end())
+//								{
+//									players.erase(f->second);
+//									teams.erase(f->second);
+//								}
+
 								clients[slot(num)] = guid;
 //								bug("XX ADDING PLAYER: " << name);
 								players[guid] = name;
 								teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
 							}
+
+							// Sanity check
+							siz count = 0;
+							for(const auto& p: players)
+								if(p.second == name)
+									++count;
+
+							if(count > 1)
+								log("WARN: adding duplicate name to players: [" << guid << "] " << name);
 
 							for(auto plugin: events[CLIENT_USERINFO_CHANGED])
 								plugin->client_userinfo_changed(min, sec, slot(num), team, guid, name, hc);
@@ -1824,18 +1904,19 @@ bool Katina::start(const str& dir)
 				// most frequent first
 				// chat:
 				// Error parsing client: INFO^1: ^5Use ^3?help ^5to get help on the new features
+				//   4:08 chat: ^3INFO^1: ^5If you ^1love ^5a map, say ^3!love map ^5to keep it in the rotation
 				if((*chk_chat) == ':')
-				{
-					if(*rsp(param_chat, num) != ':')
-					{
-						client = slot::bad;
-						nlog("Error parsing client: " << param_chat);
-					}
-				}
-				else if((*chk_client) == ':')
 				{
 					for(auto plugin: events[CHAT])
 						plugin->chat(min, sec, param_chat);
+				}
+				else if((*chk_client) == ':')
+				{
+					if(*rsp(param_client, num) != ':')
+					{
+						client = slot::bad;
+						nlog("Error parsing client: " << param_client);
+					}
 				}
 			break;
 
@@ -1848,30 +1929,61 @@ bool Katina::start(const str& dir)
 
 				if((*chk_say) == ':')
 				{
+					rad param_text = 0;
 //					on_scoper on;
 					// say: ^1B^7lood^1y ^0[^1B^7o^1y^0]: :-)
-					GUID guid = client == slot::bad ? extract_name(param_say) : getClientGuid(client);
-					client = slot::bad;
-
-					if(guid == null_guid)
-						nlog("ERROR: Unable to locate GUID when parsing say: " << param_say);
-					else
+					if(mod_katina_flags & KATINA_SAY & KATINA_MACHINE_ONLY)
 					{
-						const str& name = getPlayerName(guid);
-
-						if(name.empty())
-							nlog("ERROR: Unable to locate name when parsing say: " << param_say);
+						// say: 5: text
+						if(*(iss = rsp(param_say, num)) != ':')
+							nlog("ERROR: parsing: " << cmd);
 						else
 						{
-							str text(param_say + name.size() + 2);
+							param_text = iss + 2;
+						}
+					}
+					else if(mod_katina_flags & KATINA_SAY)
+					{
+						// say: 5 8 Gurtrude: text
+						siz length;
 
-							if(!text.find("!katina"))
-								builtin_command(guid, text);
-							else
-							{
-								for(auto plugin: events[SAY])
-									plugin->say(min, sec, guid, text);
-							}
+						if((iss = rsp(param_say, num, length)) == param_say)
+							nlog("ERROR: parsing: " << cmd);
+						else if((*(iss = iss + 1 + length)) != ':')
+							nlog("ERROR: parsing: " << cmd);
+						else
+						{
+							param_text = iss + 2;
+						}
+					}
+					else
+					{
+						if((num = siz(extract_num(param_say))) == siz(slot::bad))
+							nlog("ERROR: Unable to locate slot when parsing say: " << param_say);
+						else
+						{
+							param_text = param_say + names[num].size() + 2;
+						}
+					}
+
+					if(param_text)
+					{
+						const GUID& guid = getClientGuid(slot(num));
+
+						if(guid == null_guid)
+						{
+							nlog("ERROR: null guid for slot: " << num);
+							break;
+						}
+
+						str text = param_text;
+
+						if(!text.find("!katina"))
+							builtin_command(guid, text);
+						else
+						{
+							for(auto plugin: events[SAY])
+								plugin->say(min, sec, guid, text);
 						}
 					}
 				}
@@ -1894,28 +2006,29 @@ bool Katina::start(const str& dir)
 				}
 				else if((*chk_sayteam) == ':')
 				{
-					if(events[SAYTEAM].empty())
-						continue;
-
-					GUID guid = (client == slot::bad) ? extract_name(param_sayteam) : getClientGuid(client);
-					client = slot::bad;
-
-					if(guid == null_guid)
-						nlog("ERROR: Unable to locate GUID when parsing sayteam: " << line_data);
-					else
-					{
-						const str& name = getPlayerName(guid);
-
-						if(name.empty())
-							nlog("ERROR: Unable to locate name when parsing say: " << param_sayteam);
-						else
-						{
-							str text(param_sayteam + name.size() + 2);
-
-							for(auto plugin: events[SAYTEAM])
-								plugin->say(min, sec, guid, text);
-						}
-					}
+					// TODO: implement this
+//					if(events[SAYTEAM].empty())
+//						continue;
+//
+//					GUID guid = (client == slot::bad) ? extract_name(param_sayteam) : getClientGuid(client);
+//					client = slot::bad;
+//
+//					if(guid == null_guid)
+//						nlog("ERROR: Unable to locate GUID when parsing sayteam: " << line_data);
+//					else
+//					{
+//						const str& name = getPlayerName(guid);
+//
+//						if(name.empty())
+//							nlog("ERROR: Unable to locate name when parsing say: " << param_sayteam);
+//						else
+//						{
+//							str text(param_sayteam + name.size() + 2);
+//
+//							for(auto plugin: events[SAYTEAM])
+//								plugin->say(min, sec, guid, text);
+//						}
+//					}
 				}
 			break;
 

@@ -17,7 +17,6 @@ CREATE  TABLE IF NOT EXISTS `awards` (
 ENGINE = MyISAM
 DEFAULT CHARACTER SET = utf8;
 
-
 -- -----------------------------------------------------
 -- Table `caps`
 -- -----------------------------------------------------
@@ -29,7 +28,6 @@ CREATE  TABLE IF NOT EXISTS `caps` (
   PRIMARY KEY (`game_id`, `guid`) )
 ENGINE = MyISAM
 DEFAULT CHARACTER SET = utf8;
-
 
 -- -----------------------------------------------------
 -- Table `damage`
@@ -60,7 +58,6 @@ CREATE  TABLE IF NOT EXISTS `deaths` (
 ENGINE = MyISAM
 DEFAULT CHARACTER SET = utf8;
 
-
 -- -----------------------------------------------------
 -- Table `game`
 -- -----------------------------------------------------
@@ -75,7 +72,6 @@ CREATE  TABLE IF NOT EXISTS `game` (
 ENGINE = MyISAM
 DEFAULT CHARACTER SET = utf8;
 
-
 -- -----------------------------------------------------
 -- Table `kills`
 -- -----------------------------------------------------
@@ -88,7 +84,6 @@ CREATE  TABLE IF NOT EXISTS `kills` (
   PRIMARY KEY (`game_id`, `guid`, `weap`) )
 ENGINE = MyISAM
 DEFAULT CHARACTER SET = utf8;
-
 
 -- -----------------------------------------------------
 -- Table `ovo`
@@ -103,7 +98,6 @@ CREATE  TABLE IF NOT EXISTS `ovo` (
 ENGINE = MyISAM
 DEFAULT CHARACTER SET = utf8;
 
-
 -- -----------------------------------------------------
 -- Table `player`
 -- -----------------------------------------------------
@@ -116,7 +110,6 @@ CREATE  TABLE IF NOT EXISTS `player` (
   PRIMARY KEY (`guid`, `name`) )
 ENGINE = MyISAM
 DEFAULT CHARACTER SET = utf8;
-
 
 -- -----------------------------------------------------
 -- Table `playerstats`
@@ -257,7 +250,6 @@ CREATE  TABLE IF NOT EXISTS `speed` (
 ENGINE = MyISAM
 DEFAULT CHARACTER SET = utf8;
 
-
 -- -----------------------------------------------------
 -- Table `polls`
 -- -----------------------------------------------------
@@ -272,7 +264,6 @@ CREATE  TABLE IF NOT EXISTS `polls` (
 ENGINE = MyISAM
 DEFAULT CHARACTER SET = utf8;
 
-
 -- -----------------------------------------------------
 -- Table `time`
 -- -----------------------------------------------------
@@ -285,7 +276,6 @@ CREATE  TABLE IF NOT EXISTS `time` (
 ENGINE = MyISAM
 DEFAULT CHARACTER SET = latin1;
 
-
 -- -----------------------------------------------------
 -- Table `user`
 -- -----------------------------------------------------
@@ -296,7 +286,6 @@ CREATE  TABLE IF NOT EXISTS `user` (
   PRIMARY KEY (`guid`) )
 ENGINE = MyISAM
 DEFAULT CHARACTER SET = utf8;
-
 
 -- -----------------------------------------------------
 -- Table `version`
@@ -321,7 +310,6 @@ CREATE  TABLE IF NOT EXISTS `votes` (
   PRIMARY KEY (`type`, `item`, `guid`) )
 ENGINE = MyISAM
 DEFAULT CHARACTER SET = utf8;
-
 
 -- -----------------------------------------------------
 -- Table `weapon_usage`

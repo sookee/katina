@@ -101,16 +101,15 @@ inline void log_out(sss& s)//, int mode = NOCHANGE)
 //struct off_scoper { bool a = false; off_scoper() { a = log_off(); } ~off_scoper() { if(a) log_on(); } };
 
 #ifndef TRACE
-#define trace
+#define trace()
 #else
-#define trace do{std::cout << __FILE__ << ":" << __LINE__ << ":0 trace:";}while(0)
+#define trace() do{sss __s;__s << "trace: " << "[" << std::this_thread::get_id() << "] " << katina::log::_fixfunc(__PRETTY_FUNCTION__) << ": " << __LINE__ << std::endl;katina::log::log_out(__s);}while(0)
 #endif
 //../../src/RemoteClient.cpp:238:2: error: expected ‘}’ at end of input
 #ifndef DEBUG
 #define bug(m)
 #define bug_var(v)
 #define bug_func()
-#define con(m) do{std::cout << m << std::endl;}while(0)
 #define log(m) do{sss __s;__s << katina::log::get_stamp() << ": " << m << std::endl;katina::log::log_out(__s);}while(0)
 #define nlog(m) do{sss __s;__s << katina::log::get_stamp() << ": " << m << " {" << line_number << "}" << std::endl;katina::log::log_out(__s);}while(0)
 #else
@@ -156,11 +155,12 @@ struct _
 	}
 };
 #define bug_func() katina::log::_ __(__PRETTY_FUNCTION__, __FILE__)
-#define con(m) do{std::cout << m << " [" << _fixfile(__FILE__) << "]" << " (" << __LINE__ << ")" << std::endl;}while(false)
 #define log(m) do{sss __s;__s << katina::log::get_stamp() << ": " << m << " [" << _fixfile(__FILE__) << "]" << " (" << __LINE__ << ")" << std::endl;katina::log::log_out(__s);}while(false)
 #define nlog(m) do{sss __s;__s << katina::log::get_stamp() << ": " << m << " {" << line_number << "}" << " [" << _fixfile(__FILE__) << "]" << " (" << __LINE__ << ")" << std::endl;katina::log::log_out(__s);}while(false)
 #endif
 
+#define con(m) do{std::cout << m << std::endl;}while(0)
+#define err(m) do{std::cerr << m << std::endl;}while(0)
 
 //#define trace(m)
 //#define trace(m) bug("TRACE: " << m << ": " << __LINE__)

@@ -1,0 +1,2746 @@
+  0:00 ------------------------------------------------------------
+  0:00 InitGame: \sv_hostname\^4Z^5imsNEW ^1I^3nstantgib\sv_minRate\2500\sv_maxRate\25000\sv_minPing\0\sv_maxPing\0\sv_floodProtect\1\sv_dlURL\http://openmafia.org/~zimmer/insta\dmflags\512\fraglimit\15\timelimit\20\sv_maxclients\20\sv_dlRate\100\sv_fps\20\sv_allowDownload\1\bot_minplayers\1\g_needpass\0\g_delagHitscan\1\videoflags\0\g_maxGameClients\20\g_doWarmup\1\g_allowVote\0\capturelimit\8\g_allowSpectatorVote\0\elimination_roundtime\120\g_lms_mode\0\version\ioq3+oa 1.36+0.8.8 linux-x86_64-debug May 30 2014\com_gamename\Quake3Arena\com_protocol\71\g_gametype\4\mapname\wtf14\sv_privateClients\2\_Admin\Zimmer106|Pixelized|SooKee|wing|dev/gamepad|L\_Email\drremmiz@gmail.com\_Location\Nuremberg\_Website\http://zimmersservers.tk/\snaps\20\g_instantgib\2\gamename\baseoa\voteflags\279\g_rockets\0\g_timestamp\2014-06-01 04:36:52\mod_katina\0.1-beta
+  0:00 Info: ServerInfo length: 840 of 1024
+  0:00 Warmup:
+  0:00 ClientUserinfoChanged: 2 n\^1S^2oo^3K^5ee^4|^7AFK\t\3\model\sarge/default\hmodel\sarge/default\g_redteam\\g_blueteam\\c1\5\c2\5\hc\100\w\0\l\0\tt\0\tl\0\id\5E68E970866FC20242482AA396BBD43E
+  0:00 ClientConnect: 2
+  0:00 ClientUserinfoChanged: 3 n\Taco\t\3\model\sarge/indigo\hmodel\sarge/indigo\g_redteam\\g_blueteam\\c1\5\c2\5\hc\100\w\0\l\0\tt\0\tl\0\id\497B7EBB32B9B5DAFE77747CC2AFC6A9
+  0:00 ClientConnect: 3
+  0:00 ClientUserinfoChanged: 7 n\Headcrash\t\2\model\beret/headcrash\hmodel\beret/headcrash\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:00 ClientConnect: 7
+  0:00 Info: There has been at least 1 bot now
+  0:00 Playerstore: Failed to restore player. Invalid guid: 
+  0:00 ClientBegin: 7
+  0:00 ClientUserinfoChanged: 8 n\Angelyss\t\1\model\angelyss\hmodel\angelyss\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\6\tl\0\id\
+  0:00 ClientConnect: 8
+  0:00 Playerstore: Failed to restore player. Invalid guid: 
+  0:00 ClientBegin: 8
+  0:00 ClientUserinfoChanged: 7 n\Headcrash\t\2\model\beret/headcrash\hmodel\beret/headcrash\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  0:01 Speed: 7 319 1 : Client 7 ran 319u in 1s without the flag.
+  0:01 Speed: 8 139 1 : Client 8 ran 139u in 1s without the flag.
+  0:01 ClientDisconnect: 3
+  0:04 ShutdownGame:
+  0:04 ------------------------------------------------------------
+  0:04 ------------------------------------------------------------
+  0:04 InitGame: \sv_hostname\^4Z^5imsNEW ^1I^3nstantgib\sv_minRate\2500\sv_maxRate\25000\sv_minPing\0\sv_maxPing\0\sv_floodProtect\1\sv_dlURL\http://openmafia.org/~zimmer/insta\dmflags\512\fraglimit\15\timelimit\20\sv_maxclients\20\sv_dlRate\100\sv_fps\20\sv_allowDownload\1\bot_minplayers\1\g_needpass\0\g_delagHitscan\1\videoflags\0\g_maxGameClients\20\g_doWarmup\1\g_allowVote\0\capturelimit\8\g_allowSpectatorVote\0\elimination_roundtime\120\g_lms_mode\0\version\ioq3+oa 1.36+0.8.8 linux-x86_64-debug May 30 2014\com_gamename\Quake3Arena\com_protocol\71\g_gametype\4\mapname\wtf14\sv_privateClients\2\_Admin\Zimmer106|Pixelized|SooKee|wing|dev/gamepad|L\_Email\drremmiz@gmail.com\_Location\Nuremberg\_Website\http://zimmersservers.tk/\snaps\20\g_instantgib\2\gamename\baseoa\voteflags\279\g_rockets\0\g_timestamp\2014-06-01 04:36:56\mod_katina\0.1-beta
+  0:04 Info: ServerInfo length: 840 of 1024
+  0:04 ClientUserinfoChanged: 2 n\^1S^2oo^3K^5ee^4|^7AFK\t\3\model\sarge/default\hmodel\sarge/default\g_redteam\\g_blueteam\\c1\5\c2\5\hc\100\w\0\l\0\tt\0\tl\0\id\5E68E970866FC20242482AA396BBD43E
+  0:04 ClientConnect: 2
+  0:04 ClientBegin: 2
+  0:04 ClientUserinfoChanged: 7 n\Headcrash\t\2\model\beret/headcrash\hmodel\beret/headcrash\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  0:04 ClientConnect: 7
+  0:04 Info: There has been at least 1 bot now
+  0:04 Playerstore: Failed to restore player. Invalid guid: 
+  0:04 ClientBegin: 7
+  0:04 ClientUserinfoChanged: 8 n\Angelyss\t\1\model\angelyss\hmodel\angelyss\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\6\tl\0\id\
+  0:04 ClientConnect: 8
+  0:04 Playerstore: Failed to restore player. Invalid guid: 
+  0:04 ClientBegin: 8
+  0:05 ClientUserinfoChanged: 8 n\Angelyss\t\1\model\angelyss\hmodel\angelyss\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\3\tl\0\id\
+  0:05 ClientUserinfoChanged: 7 n\Headcrash\t\2\model\beret/headcrash\hmodel\beret/headcrash\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  0:06 ClientUserinfoChanged: 2 n\^1S^2oo^3K^5ee^4|^7AFK\t\3\model\sarge/default\hmodel\sarge/default\g_redteam\\g_blueteam\\c1\5\c2\5\hc\100\w\0\l\0\tt\0\tl\0\id\5E68E970866FC20242482AA396BBD43E
+  0:10 sayteam: Headcrash: Who's the leader of this rag-tag bunch?
+  0:16 sayteam: Angelyss: who is the leader of this rag-tag bunch?
+  0:20 Kill: 7 8 10: Headcrash killed Angelyss by MOD_RAILGUN
+  0:20 PlayerScore: 7 1: Headcrash now has 1 points
+  0:20 sayteam: Headcrash: I am defending the Blue Flag.
+  0:23 Kill: 7 8 10: Headcrash killed Angelyss by MOD_RAILGUN
+  0:23 PlayerScore: 7 2: Headcrash now has 2 points
+  0:23 Award: 7 2: Headcrash gained the IMPRESSIVE award!
+  0:25 sayteam: Headcrash: I'm the leader.
+  0:30 sayteam: Angelyss: I am the leader.
+  0:38 Kill: 8 7 10: Angelyss killed Headcrash by MOD_RAILGUN
+  0:38 PlayerScore: 8 1: Angelyss now has 1 points
+  0:38 PlayerScore: 8 2: Angelyss now has 2 points
+  0:38 Award: 8 3: Angelyss gained the DEFENCE award!
+  1:35 Kill: 1022 7 22: <world> killed Headcrash by MOD_TRIGGER_HURT
+  1:35 PlayerScore: 7 1: Headcrash now has 1 points
+  1:40 ClientUserinfoChanged: 3 n\Taco\t\3\model\sarge/indigo\hmodel\sarge/indigo\g_redteam\\g_blueteam\\c1\5\c2\5\hc\100\w\0\l\0\tt\0\tl\0\id\497B7EBB32B9B5DAFE77747CC2AFC6A9
+  1:40 ClientConnectInfo: 3 497B7EBB32B9B5DAFE77747CC2AFC6A9 1.1.1.1
+  1:40 ClientConnect: 3
+  1:43 ClientUserinfoChanged: 3 n\Taco\t\3\model\sarge/indigo\hmodel\sarge/indigo\g_redteam\\g_blueteam\\c1\5\c2\5\hc\100\w\0\l\0\tt\0\tl\0\id\497B7EBB32B9B5DAFE77747CC2AFC6A9
+  1:43 ClientUserinfoChanged: 3 n\Taco\t\3\model\sarge/indigo\hmodel\sarge/indigo\g_redteam\\g_blueteam\\c1\5\c2\5\hc\100\w\0\l\0\tt\0\tl\0\id\497B7EBB32B9B5DAFE77747CC2AFC6A9
+  1:43 WeaponUsage: 7 7 4
+  1:43 Speed: 7 1629 6 : Client 7 ran 1629u in 6s without the flag.
+  1:43 WeaponUsage: 8 7 41
+  1:43 MODDamage: 8 10 1 560 0 0 1.000000
+  1:43 MODDamage: 8 19 0 0 7 50 0.000000
+  1:43 Speed: 8 26321 77 : Client 8 ran 26321u in 77s without the flag.
+  1:43 ClientBegin: 3
+  1:53 Kill: 8 7 10: Angelyss killed Headcrash by MOD_RAILGUN
+  1:53 PlayerScore: 8 3: Angelyss now has 3 points
+  2:00 Kill: 1022 8 19: <world> killed Angelyss by MOD_FALLING
+  2:00 PlayerScore: 8 2: Angelyss now has 2 points
+  2:07 ClientUserinfoChanged: 3 n\Taco\t\2\model\sarge/indigo\hmodel\sarge/indigo\g_redteam\\g_blueteam\\c1\2\c2\2\hc\100\w\0\l\0\tt\0\tl\1\id\497B7EBB32B9B5DAFE77747CC2AFC6A9
+  2:07 ClientUserinfoChanged: 3 n\Taco\t\2\model\sarge/indigo\hmodel\sarge/indigo\g_redteam\\g_blueteam\\c1\2\c2\2\hc\100\w\0\l\0\tt\0\tl\1\id\497B7EBB32B9B5DAFE77747CC2AFC6A9
+  2:07 WeaponUsage: 7 7 7
+  2:07 MODDamage: 7 19 0 0 1 5 0.000000
+  2:07 Speed: 7 4203 12 : Client 7 ran 4203u in 12s without the flag.
+  2:07 WeaponUsage: 8 7 3
+  2:07 Speed: 8 1473 5 : Client 8 ran 1473u in 5s without the flag.
+  2:07 Playerstore: Nothing to restore. Guid: 497B7EBB32B9B5DAFE77747CC2AFC6A9
+  2:07 ClientBegin: 3
+  2:10 Speed: 3 261 2 : Client 3 ran 261u in 2s without the flag.
+  2:10 WeaponUsage: 7 7 2
+  2:10 MODDamage: 7 19 0 0 1 10 0.000000
+  2:10 Speed: 7 50 2 : Client 7 ran 50u in 2s without the flag.
+  2:10 WeaponUsage: 8 7 2
+  2:10 Speed: 8 960 2 : Client 8 ran 960u in 2s without the flag.
+  2:10 Kill: 1022 7 20: <world> killed Headcrash by MOD_SUICIDE
+  2:10 PlayerScore: 7 0: Headcrash now has 0 points
+  2:10 Playerstore: Failed to store player. Invalid guid: 
+  2:10 ClientDisconnect: 7
+  2:19 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  2:19 PlayerScore: 3 1: Taco now has 1 points
+  2:19 PlayerScore: 3 2: Taco now has 2 points
+  2:19 Award: 3 3: Taco gained the DEFENCE award!
+  2:24 Kill: 1022 8 22: <world> killed Angelyss by MOD_TRIGGER_HURT
+  2:24 PlayerScore: 8 1: Angelyss now has 1 points
+  2:28 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  2:28 PlayerScore: 3 3: Taco now has 3 points
+  2:28 PlayerScore: 3 4: Taco now has 4 points
+  2:28 Award: 3 3: Taco gained the DEFENCE award!
+  2:28 Award: 3 2: Taco gained the IMPRESSIVE award!
+  2:35 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  2:35 PlayerScore: 3 5: Taco now has 5 points
+  2:35 PlayerScore: 3 6: Taco now has 6 points
+  2:35 Award: 3 3: Taco gained the DEFENCE award!
+  2:41 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  2:41 PlayerScore: 3 7: Taco now has 7 points
+  2:41 PlayerScore: 3 8: Taco now has 8 points
+  2:41 Award: 3 3: Taco gained the DEFENCE award!
+  2:45 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  2:45 PlayerScore: 3 9: Taco now has 9 points
+  2:45 PlayerScore: 3 10: Taco now has 10 points
+  2:45 Award: 3 3: Taco gained the DEFENCE award!
+  2:45 Award: 3 2: Taco gained the IMPRESSIVE award!
+  2:50 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  2:50 PlayerScore: 3 11: Taco now has 11 points
+  2:50 PlayerScore: 3 12: Taco now has 12 points
+  2:50 Award: 3 3: Taco gained the DEFENCE award!
+  2:57 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  2:57 PlayerScore: 3 13: Taco now has 13 points
+  2:57 PlayerScore: 3 14: Taco now has 14 points
+  2:57 Award: 3 3: Taco gained the DEFENCE award!
+  3:01 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  3:01 PlayerScore: 3 15: Taco now has 15 points
+  3:01 PlayerScore: 3 16: Taco now has 16 points
+  3:01 Award: 3 3: Taco gained the DEFENCE award!
+  3:01 Award: 3 2: Taco gained the IMPRESSIVE award!
+  3:07 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  3:07 PlayerScore: 3 17: Taco now has 17 points
+  3:07 PlayerScore: 3 18: Taco now has 18 points
+  3:07 Award: 3 3: Taco gained the DEFENCE award!
+  3:11 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  3:11 PlayerScore: 3 19: Taco now has 19 points
+  3:11 PlayerScore: 3 20: Taco now has 20 points
+  3:11 Award: 3 3: Taco gained the DEFENCE award!
+  3:11 Award: 3 2: Taco gained the IMPRESSIVE award!
+  3:17 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  3:17 PlayerScore: 3 21: Taco now has 21 points
+  3:17 PlayerScore: 3 22: Taco now has 22 points
+  3:17 Award: 3 3: Taco gained the DEFENCE award!
+  3:21 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  3:21 PlayerScore: 3 23: Taco now has 23 points
+  3:21 PlayerScore: 3 24: Taco now has 24 points
+  3:21 Award: 3 3: Taco gained the DEFENCE award!
+  3:21 Award: 3 2: Taco gained the IMPRESSIVE award!
+  3:26 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  3:26 PlayerScore: 3 25: Taco now has 25 points
+  3:26 PlayerScore: 3 26: Taco now has 26 points
+  3:26 Award: 3 3: Taco gained the DEFENCE award!
+  3:29 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  3:29 PlayerScore: 3 27: Taco now has 27 points
+  3:29 PlayerScore: 3 28: Taco now has 28 points
+  3:29 Award: 3 3: Taco gained the DEFENCE award!
+  3:29 Award: 3 2: Taco gained the IMPRESSIVE award!
+  3:38 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  3:38 PlayerScore: 3 29: Taco now has 29 points
+  3:38 PlayerScore: 3 30: Taco now has 30 points
+  3:38 Award: 3 3: Taco gained the DEFENCE award!
+  3:44 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  3:44 PlayerScore: 3 31: Taco now has 31 points
+  3:44 PlayerScore: 3 32: Taco now has 32 points
+  3:44 Award: 3 3: Taco gained the DEFENCE award!
+  3:49 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  3:49 PlayerScore: 3 33: Taco now has 33 points
+  3:49 PlayerScore: 3 34: Taco now has 34 points
+  3:49 Award: 3 3: Taco gained the DEFENCE award!
+  4:01 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  4:01 PlayerScore: 3 35: Taco now has 35 points
+  4:01 PlayerScore: 3 36: Taco now has 36 points
+  4:01 Award: 3 3: Taco gained the DEFENCE award!
+  4:07 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  4:07 PlayerScore: 3 37: Taco now has 37 points
+  4:07 PlayerScore: 3 38: Taco now has 38 points
+  4:07 Award: 3 3: Taco gained the DEFENCE award!
+  4:07 Award: 3 2: Taco gained the IMPRESSIVE award!
+  4:24 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  4:24 PlayerScore: 3 39: Taco now has 39 points
+  4:24 PlayerScore: 3 40: Taco now has 40 points
+  4:24 Award: 3 3: Taco gained the DEFENCE award!
+  4:29 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  4:29 PlayerScore: 3 41: Taco now has 41 points
+  4:29 PlayerScore: 3 42: Taco now has 42 points
+  4:29 Award: 3 3: Taco gained the DEFENCE award!
+  4:29 Award: 3 2: Taco gained the IMPRESSIVE award!
+  4:32 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  4:32 PlayerScore: 3 43: Taco now has 43 points
+  4:32 PlayerScore: 3 44: Taco now has 44 points
+  4:32 Award: 3 3: Taco gained the DEFENCE award!
+  4:38 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  4:38 PlayerScore: 3 45: Taco now has 45 points
+  4:38 PlayerScore: 3 46: Taco now has 46 points
+  4:38 Award: 3 3: Taco gained the DEFENCE award!
+  4:43 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  4:43 PlayerScore: 3 47: Taco now has 47 points
+  4:43 PlayerScore: 3 48: Taco now has 48 points
+  4:43 Award: 3 3: Taco gained the DEFENCE award!
+  4:43 Award: 3 2: Taco gained the IMPRESSIVE award!
+  4:49 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  4:49 PlayerScore: 3 49: Taco now has 49 points
+  4:49 PlayerScore: 3 50: Taco now has 50 points
+  4:49 Award: 3 3: Taco gained the DEFENCE award!
+  4:58 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  4:58 PlayerScore: 3 51: Taco now has 51 points
+  4:58 PlayerScore: 3 52: Taco now has 52 points
+  4:58 Award: 3 3: Taco gained the DEFENCE award!
+  5:01 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  5:01 PlayerScore: 3 53: Taco now has 53 points
+  5:01 PlayerScore: 3 54: Taco now has 54 points
+  5:01 Award: 3 3: Taco gained the DEFENCE award!
+  5:01 Award: 3 2: Taco gained the IMPRESSIVE award!
+  5:04 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  5:04 PlayerScore: 3 55: Taco now has 55 points
+  5:04 PlayerScore: 3 56: Taco now has 56 points
+  5:04 Award: 3 3: Taco gained the DEFENCE award!
+  5:12 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  5:12 PlayerScore: 3 57: Taco now has 57 points
+  5:12 PlayerScore: 3 58: Taco now has 58 points
+  5:12 Award: 3 3: Taco gained the DEFENCE award!
+  5:15 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  5:15 PlayerScore: 3 59: Taco now has 59 points
+  5:15 Award: 3 1: Taco gained the EXCELLENT award!
+  5:15 PlayerScore: 3 60: Taco now has 60 points
+  5:15 Award: 3 3: Taco gained the DEFENCE award!
+  5:15 Award: 3 2: Taco gained the IMPRESSIVE award!
+  5:20 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  5:20 PlayerScore: 3 61: Taco now has 61 points
+  5:20 PlayerScore: 3 62: Taco now has 62 points
+  5:20 Award: 3 3: Taco gained the DEFENCE award!
+  5:23 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  5:23 PlayerScore: 3 63: Taco now has 63 points
+  5:23 Award: 3 1: Taco gained the EXCELLENT award!
+  5:23 PlayerScore: 3 64: Taco now has 64 points
+  5:23 Award: 3 3: Taco gained the DEFENCE award!
+  5:23 Award: 3 2: Taco gained the IMPRESSIVE award!
+  5:34 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  5:34 PlayerScore: 3 65: Taco now has 65 points
+  5:34 PlayerScore: 3 66: Taco now has 66 points
+  5:34 Award: 3 3: Taco gained the DEFENCE award!
+  5:44 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  5:44 PlayerScore: 3 67: Taco now has 67 points
+  5:44 PlayerScore: 3 68: Taco now has 68 points
+  5:44 Award: 3 3: Taco gained the DEFENCE award!
+  5:47 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  5:47 PlayerScore: 3 69: Taco now has 69 points
+  5:47 PlayerScore: 3 70: Taco now has 70 points
+  5:47 Award: 3 3: Taco gained the DEFENCE award!
+  5:47 Award: 3 2: Taco gained the IMPRESSIVE award!
+  5:54 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  5:54 PlayerScore: 3 71: Taco now has 71 points
+  5:54 PlayerScore: 3 72: Taco now has 72 points
+  5:54 Award: 3 3: Taco gained the DEFENCE award!
+  5:58 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  5:58 PlayerScore: 3 73: Taco now has 73 points
+  5:58 PlayerScore: 3 74: Taco now has 74 points
+  5:58 Award: 3 3: Taco gained the DEFENCE award!
+  5:58 Award: 3 2: Taco gained the IMPRESSIVE award!
+  6:01 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  6:01 PlayerScore: 3 75: Taco now has 75 points
+  6:01 PlayerScore: 3 76: Taco now has 76 points
+  6:01 Award: 3 3: Taco gained the DEFENCE award!
+  6:05 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  6:05 PlayerScore: 3 77: Taco now has 77 points
+  6:05 PlayerScore: 3 78: Taco now has 78 points
+  6:05 Award: 3 3: Taco gained the DEFENCE award!
+  6:05 Award: 3 2: Taco gained the IMPRESSIVE award!
+  6:15 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  6:15 PlayerScore: 3 79: Taco now has 79 points
+  6:15 PlayerScore: 3 80: Taco now has 80 points
+  6:15 Award: 3 3: Taco gained the DEFENCE award!
+  6:20 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  6:20 PlayerScore: 3 81: Taco now has 81 points
+  6:20 PlayerScore: 3 82: Taco now has 82 points
+  6:20 Award: 3 3: Taco gained the DEFENCE award!
+  6:20 Award: 3 2: Taco gained the IMPRESSIVE award!
+  6:25 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  6:25 PlayerScore: 3 83: Taco now has 83 points
+  6:25 PlayerScore: 3 84: Taco now has 84 points
+  6:25 Award: 3 3: Taco gained the DEFENCE award!
+  6:39 Kill: 8 3 10: Angelyss killed Taco by MOD_RAILGUN
+  6:39 PlayerScore: 8 2: Angelyss now has 2 points
+  6:39 PlayerScore: 8 3: Angelyss now has 3 points
+  6:39 Award: 8 3: Angelyss gained the DEFENCE award!
+  6:45 Kill: 1022 8 22: <world> killed Angelyss by MOD_TRIGGER_HURT
+  6:45 PlayerScore: 8 2: Angelyss now has 2 points
+  6:51 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  6:51 PlayerScore: 3 85: Taco now has 85 points
+  6:54 Item: 3 team_CTF_redflag
+  6:54 CTF: 3 1 0: Taco got the RED flag!
+  6:54 PlayerScore: 3 85: Taco now has 85 points
+  6:55 ClientUserinfoChanged: 8 n\Angelyss\t\1\model\angelyss\hmodel\angelyss\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  7:01 Kill: 1022 3 22: <world> killed Taco by MOD_TRIGGER_HURT
+  7:01 PlayerScore: 3 84: Taco now has 84 points
+  7:09 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  7:09 PlayerScore: 3 85: Taco now has 85 points
+  7:09 PlayerScore: 3 86: Taco now has 86 points
+  7:09 Award: 3 3: Taco gained the DEFENCE award!
+  7:26 Item: 3 team_CTF_redflag
+  7:26 CTF: 3 1 0: Taco got the RED flag!
+  7:26 PlayerScore: 3 86: Taco now has 86 points
+  7:29 Kill: 8 3 10: Angelyss killed Taco by MOD_RAILGUN
+  7:29 PlayerScore: 8 3: Angelyss now has 3 points
+  7:29 PlayerScore: 8 5: Angelyss now has 5 points
+  7:29 CTF: 8 2 3: Angelyss fragged BLUE's flag carrier!
+  7:39 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  7:39 PlayerScore: 3 87: Taco now has 87 points
+  7:43 Kill: 8 3 10: Angelyss killed Taco by MOD_RAILGUN
+  7:43 PlayerScore: 8 6: Angelyss now has 6 points
+  7:43 PlayerScore: 8 7: Angelyss now has 7 points
+  7:43 Award: 8 3: Angelyss gained the DEFENCE award!
+  7:44 Item: 8 team_CTF_redflag
+  7:44 PlayerScore: 8 8: Angelyss now has 8 points
+  7:44 CTF: 8 1 2: Angelyss returned the RED flag!
+  7:48 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  7:48 PlayerScore: 3 88: Taco now has 88 points
+  7:48 PlayerScore: 3 89: Taco now has 89 points
+  7:48 Award: 3 3: Taco gained the DEFENCE award!
+  8:04 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  8:04 PlayerScore: 3 90: Taco now has 90 points
+  8:04 PlayerScore: 3 91: Taco now has 91 points
+  8:04 Award: 3 3: Taco gained the DEFENCE award!
+  8:05 Item: 3 team_CTF_redflag
+  8:05 CTF: 3 1 0: Taco got the RED flag!
+  8:05 PlayerScore: 3 91: Taco now has 91 points
+  8:10 chat: ^3INFO^1: ^5Use ^3?help ^5to get help on the new features
+  8:18 Item: 3 team_CTF_blueflag
+  8:18 CTF: 3 1 1: Taco captured the RED flag!
+  8:18 Award: 3 4: Taco gained the CAPTURE award!
+  8:18 PlayerScore: 3 96: Taco now has 96 points
+  8:23 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  8:23 PlayerScore: 3 97: Taco now has 97 points
+  8:32 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  8:32 PlayerScore: 3 98: Taco now has 98 points
+  8:39 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  8:39 PlayerScore: 3 99: Taco now has 99 points
+  8:43 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  8:43 PlayerScore: 3 100: Taco now has 100 points
+  8:43 Award: 3 2: Taco gained the IMPRESSIVE award!
+  8:52 Item: 3 team_CTF_redflag
+  8:52 CTF: 3 1 0: Taco got the RED flag!
+  8:52 PlayerScore: 3 100: Taco now has 100 points
+  8:58 Kill: 8 3 10: Angelyss killed Taco by MOD_RAILGUN
+  8:58 PlayerScore: 8 9: Angelyss now has 9 points
+  8:58 PlayerScore: 8 11: Angelyss now has 11 points
+  8:58 CTF: 8 2 3: Angelyss fragged BLUE's flag carrier!
+  9:06 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  9:06 PlayerScore: 3 101: Taco now has 101 points
+  9:14 Item: 3 team_CTF_redflag
+  9:14 CTF: 3 1 0: Taco got the RED flag!
+  9:14 PlayerScore: 3 101: Taco now has 101 points
+  9:19 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  9:19 PlayerScore: 3 102: Taco now has 102 points
+  9:30 Item: 3 team_CTF_blueflag
+  9:30 CTF: 3 1 1: Taco captured the RED flag!
+  9:30 Award: 3 4: Taco gained the CAPTURE award!
+  9:30 PlayerScore: 3 107: Taco now has 107 points
+  9:33 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  9:33 PlayerScore: 3 108: Taco now has 108 points
+  9:33 Award: 3 2: Taco gained the IMPRESSIVE award!
+  9:37 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  9:37 PlayerScore: 3 109: Taco now has 109 points
+  9:37 PlayerScore: 3 110: Taco now has 110 points
+  9:37 Award: 3 3: Taco gained the DEFENCE award!
+  9:49 Item: 3 team_CTF_redflag
+  9:49 CTF: 3 1 0: Taco got the RED flag!
+  9:49 PlayerScore: 3 110: Taco now has 110 points
+  9:50 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+  9:50 PlayerScore: 3 111: Taco now has 111 points
+  9:50 PlayerScore: 3 112: Taco now has 112 points
+  9:50 Award: 3 3: Taco gained the DEFENCE award!
+  9:50 Award: 3 2: Taco gained the IMPRESSIVE award!
+ 10:03 Item: 3 team_CTF_blueflag
+ 10:03 CTF: 3 1 1: Taco captured the RED flag!
+ 10:03 Award: 3 4: Taco gained the CAPTURE award!
+ 10:03 PlayerScore: 3 117: Taco now has 117 points
+ 10:05 Kill: 8 3 10: Angelyss killed Taco by MOD_RAILGUN
+ 10:05 PlayerScore: 8 12: Angelyss now has 12 points
+ 10:18 Item: 8 team_CTF_blueflag
+ 10:18 CTF: 8 2 0: Angelyss got the BLUE flag!
+ 10:18 PlayerScore: 8 12: Angelyss now has 12 points
+ 10:18 ClientUserinfoChanged: 8 n\Angelyss\t\1\model\angelyss\hmodel\angelyss\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 10:21 Item: 3 team_CTF_redflag
+ 10:21 CTF: 3 1 0: Taco got the RED flag!
+ 10:21 PlayerScore: 3 117: Taco now has 117 points
+ 10:28 Kill: 3 8 10: Taco killed Angelyss by MOD_RAILGUN
+ 10:28 PlayerScore: 3 118: Taco now has 118 points
+ 10:28 PlayerScore: 3 120: Taco now has 120 points
+ 10:28 CTF: 3 1 3: Taco fragged RED's flag carrier!
+ 10:30 ClientUserinfoChanged: 8 n\Angelyss\t\1\model\angelyss\hmodel\angelyss\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 10:39 Item: 3 team_CTF_blueflag
+ 10:39 CTF: 3 1 1: Taco captured the RED flag!
+ 10:39 Award: 3 4: Taco gained the CAPTURE award!
+ 10:39 PlayerScore: 3 125: Taco now has 125 points
+ 10:39 Kill: 8 3 10: Angelyss killed Taco by MOD_RAILGUN
+ 10:39 PlayerScore: 8 13: Angelyss now has 13 points
+ 10:39 sayteam: Angelyss: I shall get our flag back.
+ 10:45 WeaponUsage: 3 7 1
+ 10:45 MODDamage: 3 10 1 800 1 560 1.000000
+ 10:45 MODDamage: 3 19 0 0 3 25 0.000000
+ 10:45 Speed: 3 6304 18 : Client 3 ran 6304u in 18s without the flag.
+ 10:45 SpeedFlag: 3 5413 19 : Client 3 ran 5413u in 19s while holding the flag.
+ 10:45 WeaponUsage: 8 7 6
+ 10:45 MODDamage: 8 10 1 560 0 0 1.000000
+ 10:45 Speed: 8 5284 16 : Client 8 ran 5284u in 16s without the flag.
+ 10:45 Playerstore: Stored player with guid: 497B7EBB32B9B5DAFE77747CC2AFC6A9 in 0
+ 10:45 ClientDisconnect: 3
+ 10:47 Item: 8 team_CTF_blueflag
+ 10:47 CTF: 8 2 0: Angelyss got the BLUE flag!
+ 10:47 PlayerScore: 8 13: Angelyss now has 13 points
+ 10:47 ClientUserinfoChanged: 8 n\Angelyss\t\1\model\angelyss\hmodel\angelyss\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 10:50 Forcing disconnect on active client: 0
+ 10:50 Speed: 8 320 1 : Client 8 ran 320u in 1s without the flag.
+ 10:50 SpeedFlag: 8 844 3 : Client 8 ran 844u in 3s while holding the flag.
+ 10:50 ClientDisconnect: 0
+ 10:50 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\0\tl\0\id\
+ 10:50 ClientConnect: 0
+ 10:50 Playerstore: Failed to restore player. Invalid guid: 
+ 10:50 ClientBegin: 0
+ 10:59 sayteam: Neko: Who's the leader of this rag-tag bunch?
+ 11:08 Item: 8 team_CTF_redflag
+ 11:08 CTF: 8 2 1: Angelyss captured the BLUE flag!
+ 11:08 Award: 8 4: Angelyss gained the CAPTURE award!
+ 11:08 PlayerScore: 8 18: Angelyss now has 18 points
+ 11:11 Kill: 1022 8 22: <world> killed Angelyss by MOD_TRIGGER_HURT
+ 11:11 PlayerScore: 8 17: Angelyss now has 17 points
+ 11:14 sayteam: Neko: I will lead.
+ 11:35 Kill: 8 0 10: Angelyss killed Neko by MOD_RAILGUN
+ 11:35 PlayerScore: 8 18: Angelyss now has 18 points
+ 11:35 PlayerScore: 8 19: Angelyss now has 19 points
+ 11:35 Award: 8 3: Angelyss gained the DEFENCE award!
+ 12:21 Item: 8 team_CTF_blueflag
+ 12:21 CTF: 8 2 0: Angelyss got the BLUE flag!
+ 12:21 PlayerScore: 8 19: Angelyss now has 19 points
+ 12:21 ClientUserinfoChanged: 8 n\Angelyss\t\1\model\angelyss\hmodel\angelyss\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+ 12:35 Kill: 0 8 10: Neko killed Angelyss by MOD_RAILGUN
+ 12:35 PlayerScore: 0 1: Neko now has 1 points
+ 12:35 PlayerScore: 0 3: Neko now has 3 points
+ 12:35 CTF: 0 1 3: Neko fragged RED's flag carrier!
+ 12:35 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 12:37 Item: 0 team_CTF_blueflag
+ 12:37 PlayerScore: 0 4: Neko now has 4 points
+ 12:37 CTF: 0 2 2: Neko returned the BLUE flag!
+ 12:41 Kill: 8 0 10: Angelyss killed Neko by MOD_RAILGUN
+ 12:41 PlayerScore: 8 20: Angelyss now has 20 points
+ 12:41 PlayerScore: 8 21: Angelyss now has 21 points
+ 12:41 Award: 8 3: Angelyss gained the DEFENCE award!
+ 13:10 Item: 0 team_CTF_redflag
+ 13:10 CTF: 0 1 0: Neko got the RED flag!
+ 13:10 PlayerScore: 0 4: Neko now has 4 points
+ 13:10 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 13:16 ClientUserinfoChanged: 8 n\Angelyss\t\1\model\angelyss\hmodel\angelyss\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 13:30 Item: 0 team_CTF_blueflag
+ 13:30 CTF: 0 1 1: Neko captured the RED flag!
+ 13:30 Award: 0 4: Neko gained the CAPTURE award!
+ 13:30 PlayerScore: 0 9: Neko now has 9 points
+ 13:40 Kill: 0 8 10: Neko killed Angelyss by MOD_RAILGUN
+ 13:40 PlayerScore: 0 10: Neko now has 10 points
+ 13:40 PlayerScore: 0 11: Neko now has 11 points
+ 13:40 Award: 0 3: Neko gained the DEFENCE award!
+ 13:53 Kill: 0 8 10: Neko killed Angelyss by MOD_RAILGUN
+ 13:53 PlayerScore: 0 12: Neko now has 12 points
+ 14:00 Kill: 8 0 10: Angelyss killed Neko by MOD_RAILGUN
+ 14:00 PlayerScore: 8 22: Angelyss now has 22 points
+ 14:00 PlayerScore: 8 23: Angelyss now has 23 points
+ 14:00 Award: 8 3: Angelyss gained the DEFENCE award!
+ 14:03 Kill: 0 8 10: Neko killed Angelyss by MOD_RAILGUN
+ 14:03 PlayerScore: 0 13: Neko now has 13 points
+ 14:03 PlayerScore: 0 14: Neko now has 14 points
+ 14:03 Award: 0 3: Neko gained the DEFENCE award!
+ 14:08 Kill: 8 0 10: Angelyss killed Neko by MOD_RAILGUN
+ 14:08 PlayerScore: 8 24: Angelyss now has 24 points
+ 14:44 Item: 8 team_CTF_blueflag
+ 14:44 CTF: 8 2 0: Angelyss got the BLUE flag!
+ 14:44 PlayerScore: 8 24: Angelyss now has 24 points
+ 14:44 ClientUserinfoChanged: 8 n\Angelyss\t\1\model\angelyss\hmodel\angelyss\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+ 14:52 Kill: 8 0 10: Angelyss killed Neko by MOD_RAILGUN
+ 14:52 PlayerScore: 8 25: Angelyss now has 25 points
+ 15:04 Item: 8 team_CTF_redflag
+ 15:04 CTF: 8 2 1: Angelyss captured the BLUE flag!
+ 15:04 Award: 8 4: Angelyss gained the CAPTURE award!
+ 15:04 PlayerScore: 8 30: Angelyss now has 30 points
+ 15:09 Kill: 8 0 10: Angelyss killed Neko by MOD_RAILGUN
+ 15:09 PlayerScore: 8 31: Angelyss now has 31 points
+ 15:09 PlayerScore: 8 32: Angelyss now has 32 points
+ 15:09 Award: 8 3: Angelyss gained the DEFENCE award!
+ 15:44 Kill: 1022 8 19: <world> killed Angelyss by MOD_FALLING
+ 15:44 PlayerScore: 8 31: Angelyss now has 31 points
+ 15:58 Kill: 0 8 10: Neko killed Angelyss by MOD_RAILGUN
+ 15:58 PlayerScore: 0 15: Neko now has 15 points
+ 15:58 PlayerScore: 0 16: Neko now has 16 points
+ 15:58 Award: 0 3: Neko gained the DEFENCE award!
+ 16:32 Kill: 8 0 10: Angelyss killed Neko by MOD_RAILGUN
+ 16:32 PlayerScore: 8 32: Angelyss now has 32 points
+ 16:32 PlayerScore: 8 33: Angelyss now has 33 points
+ 16:32 Award: 8 3: Angelyss gained the DEFENCE award!
+ 16:53 Item: 8 team_CTF_blueflag
+ 16:53 CTF: 8 2 0: Angelyss got the BLUE flag!
+ 16:53 PlayerScore: 8 33: Angelyss now has 33 points
+ 16:53 ClientUserinfoChanged: 8 n\Angelyss\t\1\model\angelyss\hmodel\angelyss\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+ 17:00 Kill: 0 8 10: Neko killed Angelyss by MOD_RAILGUN
+ 17:00 PlayerScore: 0 17: Neko now has 17 points
+ 17:00 PlayerScore: 0 19: Neko now has 19 points
+ 17:00 CTF: 0 1 3: Neko fragged RED's flag carrier!
+ 17:01 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 17:02 Item: 0 team_CTF_blueflag
+ 17:02 PlayerScore: 0 20: Neko now has 20 points
+ 17:02 CTF: 0 2 2: Neko returned the BLUE flag!
+ 17:03 Kill: 0 8 10: Neko killed Angelyss by MOD_RAILGUN
+ 17:03 PlayerScore: 0 21: Neko now has 21 points
+ 17:03 Award: 0 1: Neko gained the EXCELLENT award!
+ 17:03 Award: 0 2: Neko gained the IMPRESSIVE award!
+ 17:09 Kill: 0 8 10: Neko killed Angelyss by MOD_RAILGUN
+ 17:09 PlayerScore: 0 22: Neko now has 22 points
+ 17:13 Kill: 0 8 10: Neko killed Angelyss by MOD_RAILGUN
+ 17:13 PlayerScore: 0 23: Neko now has 23 points
+ 17:13 Award: 0 2: Neko gained the IMPRESSIVE award!
+ 17:19 Item: 0 team_CTF_redflag
+ 17:19 CTF: 0 1 0: Neko got the RED flag!
+ 17:19 PlayerScore: 0 23: Neko now has 23 points
+ 17:19 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 17:22 Kill: 8 0 10: Angelyss killed Neko by MOD_RAILGUN
+ 17:22 PlayerScore: 8 34: Angelyss now has 34 points
+ 17:22 PlayerScore: 8 36: Angelyss now has 36 points
+ 17:22 CTF: 8 2 3: Angelyss fragged BLUE's flag carrier!
+ 17:23 ClientUserinfoChanged: 8 n\Angelyss\t\1\model\angelyss\hmodel\angelyss\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 17:25 Item: 8 team_CTF_redflag
+ 17:25 PlayerScore: 8 37: Angelyss now has 37 points
+ 17:25 CTF: 8 1 2: Angelyss returned the RED flag!
+ 17:36 Kill: 0 8 10: Neko killed Angelyss by MOD_RAILGUN
+ 17:36 PlayerScore: 0 24: Neko now has 24 points
+ 17:36 PlayerScore: 0 25: Neko now has 25 points
+ 17:36 Award: 0 3: Neko gained the DEFENCE award!
+ 18:01 Item: 8 team_CTF_blueflag
+ 18:01 CTF: 8 2 0: Angelyss got the BLUE flag!
+ 18:01 PlayerScore: 8 37: Angelyss now has 37 points
+ 18:01 ClientUserinfoChanged: 8 n\Angelyss\t\1\model\angelyss\hmodel\angelyss\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+ 18:21 Item: 8 team_CTF_redflag
+ 18:21 CTF: 8 2 1: Angelyss captured the BLUE flag!
+ 18:21 Award: 8 4: Angelyss gained the CAPTURE award!
+ 18:21 PlayerScore: 8 42: Angelyss now has 42 points
+ 18:36 Kill: 8 0 10: Angelyss killed Neko by MOD_RAILGUN
+ 18:36 PlayerScore: 8 43: Angelyss now has 43 points
+ 18:36 PlayerScore: 8 44: Angelyss now has 44 points
+ 18:36 Award: 8 3: Angelyss gained the DEFENCE award!
+ 18:56 Kill: 8 0 10: Angelyss killed Neko by MOD_RAILGUN
+ 18:56 PlayerScore: 8 45: Angelyss now has 45 points
+ 19:06 Kill: 8 0 10: Angelyss killed Neko by MOD_RAILGUN
+ 19:06 PlayerScore: 8 46: Angelyss now has 46 points
+ 19:24 Item: 8 team_CTF_blueflag
+ 19:24 CTF: 8 2 0: Angelyss got the BLUE flag!
+ 19:24 PlayerScore: 8 46: Angelyss now has 46 points
+ 19:24 ClientUserinfoChanged: 8 n\Angelyss\t\1\model\angelyss\hmodel\angelyss\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+ 19:38 ClientUserinfoChanged: 3 n\UnnamedPlayer\t\3\model\james\hmodel\*james\g_redteam\\g_blueteam\\c1\5\c2\5\hc\100\w\0\l\0\tt\0\tl\0\id\6C769E34F05C312D1CDD16FCA0B8CD0D
+ 19:38 ClientConnectInfo: 3 6C769E34F05C312D1CDD16FCA0B8CD0D 1.1.1.2
+ 19:38 ClientConnect: 3
+ 19:44 Item: 8 team_CTF_redflag
+ 19:44 CTF: 8 2 1: Angelyss captured the BLUE flag!
+ 19:44 Award: 8 4: Angelyss gained the CAPTURE award!
+ 19:44 PlayerScore: 8 51: Angelyss now has 51 points
+ 19:45 ClientUserinfoChanged: 3 n\^5Shooter\t\3\model\sarge/default\hmodel\sarge/default\g_redteam\\g_blueteam\\c1\5\c2\5\hc\100\w\0\l\0\tt\0\tl\0\id\6C769E34F05C312D1CDD16FCA0B8CD0D
+ 19:45 WeaponUsage: 0 7 21
+ 19:45 MODDamage: 0 19 0 0 2 10 0.000000
+ 19:45 Speed: 0 11887 37 : Client 0 ran 11887u in 37s without the flag.
+ 19:45 WeaponUsage: 8 7 63
+ 19:45 MODDamage: 8 10 3 1680 0 0 3.000000
+ 19:45 MODDamage: 8 19 0 0 8 60 0.000000
+ 19:45 Speed: 8 28159 86 : Client 8 ran 28159u in 86s without the flag.
+ 19:45 SpeedFlag: 8 12759 41 : Client 8 ran 12759u in 41s while holding the flag.
+ 19:45 ClientBegin: 3
+ 19:47 ClientUserinfoChanged: 3 n\^5Shooter\t\1\model\sarge/default\hmodel\sarge/default\g_redteam\\g_blueteam\\c1\5\c2\5\hc\100\w\0\l\0\tt\0\tl\1\id\6C769E34F05C312D1CDD16FCA0B8CD0D
+ 19:47 ClientUserinfoChanged: 3 n\^5Shooter\t\1\model\sarge/default\hmodel\sarge/default\g_redteam\\g_blueteam\\c1\5\c2\5\hc\100\w\0\l\0\tt\0\tl\1\id\6C769E34F05C312D1CDD16FCA0B8CD0D
+ 19:47 WeaponUsage: 0 7 1
+ 19:47 Speed: 0 1124 2 : Client 0 ran 1124u in 2s without the flag.
+ 19:47 WeaponUsage: 8 7 2
+ 19:47 Speed: 8 647 2 : Client 8 ran 647u in 2s without the flag.
+ 19:47 Playerstore: Nothing to restore. Guid: 6C769E34F05C312D1CDD16FCA0B8CD0D
+ 19:47 ClientBegin: 3
+ 19:50 WeaponUsage: 0 7 2
+ 19:50 MODDamage: 0 19 0 0 1 5 0.000000
+ 19:50 Speed: 0 583 2 : Client 0 ran 583u in 2s without the flag.
+ 19:50 Speed: 3 695 2 : Client 3 ran 695u in 2s without the flag.
+ 19:50 WeaponUsage: 8 7 1
+ 19:50 Speed: 8 587 2 : Client 8 ran 587u in 2s without the flag.
+ 19:50 Kill: 1022 8 20: <world> killed Angelyss by MOD_SUICIDE
+ 19:50 PlayerScore: 8 50: Angelyss now has 50 points
+ 19:50 Playerstore: Failed to store player. Invalid guid: 
+ 19:50 ClientDisconnect: 8
+ 19:55 Kill: 0 3 10: Neko killed ^5Shooter by MOD_RAILGUN
+ 19:55 PlayerScore: 0 26: Neko now has 26 points
+ 20:04 WeaponUsage: 0 7 8
+ 20:04 MODDamage: 0 10 1 560 0 0 1.000000
+ 20:04 MODDamage: 0 19 0 0 2 15 0.000000
+ 20:04 Speed: 0 6000 15 : Client 0 ran 6000u in 15s without the flag.
+ 20:04 WeaponUsage: 3 7 1
+ 20:04 MODDamage: 3 19 0 0 1 5 0.000000
+ 20:04 Speed: 3 2751 7 : Client 3 ran 2751u in 7s without the flag.
+ 20:04 Exit: Timelimit hit.
+ 20:04 red:4  blue:5
+ 20:04 score: 26  ping: 0  client: 0 Neko
+ 20:04 score: 0  ping: 148  client: 3 ^5Shooter
+ 20:18 ShutdownGame:
+ 20:18 ------------------------------------------------------------
+  0:00 ------------------------------------------------------------
+  0:00 InitGame: \sv_hostname\^4Z^5imsNEW ^1I^3nstantgib\sv_minRate\2500\sv_maxRate\25000\sv_minPing\0\sv_maxPing\0\sv_floodProtect\1\sv_dlURL\http://openmafia.org/~zimmer/insta\dmflags\512\fraglimit\15\timelimit\20\sv_maxclients\20\sv_dlRate\100\sv_fps\20\sv_allowDownload\1\bot_minplayers\1\g_needpass\0\g_delagHitscan\1\videoflags\0\g_maxGameClients\20\g_doWarmup\1\g_allowVote\0\capturelimit\8\g_allowSpectatorVote\0\elimination_roundtime\120\g_lms_mode\0\version\ioq3+oa 1.36+0.8.8 linux-x86_64-debug May 30 2014\com_gamename\Quake3Arena\com_protocol\71\g_gametype\4\mapname\oldsago2\sv_privateClients\2\_Admin\Zimmer106|Pixelized|SooKee|wing|dev/gamepad|L\_Email\drremmiz@gmail.com\_Location\Nuremberg\_Website\http://zimmersservers.tk/\snaps\20\g_instantgib\2\gamename\baseoa\voteflags\279\g_rockets\0\g_timestamp\2014-06-01 04:57:10\mod_katina\0.1-beta
+  0:00 Info: ServerInfo length: 843 of 1024
+  0:00 Warmup:
+  0:00 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:00 ClientConnect: 0
+  0:00 Info: There has been at least 1 bot now
+  0:00 Playerstore: Failed to restore player. Invalid guid: 
+  0:00 ClientBegin: 0
+  0:00 ClientUserinfoChanged: 2 n\^1S^2oo^3K^5ee^4|^7AFK\t\3\model\sarge/default\hmodel\sarge/default\g_redteam\\g_blueteam\\c1\2\c2\2\hc\100\w\0\l\0\tt\0\tl\0\id\5E68E970866FC20242482AA396BBD43E
+  0:00 ClientConnect: 2
+  0:00 ClientUserinfoChanged: 3 n\^5Shooter\t\1\model\sarge/default\hmodel\sarge/default\g_redteam\\g_blueteam\\c1\5\c2\5\hc\100\w\0\l\0\tt\0\tl\1\id\6C769E34F05C312D1CDD16FCA0B8CD0D
+  0:00 ClientConnect: 3
+  0:00 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:03 sayteam: Neko: I am off to get the flag.
+  0:04 Speed: 0 1173 4 : Client 0 ran 1173u in 4s without the flag.
+  0:04 Playerstore: Nothing to restore. Guid: 6C769E34F05C312D1CDD16FCA0B8CD0D
+  0:04 ClientBegin: 3
+  0:05 ClientUserinfoChanged: 2 n\^1S^2oo^3K^5ee^4|^7AFK\t\3\model\sarge/default\hmodel\sarge/default\g_redteam\\g_blueteam\\c1\5\c2\5\hc\100\w\0\l\0\tt\0\tl\0\id\5E68E970866FC20242482AA396BBD43E
+  0:05 Speed: 0 213 1 : Client 0 ran 213u in 1s without the flag.
+  0:05 ClientBegin: 2
+  0:08 ShutdownGame:
+  0:08 ------------------------------------------------------------
+  0:08 ------------------------------------------------------------
+  0:08 InitGame: \sv_hostname\^4Z^5imsNEW ^1I^3nstantgib\sv_minRate\2500\sv_maxRate\25000\sv_minPing\0\sv_maxPing\0\sv_floodProtect\1\sv_dlURL\http://openmafia.org/~zimmer/insta\dmflags\512\fraglimit\15\timelimit\20\sv_maxclients\20\sv_dlRate\100\sv_fps\20\sv_allowDownload\1\bot_minplayers\1\g_needpass\0\g_delagHitscan\1\videoflags\0\g_maxGameClients\20\g_doWarmup\1\g_allowVote\0\capturelimit\8\g_allowSpectatorVote\0\elimination_roundtime\120\g_lms_mode\0\version\ioq3+oa 1.36+0.8.8 linux-x86_64-debug May 30 2014\com_gamename\Quake3Arena\com_protocol\71\g_gametype\4\mapname\oldsago2\sv_privateClients\2\_Admin\Zimmer106|Pixelized|SooKee|wing|dev/gamepad|L\_Email\drremmiz@gmail.com\_Location\Nuremberg\_Website\http://zimmersservers.tk/\snaps\20\g_instantgib\2\gamename\baseoa\voteflags\279\g_rockets\0\g_timestamp\2014-06-01 04:57:18\mod_katina\0.1-beta
+  0:08 Info: ServerInfo length: 843 of 1024
+  0:08 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:08 ClientConnect: 0
+  0:08 Info: There has been at least 1 bot now
+  0:08 Playerstore: Failed to restore player. Invalid guid: 
+  0:08 ClientBegin: 0
+  0:08 ClientUserinfoChanged: 2 n\^1S^2oo^3K^5ee^4|^7AFK\t\3\model\sarge/default\hmodel\sarge/default\g_redteam\\g_blueteam\\c1\2\c2\2\hc\100\w\0\l\0\tt\0\tl\0\id\5E68E970866FC20242482AA396BBD43E
+  0:08 ClientConnect: 2
+  0:08 ClientBegin: 2
+  0:08 ClientUserinfoChanged: 3 n\^5Shooter\t\1\model\sarge/default\hmodel\sarge/default\g_redteam\\g_blueteam\\c1\5\c2\5\hc\100\w\0\l\0\tt\0\tl\1\id\6C769E34F05C312D1CDD16FCA0B8CD0D
+  0:08 ClientConnect: 3
+  0:08 Playerstore: Nothing to restore. Guid: 6C769E34F05C312D1CDD16FCA0B8CD0D
+  0:08 ClientBegin: 3
+  0:09 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  0:11 sayteam: Neko: I'll defend the Blue Flag.
+  0:19 Item: 3 team_CTF_blueflag
+  0:19 CTF: 3 2 0: ^5Shooter got the BLUE flag!
+  0:19 PlayerScore: 3 0: ^5Shooter now has 0 points
+  0:19 sayteam: Neko: Who's the leader of this rag-tag bunch?
+  0:21 Kill: 0 3 10: Neko killed ^5Shooter by MOD_RAILGUN
+  0:21 PlayerScore: 0 1: Neko now has 1 points
+  0:21 PlayerScore: 0 3: Neko now has 3 points
+  0:21 CTF: 0 1 3: Neko fragged RED's flag carrier!
+  0:25 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  0:29 Item: 0 team_CTF_blueflag
+  0:29 PlayerScore: 0 4: Neko now has 4 points
+  0:29 CTF: 0 2 2: Neko returned the BLUE flag!
+  0:33 sayteam: Neko: I lead.
+  0:34 Item: 3 team_CTF_blueflag
+  0:34 CTF: 3 2 0: ^5Shooter got the BLUE flag!
+  0:34 PlayerScore: 3 0: ^5Shooter now has 0 points
+  0:48 Kill: 3 0 10: ^5Shooter killed Neko by MOD_RAILGUN
+  0:48 PlayerScore: 3 1: ^5Shooter now has 1 points
+  0:48 PlayerScore: 3 2: ^5Shooter now has 2 points
+  0:48 Award: 3 3: ^5Shooter gained the DEFENCE award!
+  0:49 Item: 3 team_CTF_redflag
+  0:49 CTF: 3 2 1: ^5Shooter captured the BLUE flag!
+  0:49 Award: 3 4: ^5Shooter gained the CAPTURE award!
+  0:49 PlayerScore: 3 7: ^5Shooter now has 7 points
+  0:55 Kill: 3 0 10: ^5Shooter killed Neko by MOD_RAILGUN
+  0:55 PlayerScore: 3 8: ^5Shooter now has 8 points
+  0:55 Award: 3 2: ^5Shooter gained the IMPRESSIVE award!
+  1:00 Item: 3 team_CTF_blueflag
+  1:00 CTF: 3 2 0: ^5Shooter got the BLUE flag!
+  1:00 PlayerScore: 3 8: ^5Shooter now has 8 points
+  1:10 Item: 3 team_CTF_redflag
+  1:10 CTF: 3 2 1: ^5Shooter captured the BLUE flag!
+  1:10 Award: 3 4: ^5Shooter gained the CAPTURE award!
+  1:10 PlayerScore: 3 13: ^5Shooter now has 13 points
+  1:16 Kill: 0 3 10: Neko killed ^5Shooter by MOD_RAILGUN
+  1:16 PlayerScore: 0 5: Neko now has 5 points
+  1:30 Item: 3 team_CTF_blueflag
+  1:30 CTF: 3 2 0: ^5Shooter got the BLUE flag!
+  1:30 PlayerScore: 3 13: ^5Shooter now has 13 points
+  1:39 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  1:40 Item: 3 team_CTF_redflag
+  1:40 CTF: 3 2 1: ^5Shooter captured the BLUE flag!
+  1:40 Award: 3 4: ^5Shooter gained the CAPTURE award!
+  1:40 PlayerScore: 3 18: ^5Shooter now has 18 points
+  1:51 Item: 3 team_CTF_blueflag
+  1:51 CTF: 3 2 0: ^5Shooter got the BLUE flag!
+  1:51 PlayerScore: 3 18: ^5Shooter now has 18 points
+  1:56 Item: 0 team_CTF_redflag
+  1:56 CTF: 0 1 0: Neko got the RED flag!
+  1:56 PlayerScore: 0 5: Neko now has 5 points
+  1:56 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  1:58 Kill: 3 0 10: ^5Shooter killed Neko by MOD_RAILGUN
+  1:58 PlayerScore: 3 19: ^5Shooter now has 19 points
+  1:58 PlayerScore: 3 21: ^5Shooter now has 21 points
+  1:58 CTF: 3 2 3: ^5Shooter fragged BLUE's flag carrier!
+  2:00 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  2:02 sayteam: Neko: I shall return the flag.
+  2:03 Item: 3 team_CTF_redflag
+  2:03 PlayerScore: 3 22: ^5Shooter now has 22 points
+  2:03 CTF: 3 1 2: ^5Shooter returned the RED flag!
+  2:05 Item: 3 team_CTF_redflag
+  2:05 CTF: 3 2 1: ^5Shooter captured the BLUE flag!
+  2:05 Award: 3 4: ^5Shooter gained the CAPTURE award!
+  2:05 PlayerScore: 3 27: ^5Shooter now has 27 points
+  2:12 Kill: 3 0 10: ^5Shooter killed Neko by MOD_RAILGUN
+  2:12 PlayerScore: 3 28: ^5Shooter now has 28 points
+  2:16 Item: 3 team_CTF_blueflag
+  2:16 CTF: 3 2 0: ^5Shooter got the BLUE flag!
+  2:16 PlayerScore: 3 28: ^5Shooter now has 28 points
+  2:28 Item: 3 team_CTF_redflag
+  2:28 CTF: 3 2 1: ^5Shooter captured the BLUE flag!
+  2:28 Award: 3 4: ^5Shooter gained the CAPTURE award!
+  2:28 PlayerScore: 3 33: ^5Shooter now has 33 points
+  2:38 WeaponUsage: 0 7 7
+  2:38 Speed: 0 6391 24 : Client 0 ran 6391u in 24s without the flag.
+  2:38 WeaponUsage: 3 7 4
+  2:38 MODDamage: 3 10 2 1600 0 0 2.000000
+  2:38 MODDamage: 3 19 0 0 2 10 0.000000
+  2:38 Speed: 3 18508 44 : Client 3 ran 18508u in 44s without the flag.
+  2:38 SpeedFlag: 3 15837 36 : Client 3 ran 15837u in 36s while holding the flag.
+  2:38 Kill: 1022 3 20: <world> killed ^5Shooter by MOD_SUICIDE
+  2:38 PlayerScore: 3 32: ^5Shooter now has 32 points
+  2:38 Playerstore: Stored player with guid: 6C769E34F05C312D1CDD16FCA0B8CD0D in 0
+  2:38 ClientDisconnect: 3
+  2:40 Forcing disconnect on active client: 1
+  2:40 Speed: 0 636 2 : Client 0 ran 636u in 2s without the flag.
+  2:40 ClientDisconnect: 1
+  2:40 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\0\tl\0\id\
+  2:40 ClientConnect: 1
+  2:40 Playerstore: Failed to restore player. Invalid guid: 
+  2:40 ClientBegin: 1
+  2:41 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  2:41 PlayerScore: 1 1: Dark now has 1 points
+  2:41 PlayerScore: 1 2: Dark now has 2 points
+  2:41 Award: 1 3: Dark gained the DEFENCE award!
+  2:42 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  2:50 sayteam: Dark: who is the leader of this rag-tag bunch?
+  2:52 chat: ^3INFO^1: ^5Come to ^7http:^7/^7/^3www.smfforums.com^7/^3forums^7/^3zimmersservers
+  3:02 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  3:02 PlayerScore: 1 3: Dark now has 3 points
+  3:02 sayteam: Dark: I am defending the Red Flag.
+  3:03 sayteam: Dark: I will lead.
+  3:33 Item: 0 team_CTF_redflag
+  3:33 CTF: 0 1 0: Neko got the RED flag!
+  3:33 PlayerScore: 0 5: Neko now has 5 points
+  3:33 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  3:36 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  3:36 PlayerScore: 1 4: Dark now has 4 points
+  3:36 PlayerScore: 1 6: Dark now has 6 points
+  3:36 CTF: 1 2 3: Dark fragged BLUE's flag carrier!
+  3:36 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  3:43 Item: 1 team_CTF_redflag
+  3:43 PlayerScore: 1 7: Dark now has 7 points
+  3:43 CTF: 1 1 2: Dark returned the RED flag!
+  4:02 Item: 1 team_CTF_blueflag
+  4:02 CTF: 1 2 0: Dark got the BLUE flag!
+  4:02 PlayerScore: 1 7: Dark now has 7 points
+  4:02 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  4:14 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  4:14 PlayerScore: 1 8: Dark now has 8 points
+  4:16 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  4:24 Item: 1 team_CTF_redflag
+  4:24 CTF: 1 2 1: Dark captured the BLUE flag!
+  4:24 Award: 1 4: Dark gained the CAPTURE award!
+  4:24 PlayerScore: 1 13: Dark now has 13 points
+  4:44 Item: 0 team_CTF_redflag
+  4:44 CTF: 0 1 0: Neko got the RED flag!
+  4:44 PlayerScore: 0 5: Neko now has 5 points
+  4:44 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  4:50 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  4:50 PlayerScore: 1 14: Dark now has 14 points
+  4:50 PlayerScore: 1 16: Dark now has 16 points
+  4:50 CTF: 1 2 3: Dark fragged BLUE's flag carrier!
+  4:51 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  4:52 Item: 1 team_CTF_redflag
+  4:52 PlayerScore: 1 17: Dark now has 17 points
+  4:52 CTF: 1 1 2: Dark returned the RED flag!
+  5:00 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  5:00 PlayerScore: 0 6: Neko now has 6 points
+  5:00 PlayerScore: 0 7: Neko now has 7 points
+  5:00 Award: 0 3: Neko gained the DEFENCE award!
+  5:26 Item: 1 team_CTF_blueflag
+  5:26 CTF: 1 2 0: Dark got the BLUE flag!
+  5:26 PlayerScore: 1 17: Dark now has 17 points
+  5:26 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  5:27 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  5:38 Item: 0 team_CTF_redflag
+  5:38 CTF: 0 1 0: Neko got the RED flag!
+  5:38 PlayerScore: 0 7: Neko now has 7 points
+  5:38 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  5:42 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  5:42 PlayerScore: 0 8: Neko now has 8 points
+  5:42 PlayerScore: 0 10: Neko now has 10 points
+  5:42 CTF: 0 1 3: Neko fragged RED's flag carrier!
+  5:42 Award: 0 2: Neko gained the IMPRESSIVE award!
+  5:42 Item: 0 team_CTF_blueflag
+  5:42 PlayerScore: 0 11: Neko now has 11 points
+  5:42 CTF: 0 2 2: Neko returned the BLUE flag!
+  5:44 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  5:59 Item: 0 team_CTF_blueflag
+  5:59 CTF: 0 1 1: Neko captured the RED flag!
+  5:59 Award: 0 4: Neko gained the CAPTURE award!
+  5:59 PlayerScore: 0 16: Neko now has 16 points
+  6:06 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  6:06 PlayerScore: 0 17: Neko now has 17 points
+  6:06 PlayerScore: 0 18: Neko now has 18 points
+  6:06 Award: 0 3: Neko gained the DEFENCE award!
+  6:27 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  6:27 PlayerScore: 0 19: Neko now has 19 points
+  6:27 PlayerScore: 0 20: Neko now has 20 points
+  6:27 Award: 0 3: Neko gained the DEFENCE award!
+  6:54 Item: 1 team_CTF_blueflag
+  6:54 CTF: 1 2 0: Dark got the BLUE flag!
+  6:54 PlayerScore: 1 17: Dark now has 17 points
+  6:54 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  6:56 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  6:56 PlayerScore: 0 21: Neko now has 21 points
+  6:56 PlayerScore: 0 23: Neko now has 23 points
+  6:56 CTF: 0 1 3: Neko fragged RED's flag carrier!
+  6:56 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  6:59 Item: 0 team_CTF_blueflag
+  6:59 PlayerScore: 0 24: Neko now has 24 points
+  6:59 CTF: 0 2 2: Neko returned the BLUE flag!
+  7:09 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  7:09 PlayerScore: 0 25: Neko now has 25 points
+  7:09 Award: 0 2: Neko gained the IMPRESSIVE award!
+  7:18 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  7:18 PlayerScore: 1 18: Dark now has 18 points
+  7:18 PlayerScore: 1 19: Dark now has 19 points
+  7:18 Award: 1 3: Dark gained the DEFENCE award!
+  7:30 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  7:30 PlayerScore: 1 20: Dark now has 20 points
+  8:04 Item: 0 team_CTF_redflag
+  8:04 CTF: 0 1 0: Neko got the RED flag!
+  8:04 PlayerScore: 0 25: Neko now has 25 points
+  8:04 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  8:04 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  8:15 Item: 1 team_CTF_blueflag
+  8:15 CTF: 1 2 0: Dark got the BLUE flag!
+  8:15 PlayerScore: 1 20: Dark now has 20 points
+  8:15 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 10:04 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 10:15 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 12:04 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 12:16 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 12:54 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 12:54 PlayerScore: 0 26: Neko now has 26 points
+ 12:54 PlayerScore: 0 28: Neko now has 28 points
+ 12:54 CTF: 0 1 3: Neko fragged RED's flag carrier!
+ 12:56 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 12:58 sayteam: Dark: I'll get our flag back.
+ 13:08 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 13:08 PlayerScore: 0 29: Neko now has 29 points
+ 13:08 PlayerScore: 0 30: Neko now has 30 points
+ 13:08 Award: 0 3: Neko gained the DEFENCE award!
+ 13:13 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 13:20 sayteam: Dark: I'll return the flag.
+ 13:20 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 13:22 sayteam: Dark: I'll get the flag back.
+ 13:24 CTF: -1 2 3: BLUE flag returned after timeout
+ 13:24 Item: 0 team_CTF_blueflag
+ 13:24 CTF: 0 1 1: Neko captured the RED flag!
+ 13:24 Award: 0 4: Neko gained the CAPTURE award!
+ 13:24 PlayerScore: 0 35: Neko now has 35 points
+ 13:38 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 13:38 PlayerScore: 1 21: Dark now has 21 points
+ 13:43 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 13:43 PlayerScore: 0 36: Neko now has 36 points
+ 13:43 PlayerScore: 0 37: Neko now has 37 points
+ 13:43 Award: 0 3: Neko gained the DEFENCE award!
+ 14:03 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 14:03 PlayerScore: 1 22: Dark now has 22 points
+ 17:03 Item: 1 team_CTF_blueflag
+ 17:03 CTF: 1 2 0: Dark got the BLUE flag!
+ 17:03 PlayerScore: 1 22: Dark now has 22 points
+ 17:03 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 17:04 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+ 17:08 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 17:08 PlayerScore: 1 23: Dark now has 23 points
+ 17:22 Item: 1 team_CTF_redflag
+ 17:22 CTF: 1 2 1: Dark captured the BLUE flag!
+ 17:22 Award: 1 4: Dark gained the CAPTURE award!
+ 17:22 PlayerScore: 1 28: Dark now has 28 points
+ 17:34 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 17:34 PlayerScore: 0 38: Neko now has 38 points
+ 17:36 Item: 0 team_CTF_redflag
+ 17:36 CTF: 0 1 0: Neko got the RED flag!
+ 17:36 PlayerScore: 0 38: Neko now has 38 points
+ 17:36 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 17:37 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 17:41 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 17:41 PlayerScore: 0 39: Neko now has 39 points
+ 17:56 Item: 0 team_CTF_blueflag
+ 17:56 CTF: 0 1 1: Neko captured the RED flag!
+ 17:56 Award: 0 4: Neko gained the CAPTURE award!
+ 17:56 PlayerScore: 0 44: Neko now has 44 points
+ 18:10 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 18:10 PlayerScore: 1 29: Dark now has 29 points
+ 18:11 Item: 1 team_CTF_blueflag
+ 18:11 CTF: 1 2 0: Dark got the BLUE flag!
+ 18:11 PlayerScore: 1 29: Dark now has 29 points
+ 18:11 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 18:12 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 18:17 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 18:17 PlayerScore: 0 45: Neko now has 45 points
+ 18:17 PlayerScore: 0 47: Neko now has 47 points
+ 18:17 CTF: 0 1 3: Neko fragged RED's flag carrier!
+ 18:22 Item: 0 team_CTF_blueflag
+ 18:22 PlayerScore: 0 48: Neko now has 48 points
+ 18:22 CTF: 0 2 2: Neko returned the BLUE flag!
+ 18:41 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 18:41 PlayerScore: 0 49: Neko now has 49 points
+ 18:50 Item: 0 team_CTF_redflag
+ 18:50 CTF: 0 1 0: Neko got the RED flag!
+ 18:50 PlayerScore: 0 49: Neko now has 49 points
+ 18:51 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+ 18:51 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 18:51 PlayerScore: 1 30: Dark now has 30 points
+ 18:51 PlayerScore: 1 32: Dark now has 32 points
+ 18:51 CTF: 1 2 3: Dark fragged BLUE's flag carrier!
+ 18:52 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 18:58 Item: 1 team_CTF_redflag
+ 18:58 PlayerScore: 1 33: Dark now has 33 points
+ 18:58 CTF: 1 1 2: Dark returned the RED flag!
+ 19:14 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 19:14 PlayerScore: 0 50: Neko now has 50 points
+ 19:14 PlayerScore: 0 51: Neko now has 51 points
+ 19:14 Award: 0 3: Neko gained the DEFENCE award!
+ 19:44 Item: 1 team_CTF_blueflag
+ 19:44 CTF: 1 2 0: Dark got the BLUE flag!
+ 19:44 PlayerScore: 1 33: Dark now has 33 points
+ 19:44 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 19:45 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 20:00 Item: 0 team_CTF_redflag
+ 20:00 CTF: 0 1 0: Neko got the RED flag!
+ 20:00 PlayerScore: 0 51: Neko now has 51 points
+ 20:00 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 20:03 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 20:03 PlayerScore: 0 52: Neko now has 52 points
+ 20:03 PlayerScore: 0 54: Neko now has 54 points
+ 20:03 CTF: 0 1 3: Neko fragged RED's flag carrier!
+ 20:03 Award: 0 2: Neko gained the IMPRESSIVE award!
+ 20:03 Item: 0 team_CTF_blueflag
+ 20:03 PlayerScore: 0 55: Neko now has 55 points
+ 20:03 CTF: 0 2 2: Neko returned the BLUE flag!
+ 20:05 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 20:08 WeaponUsage: 0 7 2
+ 20:08 MODDamage: 0 10 2 1120 0 0 2.000000
+ 20:08 Speed: 0 19614 67 : Client 0 ran 19614u in 67s without the flag.
+ 20:08 SpeedFlag: 0 2645 9 : Client 0 ran 2645u in 9s while holding the flag.
+ 20:08 Speed: 1 1121 4 : Client 1 ran 1121u in 4s without the flag.
+ 20:08 Exit: Timelimit hit.
+ 20:08 red:7  blue:3
+ 20:08 score: 55  ping: 0  client: 0 Neko
+ 20:08 score: 33  ping: 0  client: 1 Dark
+ 32:52 chat: ^3INFO^1: ^5Use ^3!stats ^5to see your stats for this month on the current map
+ 47:52 chat: ^3INFO^1: ^5Use ^3!stats ^5to see your stats for this month on the current map
+ 51:35 ShutdownGame:
+ 51:35 ------------------------------------------------------------
+  0:00 ------------------------------------------------------------
+  0:00 InitGame: \sv_hostname\^4Z^5imsNEW ^1I^3nstantgib\sv_minRate\2500\sv_maxRate\25000\sv_minPing\0\sv_maxPing\0\sv_floodProtect\1\sv_dlURL\http://openmafia.org/~zimmer/insta\dmflags\512\fraglimit\15\timelimit\20\sv_maxclients\20\sv_dlRate\100\sv_fps\20\sv_allowDownload\1\bot_minplayers\1\g_needpass\0\g_delagHitscan\1\videoflags\0\g_maxGameClients\20\g_doWarmup\1\g_allowVote\0\capturelimit\8\g_allowSpectatorVote\0\elimination_roundtime\120\g_lms_mode\0\version\ioq3+oa 1.36+0.8.8 linux-x86_64-debug May 30 2014\com_gamename\Quake3Arena\com_protocol\71\g_gametype\4\mapname\wtf28\sv_privateClients\2\_Admin\Zimmer106|Pixelized|SooKee|wing|dev/gamepad|L\_Email\drremmiz@gmail.com\_Location\Nuremberg\_Website\http://zimmersservers.tk/\snaps\20\g_instantgib\2\gamename\baseoa\voteflags\279\g_rockets\0\g_timestamp\2014-06-01 05:48:44\mod_katina\0.1-beta
+  0:00 Info: ServerInfo length: 840 of 1024
+  0:00 Warmup:
+  0:00 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:00 ClientConnect: 0
+  0:00 Info: There has been at least 1 bot now
+  0:00 Playerstore: Failed to restore player. Invalid guid: 
+  0:00 ClientBegin: 0
+  0:00 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:00 ClientConnect: 1
+  0:00 Playerstore: Failed to restore player. Invalid guid: 
+  0:00 ClientBegin: 1
+  0:00 ClientUserinfoChanged: 2 n\^1S^2oo^3K^5ee^4|^7AFK\t\3\model\sarge/default\hmodel\sarge/default\g_redteam\\g_blueteam\\c1\5\c2\5\hc\100\w\0\l\0\tt\0\tl\0\id\5E68E970866FC20242482AA396BBD43E
+  0:00 ClientConnect: 2
+  0:00 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:00 sayteam: Neko: Enemy flag here I come.
+  0:04 ShutdownGame:
+  0:04 ------------------------------------------------------------
+  0:04 ------------------------------------------------------------
+  0:04 InitGame: \sv_hostname\^4Z^5imsNEW ^1I^3nstantgib\sv_minRate\2500\sv_maxRate\25000\sv_minPing\0\sv_maxPing\0\sv_floodProtect\1\sv_dlURL\http://openmafia.org/~zimmer/insta\dmflags\512\fraglimit\15\timelimit\20\sv_maxclients\20\sv_dlRate\100\sv_fps\20\sv_allowDownload\1\bot_minplayers\1\g_needpass\0\g_delagHitscan\1\videoflags\0\g_maxGameClients\20\g_doWarmup\1\g_allowVote\0\capturelimit\8\g_allowSpectatorVote\0\elimination_roundtime\120\g_lms_mode\0\version\ioq3+oa 1.36+0.8.8 linux-x86_64-debug May 30 2014\com_gamename\Quake3Arena\com_protocol\71\g_gametype\4\mapname\wtf28\sv_privateClients\2\_Admin\Zimmer106|Pixelized|SooKee|wing|dev/gamepad|L\_Email\drremmiz@gmail.com\_Location\Nuremberg\_Website\http://zimmersservers.tk/\snaps\20\g_instantgib\2\gamename\baseoa\voteflags\279\g_rockets\0\g_timestamp\2014-06-01 05:48:48\mod_katina\0.1-beta
+  0:04 Info: ServerInfo length: 840 of 1024
+  0:04 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:04 ClientConnect: 0
+  0:04 Info: There has been at least 1 bot now
+  0:04 Playerstore: Failed to restore player. Invalid guid: 
+  0:04 ClientBegin: 0
+  0:04 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:04 ClientConnect: 1
+  0:04 Playerstore: Failed to restore player. Invalid guid: 
+  0:04 ClientBegin: 1
+  0:04 ClientUserinfoChanged: 2 n\^1S^2oo^3K^5ee^4|^7AFK\t\3\model\sarge/default\hmodel\sarge/default\g_redteam\\g_blueteam\\c1\5\c2\5\hc\100\w\0\l\0\tt\0\tl\0\id\5E68E970866FC20242482AA396BBD43E
+  0:04 ClientConnect: 2
+  0:04 ClientBegin: 2
+  0:05 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:06 sayteam: Neko: I am off to get the flag.
+  0:06 ClientUserinfoChanged: 2 n\^1S^2oo^3K^5ee^4|^7AFK\t\3\model\sarge/default\hmodel\sarge/default\g_redteam\\g_blueteam\\c1\5\c2\5\hc\100\w\0\l\0\tt\0\tl\0\id\5E68E970866FC20242482AA396BBD43E
+  0:10 sayteam: Dark: who is the leader of this rag-tag bunch?
+  0:14 sayteam: Neko: who is the leader of this rag-tag bunch?
+  0:15 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  0:15 PlayerScore: 1 1: Dark now has 1 points
+  0:16 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:18 sayteam: Dark: Their flag will be ours.
+  0:24 sayteam: Neko: I lead.
+  0:25 sayteam: Dark: I'm the leader.
+  0:34 Item: 0 team_CTF_redflag
+  0:34 CTF: 0 1 0: Neko got the RED flag!
+  0:34 PlayerScore: 0 0: Neko now has 0 points
+  0:34 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:40 Item: 1 team_CTF_blueflag
+  0:40 CTF: 1 2 0: Dark got the BLUE flag!
+  0:40 PlayerScore: 1 1: Dark now has 1 points
+  0:40 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  1:05 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  1:05 Kill: 1022 1 22: <world> killed Dark by MOD_TRIGGER_HURT
+  1:05 PlayerScore: 1 0: Dark now has 0 points
+  1:09 Item: 0 team_CTF_blueflag
+  1:09 CTF: 0 1 1: Neko captured the RED flag!
+  1:09 Award: 0 4: Neko gained the CAPTURE award!
+  1:09 PlayerScore: 0 5: Neko now has 5 points
+  1:14 Kill: 1022 0 22: <world> killed Neko by MOD_TRIGGER_HURT
+  1:14 PlayerScore: 0 4: Neko now has 4 points
+  1:22 Item: 1 team_CTF_blueflag
+  1:22 CTF: 1 2 0: Dark got the BLUE flag!
+  1:22 PlayerScore: 1 0: Dark now has 0 points
+  1:23 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  1:43 Kill: 1022 0 22: <world> killed Neko by MOD_TRIGGER_HURT
+  1:43 PlayerScore: 0 3: Neko now has 3 points
+  1:45 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  1:47 Kill: 1022 1 22: <world> killed Dark by MOD_TRIGGER_HURT
+  1:47 PlayerScore: 1 -1: Dark now has -1 points
+  2:02 Item: 0 team_CTF_redflag
+  2:02 CTF: 0 1 0: Neko got the RED flag!
+  2:02 PlayerScore: 0 3: Neko now has 3 points
+  2:02 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  2:02 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  2:16 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  2:16 PlayerScore: 0 4: Neko now has 4 points
+  2:21 WeaponUsage: 0 7 5
+  2:21 MODDamage: 0 10 1 560 0 0 1.000000
+  2:21 MODDamage: 0 19 0 0 6 35 0.000000
+  2:21 Speed: 0 8474 17 : Client 0 ran 8474u in 17s without the flag.
+  2:21 SpeedFlag: 0 10680 19 : Client 0 ran 10680u in 19s while holding the flag.
+  2:21 Speed: 1 858 4 : Client 1 ran 858u in 4s without the flag.
+  2:21 ClientDisconnect: 2
+  2:28 Item: 0 team_CTF_blueflag
+  2:28 CTF: 0 1 1: Neko captured the RED flag!
+  2:28 Award: 0 4: Neko gained the CAPTURE award!
+  2:28 PlayerScore: 0 9: Neko now has 9 points
+  2:33 Item: 1 team_CTF_blueflag
+  2:33 CTF: 1 2 0: Dark got the BLUE flag!
+  2:33 PlayerScore: 1 -1: Dark now has -1 points
+  2:33 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  2:37 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  2:37 PlayerScore: 1 0: Dark now has 0 points
+  2:57 Kill: 1022 1 22: <world> killed Dark by MOD_TRIGGER_HURT
+  2:57 PlayerScore: 1 -1: Dark now has -1 points
+  3:00 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  3:00 PlayerScore: 0 10: Neko now has 10 points
+  3:10 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  3:10 PlayerScore: 1 0: Dark now has 0 points
+  3:27 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  3:27 PlayerScore: 0 11: Neko now has 11 points
+  4:01 Item: 0 team_CTF_redflag
+  4:01 CTF: 0 1 0: Neko got the RED flag!
+  4:01 PlayerScore: 0 11: Neko now has 11 points
+  4:01 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  4:07 Kill: 1022 0 22: <world> killed Neko by MOD_TRIGGER_HURT
+  4:07 PlayerScore: 0 10: Neko now has 10 points
+  4:21 Item: 1 team_CTF_blueflag
+  4:21 CTF: 1 2 0: Dark got the BLUE flag!
+  4:21 PlayerScore: 1 0: Dark now has 0 points
+  4:21 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  4:27 Kill: 1022 1 22: <world> killed Dark by MOD_TRIGGER_HURT
+  4:27 PlayerScore: 1 -1: Dark now has -1 points
+  4:56 Kill: 1022 0 22: <world> killed Neko by MOD_TRIGGER_HURT
+  4:56 PlayerScore: 0 9: Neko now has 9 points
+  5:04 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  5:04 PlayerScore: 0 10: Neko now has 10 points
+  5:13 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  5:13 PlayerScore: 0 11: Neko now has 11 points
+  5:15 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  5:15 PlayerScore: 0 12: Neko now has 12 points
+  5:15 Award: 0 1: Neko gained the EXCELLENT award!
+  5:15 Award: 0 2: Neko gained the IMPRESSIVE award!
+  5:24 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  5:24 PlayerScore: 1 0: Dark now has 0 points
+  5:42 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  5:42 PlayerScore: 0 13: Neko now has 13 points
+  5:53 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  5:53 PlayerScore: 0 14: Neko now has 14 points
+  5:59 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  5:59 PlayerScore: 0 15: Neko now has 15 points
+  6:36 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  6:36 PlayerScore: 1 1: Dark now has 1 points
+  7:02 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  7:02 PlayerScore: 0 16: Neko now has 16 points
+  7:05 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  7:05 PlayerScore: 1 2: Dark now has 2 points
+  7:18 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  7:18 PlayerScore: 0 17: Neko now has 17 points
+  7:36 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  7:36 PlayerScore: 0 18: Neko now has 18 points
+  7:58 Kill: 1022 1 22: <world> killed Dark by MOD_TRIGGER_HURT
+  7:58 PlayerScore: 1 1: Dark now has 1 points
+  8:02 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  8:02 PlayerScore: 1 2: Dark now has 2 points
+  9:16 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  9:16 PlayerScore: 1 3: Dark now has 3 points
+  9:25 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  9:25 PlayerScore: 1 4: Dark now has 4 points
+  9:29 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  9:29 PlayerScore: 0 19: Neko now has 19 points
+  9:36 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  9:36 PlayerScore: 0 20: Neko now has 20 points
+  9:39 Kill: 1022 0 22: <world> killed Neko by MOD_TRIGGER_HURT
+  9:39 PlayerScore: 0 19: Neko now has 19 points
+ 10:03 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 10:03 PlayerScore: 0 20: Neko now has 20 points
+ 10:08 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 10:08 PlayerScore: 1 5: Dark now has 5 points
+ 10:18 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 10:18 PlayerScore: 1 6: Dark now has 6 points
+ 10:30 Item: 1 team_CTF_blueflag
+ 10:30 CTF: 1 2 0: Dark got the BLUE flag!
+ 10:30 PlayerScore: 1 6: Dark now has 6 points
+ 10:30 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+ 10:38 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 10:38 PlayerScore: 1 7: Dark now has 7 points
+ 10:40 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 10:49 Item: 1 team_CTF_redflag
+ 10:49 CTF: 1 2 1: Dark captured the BLUE flag!
+ 10:49 Award: 1 4: Dark gained the CAPTURE award!
+ 10:49 PlayerScore: 1 12: Dark now has 12 points
+ 10:59 Item: 0 team_CTF_redflag
+ 10:59 CTF: 0 1 0: Neko got the RED flag!
+ 10:59 PlayerScore: 0 20: Neko now has 20 points
+ 11:01 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+ 11:11 Kill: 1022 0 22: <world> killed Neko by MOD_TRIGGER_HURT
+ 11:11 PlayerScore: 0 19: Neko now has 19 points
+ 11:18 chat: ^3INFO^1: ^5Use ^3!register ^5to select your current name to appear in the web stats
+ 11:22 Kill: 1022 0 22: <world> killed Neko by MOD_TRIGGER_HURT
+ 11:22 PlayerScore: 0 18: Neko now has 18 points
+ 11:25 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 11:25 PlayerScore: 1 13: Dark now has 13 points
+ 12:14 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 12:14 PlayerScore: 0 19: Neko now has 19 points
+ 12:30 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 12:30 PlayerScore: 1 14: Dark now has 14 points
+ 12:31 Kill: 1022 1 22: <world> killed Dark by MOD_TRIGGER_HURT
+ 12:31 PlayerScore: 1 13: Dark now has 13 points
+ 12:46 Kill: 1022 0 22: <world> killed Neko by MOD_TRIGGER_HURT
+ 12:46 PlayerScore: 0 18: Neko now has 18 points
+ 13:17 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 13:17 PlayerScore: 1 14: Dark now has 14 points
+ 13:36 Kill: 1022 1 22: <world> killed Dark by MOD_TRIGGER_HURT
+ 13:36 PlayerScore: 1 13: Dark now has 13 points
+ 14:20 Item: 1 team_CTF_blueflag
+ 14:20 CTF: 1 2 0: Dark got the BLUE flag!
+ 14:20 PlayerScore: 1 13: Dark now has 13 points
+ 14:20 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+ 14:42 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 14:42 PlayerScore: 0 19: Neko now has 19 points
+ 14:42 PlayerScore: 0 21: Neko now has 21 points
+ 14:42 CTF: 0 1 3: Neko fragged RED's flag carrier!
+ 14:42 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 14:45 Item: 0 team_CTF_redflag
+ 14:45 CTF: 0 1 0: Neko got the RED flag!
+ 14:45 PlayerScore: 0 21: Neko now has 21 points
+ 14:45 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 15:01 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 15:01 PlayerScore: 0 22: Neko now has 22 points
+ 15:02 Item: 0 team_CTF_blueflag
+ 15:02 CTF: 0 1 1: Neko captured the RED flag!
+ 15:02 Award: 0 4: Neko gained the CAPTURE award!
+ 15:02 PlayerScore: 0 27: Neko now has 27 points
+ 15:07 Kill: 1022 0 19: <world> killed Neko by MOD_FALLING
+ 15:07 PlayerScore: 0 26: Neko now has 26 points
+ 15:28 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 15:28 PlayerScore: 1 14: Dark now has 14 points
+ 15:35 Item: 1 team_CTF_blueflag
+ 15:35 CTF: 1 2 0: Dark got the BLUE flag!
+ 15:35 PlayerScore: 1 14: Dark now has 14 points
+ 15:36 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+ 15:41 Kill: 1022 1 22: <world> killed Dark by MOD_TRIGGER_HURT
+ 15:41 PlayerScore: 1 13: Dark now has 13 points
+ 16:51 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 16:51 PlayerScore: 0 27: Neko now has 27 points
+ 17:01 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 17:01 PlayerScore: 0 28: Neko now has 28 points
+ 17:07 Kill: 1022 1 22: <world> killed Dark by MOD_TRIGGER_HURT
+ 17:07 PlayerScore: 1 12: Dark now has 12 points
+ 17:53 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 17:53 PlayerScore: 1 13: Dark now has 13 points
+ 17:56 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 17:56 PlayerScore: 1 14: Dark now has 14 points
+ 17:56 Award: 1 2: Dark gained the IMPRESSIVE award!
+ 18:59 Kill: 1022 1 22: <world> killed Dark by MOD_TRIGGER_HURT
+ 18:59 PlayerScore: 1 13: Dark now has 13 points
+ 19:03 Item: 0 team_CTF_redflag
+ 19:03 CTF: 0 1 0: Neko got the RED flag!
+ 19:03 PlayerScore: 0 28: Neko now has 28 points
+ 19:04 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+ 19:04 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 19:04 PlayerScore: 1 14: Dark now has 14 points
+ 19:04 PlayerScore: 1 16: Dark now has 16 points
+ 19:04 CTF: 1 2 3: Dark fragged BLUE's flag carrier!
+ 19:05 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 19:06 Item: 1 team_CTF_redflag
+ 19:06 PlayerScore: 1 17: Dark now has 17 points
+ 19:06 CTF: 1 1 2: Dark returned the RED flag!
+ 19:23 Kill: 1022 0 22: <world> killed Neko by MOD_TRIGGER_HURT
+ 19:23 PlayerScore: 0 27: Neko now has 27 points
+ 19:24 Item: 1 team_CTF_blueflag
+ 19:24 CTF: 1 2 0: Dark got the BLUE flag!
+ 19:24 PlayerScore: 1 17: Dark now has 17 points
+ 19:24 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 19:25 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 19:43 Item: 1 team_CTF_redflag
+ 19:43 CTF: 1 2 1: Dark captured the BLUE flag!
+ 19:43 Award: 1 4: Dark gained the CAPTURE award!
+ 19:43 PlayerScore: 1 22: Dark now has 22 points
+ 19:54 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 19:54 PlayerScore: 0 28: Neko now has 28 points
+ 19:59 Item: 0 team_CTF_redflag
+ 19:59 CTF: 0 1 0: Neko got the RED flag!
+ 19:59 PlayerScore: 0 28: Neko now has 28 points
+ 19:59 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 20:01 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 20:04 WeaponUsage: 0 7 9
+ 20:04 MODDamage: 0 10 1 560 0 0 1.000000
+ 20:04 MODDamage: 0 19 0 0 3 15 0.000000
+ 20:04 Speed: 0 11277 33 : Client 0 ran 11277u in 33s without the flag.
+ 20:04 SpeedFlag: 0 2860 6 : Client 0 ran 2860u in 6s while holding the flag.
+ 20:04 Speed: 1 2438 9 : Client 1 ran 2438u in 9s without the flag.
+ 20:04 Exit: Timelimit hit.
+ 20:04 red:2  blue:3
+ 20:04 score: 28  ping: 0  client: 0 Neko
+ 20:04 score: 22  ping: 0  client: 1 Dark
+ 20:18 ShutdownGame:
+ 20:18 ------------------------------------------------------------
+  0:00 ------------------------------------------------------------
+  0:00 InitGame: \sv_hostname\^4Z^5imsNEW ^1I^3nstantgib\sv_minRate\2500\sv_maxRate\25000\sv_minPing\0\sv_maxPing\0\sv_floodProtect\1\sv_dlURL\http://openmafia.org/~zimmer/insta\dmflags\512\fraglimit\15\timelimit\20\sv_maxclients\20\sv_dlRate\100\sv_fps\20\sv_allowDownload\1\bot_minplayers\1\g_needpass\0\g_delagHitscan\1\videoflags\0\g_maxGameClients\20\g_doWarmup\1\g_allowVote\0\capturelimit\8\g_allowSpectatorVote\0\elimination_roundtime\120\g_lms_mode\0\version\ioq3+oa 1.36+0.8.8 linux-x86_64-debug May 30 2014\com_gamename\Quake3Arena\com_protocol\71\g_gametype\4\mapname\q3wcp17\sv_privateClients\2\_Admin\Zimmer106|Pixelized|SooKee|wing|dev/gamepad|L\_Email\drremmiz@gmail.com\_Location\Nuremberg\_Website\http://zimmersservers.tk/\snaps\20\g_instantgib\2\gamename\baseoa\voteflags\279\g_rockets\0\g_timestamp\2014-06-01 06:09:02\mod_katina\0.1-beta
+  0:00 Info: ServerInfo length: 842 of 1024
+  0:00 Warmup:
+  0:00 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:00 ClientConnect: 0
+  0:00 Info: There has been at least 1 bot now
+  0:00 Playerstore: Failed to restore player. Invalid guid: 
+  0:00 ClientBegin: 0
+  0:00 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:00 ClientConnect: 1
+  0:00 Playerstore: Failed to restore player. Invalid guid: 
+  0:00 ClientBegin: 1
+  0:00 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  0:00 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:02 sayteam: Neko: Enemy flag here I come.
+  0:04 ShutdownGame:
+  0:04 ------------------------------------------------------------
+  0:04 ------------------------------------------------------------
+  0:04 InitGame: \sv_hostname\^4Z^5imsNEW ^1I^3nstantgib\sv_minRate\2500\sv_maxRate\25000\sv_minPing\0\sv_maxPing\0\sv_floodProtect\1\sv_dlURL\http://openmafia.org/~zimmer/insta\dmflags\512\fraglimit\15\timelimit\20\sv_maxclients\20\sv_dlRate\100\sv_fps\20\sv_allowDownload\1\bot_minplayers\1\g_needpass\0\g_delagHitscan\1\videoflags\0\g_maxGameClients\20\g_doWarmup\1\g_allowVote\0\capturelimit\8\g_allowSpectatorVote\0\elimination_roundtime\120\g_lms_mode\0\version\ioq3+oa 1.36+0.8.8 linux-x86_64-debug May 30 2014\com_gamename\Quake3Arena\com_protocol\71\g_gametype\4\mapname\q3wcp17\sv_privateClients\2\_Admin\Zimmer106|Pixelized|SooKee|wing|dev/gamepad|L\_Email\drremmiz@gmail.com\_Location\Nuremberg\_Website\http://zimmersservers.tk/\snaps\20\g_instantgib\2\gamename\baseoa\voteflags\279\g_rockets\0\g_timestamp\2014-06-01 06:09:05\mod_katina\0.1-beta
+  0:04 Info: ServerInfo length: 842 of 1024
+  0:04 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:04 ClientConnect: 0
+  0:04 Info: There has been at least 1 bot now
+  0:04 Playerstore: Failed to restore player. Invalid guid: 
+  0:04 ClientBegin: 0
+  0:04 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  0:04 ClientConnect: 1
+  0:04 Playerstore: Failed to restore player. Invalid guid: 
+  0:04 ClientBegin: 1
+  0:05 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\3\tl\0\id\
+  0:05 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  0:05 sayteam: Neko: I'm defending the Blue Flag.
+  0:13 sayteam: Dark: Who's the leader of this rag-tag bunch?
+  0:16 sayteam: Neko: Who's the leader of this rag-tag bunch?
+  0:23 sayteam: Dark: I'm the leader.
+  0:24 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  0:24 PlayerScore: 1 1: Dark now has 1 points
+  0:34 sayteam: Neko: I will lead.
+  1:22 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  1:22 PlayerScore: 0 1: Neko now has 1 points
+  1:22 PlayerScore: 0 2: Neko now has 2 points
+  1:22 Award: 0 3: Neko gained the DEFENCE award!
+  3:17 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  3:17 PlayerScore: 0 3: Neko now has 3 points
+  3:17 PlayerScore: 0 4: Neko now has 4 points
+  3:17 Award: 0 3: Neko gained the DEFENCE award!
+  3:24 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  3:24 PlayerScore: 1 2: Dark now has 2 points
+  3:35 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  3:35 PlayerScore: 0 5: Neko now has 5 points
+  3:45 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  3:45 PlayerScore: 0 6: Neko now has 6 points
+  3:45 PlayerScore: 0 7: Neko now has 7 points
+  3:45 Award: 0 3: Neko gained the DEFENCE award!
+  4:19 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  4:19 PlayerScore: 0 8: Neko now has 8 points
+  4:19 PlayerScore: 0 9: Neko now has 9 points
+  4:19 Award: 0 3: Neko gained the DEFENCE award!
+  6:00 chat: ^3INFO^1: ^5Use ^3!love map ^7or ^3!hate map ^5to influence map rotation
+  6:10 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  6:10 PlayerScore: 1 3: Dark now has 3 points
+  7:42 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  7:42 PlayerScore: 0 10: Neko now has 10 points
+  7:42 PlayerScore: 0 11: Neko now has 11 points
+  7:42 Award: 0 3: Neko gained the DEFENCE award!
+  9:34 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  9:34 PlayerScore: 0 12: Neko now has 12 points
+ 10:10 sayteam: Neko: I'm not defending the Blue Flag.
+ 10:27 Item: 0 team_CTF_redflag
+ 10:27 CTF: 0 1 0: Neko got the RED flag!
+ 10:27 PlayerScore: 0 12: Neko now has 12 points
+ 10:27 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 10:27 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 10:38 Item: 1 team_CTF_blueflag
+ 10:38 CTF: 1 2 0: Dark got the BLUE flag!
+ 10:38 PlayerScore: 1 3: Dark now has 3 points
+ 10:38 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 11:01 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 11:01 PlayerScore: 0 13: Neko now has 13 points
+ 11:01 PlayerScore: 0 15: Neko now has 15 points
+ 11:01 CTF: 0 1 3: Neko fragged RED's flag carrier!
+ 11:20 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 11:20 PlayerScore: 0 16: Neko now has 16 points
+ 11:20 PlayerScore: 0 17: Neko now has 17 points
+ 11:20 Award: 0 3: Neko gained the DEFENCE award!
+ 11:22 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 11:28 sayteam: Dark: I will return the flag.
+ 11:31 CTF: -1 2 3: BLUE flag returned after timeout
+ 11:39 Item: 0 team_CTF_blueflag
+ 11:39 CTF: 0 1 1: Neko captured the RED flag!
+ 11:39 Award: 0 4: Neko gained the CAPTURE award!
+ 11:39 PlayerScore: 0 22: Neko now has 22 points
+ 11:42 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 11:42 PlayerScore: 1 4: Dark now has 4 points
+ 11:44 Item: 1 team_CTF_blueflag
+ 11:44 CTF: 1 2 0: Dark got the BLUE flag!
+ 11:44 PlayerScore: 1 4: Dark now has 4 points
+ 11:44 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 11:44 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 11:50 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 11:50 PlayerScore: 0 23: Neko now has 23 points
+ 11:50 PlayerScore: 0 25: Neko now has 25 points
+ 11:50 CTF: 0 1 3: Neko fragged RED's flag carrier!
+ 12:14 Item: 0 team_CTF_redflag
+ 12:14 CTF: 0 1 0: Neko got the RED flag!
+ 12:14 PlayerScore: 0 25: Neko now has 25 points
+ 12:14 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 12:14 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 12:15 sayteam: Dark: I shall return the flag.
+ 12:20 CTF: -1 2 3: BLUE flag returned after timeout
+ 12:26 Item: 1 team_CTF_blueflag
+ 12:26 CTF: 1 2 0: Dark got the BLUE flag!
+ 12:26 PlayerScore: 1 4: Dark now has 4 points
+ 12:26 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 12:44 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 12:44 PlayerScore: 1 5: Dark now has 5 points
+ 12:44 PlayerScore: 1 7: Dark now has 7 points
+ 12:44 CTF: 1 2 3: Dark fragged BLUE's flag carrier!
+ 12:46 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 12:48 sayteam: Neko: I'll get the flag back.
+ 12:50 Item: 0 team_CTF_redflag
+ 12:50 CTF: 0 1 0: Neko got the RED flag!
+ 12:50 PlayerScore: 0 25: Neko now has 25 points
+ 12:50 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 14:32 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 14:50 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 16:40 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 16:50 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 18:40 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 18:51 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 18:58 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 18:58 PlayerScore: 1 8: Dark now has 8 points
+ 18:58 PlayerScore: 1 10: Dark now has 10 points
+ 18:58 CTF: 1 2 3: Dark fragged BLUE's flag carrier!
+ 18:58 Item: 1 team_CTF_redflag
+ 18:58 PlayerScore: 1 11: Dark now has 11 points
+ 18:58 CTF: 1 1 2: Dark returned the RED flag!
+ 19:00 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 19:08 Item: 1 team_CTF_redflag
+ 19:08 CTF: 1 2 1: Dark captured the BLUE flag!
+ 19:08 Award: 1 4: Dark gained the CAPTURE award!
+ 19:08 PlayerScore: 1 16: Dark now has 16 points
+ 19:15 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 19:15 PlayerScore: 0 26: Neko now has 26 points
+ 19:19 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 19:19 PlayerScore: 0 27: Neko now has 27 points
+ 19:22 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 19:22 PlayerScore: 1 17: Dark now has 17 points
+ 19:22 PlayerScore: 1 18: Dark now has 18 points
+ 19:22 Award: 1 3: Dark gained the DEFENCE award!
+ 19:32 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 19:32 PlayerScore: 1 19: Dark now has 19 points
+ 19:32 Award: 1 2: Dark gained the IMPRESSIVE award!
+ 19:52 Item: 1 team_CTF_blueflag
+ 19:52 CTF: 1 2 0: Dark got the BLUE flag!
+ 19:52 PlayerScore: 1 19: Dark now has 19 points
+ 19:52 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+ 20:06 Item: 1 team_CTF_redflag
+ 20:06 CTF: 1 2 1: Dark captured the BLUE flag!
+ 20:06 Award: 1 4: Dark gained the CAPTURE award!
+ 20:06 PlayerScore: 1 24: Dark now has 24 points
+ 20:06 WeaponUsage: 0 7 9
+ 20:06 Speed: 0 10294 32 : Client 0 ran 10294u in 32s without the flag.
+ 20:06 WeaponUsage: 1 7 10
+ 20:06 MODDamage: 1 10 2 1120 0 0 2.000000
+ 20:06 MODDamage: 1 19 0 0 2 10 0.000000
+ 20:06 Speed: 1 10282 31 : Client 1 ran 10282u in 31s without the flag.
+ 20:06 SpeedFlag: 1 4511 14 : Client 1 ran 4511u in 14s while holding the flag.
+ 20:06 Exit: Timelimit hit.
+ 20:06 red:2  blue:1
+ 20:06 score: 27  ping: 0  client: 0 Neko
+ 20:06 score: 24  ping: 0  client: 1 Dark
+ 20:20 ShutdownGame:
+ 20:20 ------------------------------------------------------------
+  0:00 ------------------------------------------------------------
+  0:00 InitGame: \sv_hostname\^4Z^5imsNEW ^1I^3nstantgib\sv_minRate\2500\sv_maxRate\25000\sv_minPing\0\sv_maxPing\0\sv_floodProtect\1\sv_dlURL\http://openmafia.org/~zimmer/insta\dmflags\512\fraglimit\15\timelimit\20\sv_maxclients\20\sv_dlRate\100\sv_fps\20\sv_allowDownload\1\bot_minplayers\1\g_needpass\0\g_delagHitscan\1\videoflags\0\g_maxGameClients\20\g_doWarmup\1\g_allowVote\0\capturelimit\8\g_allowSpectatorVote\0\elimination_roundtime\120\g_lms_mode\0\version\ioq3+oa 1.36+0.8.8 linux-x86_64-debug May 30 2014\com_gamename\Quake3Arena\com_protocol\71\g_gametype\4\mapname\ps37ctf3\sv_privateClients\2\_Admin\Zimmer106|Pixelized|SooKee|wing|dev/gamepad|L\_Email\drremmiz@gmail.com\_Location\Nuremberg\_Website\http://zimmersservers.tk/\snaps\20\g_instantgib\2\gamename\baseoa\voteflags\279\g_rockets\0\g_timestamp\2014-06-01 06:29:22\mod_katina\0.1-beta
+  0:00 Info: ServerInfo length: 843 of 1024
+  0:00 Warmup:
+  0:00 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  0:00 ClientConnect: 0
+  0:00 Info: There has been at least 1 bot now
+  0:00 Playerstore: Failed to restore player. Invalid guid: 
+  0:00 ClientBegin: 0
+  0:00 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  0:00 ClientConnect: 1
+  0:00 Playerstore: Failed to restore player. Invalid guid: 
+  0:00 ClientBegin: 1
+  0:00 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\3\tl\0\id\
+  0:00 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  0:03 sayteam: Neko: I am defending the Blue Flag.
+  0:04 ShutdownGame:
+  0:04 ------------------------------------------------------------
+  0:04 ------------------------------------------------------------
+  0:04 InitGame: \sv_hostname\^4Z^5imsNEW ^1I^3nstantgib\sv_minRate\2500\sv_maxRate\25000\sv_minPing\0\sv_maxPing\0\sv_floodProtect\1\sv_dlURL\http://openmafia.org/~zimmer/insta\dmflags\512\fraglimit\15\timelimit\20\sv_maxclients\20\sv_dlRate\100\sv_fps\20\sv_allowDownload\1\bot_minplayers\1\g_needpass\0\g_delagHitscan\1\videoflags\0\g_maxGameClients\20\g_doWarmup\1\g_allowVote\0\capturelimit\8\g_allowSpectatorVote\0\elimination_roundtime\120\g_lms_mode\0\version\ioq3+oa 1.36+0.8.8 linux-x86_64-debug May 30 2014\com_gamename\Quake3Arena\com_protocol\71\g_gametype\4\mapname\ps37ctf3\sv_privateClients\2\_Admin\Zimmer106|Pixelized|SooKee|wing|dev/gamepad|L\_Email\drremmiz@gmail.com\_Location\Nuremberg\_Website\http://zimmersservers.tk/\snaps\20\g_instantgib\2\gamename\baseoa\voteflags\279\g_rockets\0\g_timestamp\2014-06-01 06:29:25\mod_katina\0.1-beta
+  0:04 Info: ServerInfo length: 843 of 1024
+  0:04 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  0:04 ClientConnect: 0
+  0:04 Info: There has been at least 1 bot now
+  0:04 Playerstore: Failed to restore player. Invalid guid: 
+  0:04 ClientBegin: 0
+  0:04 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\3\tl\0\id\
+  0:04 ClientConnect: 1
+  0:04 Playerstore: Failed to restore player. Invalid guid: 
+  0:04 ClientBegin: 1
+  0:05 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:05 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:05 sayteam: Neko: Sounds like a plan.
+  0:07 sayteam: Dark: Sounds like a plan.
+  0:13 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  0:13 PlayerScore: 0 1: Neko now has 1 points
+  0:16 sayteam: Dark: who is the leader of this rag-tag bunch?
+  0:18 sayteam: Neko: who is the leader of this rag-tag bunch?
+  0:22 Item: 0 team_CTF_redflag
+  0:22 CTF: 0 1 0: Neko got the RED flag!
+  0:22 PlayerScore: 0 1: Neko now has 1 points
+  0:22 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:25 sayteam: Dark: I lead.
+  0:26 Item: 1 team_CTF_blueflag
+  0:26 CTF: 1 2 0: Dark got the BLUE flag!
+  0:26 PlayerScore: 1 0: Dark now has 0 points
+  0:26 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:30 sayteam: Neko: I'm the leader.
+  0:40 chat: ^3INFO^1: ^5Come to ^3IRC ^7@ ^3QuakeNet ^7#^3openarenahelp
+  2:22 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  2:29 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  4:22 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  4:29 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  6:26 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  6:29 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  8:27 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  8:32 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 10:27 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 10:33 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 12:27 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 12:33 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 14:28 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 14:34 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 15:40 chat: ^3INFO^1: ^5Use ^3!register ^5to select your current name to appear in the web stats
+ 16:32 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 16:35 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 18:33 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 18:37 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 20:33 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 20:40 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 20:40 PlayerScore: 1 1: Dark now has 1 points
+ 20:40 PlayerScore: 1 3: Dark now has 3 points
+ 20:40 CTF: 1 2 3: Dark fragged BLUE's flag carrier!
+ 20:43 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+ 20:43 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 20:45 sayteam: Neko: I shall get the flag back.
+ 20:50 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 20:50 PlayerScore: 1 4: Dark now has 4 points
+ 20:50 PlayerScore: 1 5: Dark now has 5 points
+ 20:50 Award: 1 3: Dark gained the DEFENCE award!
+ 21:00 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 21:00 PlayerScore: 0 2: Neko now has 2 points
+ 21:00 PlayerScore: 0 4: Neko now has 4 points
+ 21:00 CTF: 0 1 3: Neko fragged RED's flag carrier!
+ 21:07 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 21:07 PlayerScore: 0 5: Neko now has 5 points
+ 21:09 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 21:10 CTF: -1 1 3: RED flag returned after timeout
+ 21:10 Item: 0 team_CTF_redflag
+ 21:10 CTF: 0 1 0: Neko got the RED flag!
+ 21:10 PlayerScore: 0 5: Neko now has 5 points
+ 21:11 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 21:11 PlayerScore: 0 6: Neko now has 6 points
+ 21:11 Award: 0 2: Neko gained the IMPRESSIVE award!
+ 21:11 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 21:12 sayteam: Dark: I will get our flag back.
+ 21:30 CTF: -1 2 3: BLUE flag returned after timeout
+ 21:33 Item: 0 team_CTF_blueflag
+ 21:33 CTF: 0 1 1: Neko captured the RED flag!
+ 21:33 Award: 0 4: Neko gained the CAPTURE award!
+ 21:33 PlayerScore: 0 11: Neko now has 11 points
+ 21:33 WeaponUsage: 0 7 6
+ 21:33 MODDamage: 0 10 3 1680 0 0 3.000000
+ 21:33 Speed: 0 5421 19 : Client 0 ran 5421u in 19s without the flag.
+ 21:33 SpeedFlag: 0 6962 23 : Client 0 ran 6962u in 23s while holding the flag.
+ 21:33 WeaponUsage: 1 7 1
+ 21:33 Speed: 1 6157 21 : Client 1 ran 6157u in 21s without the flag.
+ 21:33 Exit: Timelimit hit.
+ 21:33 red:0  blue:1
+ 21:33 score: 11  ping: 0  client: 0 Neko
+ 21:33 score: 5  ping: 0  client: 1 Dark
+ 21:47 ShutdownGame:
+ 21:47 ------------------------------------------------------------
+  0:00 ------------------------------------------------------------
+  0:00 InitGame: \sv_hostname\^4Z^5imsNEW ^1I^3nstantgib\sv_minRate\2500\sv_maxRate\25000\sv_minPing\0\sv_maxPing\0\sv_floodProtect\1\sv_dlURL\http://openmafia.org/~zimmer/insta\dmflags\512\fraglimit\15\timelimit\20\sv_maxclients\20\sv_dlRate\100\sv_fps\20\sv_allowDownload\1\bot_minplayers\1\g_needpass\0\g_delagHitscan\1\videoflags\0\g_maxGameClients\20\g_doWarmup\1\g_allowVote\0\capturelimit\8\g_allowSpectatorVote\0\elimination_roundtime\120\g_lms_mode\0\version\ioq3+oa 1.36+0.8.8 linux-x86_64-debug May 30 2014\com_gamename\Quake3Arena\com_protocol\71\g_gametype\4\mapname\oasago2j\sv_privateClients\2\_Admin\Zimmer106|Pixelized|SooKee|wing|dev/gamepad|L\_Email\drremmiz@gmail.com\_Location\Nuremberg\_Website\http://zimmersservers.tk/\snaps\20\g_instantgib\2\gamename\baseoa\voteflags\279\g_rockets\0\g_timestamp\2014-06-01 06:51:09\mod_katina\0.1-beta
+  0:00 Info: ServerInfo length: 843 of 1024
+  0:00 Warmup:
+  0:00 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:00 ClientConnect: 0
+  0:00 Info: There has been at least 1 bot now
+  0:00 Playerstore: Failed to restore player. Invalid guid: 
+  0:00 ClientBegin: 0
+  0:00 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  0:00 ClientConnect: 1
+  0:00 Playerstore: Failed to restore player. Invalid guid: 
+  0:00 ClientBegin: 1
+  0:00 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:00 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\3\tl\0\id\
+  0:03 sayteam: Dark: Sounds like a plan.
+  0:04 ShutdownGame:
+  0:04 ------------------------------------------------------------
+  0:04 ------------------------------------------------------------
+  0:04 InitGame: \sv_hostname\^4Z^5imsNEW ^1I^3nstantgib\sv_minRate\2500\sv_maxRate\25000\sv_minPing\0\sv_maxPing\0\sv_floodProtect\1\sv_dlURL\http://openmafia.org/~zimmer/insta\dmflags\512\fraglimit\15\timelimit\20\sv_maxclients\20\sv_dlRate\100\sv_fps\20\sv_allowDownload\1\bot_minplayers\1\g_needpass\0\g_delagHitscan\1\videoflags\0\g_maxGameClients\20\g_doWarmup\1\g_allowVote\0\capturelimit\8\g_allowSpectatorVote\0\elimination_roundtime\120\g_lms_mode\0\version\ioq3+oa 1.36+0.8.8 linux-x86_64-debug May 30 2014\com_gamename\Quake3Arena\com_protocol\71\g_gametype\4\mapname\oasago2j\sv_privateClients\2\_Admin\Zimmer106|Pixelized|SooKee|wing|dev/gamepad|L\_Email\drremmiz@gmail.com\_Location\Nuremberg\_Website\http://zimmersservers.tk/\snaps\20\g_instantgib\2\gamename\baseoa\voteflags\279\g_rockets\0\g_timestamp\2014-06-01 06:51:13\mod_katina\0.1-beta
+  0:04 Info: ServerInfo length: 843 of 1024
+  0:04 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\3\tl\0\id\
+  0:04 ClientConnect: 0
+  0:04 Info: There has been at least 1 bot now
+  0:04 Playerstore: Failed to restore player. Invalid guid: 
+  0:04 ClientBegin: 0
+  0:04 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:04 ClientConnect: 1
+  0:04 Playerstore: Failed to restore player. Invalid guid: 
+  0:04 ClientBegin: 1
+  0:05 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\3\tl\0\id\
+  0:05 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:07 sayteam: Neko: I'm off to get the flag.
+  0:10 sayteam: Neko: Who's the leader of this rag-tag bunch?
+  0:17 sayteam: Dark: who is the leader of this rag-tag bunch?
+  0:21 Item: 0 team_CTF_redflag
+  0:21 CTF: 0 1 0: Neko got the RED flag!
+  0:21 PlayerScore: 0 0: Neko now has 0 points
+  0:22 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  0:27 sayteam: Neko: I am the leader.
+  0:29 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  0:34 sayteam: Dark: I am the leader.
+  0:41 Item: 0 team_CTF_blueflag
+  0:41 CTF: 0 1 1: Neko captured the RED flag!
+  0:41 Award: 0 4: Neko gained the CAPTURE award!
+  0:41 PlayerScore: 0 5: Neko now has 5 points
+  0:52 Item: 1 team_CTF_blueflag
+  0:52 CTF: 1 2 0: Dark got the BLUE flag!
+  0:52 PlayerScore: 1 0: Dark now has 0 points
+  0:52 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  0:52 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  0:52 PlayerScore: 0 6: Neko now has 6 points
+  0:52 PlayerScore: 0 8: Neko now has 8 points
+  0:52 CTF: 0 1 3: Neko fragged RED's flag carrier!
+  0:52 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  1:07 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  1:07 PlayerScore: 0 9: Neko now has 9 points
+  1:11 Item: 0 team_CTF_redflag
+  1:11 CTF: 0 1 0: Neko got the RED flag!
+  1:11 PlayerScore: 0 9: Neko now has 9 points
+  1:11 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  1:15 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  1:15 PlayerScore: 0 10: Neko now has 10 points
+  1:17 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  1:18 sayteam: Dark: I shall get our flag back.
+  1:22 CTF: -1 2 3: BLUE flag returned after timeout
+  1:29 Item: 0 team_CTF_blueflag
+  1:29 CTF: 0 1 1: Neko captured the RED flag!
+  1:29 Award: 0 4: Neko gained the CAPTURE award!
+  1:29 PlayerScore: 0 15: Neko now has 15 points
+  1:39 Item: 1 team_CTF_blueflag
+  1:39 CTF: 1 2 0: Dark got the BLUE flag!
+  1:39 PlayerScore: 1 0: Dark now has 0 points
+  1:39 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  1:39 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  1:57 Item: 1 team_CTF_redflag
+  1:57 CTF: 1 2 1: Dark captured the BLUE flag!
+  1:57 Award: 1 4: Dark gained the CAPTURE award!
+  1:57 PlayerScore: 1 5: Dark now has 5 points
+  2:01 Item: 0 team_CTF_redflag
+  2:01 CTF: 0 1 0: Neko got the RED flag!
+  2:01 PlayerScore: 0 15: Neko now has 15 points
+  2:01 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  2:03 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  2:22 Item: 0 team_CTF_blueflag
+  2:22 CTF: 0 1 1: Neko captured the RED flag!
+  2:22 Award: 0 4: Neko gained the CAPTURE award!
+  2:22 PlayerScore: 0 20: Neko now has 20 points
+  2:28 Item: 1 team_CTF_blueflag
+  2:28 CTF: 1 2 0: Dark got the BLUE flag!
+  2:28 PlayerScore: 1 5: Dark now has 5 points
+  2:29 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  2:30 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  2:47 Item: 1 team_CTF_redflag
+  2:47 CTF: 1 2 1: Dark captured the BLUE flag!
+  2:47 Award: 1 4: Dark gained the CAPTURE award!
+  2:47 PlayerScore: 1 10: Dark now has 10 points
+  2:50 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  2:50 PlayerScore: 1 11: Dark now has 11 points
+  2:50 PlayerScore: 1 12: Dark now has 12 points
+  2:50 Award: 1 3: Dark gained the DEFENCE award!
+  3:03 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  3:03 PlayerScore: 0 21: Neko now has 21 points
+  3:17 Item: 0 team_CTF_redflag
+  3:17 CTF: 0 1 0: Neko got the RED flag!
+  3:17 PlayerScore: 0 21: Neko now has 21 points
+  3:17 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  3:20 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  3:20 PlayerScore: 1 13: Dark now has 13 points
+  3:20 PlayerScore: 1 15: Dark now has 15 points
+  3:20 CTF: 1 2 3: Dark fragged BLUE's flag carrier!
+  3:21 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  3:24 Item: 1 team_CTF_redflag
+  3:24 PlayerScore: 1 16: Dark now has 16 points
+  3:24 CTF: 1 1 2: Dark returned the RED flag!
+  3:44 Item: 1 team_CTF_blueflag
+  3:44 CTF: 1 2 0: Dark got the BLUE flag!
+  3:44 PlayerScore: 1 16: Dark now has 16 points
+  3:44 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  3:44 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  3:58 Item: 0 team_CTF_redflag
+  3:58 CTF: 0 1 0: Neko got the RED flag!
+  3:58 PlayerScore: 0 21: Neko now has 21 points
+  3:58 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  5:48 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  5:58 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  7:48 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  7:58 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  8:53 chat: ^3INFO^1: ^5Use ^3!stats ^5to see your stats for this month on the current map
+  9:50 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  9:59 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 11:55 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 11:59 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 13:55 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 13:59 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 15:55 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 16:10 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 16:42 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 16:42 PlayerScore: 0 22: Neko now has 22 points
+ 16:42 PlayerScore: 0 24: Neko now has 24 points
+ 16:42 CTF: 0 1 3: Neko fragged RED's flag carrier!
+ 16:44 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 16:44 Item: 0 team_CTF_blueflag
+ 16:44 PlayerScore: 0 25: Neko now has 25 points
+ 16:44 CTF: 0 2 2: Neko returned the BLUE flag!
+ 16:44 sayteam: Dark: I shall return the flag.
+ 16:49 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 16:49 Item: 0 team_CTF_blueflag
+ 16:49 CTF: 0 1 1: Neko captured the RED flag!
+ 16:49 Award: 0 4: Neko gained the CAPTURE award!
+ 16:49 PlayerScore: 0 30: Neko now has 30 points
+ 17:08 Item: 1 team_CTF_blueflag
+ 17:08 CTF: 1 2 0: Dark got the BLUE flag!
+ 17:08 PlayerScore: 1 16: Dark now has 16 points
+ 17:08 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 17:29 Item: 1 team_CTF_redflag
+ 17:29 CTF: 1 2 1: Dark captured the BLUE flag!
+ 17:29 Award: 1 4: Dark gained the CAPTURE award!
+ 17:29 PlayerScore: 1 21: Dark now has 21 points
+ 17:33 Item: 0 team_CTF_redflag
+ 17:33 CTF: 0 1 0: Neko got the RED flag!
+ 17:33 PlayerScore: 0 30: Neko now has 30 points
+ 17:33 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+ 17:43 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 17:43 PlayerScore: 1 22: Dark now has 22 points
+ 17:43 PlayerScore: 1 24: Dark now has 24 points
+ 17:43 CTF: 1 2 3: Dark fragged BLUE's flag carrier!
+ 17:43 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 17:46 Item: 1 team_CTF_redflag
+ 17:46 PlayerScore: 1 25: Dark now has 25 points
+ 17:46 CTF: 1 1 2: Dark returned the RED flag!
+ 17:49 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 17:49 PlayerScore: 1 26: Dark now has 26 points
+ 17:59 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 17:59 PlayerScore: 0 31: Neko now has 31 points
+ 17:59 PlayerScore: 0 32: Neko now has 32 points
+ 17:59 Award: 0 3: Neko gained the DEFENCE award!
+ 18:16 Item: 1 team_CTF_blueflag
+ 18:16 CTF: 1 2 0: Dark got the BLUE flag!
+ 18:16 PlayerScore: 1 26: Dark now has 26 points
+ 18:16 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 18:16 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 18:26 Item: 0 team_CTF_redflag
+ 18:26 CTF: 0 1 0: Neko got the RED flag!
+ 18:26 PlayerScore: 0 32: Neko now has 32 points
+ 18:26 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 18:30 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 18:30 PlayerScore: 1 27: Dark now has 27 points
+ 18:30 PlayerScore: 1 29: Dark now has 29 points
+ 18:30 CTF: 1 2 3: Dark fragged BLUE's flag carrier!
+ 18:30 Item: 1 team_CTF_redflag
+ 18:30 PlayerScore: 1 30: Dark now has 30 points
+ 18:30 CTF: 1 1 2: Dark returned the RED flag!
+ 18:32 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 18:34 Item: 1 team_CTF_redflag
+ 18:34 CTF: 1 2 1: Dark captured the BLUE flag!
+ 18:34 Award: 1 4: Dark gained the CAPTURE award!
+ 18:34 PlayerScore: 1 35: Dark now has 35 points
+ 18:45 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 18:45 PlayerScore: 0 33: Neko now has 33 points
+ 18:49 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 18:49 PlayerScore: 0 34: Neko now has 34 points
+ 18:49 Award: 0 2: Neko gained the IMPRESSIVE award!
+ 18:51 Item: 0 team_CTF_redflag
+ 18:51 CTF: 0 1 0: Neko got the RED flag!
+ 18:51 PlayerScore: 0 34: Neko now has 34 points
+ 18:52 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+ 18:55 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 18:55 PlayerScore: 0 35: Neko now has 35 points
+ 18:58 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 18:58 PlayerScore: 0 36: Neko now has 36 points
+ 18:58 Award: 0 1: Neko gained the EXCELLENT award!
+ 18:58 Award: 0 2: Neko gained the IMPRESSIVE award!
+ 19:00 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 19:11 Item: 0 team_CTF_blueflag
+ 19:11 CTF: 0 1 1: Neko captured the RED flag!
+ 19:11 Award: 0 4: Neko gained the CAPTURE award!
+ 19:11 PlayerScore: 0 41: Neko now has 41 points
+ 19:23 Item: 1 team_CTF_blueflag
+ 19:23 CTF: 1 2 0: Dark got the BLUE flag!
+ 19:23 PlayerScore: 1 35: Dark now has 35 points
+ 19:23 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 19:23 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 19:40 Item: 1 team_CTF_redflag
+ 19:40 CTF: 1 2 1: Dark captured the BLUE flag!
+ 19:40 Award: 1 4: Dark gained the CAPTURE award!
+ 19:40 PlayerScore: 1 40: Dark now has 40 points
+ 19:41 Item: 0 team_CTF_redflag
+ 19:41 CTF: 0 1 0: Neko got the RED flag!
+ 19:41 PlayerScore: 0 41: Neko now has 41 points
+ 19:41 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+ 19:41 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 19:41 PlayerScore: 0 42: Neko now has 42 points
+ 19:43 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 19:56 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 19:56 PlayerScore: 0 43: Neko now has 43 points
+ 20:01 Item: 0 team_CTF_blueflag
+ 20:01 CTF: 0 1 1: Neko captured the RED flag!
+ 20:01 Award: 0 4: Neko gained the CAPTURE award!
+ 20:01 PlayerScore: 0 48: Neko now has 48 points
+ 20:04 WeaponUsage: 0 7 10
+ 20:04 MODDamage: 0 10 6 3360 0 0 6.000000
+ 20:04 Speed: 0 15298 53 : Client 0 ran 15298u in 53s without the flag.
+ 20:04 SpeedFlag: 0 12111 39 : Client 0 ran 12111u in 39s while holding the flag.
+ 20:04 Speed: 1 1652 6 : Client 1 ran 1652u in 6s without the flag.
+ 20:04 Exit: Timelimit hit.
+ 20:04 red:5  blue:6
+ 20:04 score: 48  ping: 0  client: 0 Neko
+ 20:04 score: 40  ping: 0  client: 1 Dark
+ 20:18 ShutdownGame:
+ 20:18 ------------------------------------------------------------
+  0:00 ------------------------------------------------------------
+  0:00 InitGame: \sv_hostname\^4Z^5imsNEW ^1I^3nstantgib\sv_minRate\2500\sv_maxRate\25000\sv_minPing\0\sv_maxPing\0\sv_floodProtect\1\sv_dlURL\http://openmafia.org/~zimmer/insta\dmflags\512\fraglimit\15\timelimit\20\sv_maxclients\20\sv_dlRate\100\sv_fps\20\sv_allowDownload\1\bot_minplayers\1\g_needpass\0\g_delagHitscan\1\videoflags\0\g_maxGameClients\20\g_doWarmup\1\g_allowVote\0\capturelimit\8\g_allowSpectatorVote\0\elimination_roundtime\120\g_lms_mode\0\version\ioq3+oa 1.36+0.8.8 linux-x86_64-debug May 30 2014\com_gamename\Quake3Arena\com_protocol\71\g_gametype\4\mapname\wtf44\sv_privateClients\2\_Admin\Zimmer106|Pixelized|SooKee|wing|dev/gamepad|L\_Email\drremmiz@gmail.com\_Location\Nuremberg\_Website\http://zimmersservers.tk/\snaps\20\g_instantgib\2\gamename\baseoa\voteflags\279\g_rockets\0\g_timestamp\2014-06-01 07:11:26\mod_katina\0.1-beta
+  0:00 Info: ServerInfo length: 840 of 1024
+  0:00 Warmup:
+  0:00 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  0:00 ClientConnect: 0
+  0:00 Info: There has been at least 1 bot now
+  0:00 Playerstore: Failed to restore player. Invalid guid: 
+  0:00 ClientBegin: 0
+  0:00 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  0:00 ClientConnect: 1
+  0:00 Playerstore: Failed to restore player. Invalid guid: 
+  0:00 ClientBegin: 1
+  0:00 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:00 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:00 sayteam: Neko: Sounds like a plan.
+  0:03 sayteam: Dark: I'm off to get the flag.
+  0:04 ShutdownGame:
+  0:04 ------------------------------------------------------------
+  0:04 ------------------------------------------------------------
+  0:04 InitGame: \sv_hostname\^4Z^5imsNEW ^1I^3nstantgib\sv_minRate\2500\sv_maxRate\25000\sv_minPing\0\sv_maxPing\0\sv_floodProtect\1\sv_dlURL\http://openmafia.org/~zimmer/insta\dmflags\512\fraglimit\15\timelimit\20\sv_maxclients\20\sv_dlRate\100\sv_fps\20\sv_allowDownload\1\bot_minplayers\1\g_needpass\0\g_delagHitscan\1\videoflags\0\g_maxGameClients\20\g_doWarmup\1\g_allowVote\0\capturelimit\8\g_allowSpectatorVote\0\elimination_roundtime\120\g_lms_mode\0\version\ioq3+oa 1.36+0.8.8 linux-x86_64-debug May 30 2014\com_gamename\Quake3Arena\com_protocol\71\g_gametype\4\mapname\wtf44\sv_privateClients\2\_Admin\Zimmer106|Pixelized|SooKee|wing|dev/gamepad|L\_Email\drremmiz@gmail.com\_Location\Nuremberg\_Website\http://zimmersservers.tk/\snaps\20\g_instantgib\2\gamename\baseoa\voteflags\279\g_rockets\0\g_timestamp\2014-06-01 07:11:30\mod_katina\0.1-beta
+  0:04 Info: ServerInfo length: 840 of 1024
+  0:04 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:04 ClientConnect: 0
+  0:04 Info: There has been at least 1 bot now
+  0:04 Playerstore: Failed to restore player. Invalid guid: 
+  0:04 ClientBegin: 0
+  0:04 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:04 ClientConnect: 1
+  0:04 Playerstore: Failed to restore player. Invalid guid: 
+  0:04 ClientBegin: 1
+  0:05 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:07 sayteam: Dark: Sounds like a plan.
+  0:10 sayteam: Neko: Who's the leader of this rag-tag bunch?
+  0:12 sayteam: Dark: who is the leader of this rag-tag bunch?
+  0:25 sayteam: Neko: I am the leader.
+  0:27 Item: 0 team_CTF_redflag
+  0:27 CTF: 0 1 0: Neko got the RED flag!
+  0:27 PlayerScore: 0 0: Neko now has 0 points
+  0:27 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:27 Item: 1 team_CTF_blueflag
+  0:27 CTF: 1 2 0: Dark got the BLUE flag!
+  0:27 PlayerScore: 1 0: Dark now has 0 points
+  0:27 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:29 sayteam: Dark: I lead.
+  1:02 ClientUserinfoChanged: 2 n\^4denc^3hik^1\t\3\model\liz/default\hmodel\liz/default\g_redteam\\g_blueteam\\c1\5\c2\5\hc\100\w\0\l\0\tt\0\tl\0\id\C11130D06A4F81B10A36AA3C4C0659EA
+  1:02 ClientConnectInfo: 2 C11130D06A4F81B10A36AA3C4C0659EA 1.1.1.3
+  1:02 ClientConnect: 2
+  1:03 WeaponUsage: 0 7 3
+  1:03 Speed: 0 6799 22 : Client 0 ran 6799u in 22s without the flag.
+  1:03 SpeedFlag: 0 10305 37 : Client 0 ran 10305u in 37s while holding the flag.
+  1:03 WeaponUsage: 1 7 1
+  1:03 Speed: 1 7282 23 : Client 1 ran 7282u in 23s without the flag.
+  1:03 SpeedFlag: 1 10417 36 : Client 1 ran 10417u in 36s while holding the flag.
+  1:03 ClientDisconnect: 2
+  1:18 Item: 1 team_CTF_redflag
+  1:18 CTF: 1 2 1: Dark captured the BLUE flag!
+  1:18 Award: 1 4: Dark gained the CAPTURE award!
+  1:18 PlayerScore: 1 5: Dark now has 5 points
+  1:21 Item: 0 team_CTF_blueflag
+  1:21 CTF: 0 1 1: Neko captured the RED flag!
+  1:21 Award: 0 4: Neko gained the CAPTURE award!
+  1:21 PlayerScore: 0 5: Neko now has 5 points
+  1:39 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  1:39 PlayerScore: 0 6: Neko now has 6 points
+  1:48 Item: 0 team_CTF_redflag
+  1:48 CTF: 0 1 0: Neko got the RED flag!
+  1:48 PlayerScore: 0 6: Neko now has 6 points
+  1:48 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  1:57 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  1:57 PlayerScore: 1 6: Dark now has 6 points
+  1:57 PlayerScore: 1 8: Dark now has 8 points
+  1:57 CTF: 1 2 3: Dark fragged BLUE's flag carrier!
+  1:57 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  2:03 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  2:03 PlayerScore: 1 9: Dark now has 9 points
+  2:06 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  2:06 PlayerScore: 0 7: Neko now has 7 points
+  2:06 PlayerScore: 0 8: Neko now has 8 points
+  2:06 Award: 0 3: Neko gained the DEFENCE award!
+  2:21 Item: 1 team_CTF_blueflag
+  2:21 CTF: 1 2 0: Dark got the BLUE flag!
+  2:21 PlayerScore: 1 9: Dark now has 9 points
+  2:21 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  2:21 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  2:36 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  2:36 PlayerScore: 1 10: Dark now has 10 points
+  2:40 Item: 1 team_CTF_redflag
+  2:40 CTF: 1 2 1: Dark captured the BLUE flag!
+  2:40 Award: 1 4: Dark gained the CAPTURE award!
+  2:40 PlayerScore: 1 15: Dark now has 15 points
+  3:02 Item: 0 team_CTF_redflag
+  3:02 CTF: 0 1 0: Neko got the RED flag!
+  3:02 PlayerScore: 0 8: Neko now has 8 points
+  3:02 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  3:10 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  3:20 Item: 0 team_CTF_blueflag
+  3:20 CTF: 0 1 1: Neko captured the RED flag!
+  3:20 Award: 0 4: Neko gained the CAPTURE award!
+  3:20 PlayerScore: 0 13: Neko now has 13 points
+  3:21 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  3:21 PlayerScore: 0 14: Neko now has 14 points
+  3:21 PlayerScore: 0 15: Neko now has 15 points
+  3:21 Award: 0 3: Neko gained the DEFENCE award!
+  3:30 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  3:30 PlayerScore: 0 16: Neko now has 16 points
+  3:35 chat: ^3INFO^1: ^5Use ^3?help ^5to get help on the new features
+  3:53 Item: 1 team_CTF_blueflag
+  3:53 CTF: 1 2 0: Dark got the BLUE flag!
+  3:53 PlayerScore: 1 15: Dark now has 15 points
+  3:53 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  4:05 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  4:05 PlayerScore: 0 17: Neko now has 17 points
+  4:05 PlayerScore: 0 19: Neko now has 19 points
+  4:05 CTF: 0 1 3: Neko fragged RED's flag carrier!
+  4:05 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  4:16 Item: 0 team_CTF_redflag
+  4:16 CTF: 0 1 0: Neko got the RED flag!
+  4:16 PlayerScore: 0 19: Neko now has 19 points
+  4:16 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  4:34 Item: 0 team_CTF_blueflag
+  4:34 CTF: 0 1 1: Neko captured the RED flag!
+  4:34 Award: 0 4: Neko gained the CAPTURE award!
+  4:34 PlayerScore: 0 24: Neko now has 24 points
+  4:58 Item: 1 team_CTF_blueflag
+  4:58 CTF: 1 2 0: Dark got the BLUE flag!
+  4:58 PlayerScore: 1 15: Dark now has 15 points
+  4:58 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  4:58 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  5:14 Item: 0 team_CTF_redflag
+  5:14 CTF: 0 1 0: Neko got the RED flag!
+  5:14 PlayerScore: 0 24: Neko now has 24 points
+  5:14 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  5:32 Item: 1 team_CTF_redflag
+  5:32 CTF: 1 2 1: Dark captured the BLUE flag!
+  5:32 Award: 1 4: Dark gained the CAPTURE award!
+  5:32 PlayerScore: 1 20: Dark now has 20 points
+  5:34 Item: 0 team_CTF_blueflag
+  5:34 CTF: 0 1 1: Neko captured the RED flag!
+  5:34 Award: 0 4: Neko gained the CAPTURE award!
+  5:34 PlayerScore: 0 29: Neko now has 29 points
+  6:03 Item: 0 team_CTF_redflag
+  6:03 CTF: 0 1 0: Neko got the RED flag!
+  6:03 PlayerScore: 0 29: Neko now has 29 points
+  6:03 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  6:07 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  6:13 Item: 1 team_CTF_blueflag
+  6:13 CTF: 1 2 0: Dark got the BLUE flag!
+  6:13 PlayerScore: 1 20: Dark now has 20 points
+  6:13 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  7:22 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  7:22 Kill: 1022 1 22: <world> killed Dark by MOD_TRIGGER_HURT
+  7:22 PlayerScore: 1 19: Dark now has 19 points
+  7:26 Item: 0 team_CTF_blueflag
+  7:26 CTF: 0 1 1: Neko captured the RED flag!
+  7:26 Award: 0 4: Neko gained the CAPTURE award!
+  7:26 PlayerScore: 0 34: Neko now has 34 points
+  7:35 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  7:35 PlayerScore: 1 20: Dark now has 20 points
+  7:37 Item: 1 team_CTF_blueflag
+  7:37 CTF: 1 2 0: Dark got the BLUE flag!
+  7:37 PlayerScore: 1 20: Dark now has 20 points
+  7:37 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  7:37 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  7:40 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  7:40 PlayerScore: 0 35: Neko now has 35 points
+  7:40 PlayerScore: 0 37: Neko now has 37 points
+  7:40 CTF: 0 1 3: Neko fragged RED's flag carrier!
+  7:53 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  7:53 PlayerScore: 1 21: Dark now has 21 points
+  7:58 Kill: 1022 1 22: <world> killed Dark by MOD_TRIGGER_HURT
+  7:58 PlayerScore: 1 20: Dark now has 20 points
+  8:01 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  8:01 PlayerScore: 0 38: Neko now has 38 points
+  8:08 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  8:08 PlayerScore: 1 21: Dark now has 21 points
+  8:08 PlayerScore: 1 22: Dark now has 22 points
+  8:08 Award: 1 3: Dark gained the DEFENCE award!
+  8:10 CTF: -1 2 3: BLUE flag returned after timeout
+  8:37 Item: 0 team_CTF_redflag
+  8:37 CTF: 0 1 0: Neko got the RED flag!
+  8:37 PlayerScore: 0 38: Neko now has 38 points
+  8:38 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  8:57 Item: 0 team_CTF_blueflag
+  8:57 CTF: 0 1 1: Neko captured the RED flag!
+  8:57 Award: 0 4: Neko gained the CAPTURE award!
+  8:57 PlayerScore: 0 43: Neko now has 43 points
+  9:15 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  9:15 PlayerScore: 0 44: Neko now has 44 points
+  9:15 PlayerScore: 0 45: Neko now has 45 points
+  9:15 Award: 0 3: Neko gained the DEFENCE award!
+ 10:19 Kill: 1022 1 22: <world> killed Dark by MOD_TRIGGER_HURT
+ 10:19 PlayerScore: 1 21: Dark now has 21 points
+ 10:37 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 10:37 PlayerScore: 0 46: Neko now has 46 points
+ 11:16 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 11:16 PlayerScore: 1 22: Dark now has 22 points
+ 11:29 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 11:29 PlayerScore: 0 47: Neko now has 47 points
+ 11:44 Item: 0 team_CTF_redflag
+ 11:44 CTF: 0 1 0: Neko got the RED flag!
+ 11:44 PlayerScore: 0 47: Neko now has 47 points
+ 11:44 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+ 12:01 Item: 0 team_CTF_blueflag
+ 12:01 CTF: 0 1 1: Neko captured the RED flag!
+ 12:01 Award: 0 4: Neko gained the CAPTURE award!
+ 12:01 PlayerScore: 0 52: Neko now has 52 points
+ 12:02 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 12:02 PlayerScore: 0 53: Neko now has 53 points
+ 12:12 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 12:12 PlayerScore: 0 54: Neko now has 54 points
+ 12:12 PlayerScore: 0 55: Neko now has 55 points
+ 12:12 Award: 0 3: Neko gained the DEFENCE award!
+ 12:12 Award: 0 2: Neko gained the IMPRESSIVE award!
+ 12:44 Kill: 1022 0 22: <world> killed Neko by MOD_TRIGGER_HURT
+ 12:44 PlayerScore: 0 54: Neko now has 54 points
+ 12:46 Kill: 1022 1 22: <world> killed Dark by MOD_TRIGGER_HURT
+ 12:46 PlayerScore: 1 21: Dark now has 21 points
+ 13:05 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 13:05 PlayerScore: 0 55: Neko now has 55 points
+ 13:23 Kill: 1022 1 22: <world> killed Dark by MOD_TRIGGER_HURT
+ 13:23 PlayerScore: 1 20: Dark now has 20 points
+ 14:05 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 14:05 PlayerScore: 0 56: Neko now has 56 points
+ 14:07 Item: 0 team_CTF_redflag
+ 14:07 CTF: 0 1 0: Neko got the RED flag!
+ 14:07 PlayerScore: 0 56: Neko now has 56 points
+ 14:07 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 14:08 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 14:08 PlayerScore: 1 21: Dark now has 21 points
+ 14:08 PlayerScore: 1 23: Dark now has 23 points
+ 14:08 CTF: 1 2 3: Dark fragged BLUE's flag carrier!
+ 14:09 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 14:20 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 14:20 PlayerScore: 0 57: Neko now has 57 points
+ 14:27 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 14:27 PlayerScore: 1 24: Dark now has 24 points
+ 14:27 PlayerScore: 1 25: Dark now has 25 points
+ 14:27 Award: 1 3: Dark gained the DEFENCE award!
+ 14:36 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 14:36 PlayerScore: 0 58: Neko now has 58 points
+ 14:38 CTF: -1 1 3: RED flag returned after timeout
+ 14:47 Kill: 1022 0 22: <world> killed Neko by MOD_TRIGGER_HURT
+ 14:47 PlayerScore: 0 57: Neko now has 57 points
+ 14:52 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 14:52 PlayerScore: 1 26: Dark now has 26 points
+ 15:03 Item: 1 team_CTF_blueflag
+ 15:03 CTF: 1 2 0: Dark got the BLUE flag!
+ 15:03 PlayerScore: 1 26: Dark now has 26 points
+ 15:03 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+ 15:08 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 15:08 PlayerScore: 0 58: Neko now has 58 points
+ 15:08 PlayerScore: 0 60: Neko now has 60 points
+ 15:08 CTF: 0 1 3: Neko fragged RED's flag carrier!
+ 15:08 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 15:20 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 15:20 PlayerScore: 1 27: Dark now has 27 points
+ 15:27 Item: 0 team_CTF_blueflag
+ 15:27 PlayerScore: 0 61: Neko now has 61 points
+ 15:27 CTF: 0 2 2: Neko returned the BLUE flag!
+ 15:42 Item: 0 team_CTF_redflag
+ 15:42 CTF: 0 1 0: Neko got the RED flag!
+ 15:42 PlayerScore: 0 61: Neko now has 61 points
+ 15:42 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 15:43 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 15:52 Item: 1 team_CTF_blueflag
+ 15:52 CTF: 1 2 0: Dark got the BLUE flag!
+ 15:52 PlayerScore: 1 27: Dark now has 27 points
+ 15:52 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 16:36 Item: 0 team_CTF_blueflag
+ 16:36 CTF: 0 1 1: Neko captured the RED flag!
+ 16:36 Award: 0 4: Neko gained the CAPTURE award!
+ 16:36 PlayerScore: 0 66: Neko now has 66 points
+ 16:36 WeaponUsage: 0 7 9
+ 16:36 Speed: 0 6231 20 : Client 0 ran 6231u in 20s without the flag.
+ 16:36 SpeedFlag: 0 15894 53 : Client 0 ran 15894u in 53s while holding the flag.
+ 16:36 WeaponUsage: 1 7 12
+ 16:36 MODDamage: 1 10 1 560 0 0 1.000000
+ 16:36 MODDamage: 1 19 0 0 2 15 0.000000
+ 16:36 Speed: 1 13841 43 : Client 1 ran 13841u in 43s without the flag.
+ 16:36 SpeedFlag: 1 12653 43 : Client 1 ran 12653u in 43s while holding the flag.
+ 16:36 Exit: Capturelimit hit.
+ 16:36 red:3  blue:8
+ 16:36 score: 66  ping: 0  client: 0 Neko
+ 16:36 score: 27  ping: 0  client: 1 Dark
+ 16:36 Item: 1 team_CTF_redflag
+ 16:36 CTF: 1 2 1: Dark captured the BLUE flag!
+ 16:36 Award: 1 4: Dark gained the CAPTURE award!
+ 16:36 PlayerScore: 1 32: Dark now has 32 points
+ 16:50 ShutdownGame:
+ 16:50 ------------------------------------------------------------
+  0:00 ------------------------------------------------------------
+  0:00 InitGame: \sv_hostname\^4Z^5imsNEW ^1I^3nstantgib\sv_minRate\2500\sv_maxRate\25000\sv_minPing\0\sv_maxPing\0\sv_floodProtect\1\sv_dlURL\http://openmafia.org/~zimmer/insta\dmflags\512\fraglimit\15\timelimit\20\sv_maxclients\20\sv_dlRate\100\sv_fps\20\sv_allowDownload\1\bot_minplayers\1\g_needpass\0\g_delagHitscan\1\videoflags\0\g_maxGameClients\20\g_doWarmup\1\g_allowVote\0\capturelimit\8\g_allowSpectatorVote\0\elimination_roundtime\120\g_lms_mode\0\version\ioq3+oa 1.36+0.8.8 linux-x86_64-debug May 30 2014\com_gamename\Quake3Arena\com_protocol\71\g_gametype\4\mapname\ps37ctf2\sv_privateClients\2\_Admin\Zimmer106|Pixelized|SooKee|wing|dev/gamepad|L\_Email\drremmiz@gmail.com\_Location\Nuremberg\_Website\http://zimmersservers.tk/\snaps\20\g_instantgib\2\gamename\baseoa\voteflags\279\g_rockets\0\g_timestamp\2014-06-01 07:28:15\mod_katina\0.1-beta
+  0:00 Info: ServerInfo length: 843 of 1024
+  0:00 Warmup:
+  0:00 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:00 ClientConnect: 0
+  0:00 Info: There has been at least 1 bot now
+  0:00 Playerstore: Failed to restore player. Invalid guid: 
+  0:00 ClientBegin: 0
+  0:00 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:00 ClientConnect: 1
+  0:00 Playerstore: Failed to restore player. Invalid guid: 
+  0:00 ClientBegin: 1
+  0:00 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\3\tl\0\id\
+  0:04 ShutdownGame:
+  0:04 ------------------------------------------------------------
+  0:04 ------------------------------------------------------------
+  0:04 InitGame: \sv_hostname\^4Z^5imsNEW ^1I^3nstantgib\sv_minRate\2500\sv_maxRate\25000\sv_minPing\0\sv_maxPing\0\sv_floodProtect\1\sv_dlURL\http://openmafia.org/~zimmer/insta\dmflags\512\fraglimit\15\timelimit\20\sv_maxclients\20\sv_dlRate\100\sv_fps\20\sv_allowDownload\1\bot_minplayers\1\g_needpass\0\g_delagHitscan\1\videoflags\0\g_maxGameClients\20\g_doWarmup\1\g_allowVote\0\capturelimit\8\g_allowSpectatorVote\0\elimination_roundtime\120\g_lms_mode\0\version\ioq3+oa 1.36+0.8.8 linux-x86_64-debug May 30 2014\com_gamename\Quake3Arena\com_protocol\71\g_gametype\4\mapname\ps37ctf2\sv_privateClients\2\_Admin\Zimmer106|Pixelized|SooKee|wing|dev/gamepad|L\_Email\drremmiz@gmail.com\_Location\Nuremberg\_Website\http://zimmersservers.tk/\snaps\20\g_instantgib\2\gamename\baseoa\voteflags\279\g_rockets\0\g_timestamp\2014-06-01 07:28:19\mod_katina\0.1-beta
+  0:04 Info: ServerInfo length: 843 of 1024
+  0:04 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:04 ClientConnect: 0
+  0:04 Info: There has been at least 1 bot now
+  0:04 Playerstore: Failed to restore player. Invalid guid: 
+  0:04 ClientBegin: 0
+  0:04 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\3\tl\0\id\
+  0:04 ClientConnect: 1
+  0:04 Playerstore: Failed to restore player. Invalid guid: 
+  0:04 ClientBegin: 1
+  0:05 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  0:05 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\3\tl\0\id\
+  0:10 sayteam: Dark: I am defending the Red Flag.
+  0:15 sayteam: Dark: who is the leader of this rag-tag bunch?
+  0:19 sayteam: Neko: Who's the leader of this rag-tag bunch?
+  0:21 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  0:21 PlayerScore: 1 1: Dark now has 1 points
+  0:23 sayteam: Dark: I am the leader.
+  0:34 sayteam: Neko: I lead.
+  1:13 Item: 1 team_CTF_blueflag
+  1:13 CTF: 1 2 0: Dark got the BLUE flag!
+  1:13 PlayerScore: 1 1: Dark now has 1 points
+  1:13 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  1:16 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  1:30 Item: 1 team_CTF_redflag
+  1:30 CTF: 1 2 1: Dark captured the BLUE flag!
+  1:30 Award: 1 4: Dark gained the CAPTURE award!
+  1:30 PlayerScore: 1 6: Dark now has 6 points
+  1:36 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  1:36 PlayerScore: 0 1: Neko now has 1 points
+  1:40 Item: 0 team_CTF_redflag
+  1:40 CTF: 0 1 0: Neko got the RED flag!
+  1:40 PlayerScore: 0 1: Neko now has 1 points
+  1:40 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  1:43 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  1:46 chat: ^3INFO^1: ^5Use ^3!request ^2youre hearts desire ^5to ask for a map etc..
+  1:56 Item: 0 team_CTF_blueflag
+  1:56 CTF: 0 1 1: Neko captured the RED flag!
+  1:56 Award: 0 4: Neko gained the CAPTURE award!
+  1:56 PlayerScore: 0 6: Neko now has 6 points
+  1:57 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  1:57 PlayerScore: 0 7: Neko now has 7 points
+  1:57 PlayerScore: 0 8: Neko now has 8 points
+  1:57 Award: 0 3: Neko gained the DEFENCE award!
+  2:20 Item: 1 team_CTF_blueflag
+  2:20 CTF: 1 2 0: Dark got the BLUE flag!
+  2:20 PlayerScore: 1 6: Dark now has 6 points
+  2:20 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  2:38 Item: 1 team_CTF_redflag
+  2:38 CTF: 1 2 1: Dark captured the BLUE flag!
+  2:38 Award: 1 4: Dark gained the CAPTURE award!
+  2:38 PlayerScore: 1 11: Dark now has 11 points
+  3:42 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  3:42 PlayerScore: 1 12: Dark now has 12 points
+  3:42 PlayerScore: 1 13: Dark now has 13 points
+  3:42 Award: 1 3: Dark gained the DEFENCE award!
+  4:27 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  4:27 PlayerScore: 0 9: Neko now has 9 points
+  4:27 PlayerScore: 0 10: Neko now has 10 points
+  4:27 Award: 0 3: Neko gained the DEFENCE award!
+  5:38 Item: 0 team_CTF_redflag
+  5:38 CTF: 0 1 0: Neko got the RED flag!
+  5:38 PlayerScore: 0 10: Neko now has 10 points
+  5:38 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  5:39 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  5:43 Item: 1 team_CTF_blueflag
+  5:43 CTF: 1 2 0: Dark got the BLUE flag!
+  5:43 PlayerScore: 1 13: Dark now has 13 points
+  5:43 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  7:43 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  7:44 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  9:45 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  9:48 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 11:46 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 11:49 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 13:46 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 13:49 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 15:50 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 15:56 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 16:46 chat: ^3INFO^1: ^5Use ^3!register ^5to select your current name to appear in the web stats
+ 17:54 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 17:57 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 19:55 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 19:58 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 20:04 WeaponUsage: 0 7 15
+ 20:04 MODDamage: 0 10 1 560 0 0 1.000000
+ 20:04 Speed: 0 32642 114 : Client 0 ran 32642u in 114s without the flag.
+ 20:04 SpeedFlag: 0 250907 867 : Client 0 ran 250907u in 867s while holding the flag.
+ 20:04 WeaponUsage: 1 7 8
+ 20:04 Speed: 1 20047 75 : Client 1 ran 20047u in 75s without the flag.
+ 20:04 SpeedFlag: 1 243235 861 : Client 1 ran 243235u in 861s while holding the flag.
+ 20:04 Exit: Timelimit hit.
+ 20:04 red:2  blue:1
+ 20:04 score: 13  ping: 0  client: 1 Dark
+ 20:04 score: 10  ping: 0  client: 0 Neko
+ 20:18 ShutdownGame:
+ 20:18 ------------------------------------------------------------
+  0:00 ------------------------------------------------------------
+  0:00 InitGame: \sv_hostname\^4Z^5imsNEW ^1I^3nstantgib\sv_minRate\2500\sv_maxRate\25000\sv_minPing\0\sv_maxPing\0\sv_floodProtect\1\sv_dlURL\http://openmafia.org/~zimmer/insta\dmflags\512\fraglimit\15\timelimit\20\sv_maxclients\20\sv_dlRate\100\sv_fps\20\sv_allowDownload\1\bot_minplayers\1\g_needpass\0\g_delagHitscan\1\videoflags\0\g_maxGameClients\20\g_doWarmup\1\g_allowVote\0\capturelimit\8\g_allowSpectatorVote\0\elimination_roundtime\120\g_lms_mode\0\version\ioq3+oa 1.36+0.8.8 linux-x86_64-debug May 30 2014\com_gamename\Quake3Arena\com_protocol\71\g_gametype\4\mapname\speedyctf\sv_privateClients\2\_Admin\Zimmer106|Pixelized|SooKee|wing|dev/gamepad|L\_Email\drremmiz@gmail.com\_Location\Nuremberg\_Website\http://zimmersservers.tk/\snaps\20\g_instantgib\2\gamename\baseoa\voteflags\279\g_rockets\0\g_timestamp\2014-06-01 07:48:33\mod_katina\0.1-beta
+  0:00 Info: ServerInfo length: 844 of 1024
+  0:00 Warmup:
+  0:00 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:00 ClientConnect: 0
+  0:00 Info: There has been at least 1 bot now
+  0:00 Playerstore: Failed to restore player. Invalid guid: 
+  0:00 ClientBegin: 0
+  0:00 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:00 ClientConnect: 1
+  0:00 Playerstore: Failed to restore player. Invalid guid: 
+  0:00 ClientBegin: 1
+  0:00 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:00 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  0:01 sayteam: Dark: Enemy flag here I come.
+  0:03 sayteam: Neko: I'll defend the Blue Flag.
+  0:04 ShutdownGame:
+  0:04 ------------------------------------------------------------
+  0:04 ------------------------------------------------------------
+  0:04 InitGame: \sv_hostname\^4Z^5imsNEW ^1I^3nstantgib\sv_minRate\2500\sv_maxRate\25000\sv_minPing\0\sv_maxPing\0\sv_floodProtect\1\sv_dlURL\http://openmafia.org/~zimmer/insta\dmflags\512\fraglimit\15\timelimit\20\sv_maxclients\20\sv_dlRate\100\sv_fps\20\sv_allowDownload\1\bot_minplayers\1\g_needpass\0\g_delagHitscan\1\videoflags\0\g_maxGameClients\20\g_doWarmup\1\g_allowVote\0\capturelimit\8\g_allowSpectatorVote\0\elimination_roundtime\120\g_lms_mode\0\version\ioq3+oa 1.36+0.8.8 linux-x86_64-debug May 30 2014\com_gamename\Quake3Arena\com_protocol\71\g_gametype\4\mapname\speedyctf\sv_privateClients\2\_Admin\Zimmer106|Pixelized|SooKee|wing|dev/gamepad|L\_Email\drremmiz@gmail.com\_Location\Nuremberg\_Website\http://zimmersservers.tk/\snaps\20\g_instantgib\2\gamename\baseoa\voteflags\279\g_rockets\0\g_timestamp\2014-06-01 07:48:37\mod_katina\0.1-beta
+  0:04 Info: ServerInfo length: 844 of 1024
+  0:04 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  0:04 ClientConnect: 0
+  0:04 Info: There has been at least 1 bot now
+  0:04 Playerstore: Failed to restore player. Invalid guid: 
+  0:04 ClientBegin: 0
+  0:04 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:04 ClientConnect: 1
+  0:04 Playerstore: Failed to restore player. Invalid guid: 
+  0:04 ClientBegin: 1
+  0:05 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\3\tl\0\id\
+  0:05 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  0:08 sayteam: Neko: I'm defending the Blue Flag.
+  0:13 sayteam: Dark: who is the leader of this rag-tag bunch?
+  0:19 sayteam: Neko: Who's the leader of this rag-tag bunch?
+  0:31 sayteam: Dark: I lead.
+  0:36 sayteam: Neko: I lead.
+  1:34 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  1:34 PlayerScore: 0 1: Neko now has 1 points
+  1:34 PlayerScore: 0 2: Neko now has 2 points
+  1:34 Award: 0 3: Neko gained the DEFENCE award!
+  2:50 Item: 1 team_CTF_blueflag
+  2:50 CTF: 1 2 0: Dark got the BLUE flag!
+  2:50 PlayerScore: 1 0: Dark now has 0 points
+  2:51 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  2:51 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  3:09 Item: 1 team_CTF_redflag
+  3:09 CTF: 1 2 1: Dark captured the BLUE flag!
+  3:09 Award: 1 4: Dark gained the CAPTURE award!
+  3:09 PlayerScore: 1 5: Dark now has 5 points
+  3:09 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  3:09 PlayerScore: 0 3: Neko now has 3 points
+  3:13 Item: 0 team_CTF_redflag
+  3:13 CTF: 0 1 0: Neko got the RED flag!
+  3:13 PlayerScore: 0 3: Neko now has 3 points
+  3:13 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  3:14 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  3:18 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  3:18 PlayerScore: 1 6: Dark now has 6 points
+  3:18 PlayerScore: 1 8: Dark now has 8 points
+  3:18 CTF: 1 2 3: Dark fragged BLUE's flag carrier!
+  3:26 Item: 0 team_CTF_redflag
+  3:26 CTF: 0 1 0: Neko got the RED flag!
+  3:26 PlayerScore: 0 3: Neko now has 3 points
+  3:26 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  3:34 Item: 0 team_CTF_blueflag
+  3:34 CTF: 0 1 1: Neko captured the RED flag!
+  3:34 Award: 0 4: Neko gained the CAPTURE award!
+  3:34 PlayerScore: 0 8: Neko now has 8 points
+  3:45 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  3:45 PlayerScore: 1 9: Dark now has 9 points
+  3:49 Item: 1 team_CTF_blueflag
+  3:49 CTF: 1 2 0: Dark got the BLUE flag!
+  3:49 PlayerScore: 1 9: Dark now has 9 points
+  3:49 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  3:50 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  4:04 Item: 1 team_CTF_redflag
+  4:04 CTF: 1 2 1: Dark captured the BLUE flag!
+  4:04 Award: 1 4: Dark gained the CAPTURE award!
+  4:04 PlayerScore: 1 14: Dark now has 14 points
+  4:16 Item: 0 team_CTF_redflag
+  4:16 CTF: 0 1 0: Neko got the RED flag!
+  4:16 PlayerScore: 0 8: Neko now has 8 points
+  4:16 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  4:17 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  4:27 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  4:27 PlayerScore: 1 15: Dark now has 15 points
+  4:27 PlayerScore: 1 17: Dark now has 17 points
+  4:27 CTF: 1 2 3: Dark fragged BLUE's flag carrier!
+  4:27 Item: 1 team_CTF_redflag
+  4:27 PlayerScore: 1 18: Dark now has 18 points
+  4:27 CTF: 1 1 2: Dark returned the RED flag!
+  4:35 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  4:35 PlayerScore: 1 19: Dark now has 19 points
+  4:37 Item: 1 team_CTF_blueflag
+  4:37 CTF: 1 2 0: Dark got the BLUE flag!
+  4:37 PlayerScore: 1 19: Dark now has 19 points
+  4:37 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  4:37 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  4:49 Item: 0 team_CTF_redflag
+  4:49 CTF: 0 1 0: Neko got the RED flag!
+  4:49 PlayerScore: 0 8: Neko now has 8 points
+  4:49 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  6:20 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  6:20 PlayerScore: 1 20: Dark now has 20 points
+  6:20 PlayerScore: 1 22: Dark now has 22 points
+  6:20 CTF: 1 2 3: Dark fragged BLUE's flag carrier!
+  6:22 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  6:23 sayteam: Neko: I'll get the flag back.
+  6:27 Item: 0 team_CTF_redflag
+  6:27 CTF: 0 1 0: Neko got the RED flag!
+  6:27 PlayerScore: 0 8: Neko now has 8 points
+  6:28 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  6:45 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  6:52 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  6:52 PlayerScore: 1 23: Dark now has 23 points
+  6:52 PlayerScore: 1 25: Dark now has 25 points
+  6:52 CTF: 1 2 3: Dark fragged BLUE's flag carrier!
+  6:54 Item: 1 team_CTF_redflag
+  6:54 PlayerScore: 1 26: Dark now has 26 points
+  6:54 CTF: 1 1 2: Dark returned the RED flag!
+  6:55 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  7:06 Item: 1 team_CTF_redflag
+  7:06 CTF: 1 2 1: Dark captured the BLUE flag!
+  7:06 Award: 1 4: Dark gained the CAPTURE award!
+  7:06 PlayerScore: 1 31: Dark now has 31 points
+  7:18 Item: 0 team_CTF_redflag
+  7:18 CTF: 0 1 0: Neko got the RED flag!
+  7:18 PlayerScore: 0 8: Neko now has 8 points
+  7:18 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  7:20 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  7:26 Item: 1 team_CTF_blueflag
+  7:26 CTF: 1 2 0: Dark got the BLUE flag!
+  7:26 PlayerScore: 1 31: Dark now has 31 points
+  7:26 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  9:18 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  9:35 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 11:20 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 11:29 chat: ^3INFO^1: ^5Use ^3!request ^2youre hearts desire ^5to ask for a map etc..
+ 11:35 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 13:30 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 13:36 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 14:41 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 14:41 PlayerScore: 0 9: Neko now has 9 points
+ 14:41 PlayerScore: 0 11: Neko now has 11 points
+ 14:41 CTF: 0 1 3: Neko fragged RED's flag carrier!
+ 14:43 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 14:44 sayteam: Dark: I shall get the flag back.
+ 15:00 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 15:05 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 15:05 PlayerScore: 0 12: Neko now has 12 points
+ 15:05 PlayerScore: 0 13: Neko now has 13 points
+ 15:05 Award: 0 3: Neko gained the DEFENCE award!
+ 15:07 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 15:08 sayteam: Dark: I will return the flag.
+ 15:11 CTF: -1 2 3: BLUE flag returned after timeout
+ 15:17 Item: 0 team_CTF_blueflag
+ 15:17 CTF: 0 1 1: Neko captured the RED flag!
+ 15:17 Award: 0 4: Neko gained the CAPTURE award!
+ 15:17 PlayerScore: 0 18: Neko now has 18 points
+ 15:26 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 15:26 PlayerScore: 1 32: Dark now has 32 points
+ 15:29 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 15:29 PlayerScore: 0 19: Neko now has 19 points
+ 15:29 PlayerScore: 0 20: Neko now has 20 points
+ 15:29 Award: 0 3: Neko gained the DEFENCE award!
+ 15:44 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 15:44 PlayerScore: 0 21: Neko now has 21 points
+ 15:44 Award: 0 2: Neko gained the IMPRESSIVE award!
+ 15:54 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 15:54 PlayerScore: 0 22: Neko now has 22 points
+ 16:01 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 16:01 PlayerScore: 1 33: Dark now has 33 points
+ 16:21 Item: 1 team_CTF_blueflag
+ 16:21 CTF: 1 2 0: Dark got the BLUE flag!
+ 16:21 PlayerScore: 1 33: Dark now has 33 points
+ 16:21 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 16:22 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 16:37 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 16:37 PlayerScore: 1 34: Dark now has 34 points
+ 16:41 Item: 1 team_CTF_redflag
+ 16:41 CTF: 1 2 1: Dark captured the BLUE flag!
+ 16:41 Award: 1 4: Dark gained the CAPTURE award!
+ 16:41 PlayerScore: 1 39: Dark now has 39 points
+ 16:55 Item: 0 team_CTF_redflag
+ 16:55 CTF: 0 1 0: Neko got the RED flag!
+ 16:55 PlayerScore: 0 22: Neko now has 22 points
+ 16:55 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 16:55 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 17:11 Item: 1 team_CTF_blueflag
+ 17:11 CTF: 1 2 0: Dark got the BLUE flag!
+ 17:11 PlayerScore: 1 39: Dark now has 39 points
+ 17:11 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 18:55 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 19:11 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+ 20:04 WeaponUsage: 0 7 6
+ 20:04 Speed: 0 4491 15 : Client 0 ran 4491u in 15s without the flag.
+ 20:04 SpeedFlag: 0 57881 190 : Client 0 ran 57881u in 190s while holding the flag.
+ 20:04 WeaponUsage: 1 7 12
+ 20:04 MODDamage: 1 10 2 1120 0 0 2.000000
+ 20:04 Speed: 1 15399 57 : Client 1 ran 15399u in 57s without the flag.
+ 20:04 SpeedFlag: 1 54683 192 : Client 1 ran 54683u in 192s while holding the flag.
+ 20:04 Exit: Timelimit hit.
+ 20:04 red:4  blue:2
+ 20:04 score: 39  ping: 0  client: 1 Dark
+ 20:04 score: 22  ping: 0  client: 0 Neko
+ 20:18 ShutdownGame:
+ 20:18 ------------------------------------------------------------
+  0:00 ------------------------------------------------------------
+  0:00 InitGame: \sv_hostname\^4Z^5imsNEW ^1I^3nstantgib\sv_minRate\2500\sv_maxRate\25000\sv_minPing\0\sv_maxPing\0\sv_floodProtect\1\sv_dlURL\http://openmafia.org/~zimmer/insta\dmflags\512\fraglimit\15\timelimit\20\sv_maxclients\20\sv_dlRate\100\sv_fps\20\sv_allowDownload\1\bot_minplayers\1\g_needpass\0\g_delagHitscan\1\videoflags\0\g_maxGameClients\20\g_doWarmup\1\g_allowVote\0\capturelimit\8\g_allowSpectatorVote\0\elimination_roundtime\120\g_lms_mode\0\version\ioq3+oa 1.36+0.8.8 linux-x86_64-debug May 30 2014\com_gamename\Quake3Arena\com_protocol\71\g_gametype\4\mapname\oasago2\sv_privateClients\2\_Admin\Zimmer106|Pixelized|SooKee|wing|dev/gamepad|L\_Email\drremmiz@gmail.com\_Location\Nuremberg\_Website\http://zimmersservers.tk/\snaps\20\g_instantgib\2\gamename\baseoa\voteflags\279\g_rockets\0\g_timestamp\2014-06-01 08:08:51\mod_katina\0.1-beta
+  0:00 Info: ServerInfo length: 842 of 1024
+  0:00 Warmup:
+  0:00 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:00 ClientConnect: 0
+  0:00 Info: There has been at least 1 bot now
+  0:00 Playerstore: Failed to restore player. Invalid guid: 
+  0:00 ClientBegin: 0
+  0:00 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  0:00 ClientConnect: 1
+  0:00 Playerstore: Failed to restore player. Invalid guid: 
+  0:00 ClientBegin: 1
+  0:00 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  0:00 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  0:01 sayteam: Neko: I'm defending the Blue Flag.
+  0:04 ShutdownGame:
+  0:04 ------------------------------------------------------------
+  0:04 ------------------------------------------------------------
+  0:04 InitGame: \sv_hostname\^4Z^5imsNEW ^1I^3nstantgib\sv_minRate\2500\sv_maxRate\25000\sv_minPing\0\sv_maxPing\0\sv_floodProtect\1\sv_dlURL\http://openmafia.org/~zimmer/insta\dmflags\512\fraglimit\15\timelimit\20\sv_maxclients\20\sv_dlRate\100\sv_fps\20\sv_allowDownload\1\bot_minplayers\1\g_needpass\0\g_delagHitscan\1\videoflags\0\g_maxGameClients\20\g_doWarmup\1\g_allowVote\0\capturelimit\8\g_allowSpectatorVote\0\elimination_roundtime\120\g_lms_mode\0\version\ioq3+oa 1.36+0.8.8 linux-x86_64-debug May 30 2014\com_gamename\Quake3Arena\com_protocol\71\g_gametype\4\mapname\oasago2\sv_privateClients\2\_Admin\Zimmer106|Pixelized|SooKee|wing|dev/gamepad|L\_Email\drremmiz@gmail.com\_Location\Nuremberg\_Website\http://zimmersservers.tk/\snaps\20\g_instantgib\2\gamename\baseoa\voteflags\279\g_rockets\0\g_timestamp\2014-06-01 08:08:54\mod_katina\0.1-beta
+  0:04 Info: ServerInfo length: 842 of 1024
+  0:04 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  0:04 ClientConnect: 0
+  0:04 Info: There has been at least 1 bot now
+  0:04 Playerstore: Failed to restore player. Invalid guid: 
+  0:04 ClientBegin: 0
+  0:04 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  0:04 ClientConnect: 1
+  0:04 Playerstore: Failed to restore player. Invalid guid: 
+  0:04 ClientBegin: 1
+  0:05 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:05 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\3\tl\0\id\
+  0:06 sayteam: Dark: I am off to get the flag.
+  0:12 sayteam: Neko: who is the leader of this rag-tag bunch?
+  0:16 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  0:16 PlayerScore: 1 1: Dark now has 1 points
+  0:17 sayteam: Dark: who is the leader of this rag-tag bunch?
+  0:20 sayteam: Neko: I lead.
+  0:33 Item: 1 team_CTF_blueflag
+  0:33 CTF: 1 2 0: Dark got the BLUE flag!
+  0:33 PlayerScore: 1 1: Dark now has 1 points
+  0:33 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:33 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  0:34 sayteam: Dark: I am the leader.
+  0:40 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  0:40 PlayerScore: 0 1: Neko now has 1 points
+  0:40 PlayerScore: 0 3: Neko now has 3 points
+  0:40 CTF: 0 1 3: Neko fragged RED's flag carrier!
+  0:43 Item: 0 team_CTF_blueflag
+  0:43 PlayerScore: 0 4: Neko now has 4 points
+  0:43 CTF: 0 2 2: Neko returned the BLUE flag!
+  0:57 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  0:57 PlayerScore: 1 2: Dark now has 2 points
+  1:30 Item: 0 team_CTF_redflag
+  1:30 CTF: 0 1 0: Neko got the RED flag!
+  1:30 PlayerScore: 0 4: Neko now has 4 points
+  1:30 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  1:31 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  1:33 Item: 1 team_CTF_blueflag
+  1:33 CTF: 1 2 0: Dark got the BLUE flag!
+  1:33 PlayerScore: 1 2: Dark now has 2 points
+  1:33 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  1:42 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  1:42 PlayerScore: 0 5: Neko now has 5 points
+  1:42 PlayerScore: 0 7: Neko now has 7 points
+  1:42 CTF: 0 1 3: Neko fragged RED's flag carrier!
+  1:44 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  1:44 sayteam: Dark: I'll get the flag back.
+  1:55 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  1:55 PlayerScore: 0 8: Neko now has 8 points
+  1:55 Award: 0 2: Neko gained the IMPRESSIVE award!
+  1:57 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  2:02 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  2:02 PlayerScore: 1 3: Dark now has 3 points
+  2:02 PlayerScore: 1 5: Dark now has 5 points
+  2:02 CTF: 1 2 3: Dark fragged BLUE's flag carrier!
+  2:04 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  2:04 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  2:05 sayteam: Dark: I'll get our flag back.
+  2:05 sayteam: Neko: I'll return the flag.
+  2:12 CTF: -1 2 3: BLUE flag returned after timeout
+  2:21 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  2:21 PlayerScore: 1 6: Dark now has 6 points
+  2:30 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  2:30 PlayerScore: 1 7: Dark now has 7 points
+  2:30 Award: 1 2: Dark gained the IMPRESSIVE award!
+  2:32 CTF: -1 1 3: RED flag returned after timeout
+  2:33 Item: 1 team_CTF_blueflag
+  2:33 CTF: 1 2 0: Dark got the BLUE flag!
+  2:33 PlayerScore: 1 7: Dark now has 7 points
+  2:33 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  2:33 PlayerScore: 1 8: Dark now has 8 points
+  2:33 Award: 1 1: Dark gained the EXCELLENT award!
+  2:33 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  2:49 Item: 1 team_CTF_redflag
+  2:49 CTF: 1 2 1: Dark captured the BLUE flag!
+  2:49 Award: 1 4: Dark gained the CAPTURE award!
+  2:49 PlayerScore: 1 13: Dark now has 13 points
+  3:00 Item: 0 team_CTF_redflag
+  3:00 CTF: 0 1 0: Neko got the RED flag!
+  3:00 PlayerScore: 0 8: Neko now has 8 points
+  3:00 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  3:01 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  3:01 PlayerScore: 0 9: Neko now has 9 points
+  3:03 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  3:22 Item: 0 team_CTF_blueflag
+  3:22 CTF: 0 1 1: Neko captured the RED flag!
+  3:22 Award: 0 4: Neko gained the CAPTURE award!
+  3:22 PlayerScore: 0 14: Neko now has 14 points
+  3:28 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  3:28 PlayerScore: 1 14: Dark now has 14 points
+  3:32 Item: 1 team_CTF_blueflag
+  3:32 CTF: 1 2 0: Dark got the BLUE flag!
+  3:32 PlayerScore: 1 14: Dark now has 14 points
+  3:32 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  3:34 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  3:34 PlayerScore: 0 15: Neko now has 15 points
+  3:34 PlayerScore: 0 17: Neko now has 17 points
+  3:34 CTF: 0 1 3: Neko fragged RED's flag carrier!
+  3:37 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  3:48 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  3:48 PlayerScore: 0 18: Neko now has 18 points
+  4:00 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  4:00 PlayerScore: 0 19: Neko now has 19 points
+  4:01 Item: 0 team_CTF_redflag
+  4:01 CTF: 0 1 0: Neko got the RED flag!
+  4:01 PlayerScore: 0 19: Neko now has 19 points
+  4:01 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  4:04 CTF: -1 2 3: BLUE flag returned after timeout
+  4:07 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  4:18 Item: 0 team_CTF_blueflag
+  4:18 CTF: 0 1 1: Neko captured the RED flag!
+  4:18 Award: 0 4: Neko gained the CAPTURE award!
+  4:18 PlayerScore: 0 24: Neko now has 24 points
+  4:35 Item: 1 team_CTF_blueflag
+  4:35 CTF: 1 2 0: Dark got the BLUE flag!
+  4:35 PlayerScore: 1 14: Dark now has 14 points
+  4:36 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  4:48 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  4:48 PlayerScore: 0 25: Neko now has 25 points
+  4:48 PlayerScore: 0 27: Neko now has 27 points
+  4:48 CTF: 0 1 3: Neko fragged RED's flag carrier!
+  4:48 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  4:54 Item: 0 team_CTF_blueflag
+  4:54 PlayerScore: 0 28: Neko now has 28 points
+  4:54 CTF: 0 2 2: Neko returned the BLUE flag!
+  5:02 Item: 0 team_CTF_redflag
+  5:02 CTF: 0 1 0: Neko got the RED flag!
+  5:02 PlayerScore: 0 28: Neko now has 28 points
+  5:02 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  5:02 PlayerScore: 1 15: Dark now has 15 points
+  5:02 PlayerScore: 1 17: Dark now has 17 points
+  5:02 CTF: 1 2 3: Dark fragged BLUE's flag carrier!
+  5:03 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  5:04 Item: 1 team_CTF_redflag
+  5:04 PlayerScore: 1 18: Dark now has 18 points
+  5:04 CTF: 1 1 2: Dark returned the RED flag!
+  5:25 Item: 0 team_CTF_redflag
+  5:25 CTF: 0 1 0: Neko got the RED flag!
+  5:25 PlayerScore: 0 28: Neko now has 28 points
+  5:25 Item: 1 team_CTF_blueflag
+  5:25 CTF: 1 2 0: Dark got the BLUE flag!
+  5:25 PlayerScore: 1 18: Dark now has 18 points
+  5:26 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  5:26 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  5:31 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  5:31 PlayerScore: 1 19: Dark now has 19 points
+  5:31 PlayerScore: 1 21: Dark now has 21 points
+  5:31 CTF: 1 2 3: Dark fragged BLUE's flag carrier!
+  5:33 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  5:39 Item: 1 team_CTF_redflag
+  5:39 PlayerScore: 1 22: Dark now has 22 points
+  5:39 CTF: 1 1 2: Dark returned the RED flag!
+  5:45 Item: 1 team_CTF_redflag
+  5:45 CTF: 1 2 1: Dark captured the BLUE flag!
+  5:45 Award: 1 4: Dark gained the CAPTURE award!
+  5:45 PlayerScore: 1 27: Dark now has 27 points
+  5:51 sayteam: Neko: I will get the flag back.
+  5:59 Item: 0 team_CTF_redflag
+  5:59 CTF: 0 1 0: Neko got the RED flag!
+  5:59 PlayerScore: 0 28: Neko now has 28 points
+  5:59 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+  5:59 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  6:11 chat: ^3INFO^1: ^5Come to ^3IRC ^7@ ^3QuakeNet ^7#^3openarenahelp
+  6:16 Item: 0 team_CTF_blueflag
+  6:16 CTF: 0 1 1: Neko captured the RED flag!
+  6:16 Award: 0 4: Neko gained the CAPTURE award!
+  6:16 PlayerScore: 0 33: Neko now has 33 points
+  6:16 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  6:16 PlayerScore: 1 28: Dark now has 28 points
+  6:17 Item: 1 team_CTF_blueflag
+  6:17 CTF: 1 2 0: Dark got the BLUE flag!
+  6:17 PlayerScore: 1 28: Dark now has 28 points
+  6:17 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  6:27 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+  6:27 PlayerScore: 0 34: Neko now has 34 points
+  6:27 PlayerScore: 0 36: Neko now has 36 points
+  6:27 CTF: 0 1 3: Neko fragged RED's flag carrier!
+  6:41 Item: 0 team_CTF_blueflag
+  6:41 PlayerScore: 0 37: Neko now has 37 points
+  6:41 CTF: 0 2 2: Neko returned the BLUE flag!
+  6:43 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+  6:43 PlayerScore: 1 29: Dark now has 29 points
+  7:31 Item: 1 team_CTF_blueflag
+  7:31 CTF: 1 2 0: Dark got the BLUE flag!
+  7:31 PlayerScore: 1 29: Dark now has 29 points
+  7:32 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  7:32 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  7:52 Item: 1 team_CTF_redflag
+  7:52 CTF: 1 2 1: Dark captured the BLUE flag!
+  7:52 Award: 1 4: Dark gained the CAPTURE award!
+  7:52 PlayerScore: 1 34: Dark now has 34 points
+  7:56 Item: 0 team_CTF_redflag
+  7:56 CTF: 0 1 0: Neko got the RED flag!
+  7:56 PlayerScore: 0 37: Neko now has 37 points
+  7:56 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  7:57 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  8:15 Item: 0 team_CTF_blueflag
+  8:15 CTF: 0 1 1: Neko captured the RED flag!
+  8:15 Award: 0 4: Neko gained the CAPTURE award!
+  8:15 PlayerScore: 0 42: Neko now has 42 points
+  8:19 Item: 1 team_CTF_blueflag
+  8:19 CTF: 1 2 0: Dark got the BLUE flag!
+  8:19 PlayerScore: 1 34: Dark now has 34 points
+  8:19 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+  8:36 Item: 1 team_CTF_redflag
+  8:36 CTF: 1 2 1: Dark captured the BLUE flag!
+  8:36 Award: 1 4: Dark gained the CAPTURE award!
+  8:36 PlayerScore: 1 39: Dark now has 39 points
+  9:02 Item: 0 team_CTF_redflag
+  9:02 CTF: 0 1 0: Neko got the RED flag!
+  9:02 PlayerScore: 0 42: Neko now has 42 points
+  9:02 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  9:03 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+  9:15 Item: 1 team_CTF_blueflag
+  9:15 CTF: 1 2 0: Dark got the BLUE flag!
+  9:15 PlayerScore: 1 39: Dark now has 39 points
+  9:15 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 11:03 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 11:20 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 12:45 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 12:45 PlayerScore: 0 43: Neko now has 43 points
+ 12:45 PlayerScore: 0 45: Neko now has 45 points
+ 12:45 CTF: 0 1 3: Neko fragged RED's flag carrier!
+ 12:47 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 12:48 sayteam: Dark: I'll get our flag back.
+ 12:54 Item: 1 team_CTF_blueflag
+ 12:54 CTF: 1 2 0: Dark got the BLUE flag!
+ 12:54 PlayerScore: 1 39: Dark now has 39 points
+ 12:54 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 13:03 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 14:54 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+ 15:03 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 16:54 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 17:07 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 17:07 PlayerScore: 0 46: Neko now has 46 points
+ 17:07 PlayerScore: 0 48: Neko now has 48 points
+ 17:07 CTF: 0 1 3: Neko fragged RED's flag carrier!
+ 17:09 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 17:12 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+ 17:17 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 17:17 PlayerScore: 0 49: Neko now has 49 points
+ 17:19 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 17:19 Item: 1 team_CTF_blueflag
+ 17:19 CTF: 1 2 0: Dark got the BLUE flag!
+ 17:19 PlayerScore: 1 39: Dark now has 39 points
+ 17:19 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 19:20 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 19:20 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 21:11 chat: ^3INFO^1: ^5Use ^3!register ^5to select your current name to appear in the web stats
+ 21:20 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 21:26 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 23:24 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 23:26 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 25:24 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 25:31 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+ 25:34 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 25:34 PlayerScore: 1 40: Dark now has 40 points
+ 25:34 PlayerScore: 1 42: Dark now has 42 points
+ 25:34 CTF: 1 2 3: Dark fragged BLUE's flag carrier!
+ 25:36 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 25:41 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 25:46 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 25:51 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 25:51 Item: 0 team_CTF_redflag
+ 25:51 CTF: 0 1 0: Neko got the RED flag!
+ 25:51 PlayerScore: 0 49: Neko now has 49 points
+ 25:51 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 26:50 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 26:50 PlayerScore: 0 50: Neko now has 50 points
+ 26:50 PlayerScore: 0 52: Neko now has 52 points
+ 26:50 CTF: 0 1 3: Neko fragged RED's flag carrier!
+ 26:52 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 26:52 sayteam: Dark: I shall get the flag back.
+ 26:59 Item: 1 team_CTF_blueflag
+ 26:59 CTF: 1 2 0: Dark got the BLUE flag!
+ 26:59 PlayerScore: 1 42: Dark now has 42 points
+ 26:59 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 27:59 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 29:02 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 30:04 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+ 31:02 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 32:04 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 32:37 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 32:37 PlayerScore: 1 43: Dark now has 43 points
+ 32:37 PlayerScore: 1 45: Dark now has 45 points
+ 32:37 CTF: 1 2 3: Dark fragged BLUE's flag carrier!
+ 32:39 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 32:39 sayteam: Neko: I shall get the flag back.
+ 33:03 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+ 33:03 Kill: 0 1 10: Neko killed Dark by MOD_RAILGUN
+ 33:03 PlayerScore: 0 53: Neko now has 53 points
+ 33:03 PlayerScore: 0 55: Neko now has 55 points
+ 33:03 CTF: 0 1 3: Neko fragged RED's flag carrier!
+ 33:05 Item: 0 team_CTF_blueflag
+ 33:05 PlayerScore: 0 56: Neko now has 56 points
+ 33:05 CTF: 0 2 2: Neko returned the BLUE flag!
+ 33:06 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 33:07 CTF: -1 1 3: RED flag returned after timeout
+ 33:09 Item: 0 team_CTF_redflag
+ 33:09 CTF: 0 1 0: Neko got the RED flag!
+ 33:09 PlayerScore: 0 56: Neko now has 56 points
+ 33:09 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+ 33:18 Kill: 1 0 10: Dark killed Neko by MOD_RAILGUN
+ 33:18 PlayerScore: 1 46: Dark now has 46 points
+ 33:18 PlayerScore: 1 48: Dark now has 48 points
+ 33:18 CTF: 1 2 3: Dark fragged BLUE's flag carrier!
+ 33:21 Item: 1 team_CTF_redflag
+ 33:21 PlayerScore: 1 49: Dark now has 49 points
+ 33:21 CTF: 1 1 2: Dark returned the RED flag!
+ 33:39 Item: 1 team_CTF_blueflag
+ 33:39 CTF: 1 2 0: Dark got the BLUE flag!
+ 33:39 PlayerScore: 1 49: Dark now has 49 points
+ 33:39 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\5\tl\0\id\
+ 33:39 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 33:52 Item: 0 team_CTF_redflag
+ 33:52 CTF: 0 1 0: Neko got the RED flag!
+ 33:52 PlayerScore: 0 56: Neko now has 56 points
+ 33:52 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 35:39 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 36:02 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 37:39 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 38:12 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 39:50 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\2\tl\0\id\
+ 40:13 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 41:52 ClientUserinfoChanged: 1 n\Dark\t\1\model\angelyss/dark\hmodel\angelyss/dark\c1\5\c2\5\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 42:14 ClientUserinfoChanged: 0 n\Neko\t\2\model\neko\hmodel\neko\c1\2\c2\2\hc\70\w\0\l\0\skill\ 2.00\tt\1\tl\0\id\
+ 43:30 ShutdownGame:
+ 43:30 ------------------------------------------------------------

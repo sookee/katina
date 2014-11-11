@@ -95,7 +95,7 @@ void Database::on()
 	}
 
 	if(mysql_real_connect(&mysql, host.c_str(), user.c_str()
-		, pass.c_str(), base.c_str(), port, NULL, 0) != &mysql)
+		, pass.c_str(), base.c_str(), port, 0, 0) != &mysql)
 	{
 		log("DATABASE ERROR: Unable to connect: " << mysql_error(&mysql));
 		return;

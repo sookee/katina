@@ -353,6 +353,23 @@ struct version_t
 	}
 };
 
+// mod_katina
+enum
+{
+	// ONLY output machine readable portion of log messages
+	// (not fully implemented yet)
+	KATINA_MACHINE_ONLY = (0 << 1)
+
+
+	// log messages contain Push: messages
+	, KATINA_PUSH = (1 << 1)
+	// log "say:" messages contain client number, name length
+	// 00:00 say: 5 11 Player Name: message
+	// unless KATINA_MACHINE_ONLY is set giving only client number
+	// 00:00 say: 5: message
+	, KATINA_SAY = (2 << 1)
+};
+
 }} // katina::types
 
 #endif /* _KATINA_TYPES_H_ */

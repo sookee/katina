@@ -2,8 +2,33 @@
 
 src_topdir = ../../src
 
-VER_FLAGS = -D REVISION=\"$(shell git log -n 1 --pretty=format:%h|tr [:lower:] [:upper:])\"
+VER_FLAGS = \
+	-D REVISION=\"$(shell git log -n 1 --pretty=format:%h|tr [:lower:] [:upper:])\" \
+	-D DEV=\"$(shell git diff --quiet || echo -dev)\"
 
+# requirements
+REQ_CXX11_TEST := $(shell echo "int main(){}" | $(CXX) -o /dev/null -x c++ -std=c++11 - 2> /dev/null; echo $$?)
+REQ_CXX11_FAIL := "ERROR: Requires g++ v4.7 or above to compile."
+REQ_CXX11 = if(($(REQ_CXX11_TEST))); then echo $(REQ_CXX11_FAIL); exit 1; fi
+
+VER_GXX := 4.7
+REQ_GXX_TEST := $(shell echo -e "$(VER_GXX)\n$(shell g++ --version|head -1|cut -d' ' -f3)"|sort -V|head -1)
+REQ_GXX_FAIL := "ERROR: Requires g++ v$(VER_GXX) or above."
+REQ_GXX = if [[ $(REQ_GXX_TEST) != $(VER_GXX) ]]; then echo $(REQ_GXX_FAIL); exit 1; fi
+
+VER_PCREL := 7.8
+REQ_PCRE_TEST := $(shell echo -e "$(VER_PCREL)\n$(shell pcre-config --version)"|sort -V|head -1)
+REQ_PCRE_FAIL := "ERROR: Requires PCRE v$(VER_PCREL) or above."
+REQ_PCRE = if [[ $(REQ_PCRE_TEST) != $(VER_PCREL) ]]; then echo $(REQ_PCRE_FAIL); exit 1; fi
+
+VER_MYSQL := 5.5.37
+REQ_MYSQL_TEST := $(shell echo -e "$(VER_MYSQL)\n$(shell mysql_config --version)"|sort -V|head -1)
+REQ_MYSQL_FAIL := "ERROR: Requires MySQL v$(VER_MYSQL) or above."
+REQ_MYSQL = if [[ $(REQ_MYSQL_TEST) != $(VER_MYSQL) ]]; then echo $(REQ_MYSQL_FAIL); exit 1; fi
+
+# libraries
+PCRE_INCL = $(shell pcre-config --cflags)
+PCRE_LIBS = $(shell pcre-config --libs-cpp)
 MYSQL_INCL = $(shell mysql_config --include)
 MYSQL_LIBS = $(shell mysql_config --libs)
 LIBGCRYPT_FLAGS=$(shell libgcrypt-config --cflags)
@@ -39,11 +64,16 @@ KATINA_CLIENT_OBJS = katina-client.o
 
 LIBRARIES = libkatina.so
 
-PROGRAMS = katina
+PROGRAMS = katina katina-votes katina-obscure-ips
 
 PREFIX ?= $(HOME)
 
-all: $(LIBRARIES) $(PROGRAMS)
+all: reqs $(LIBRARIES) $(PROGRAMS)
+
+reqs:
+	@$(REQ_GXX)
+	@$(REQ_PCRE)
+	@$(REQ_MYSQL)
 
 libkatina.so: $(LIBKATINA_OBJS)
 	@echo Linking $@
@@ -60,6 +90,14 @@ katina.o: $(src_topdir)/katina.cpp $(INCLUDES)
 	@echo Compiling $@
 	@$(CXX) -c -I$(src_topdir)/include $(KATINA_FLAGS) -o $@ $<
 
+katina-obscure-ips: katina-obscure-ips.o
+	@echo Linking $@
+	@$(CXX) -o $@ $^ $(PCRE_LIBS)
+
+katina-obscure-ips.o: $(src_topdir)/katina-obscure-ips.cpp $(INCLUDES)
+	@echo Compiling $@
+	@$(CXX) -c -I$(src_topdir)/include $(KATINA_FLAGS) $(PCRE_INCL) -o $@ $<
+
 #katina-irc: $(KATINA_IRC_OBJS)
 #	@echo Compiling $@
 #	@$(CXX) -o $@ $(KATINA_IRC_OBJS) $(KATINA_IRC_LIBS)
@@ -68,13 +106,13 @@ katina.o: $(src_topdir)/katina.cpp $(INCLUDES)
 #	@echo Compiling $@
 #	@$(CXX) -c -I$(src_topdir)/include $(KATINA_IRC_FLAGS) -o $@ $<
 
-#katina-votes: $(KATINA_VOTES_OBJS)
-#	@echo Compiling $@
-#	@$(CXX) -o $@ $(KATINA_VOTES_OBJS) $(KATINA_VOTES_LIBS)
-#
-#katina-votes.o: $(src_topdir)/katina-votes.cpp $(INCLUDES)
-#	@echo Compiling $@
-#	@$(CXX) -c -I$(src_topdir)/include $(KATINA_VOTES_FLAGS) -o $@ $<
+katina-votes: $(KATINA_VOTES_OBJS)
+	@echo Compiling $@
+	@$(CXX) -o $@ $(KATINA_VOTES_OBJS) $(KATINA_VOTES_LIBS)
+
+katina-votes.o: $(src_topdir)/katina-votes.cpp $(INCLUDES)
+	@echo Compiling $@
+	@$(CXX) -c -I$(src_topdir)/include $(KATINA_VOTES_FLAGS) -o $@ $<
 
 #katina-whois: $(KATINA_WHOIS_OBJS)
 #	@echo Compiling $@
@@ -117,4 +155,6 @@ install: $(PROGRAMS) $(LIBRARIES)
 
 clean:
 	rm -f *.o *.so* $(PROGRAMS) $(LIBRARIES)
+
+.PHONY: reqs
 
