@@ -202,7 +202,7 @@ bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& tex
 
 		str m;
 		siss iss(reply);
-		if(!sgl(iss >> m >> m, m, '^'))
+		if(!sgl(iss >> m >> m >> std::ws, m, '^'))
 		{
 			plog("ERROR: parsing nextmap reply: " << reply);
 			return true;
