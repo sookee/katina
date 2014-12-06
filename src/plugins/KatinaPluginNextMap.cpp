@@ -158,8 +158,12 @@ bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& tex
 
 			if(!server.command(m, reply))
 			{
-				plog("ERROR: parsing nextmap reply: " << reply);
-				return true;
+				std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+				if(!server.command(m, reply))
+				{
+					plog("ERROR: parsing nextmap reply: " << reply);
+					return true;
+				}
 			}
 
 			bug_var(reply);
