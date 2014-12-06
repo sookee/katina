@@ -135,13 +135,10 @@ str_vec KatinaPluginNextMap::get_mapnames(const str& m)
 	str line;
 	str item;
 	siss iss;
-	while(sgl(ifs, line))
+	while(item != m && sgl(ifs, line))
 	{
-//		bug_var(line);
-		iss.clear();
-		iss.str(line);
-		if((iss >> item >> item) && item == m)
-			break;
+		siss(line) >> item >> item;
+		bug_var(item);
 	}
 
 	bug_var(item);
