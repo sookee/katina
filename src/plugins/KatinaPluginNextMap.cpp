@@ -105,6 +105,10 @@ bool KatinaPluginNextMap::init_game(siz min, siz sec, const str_map& cvars)
 
 bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& text)
 {
+	bug_func();
+	bug_var(active);
+	bug_var(guid);
+	bug_var(text);
 	if(!active)
 		return true;
 
@@ -114,6 +118,8 @@ bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& tex
 	// say(3EA47384, would be difficult with a lot of players)
 	if(!(iss >> cmd) || cmd.empty() || (cmd[0] != '!' && cmd[0] != '?'))
 		return true;
+
+	bug_var(cmd);
 
 	slot say_num;
 
