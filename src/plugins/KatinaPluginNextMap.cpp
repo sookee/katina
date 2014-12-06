@@ -178,7 +178,9 @@ bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& tex
 
 			bug_var(name);
 
-			server.msg_to(say_num, std::to_string(i) + ": " + m);
+			server.msg_to(say_num, std::to_string(i) + ": " + name);
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
 			trim(m, "\"");
 		}
