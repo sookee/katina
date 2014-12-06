@@ -148,11 +148,10 @@ str_vec KatinaPluginNextMap::get_mapnames(const str& m, siz batch)
 	siz i = 0;
 	while(i < 10 * batch)
 	{
-		for(; i < 10 && sgl(ifs, line); ++i) {}
+		for(; i < 10 * batch && sgl(ifs, line); ++i) {}
 		ifs.clear();
 		ifs.seekg(0);
 	}
-
 
 	i = 0;
 	while(i < 10)
