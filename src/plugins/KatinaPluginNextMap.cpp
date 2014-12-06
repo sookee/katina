@@ -105,6 +105,8 @@ bool KatinaPluginNextMap::init_game(siz min, siz sec, const str_map& cvars)
 
 str_vec KatinaPluginNextMap::get_mapnames(const str& m)
 {
+	bug_func();
+	bug_var(m);
 	str_vec maps;
 
 	str map_rot = katina.get_exp("nextmap.rot.file");
@@ -135,19 +137,26 @@ str_vec KatinaPluginNextMap::get_mapnames(const str& m)
 	siss iss;
 	while(sgl(ifs, line))
 	{
-		bug_var(line);
+//		bug_var(line);
 		iss.clear();
 		iss.str(line);
 		if((iss >> item >> item) && item == m)
 			break;
 	}
 
+	bug_var(item);
+
 	for(siz i = 0; i < 6 && sgl(ifs, line); ++i)
 	{
+		bug_var(line);
 		iss.clear();
 		iss.str(line);
+		// set m14 "map am_thornish; set nextmap vstr m15"
 		if(sgl(iss >> item >> item >> item >> std::ws, item, ';'))
+		{
+			bug_var(item);
 			maps.push_back(trim(item));
+		}
 	}
 
 	return maps;
@@ -160,7 +169,7 @@ bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& tex
 	bug_var(guid);
 	bug_var(text);
 	if(!active)
-		return  true;
+		return true;
 
 	str cmd, type;
 	siss iss(text);
@@ -204,9 +213,13 @@ bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& tex
 
 		str_vec maps = get_mapnames(m);
 
+		for(auto&& map: maps)
+			bug_var(map);
+
 		soss oss;
 		for(siz i = 0; i < maps.size(); ++i)
 		{
+			bug_var(std::to_string(i) + ": " + maps[i] << "\\n");
 			oss << std::to_string(i) + ": " + maps[i] << "\\n";
 		}
 		server.msg_to(say_num, oss.str());
