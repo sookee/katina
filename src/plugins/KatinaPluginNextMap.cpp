@@ -108,6 +108,76 @@ bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& tex
 	if(!active)
 		return true;
 
+	str cmd, type;
+	siss iss(text);
+
+	// say(3EA47384, would be difficult with a lot of players)
+	if(!(iss >> cmd) || cmd.empty() || (cmd[0] != '!' && cmd[0] != '?'))
+		return true;
+
+	slot say_num;
+
+	if((say_num = katina.getClientSlot(guid)) == slot::bad)
+	{
+		plog("ERROR: Unable to get slot number from guid: " << guid);
+		return true;
+	}
+
+	if(cmd == "!maps")
+	{
+		// !maps
+		// rcon nextmap
+		// "nextmap" is:"vstr m13^7" default:"^7"
+
+		str reply;
+		if(!server.command("nextmap", reply))
+		{
+			plog("ERROR: parsing nextmap reply: " << reply);
+			return true;
+		}
+
+		bug_var(reply);
+
+		str m;
+		siss iss(reply);
+		if(!sgl(iss >> m >> m, m, '^'))
+		{
+			plog("ERROR: parsing nextmap reply: " << reply);
+			return true;
+		}
+
+		for(siz i = 1; i <= 6; ++i)
+		{
+			bug_var(m);
+
+			if(!server.command(m, reply))
+			{
+				plog("ERROR: parsing nextmap reply: " << reply);
+				return true;
+			}
+
+			bug_var(reply);
+
+			// "m13" is:"map q3wcp17; set nextmap vstr m14^7", the default
+			using std::ws;
+
+			str name;
+			iss.clear();
+			iss.str(reply);
+			if(!sgl(sgl(iss >> m >> m >> ws, name, ';') >> m >> m >> m >> ws, m, '^'))
+			{
+				log("ERROR: parsing " << m << " reply: " << reply);
+				break;
+			}
+
+			bug_var(name);
+
+			server.msg_to(say_num, std::to_string(i) + ": " + m);
+
+			trim(m, "\"");
+		}
+	}
+
 	return true;
 }
 
