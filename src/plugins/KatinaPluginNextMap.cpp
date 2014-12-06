@@ -160,7 +160,7 @@ bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& tex
 	bug_var(guid);
 	bug_var(text);
 	if(!active)
-		return true;
+		return  true;
 
 	str cmd, type;
 	siss iss(text);
