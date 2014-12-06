@@ -103,6 +103,56 @@ bool KatinaPluginNextMap::init_game(siz min, siz sec, const str_map& cvars)
 	return true;
 }
 
+str_vec KatinaPluginNextMap::get_mapnames(const str& m)
+{
+	str_vec maps;
+
+	str map_rot = katina.get_exp("nextmap.rot.file");
+
+	if(map_rot.empty())
+		return {};
+
+	sifs ifs(map_rot);
+	if(!ifs)
+	{
+		log("WARN: map rotation file not found: " << map_rot);
+		return {};
+	}
+
+	// set m8 "map q3wcp18; set nextmap vstr m9"
+	// set m9 "map oasago2j; set nextmap vstr m10"
+	// set m10 "map actf18; set nextmap vstr m11"
+	// set m11 "map god_oasago2z; set nextmap vstr m12"
+	// set m12 "map mapel4b; set nextmap vstr m13"
+	// set m13 "map q3wcp17; set nextmap vstr m14"
+	// set m14 "map am_thornish; set nextmap vstr m15"
+	// set m15 "map wtf01-pro; set nextmap vstr m16"
+	// set m16 "map 13dream; set nextmap vstr m17"
+	// set m17 "map pul1ctf; set nextmap vstr m18"
+
+	str line;
+	str item;
+	siss iss;
+	while(sgl(ifs, line))
+	{
+		bug_var(line);
+		iss.clear();
+		iss.str(line);
+		if((iss >> item >> item) && item == m)
+			break;
+	}
+
+	for(siz i = 0; i < 6 && sgl(ifs, line); ++i)
+	{
+		iss.clear();
+		iss.str(line);
+		if(sgl(iss >> item >> item >> item >> std::ws, item, ';'))
+			maps.push_back(trim(item));
+	}
+
+	return maps;
+}
+
 bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& text)
 {
 	bug_func();
@@ -152,42 +202,14 @@ bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& tex
 			return true;
 		}
 
-		for(siz i = 1; i <= 6; ++i)
+		str_vec maps = get_mapnames(m);
+
+		soss oss;
+		for(siz i = 0; i < maps.size(); ++i)
 		{
-			bug_var(m);
-
-			if(!server.command(m, reply))
-			{
-				std::this_thread::sleep_for(std::chrono::milliseconds(1500));
-				if(!server.command(m, reply))
-				{
-					plog("ERROR: parsing nextmap reply: " << reply);
-					return true;
-				}
-			}
-
-			bug_var(reply);
-
-			// "m13" is:"map q3wcp17; set nextmap vstr m14^7", the default
-			using std::ws;
-
-			str name;
-			iss.clear();
-			iss.str(reply);
-			if(!sgl(sgl(iss >> m >> m >> ws, name, ';') >> m >> m >> m >> ws, m, '^'))
-			{
-				log("ERROR: parsing " << m << " reply: " << reply);
-				break;
-			}
-
-			bug_var(name);
-
-			server.msg_to(say_num, std::to_string(i) + ": " + name);
-
-			std::this_thread::sleep_for(std::chrono::milliseconds(1500));
-
-			trim(m, "\"");
+			oss << std::to_string(i) + ": " + maps[i] << "\\n";
 		}
+		server.msg_to(say_num, oss.str());
 	}
 
 	return true;
