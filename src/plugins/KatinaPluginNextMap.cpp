@@ -103,7 +103,7 @@ bool KatinaPluginNextMap::init_game(siz min, siz sec, const str_map& cvars)
 	return true;
 }
 
-str_vec KatinaPluginNextMap::get_mapnames(const str& m)
+str_vec KatinaPluginNextMap::get_mapnames(const str& m, siz batch)
 {
 	bug_func();
 	bug_var(m);
@@ -143,17 +143,34 @@ str_vec KatinaPluginNextMap::get_mapnames(const str& m)
 
 	bug_var(item);
 
-	for(siz i = 0; i < 6 && sgl(ifs, line); ++i)
+	// find right batch
+
+	siz i = 0;
+	while(i < 10 * batch)
 	{
-		bug_var(line);
-		iss.clear();
-		iss.str(line);
-		// set m14 "map am_thornish; set nextmap vstr m15"
-		if(sgl(iss >> item >> item >> item >> std::ws, item, ';'))
+		for(; i < 10 && sgl(ifs, line); ++i) {}
+		ifs.clear();
+		ifs.seekg(0);
+	}
+
+
+	i = 0;
+	while(i < 10)
+	{
+		for(; i < 10 && sgl(ifs, line); ++i)
 		{
-			bug_var(item);
-			maps.push_back(trim(item));
+			bug_var(line);
+			iss.clear();
+			iss.str(line);
+			// set m14 "map am_thornish; set nextmap vstr m15"
+			if(sgl(iss >> item >> item >> item >> std::ws, item, ';'))
+			{
+				bug_var(item);
+				maps.push_back(trim(item));
+			}
 		}
+		ifs.clear();
+		ifs.seekg(0);
 	}
 
 	return maps;
@@ -187,6 +204,10 @@ bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& tex
 
 	if(cmd == "!maps")
 	{
+		siz batch = 0;
+		if(!(iss >> batch))
+			batch = 0;
+
 		// !maps
 		// rcon nextmap
 		// "nextmap" is:"vstr m13^7" default:"^7"
@@ -208,7 +229,7 @@ bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& tex
 			return true;
 		}
 
-		str_vec maps = get_mapnames(m);
+		str_vec maps = get_mapnames(m, batch);
 
 		for(auto&& map: maps)
 			bug_var(map);
@@ -216,8 +237,7 @@ bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& tex
 		soss oss;
 		for(siz i = 0; i < maps.size(); ++i)
 		{
-			bug_var(std::to_string(i) + ": " + maps[i] << "\\n");
-			oss << std::to_string(i) + ": " + maps[i] << "\\n";
+			oss << std::to_string(i + 1) + ": " + maps[i] << "\\n";
 		}
 		server.msg_to(say_num, oss.str());
 	}

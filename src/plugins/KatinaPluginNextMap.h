@@ -88,7 +88,7 @@ private:
 	str nextmap;
 	str rot_nextmap; // next map command on rotation
 
-	str_vec get_mapnames(const str& m);
+	str_vec get_mapnames(const str& m, siz batch = 0);
 
 public:
 	KatinaPluginNextMap(Katina& katina);
