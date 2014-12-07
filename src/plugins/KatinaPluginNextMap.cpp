@@ -103,6 +103,15 @@ bool KatinaPluginNextMap::init_game(siz min, siz sec, const str_map& cvars)
 	return true;
 }
 
+str get_mapname(str line)
+{
+	siss iss(line);
+	str item;
+	if(!sgl(iss >> item >> item >> item >> std::ws, item, ';'))
+		item.clear();
+	return trim(item);
+}
+
 str_vec KatinaPluginNextMap::get_mapnames(const str& m, siz batch)
 {
 	bug_func();
@@ -146,31 +155,33 @@ str_vec KatinaPluginNextMap::get_mapnames(const str& m, siz batch)
 	// find right batch
 
 	siz i = 0;
-	while(i < 10 * batch)
+//	while(i < 10 * batch)
+//	{
+//		for(; i < 10 * batch && sgl(ifs, line); ++i) {}
+//		ifs.clear();
+//		ifs.seekg(0);
+//	}
+
+	while(i < 10)
 	{
-		for(; i < 10 * batch && sgl(ifs, line); ++i) {}
+		do
+		{
+			maps.push_back(get_mapname(std::move(line)));
+			++i;
+		}
+		while(i < 10 && sgl(ifs, line));
 		ifs.clear();
 		ifs.seekg(0);
 	}
 
-	i = 0;
-	while(i < 10)
-	{
-		for(; i < 10 && sgl(ifs, line); ++i)
-		{
-			bug_var(line);
-			iss.clear();
-			iss.str(line);
-			// set m14 "map am_thornish; set nextmap vstr m15"
-			if(sgl(iss >> item >> item >> item >> std::ws, item, ';'))
-			{
-				bug_var(item);
-				maps.push_back(trim(item));
-			}
-		}
-		ifs.clear();
-		ifs.seekg(0);
-	}
+//	i = 0;
+//	while(i < 10)
+//	{
+//		for(; i < 10 && sgl(ifs, line); ++i)
+//			maps.push_back(get_mapname(line));
+//		ifs.clear();
+//		ifs.seekg(0);
+//	}
 
 	return maps;
 }
