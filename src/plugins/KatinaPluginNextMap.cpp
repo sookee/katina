@@ -268,7 +268,7 @@ bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& tex
 			str idx = std::to_string((10 * batch) + i + 1);
 			if(idx.size() < 3)
 				idx = str(3 - idx.size(), ' ') + idx;
-			oss << idx + "^2: ^3" + mapname << "\\n";
+			oss << "\"" << idx + "^2: ^3" + mapname << "\"" << "\\n";
 		}
 		server.msg_to(say_num, oss.str());
 	}
