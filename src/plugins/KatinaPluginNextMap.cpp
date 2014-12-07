@@ -254,9 +254,18 @@ bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& tex
 			bug_var(map);
 
 		soss oss;
+		oss << "^7[^2#^3 Upcoming maps ^2#^7]\\n";
 		for(siz i = 0; i < maps.size(); ++i)
 		{
-			oss << std::to_string((10 * batch) + i + 1) + ": " + maps[i] << "\\n";
+			str mapname;
+			for(const auto& c: maps[i])
+			{
+				if(std::isdigit(c))
+					mapname += str("^1") + c + "^3";
+				else
+					mapname += c;
+			}
+			oss << std::to_string((10 * batch) + i + 1) + "^2: ^3" + maps[i] << "\\n";
 		}
 		server.msg_to(say_num, oss.str());
 	}
