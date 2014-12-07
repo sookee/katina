@@ -1521,7 +1521,7 @@ bool Katina::start(const str& dir)
 
 				siz time_in_secs = (min * 60) + sec;
 				siz regularity;
-				for(auto plugin: events[HEARTBEAT])
+				for(auto plugin: events[KE_HEARTBEAT])
 					if((regularity = plugin->get_regularity(time_in_secs)) && !(time_in_secs % regularity))
 						plugin->heartbeat(min, sec);
 			}
@@ -1538,7 +1538,7 @@ bool Katina::start(const str& dir)
 
 				if((*chk_Kill) == ':')
 				{
-					if(events[KILL].empty())
+					if(events[KE_KILL].empty())
 						break;
 
 					siz weap;
@@ -1547,7 +1547,7 @@ bool Katina::start(const str& dir)
 						nlog("ERROR: parsing: " << cmd);
 					else
 					{
-						for(auto plugin: events[KILL])
+						for(auto plugin: events[KE_KILL])
 							plugin->kill(min, sec, slot(num1), slot(num2), weap);
 					}
 				}
@@ -1563,7 +1563,7 @@ bool Katina::start(const str& dir)
 				// most frequent first
 				// Award:
 
-				if(events[AWARD].empty())
+				if(events[KE_AWARD].empty())
 					break;
 
 				siz awd;
@@ -1572,7 +1572,7 @@ bool Katina::start(const str& dir)
 					nlog("Error parsing Award: " << param_Award);
 				else
 				{
-					for(auto plugin: events[AWARD])
+					for(auto plugin: events[KE_AWARD])
 						plugin->award(min, sec, slot(num), awd);
 				}
 			break;
@@ -1590,7 +1590,7 @@ bool Katina::start(const str& dir)
 
 				if((*chk_CTF) == ':')
 				{
-					if(events[CTF].empty())
+					if(events[KE_CTF].empty())
 						continue;
 
 					siz col, act;
@@ -1600,13 +1600,13 @@ bool Katina::start(const str& dir)
 						nlog("Error parsing CTF: " << param_CTF);
 					else
 					{
-						for(auto plugin: events[CTF])
+						for(auto plugin: events[KE_CTF])
 							plugin->ctf(min, sec, slot(num), col, act);
 					}
 				}
 				else if((*chk_Callvote) == ':')
 				{
-					if(events[LOG_CALLVOTE].empty())
+					if(events[KE_LOG_CALLVOTE].empty())
 						continue;
 
 					str type;
@@ -1616,7 +1616,7 @@ bool Katina::start(const str& dir)
 						nlog("Error parsing Callvote: "  << param_Callvote);
 					else
 					{
-						for(auto plugin: events[LOG_CALLVOTE])
+						for(auto plugin: events[KE_LOG_CALLVOTE])
 							plugin->callvote(min, sec, slot(num), type, info);
 					}
 				}
@@ -1631,7 +1631,7 @@ bool Katina::start(const str& dir)
 					{
 						connected[num] = true;
 
-						for(auto plugin: events[CLIENT_BEGIN])
+						for(auto plugin: events[KE_CLIENT_BEGIN])
 							plugin->client_begin(min, sec, slot(num));
 					}
 				}
@@ -1643,7 +1643,7 @@ bool Katina::start(const str& dir)
 					{
 						connected[num] = true;
 
-						for(auto plugin: events[CLIENT_CONNECT])
+						for(auto plugin: events[KE_CLIENT_CONNECT])
 							plugin->client_connect(min, sec, slot(num));
 					}
 				}
@@ -1672,11 +1672,11 @@ bool Katina::start(const str& dir)
 							guid.disconnect();
 						}
 
-						for(auto plugin: events[CLIENT_DISCONNECT])
+						for(auto plugin: events[KE_CLIENT_DISCONNECT])
 							plugin->client_disconnect(min, sec, slot(num));
 
 					   if(teamBefore != TEAM_U && !guid.is_bot())
-						   for(auto plugin: events[CLIENT_SWITCH_TEAM])
+						   for(auto plugin: events[KE_CLIENT_SWITCH_TEAM])
 								plugin->client_switch_team(min, sec, slot(num), teamBefore, TEAM_U);
 
 						lock_guard lock(mtx);
@@ -1688,7 +1688,7 @@ bool Katina::start(const str& dir)
 				{
 					nlog("ClientConnectInfo: " << param_ClientConnectInfo);
 
-					if(events[CLIENT_CONNECT_INFO].empty())
+					if(events[KE_CLIENT_CONNECT_INFO].empty())
 						break;
 
 					str ip;
@@ -1706,7 +1706,7 @@ bool Katina::start(const str& dir)
 					}
 					else
 					{
-						for(auto plugin: events[CLIENT_CONNECT_INFO])
+						for(auto plugin: events[KE_CLIENT_CONNECT_INFO])
 							plugin->client_connect_info(min, sec, slot(num), GUID(guid), ip);
 					}
 				}
@@ -1803,11 +1803,11 @@ bool Katina::start(const str& dir)
 							if(count > 1)
 								log("WARN: adding duplicate name to players: [" << guid << "] " << name);
 
-							for(auto plugin: events[CLIENT_USERINFO_CHANGED])
+							for(auto plugin: events[KE_CLIENT_USERINFO_CHANGED])
 								plugin->client_userinfo_changed(min, sec, slot(num), team, guid, name, hc);
 
 							if(team != teamBefore && !guid.is_bot())
-								for(auto plugin: events[CLIENT_SWITCH_TEAM])
+								for(auto plugin: events[KE_CLIENT_SWITCH_TEAM])
 									plugin->client_switch_team(min, sec, slot(num), teamBefore, team);
 						}
 					}
@@ -1823,7 +1823,7 @@ bool Katina::start(const str& dir)
 
 				if((*chk_Speed) == ':' || (*chk_SpeedFlag) == ':')
 				{
-					if(events[SPEED].empty())
+					if(events[KE_SPEED].empty())
 						continue;
 
 					rad params = (((*chk_Speed) == ':') ? chk_Speed : chk_SpeedFlag) + 2;
@@ -1836,13 +1836,13 @@ bool Katina::start(const str& dir)
 						nlog("Error parsing " << cmd);
 					else
 					{
-						for(auto plugin: events[SPEED])
+						for(auto plugin: events[KE_SPEED])
 							plugin->speed(min, sec, slot(num), dist, time, ((*chk_SpeedFlag) == ':'));
 					}
 				}
 				else if((*chk_ShutdownGame) == ':')
 				{
-					for(auto plugin: events[SHUTDOWN_GAME])
+					for(auto plugin: events[KE_SHUTDOWN_GAME])
 						plugin->shutdown_game(min, sec);
 				}
 			break;
@@ -1859,7 +1859,7 @@ bool Katina::start(const str& dir)
 
 				if((*chk_Warmup) == ':')
 				{
-					for(auto plugin: events[WARMUP])
+					for(auto plugin: events[KE_WARMUP])
 						plugin->warmup(min, sec);
 				}
 				else if((*chk_WeaponUsage) == ':')
@@ -1872,7 +1872,7 @@ bool Katina::start(const str& dir)
 						nlog("Error parsing WeaponUsage: " << param_WeaponUsage);
 					else
 					{
-						for(auto plugin: events[WEAPON_USAGE])
+						for(auto plugin: events[KE_WEAPON_USAGE])
 							plugin->weapon_usage(min, sec, slot(num), weap, shots);
 					}
 				}
@@ -1894,7 +1894,7 @@ bool Katina::start(const str& dir)
 					nlog("Error parsing MODDamage: " << param_MODDamage);
 				else
 				{
-					for(auto plugin: events[MOD_DAMAGE])
+					for(auto plugin: events[KE_MOD_DAMAGE])
 						plugin->mod_damage(min, sec, slot(num), mod, hits, dmg, hitsRecv, dmgRecv, weightedHits);
 				}
 			break;
@@ -1907,7 +1907,7 @@ bool Katina::start(const str& dir)
 				//   4:08 chat: ^3INFO^1: ^5If you ^1love ^5a map, say ^3!love map ^5to keep it in the rotation
 				if((*chk_chat) == ':')
 				{
-					for(auto plugin: events[CHAT])
+					for(auto plugin: events[KE_CHAT])
 						plugin->chat(min, sec, param_chat);
 				}
 				else if((*chk_client) == ':')
@@ -1982,14 +1982,14 @@ bool Katina::start(const str& dir)
 							builtin_command(guid, text);
 						else
 						{
-							for(auto plugin: events[SAY])
+							for(auto plugin: events[KE_SAY])
 								plugin->say(min, sec, guid, text);
 						}
 					}
 				}
 				else if((*chk_score) == ':')
 				{
-					if(events[SCORE_EXIT].empty())
+					if(events[KE_SCORE_EXIT].empty())
 						continue;
 
 					int score = 0;
@@ -2000,14 +2000,14 @@ bool Katina::start(const str& dir)
 						nlog("Error parsing SCORE_EXIT:" << param_score);
 					else
 					{
-						for(auto plugin: events[SCORE_EXIT])
+						for(auto plugin: events[KE_SCORE_EXIT])
 							plugin->score_exit(min, sec, score, ping, slot(num), name);
 					}
 				}
 				else if((*chk_sayteam) == ':')
 				{
 					// TODO: implement this
-//					if(events[SAYTEAM].empty())
+//					if(events[KE_SAYTEAM].empty())
 //						continue;
 //
 //					GUID guid = (client == slot::bad) ? extract_name(param_sayteam) : getClientGuid(client);
@@ -2025,7 +2025,7 @@ bool Katina::start(const str& dir)
 //						{
 //							str text(param_sayteam + name.size() + 2);
 //
-//							for(auto plugin: events[SAYTEAM])
+//							for(auto plugin: events[KE_SAYTEAM])
 //								plugin->say(min, sec, guid, text);
 //						}
 //					}
@@ -2042,14 +2042,14 @@ bool Katina::start(const str& dir)
 
 				if((*chk_Push) == ':')
 				{
-					if(events[PUSH].empty())
+					if(events[KE_PUSH].empty())
 						continue;
 
 					if(*rsp(param_Push, num1, num2) != ':')
 						nlog("Error parsing Push:" << param_Push);
 					else
 					{
-						for(auto plugin: events[PUSH])
+						for(auto plugin: events[KE_PUSH])
 							plugin->push(min, sec, slot(num1), slot(num2));
 					}
 				}
@@ -2075,7 +2075,7 @@ bool Katina::start(const str& dir)
 						nlog("Error parsing PlayerStats: " << param_PlayerStats);
 					else
 					{
-						for(auto plugin: events[PLAYER_STATS])
+						for(auto plugin: events[KE_PLAYER_STATS])
 						{
 							plugin->player_stats(min, sec, slot(num),
 								fragsFace, fragsBack, fraggedFace, fraggedBack,
@@ -2150,7 +2150,7 @@ bool Katina::start(const str& dir)
 
 					nlog("MAP NAME: " << mapname);
 
-					for(auto plugin: events[INIT_GAME])
+					for(auto plugin: events[KE_INIT_GAME])
 						plugin->init_game(min, sec, svars);
 				}
 			break;
@@ -2160,7 +2160,7 @@ bool Katina::start(const str& dir)
 				// most frequent first
 				// red:
 
-				if(events[CTF_EXIT].empty())
+				if(events[KE_CTF_EXIT].empty())
 					continue;
 
 				// red:8  blue:5
@@ -2168,7 +2168,7 @@ bool Katina::start(const str& dir)
 					nlog("Error parsing CTF_EXIT:" << param_red);
 				else
 				{
-					for(auto plugin: events[CTF_EXIT])
+					for(auto plugin: events[KE_CTF_EXIT])
 						plugin->ctf_exit(min, sec, r, b);
 				}
 			break;
@@ -2178,13 +2178,13 @@ bool Katina::start(const str& dir)
 				// most frequent first
 				// Exit:
 
-				for(auto plugin: events[EXIT])
+				for(auto plugin: events[KE_EXIT])
 					plugin->exit(min, sec);
 			break;
 
 			default:
 				// this is way too promiscuous, replace with user-defined events?
-//				for(auto plugin: events[UNKNOWN])
+//				for(auto plugin: events[KE_UNKNOWN])
 //					plugin->unknown(min, sec, cmd, params);
 			break;
 			}

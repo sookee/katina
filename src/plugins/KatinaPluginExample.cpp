@@ -48,23 +48,23 @@ bool KatinaPluginExample::open()
 {
 	katina.add_var_event(this, "example.active", active);
 	//katina.add_var_event(this, "flag", "0");
-	katina.add_log_event(this, INIT_GAME);
-	katina.add_log_event(this, WARMUP);
-	katina.add_log_event(this, CLIENT_CONNECT);
-	katina.add_log_event(this, CLIENT_CONNECT_INFO);
-	katina.add_log_event(this, CLIENT_BEGIN);
-	katina.add_log_event(this, CLIENT_DISCONNECT);
-	katina.add_log_event(this, CLIENT_USERINFO_CHANGED);
-	katina.add_log_event(this, KILL);
-	katina.add_log_event(this, CTF);
-	katina.add_log_event(this, CTF_EXIT);
-	katina.add_log_event(this, SCORE_EXIT);
-	katina.add_log_event(this, AWARD);
-	katina.add_log_event(this, SAY);
-	katina.add_log_event(this, SHUTDOWN_GAME);
-	katina.add_log_event(this, EXIT);
-	katina.add_log_event(this, HEARTBEAT);
-	katina.add_log_event(this, UNKNOWN);
+	katina.add_log_event(this, KE_INIT_GAME);
+	katina.add_log_event(this, KE_WARMUP);
+	katina.add_log_event(this, KE_CLIENT_CONNECT);
+	katina.add_log_event(this, KE_CLIENT_CONNECT_INFO);
+	katina.add_log_event(this, KE_CLIENT_BEGIN);
+	katina.add_log_event(this, KE_CLIENT_DISCONNECT);
+	katina.add_log_event(this, KE_CLIENT_USERINFO_CHANGED);
+	katina.add_log_event(this, KE_KILL);
+	katina.add_log_event(this, KE_CTF);
+	katina.add_log_event(this, KE_CTF_EXIT);
+	katina.add_log_event(this, KE_SCORE_EXIT);
+	katina.add_log_event(this, KE_AWARD);
+	katina.add_log_event(this, KE_SAY);
+	katina.add_log_event(this, KE_SHUTDOWN_GAME);
+	katina.add_log_event(this, KE_EXIT);
+	katina.add_log_event(this, KE_HEARTBEAT);
+	katina.add_log_event(this, KE_UNKNOWN);
 
 	return true;
 }

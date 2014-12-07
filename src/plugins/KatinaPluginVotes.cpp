@@ -83,11 +83,11 @@ bool KatinaPluginVotes::open()
 		return false;
 	}
 
-	katina.add_log_event(this, INIT_GAME);
-	katina.add_log_event(this, WARMUP);
-	katina.add_log_event(this, SAY);
-	katina.add_log_event(this, SAYTEAM);
-//	katina.add_log_event(this, HEARTBEAT);
+	katina.add_log_event(this, KE_INIT_GAME);
+	katina.add_log_event(this, KE_WARMUP);
+	katina.add_log_event(this, KE_SAY);
+	katina.add_log_event(this, KE_SAYTEAM);
+//	katina.add_log_event(this, KE_HEARTBEAT);
 
 	return true;
 }
@@ -174,7 +174,7 @@ bool KatinaPluginVotes::init_game(siz min, siz sec, const str_map& cvars)
 	if(!announce_time)
 		announce_time = sec + katina.get("votes.announce.delay", 10);
 
-	katina.add_log_event(this, HEARTBEAT);
+	katina.add_log_event(this, KE_HEARTBEAT);
 
 	return true;
 }
@@ -183,7 +183,7 @@ bool KatinaPluginVotes::warmup(siz min, siz sec)
 {
 	// kybosch the announcement
 	announce_time = 0;
-	katina.del_log_event(this, HEARTBEAT);
+	katina.del_log_event(this, KE_HEARTBEAT);
 	return true;
 }
 

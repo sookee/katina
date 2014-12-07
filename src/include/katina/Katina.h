@@ -60,33 +60,33 @@ using namespace katina::utils;
 
 enum event_t
 {
-	LOG_NONE
-	, INIT_GAME
-	, WARMUP
-	, CLIENT_CONNECT
-	, CLIENT_BEGIN
-	, CLIENT_DISCONNECT
-	, CLIENT_USERINFO_CHANGED
-    , CLIENT_SWITCH_TEAM
-	, KILL
-	, CTF
-	, CTF_EXIT
-	, SCORE_EXIT
-	, AWARD
-	, SAY
-	, SAYTEAM
-	, CHAT
-	, SHUTDOWN_GAME
-	, EXIT
-	, UNKNOWN
-    , HEARTBEAT
-	, WEAPON_USAGE // mod_katina >= 0.1-beta
-	, MOD_DAMAGE // mod_katina >= 0.1-beta
-	, PLAYER_STATS // mod_katina >= 0.1-beta
-    , SPEED //mod_katina >= 0.1-beta
-    , PUSH // mod_katina >= 0.1-beta
-	, CLIENT_CONNECT_INFO // mod_katina >= 0.1-beta
-	, LOG_CALLVOTE// mod_katina >= 0.1-beta
+	KE_LOG_NONE
+	, KE_INIT_GAME
+	, KE_WARMUP
+	, KE_CLIENT_CONNECT
+	, KE_CLIENT_BEGIN
+	, KE_CLIENT_DISCONNECT
+	, KE_CLIENT_USERINFO_CHANGED
+    , KE_CLIENT_SWITCH_TEAM
+	, KE_KILL
+	, KE_CTF
+	, KE_CTF_EXIT
+	, KE_SCORE_EXIT
+	, KE_AWARD
+	, KE_SAY
+	, KE_SAYTEAM
+	, KE_CHAT
+	, KE_SHUTDOWN_GAME
+	, KE_EXIT
+	, KE_UNKNOWN
+    , KE_HEARTBEAT
+	, KE_WEAPON_USAGE // mod_katina >= 0.1-beta
+	, KE_MOD_DAMAGE // mod_katina >= 0.1-beta
+	, KE_PLAYER_STATS // mod_katina >= 0.1-beta
+    , KE_SPEED //mod_katina >= 0.1-beta
+    , KE_PUSH // mod_katina >= 0.1-beta
+	, KE_CLIENT_CONNECT_INFO // mod_katina >= 0.1-beta
+	, KE_LOG_CALLVOTE// mod_katina >= 0.1-beta
 };
 
 TYPEDEF_MAP(event_t, plugin_lst, event_map);

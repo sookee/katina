@@ -220,12 +220,12 @@ bool KatinaPluginReports::open()
 	katina.add_var_event(this, "reports.spam.kill", spamkill, false);
 	katina.add_var_event(this, "reports.spam.limit", spam_limit, (siz) 2);
 
-	katina.add_log_event(this, EXIT, after);
-	katina.add_log_event(this, KILL);
-	katina.add_log_event(this, PUSH);
-	katina.add_log_event(this, CTF);
-	katina.add_log_event(this, INIT_GAME);
-	katina.add_log_event(this, SAY);
+	katina.add_log_event(this, KE_EXIT, after);
+	katina.add_log_event(this, KE_KILL);
+	katina.add_log_event(this, KE_PUSH);
+	katina.add_log_event(this, KE_CTF);
+	katina.add_log_event(this, KE_INIT_GAME);
+	katina.add_log_event(this, KE_SAY);
 
 	return true;
 }

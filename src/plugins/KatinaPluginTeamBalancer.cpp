@@ -298,15 +298,15 @@ bool KatinaPluginTeamBalancer::open()
    statsPlugin = dynamic_cast<KatinaPluginStats*>( katina.get_plugin("katina::stats", "0.1-dev") );
     
     // Register for events
-	katina.add_log_event(this, EXIT);
-    //katina.add_log_event(this, CLIENT_CONNECT);
-    //katina.add_log_event(this, CLIENT_BEGIN);
-	katina.add_log_event(this, CLIENT_DISCONNECT);
-    katina.add_log_event(this, CLIENT_SWITCH_TEAM);
-	katina.add_log_event(this, CTF);
-	katina.add_log_event(this, INIT_GAME);
-	katina.add_log_event(this, SAY);
-    katina.add_log_event(this, HEARTBEAT);
+	katina.add_log_event(this, KE_EXIT);
+    //katina.add_log_event(this, KE_CLIENT_CONNECT);
+    //katina.add_log_event(this, KE_CLIENT_BEGIN);
+	katina.add_log_event(this, KE_CLIENT_DISCONNECT);
+    katina.add_log_event(this, KE_CLIENT_SWITCH_TEAM);
+	katina.add_log_event(this, KE_CTF);
+	katina.add_log_event(this, KE_INIT_GAME);
+	katina.add_log_event(this, KE_SAY);
+    katina.add_log_event(this, KE_HEARTBEAT);
     
 
     enabled = katina.get("teambalancer.enabled", false);

@@ -694,18 +694,18 @@ bool KatinaPluginAdmin::open()
 	//katina.add_var_event(this, "admin.active", spamkill_warn, 20); // not implemented
 
 	plog("Adding log events");
-	katina.add_log_event(this, INIT_GAME);
-	katina.add_log_event(this, CLIENT_CONNECT);
-	katina.add_log_event(this, CLIENT_CONNECT_INFO);
-	katina.add_log_event(this, CLIENT_DISCONNECT);
-	katina.add_log_event(this, CLIENT_USERINFO_CHANGED);
-	katina.add_log_event(this, CLIENT_SWITCH_TEAM);
-	katina.add_log_event(this, LOG_CALLVOTE);
-	katina.add_log_event(this, KILL);
-	katina.add_log_event(this, CTF);
-	katina.add_log_event(this, SAY);
-	katina.add_log_event(this, CHAT);
-	katina.add_log_event(this, SHUTDOWN_GAME);
+	katina.add_log_event(this, KE_INIT_GAME);
+	katina.add_log_event(this, KE_CLIENT_CONNECT);
+	katina.add_log_event(this, KE_CLIENT_CONNECT_INFO);
+	katina.add_log_event(this, KE_CLIENT_DISCONNECT);
+	katina.add_log_event(this, KE_CLIENT_USERINFO_CHANGED);
+	katina.add_log_event(this, KE_CLIENT_SWITCH_TEAM);
+	katina.add_log_event(this, KE_LOG_CALLVOTE);
+	katina.add_log_event(this, KE_KILL);
+	katina.add_log_event(this, KE_CTF);
+	katina.add_log_event(this, KE_SAY);
+	katina.add_log_event(this, KE_CHAT);
+	katina.add_log_event(this, KE_SHUTDOWN_GAME);
 
 	plog("Loading sanctions");
 	load_sanctions();

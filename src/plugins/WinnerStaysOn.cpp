@@ -54,16 +54,16 @@ str to_str(siz n)
 
 bool WinnerStaysOn::open()
 {
-	katina.add_log_event(this, INIT_GAME);
-	katina.add_log_event(this, WARMUP);
-	katina.add_log_event(this, CLIENT_CONNECT);
-	katina.add_log_event(this, CLIENT_DISCONNECT);
-	katina.add_log_event(this, CLIENT_USERINFO_CHANGED);
-	katina.add_log_event(this, CTF);
-	katina.add_log_event(this, CTF_EXIT);
-	katina.add_log_event(this, SAY);
-	katina.add_log_event(this, SHUTDOWN_GAME);
-	katina.add_log_event(this, EXIT);
+	katina.add_log_event(this, KE_INIT_GAME);
+	katina.add_log_event(this, KE_WARMUP);
+	katina.add_log_event(this, KE_CLIENT_CONNECT);
+	katina.add_log_event(this, KE_CLIENT_DISCONNECT);
+	katina.add_log_event(this, KE_CLIENT_USERINFO_CHANGED);
+	katina.add_log_event(this, KE_CTF);
+	katina.add_log_event(this, KE_CTF_EXIT);
+	katina.add_log_event(this, KE_SAY);
+	katina.add_log_event(this, KE_SHUTDOWN_GAME);
+	katina.add_log_event(this, KE_EXIT);
 	
 	server.chat("^7== ^3Winner Stays On ^1v^7" + str(VERSION) + " ^7==");
 	command("set bot_enable 0");

@@ -114,22 +114,22 @@ bool KatinaPluginStats::open()
 		return false;
 	}
 
-	katina.add_log_event(this, EXIT);
-	katina.add_log_event(this, SHUTDOWN_GAME);
-	katina.add_log_event(this, CLIENT_USERINFO_CHANGED);
-	//katina.add_log_event(this, CLIENT_CONNECT);
-	katina.add_log_event(this, CLIENT_DISCONNECT);
-	katina.add_log_event(this, KILL);
-	katina.add_log_event(this, CTF);
-	katina.add_log_event(this, AWARD);
-	katina.add_log_event(this, INIT_GAME);
-	katina.add_log_event(this, WARMUP);
-	katina.add_log_event(this, WEAPON_USAGE);
-	katina.add_log_event(this, MOD_DAMAGE);
-	katina.add_log_event(this, PLAYER_STATS);
-	katina.add_log_event(this, SAY);
-	katina.add_log_event(this, SAYTEAM);
-	katina.add_log_event(this, SPEED);
+	katina.add_log_event(this, KE_EXIT);
+	katina.add_log_event(this, KE_SHUTDOWN_GAME);
+	katina.add_log_event(this, KE_CLIENT_USERINFO_CHANGED);
+	//katina.add_log_event(this, KE_CLIENT_CONNECT);
+	katina.add_log_event(this, KE_CLIENT_DISCONNECT);
+	katina.add_log_event(this, KE_KILL);
+	katina.add_log_event(this, KE_CTF);
+	katina.add_log_event(this, KE_AWARD);
+	katina.add_log_event(this, KE_INIT_GAME);
+	katina.add_log_event(this, KE_WARMUP);
+	katina.add_log_event(this, KE_WEAPON_USAGE);
+	katina.add_log_event(this, KE_MOD_DAMAGE);
+	katina.add_log_event(this, KE_PLAYER_STATS);
+	katina.add_log_event(this, KE_SAY);
+	katina.add_log_event(this, KE_SAYTEAM);
+	katina.add_log_event(this, KE_SPEED);
 
 	return true;
 }
@@ -645,7 +645,7 @@ bool KatinaPluginStats::init_game(siz min, siz sec, const str_map& cvars)
 	if(!announce_time)
 		announce_time = sec + katina.get("boss.announce.delay", 10);
 
-	katina.add_log_event(this, HEARTBEAT);
+	katina.add_log_event(this, KE_HEARTBEAT);
 
 	// lock_guard lock(mtx);
 	{
@@ -666,7 +666,7 @@ bool KatinaPluginStats::warmup(siz min, siz sec)
 
 	// kybosch the announcement
 	announce_time = 0;
-	katina.del_log_event(this, HEARTBEAT);
+	katina.del_log_event(this, KE_HEARTBEAT);
 
 	return true;
 }
@@ -679,7 +679,7 @@ void KatinaPluginStats::heartbeat(siz min, siz sec)
 	bug_func();
 
 	announce_time = 0; // turn off
-	katina.del_log_event(this, HEARTBEAT);
+	katina.del_log_event(this, KE_HEARTBEAT);
 
 	pbug("HEARTBEAT");
 

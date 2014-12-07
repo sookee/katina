@@ -175,10 +175,10 @@ bool KatinaPluginPlayerDb::open()
 
 	katina.add_var_event(this, "playerdb.active", active, false);
 
-	katina.add_log_event(this, INIT_GAME);
-	katina.add_log_event(this, CLIENT_CONNECT_INFO);
-	katina.add_log_event(this, CLIENT_DISCONNECT);
-	katina.add_log_event(this, CLIENT_USERINFO_CHANGED);
+	katina.add_log_event(this, KE_INIT_GAME);
+	katina.add_log_event(this, KE_CLIENT_CONNECT_INFO);
+	katina.add_log_event(this, KE_CLIENT_DISCONNECT);
+	katina.add_log_event(this, KE_CLIENT_USERINFO_CHANGED);
 
 	return true;
 }

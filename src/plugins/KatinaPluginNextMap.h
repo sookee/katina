@@ -88,26 +88,32 @@ private:
 	str nextmap;
 	str rot_nextmap; // next map command on rotation
 
-	str_vec get_mapnames(const str& m, siz batch = 0);
+	siz announce_time = 0; // seconds before announce
+
+	str_vec get_mapnames(siz batch = 0);
 
 public:
 	KatinaPluginNextMap(Katina& katina);
 
 	// INTERFACE: KatinaPlugin
 
-	virtual bool open() override;
+	bool open() override;
 
-	virtual str get_id() const override;
-	virtual str get_name() const override;
-	virtual str get_version() const override;
+	str get_id() const override;
+	str get_name() const override;
+	str get_version() const override;
 
-	//virtual void cvar_event(const str& name, const str& value);
+	//void cvar_event(const str& name, const str& value);
 	
-	virtual bool init_game(siz min, siz sec, const str_map& cvars) override;
-	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) override;
-	virtual bool exit(siz min, siz sec) override;
+	bool init_game(siz min, siz sec, const str_map& cvars) override;
+	bool warmup(siz min, siz sec) override;
+	bool say(siz min, siz sec, const GUID& guid, const str& text) override;
+	bool exit(siz min, siz sec) override;
 
-	virtual void close() override;
+	void heartbeat(siz min, siz sec) override;
+	siz get_regularity(siz time_in_secs) const override { return 1; } // once per second
+
+	void close() override;
 };
 
 }} // katina::plugin

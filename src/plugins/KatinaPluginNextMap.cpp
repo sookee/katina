@@ -73,9 +73,10 @@ bool KatinaPluginNextMap::open()
 	katina.add_var_event(this, "nextmap.active", active, false);
 	katina.add_var_event(this, "nextmap.enforcing", enforcing, false);
 
-	katina.add_log_event(this, INIT_GAME);
-	katina.add_log_event(this, SAY);
-	katina.add_log_event(this, EXIT);
+	katina.add_log_event(this, KE_INIT_GAME);
+	katina.add_log_event(this, KE_WARMUP);
+	katina.add_log_event(this, KE_SAY);
+	katina.add_log_event(this, KE_EXIT);
 
 	return true;
 }
@@ -95,12 +96,71 @@ str KatinaPluginNextMap::get_version() const
 	return VERSION;
 }
 
+str get_maplist(const str_vec& maps, siz batch = 0)
+{
+	soss oss;
+	oss << "\\n^7[^2#^3 Upcoming maps ^2#^7]";
+	for(siz i = 0; i < maps.size(); ++i)
+	{
+		str mapname = "^5";
+		for(const auto& c: maps[i])
+		{
+			if(std::isdigit(c))
+				mapname += str("^4") + c + "^5";
+			else
+				mapname += c;
+		}
+		str idx = std::to_string((10 * batch) + i + 1);
+		if(idx.size() < 3)
+			idx = str(3 - idx.size(), ' ') + idx;
+		bug("idx: [" << idx << "]");
+		oss << "\\n" << "\"" << idx + "^2: " + mapname << "\"";
+	}
+	return oss.str();
+}
+
 bool KatinaPluginNextMap::init_game(siz min, siz sec, const str_map& cvars)
 {
 	if(!active)
 		return true;
 
+	if(!announce_time)
+		announce_time = sec + katina.get("nextmap.announce.delay", 6);
+
+	katina.add_log_event(this, KE_HEARTBEAT);
+
 	return true;
+}
+
+bool KatinaPluginNextMap::warmup(siz min, siz sec)
+{
+	// kybosch the announcement
+	announce_time = 0;
+	katina.del_log_event(this, KE_HEARTBEAT);
+
+	return true;
+}
+
+void KatinaPluginNextMap::heartbeat(siz min, siz sec)
+{
+	if(!announce_time || min || sec < announce_time)
+		return;
+
+	bug_func();
+
+	announce_time = 0; // turn off
+	katina.del_log_event(this, KE_HEARTBEAT);
+
+	pbug("HEARTBEAT");
+
+	str_vec maps = get_mapnames(0);
+
+	for(auto&& map: maps)
+		bug_var(map);
+
+	str msg = get_maplist(maps, 0);
+
+	server.msg_to_all(msg);
 }
 
 str get_mapname(str line)
@@ -112,11 +172,27 @@ str get_mapname(str line)
 	return trim(item);
 }
 
-str_vec KatinaPluginNextMap::get_mapnames(const str& m, siz batch)
+str_vec KatinaPluginNextMap::get_mapnames(siz batch)
 {
 	bug_func();
-	bug_var(m);
 	bug_var(batch);
+
+	str reply;
+	if(!server.command("nextmap", reply))
+	{
+		plog("ERROR: parsing nextmap reply: " << reply);
+		return {};
+	}
+
+	bug_var(reply);
+
+	str m;
+	siss iss(reply);
+	if(!sgl(iss >> m >> m >> std::ws, m, '^'))
+	{
+		plog("ERROR: parsing nextmap reply: " << reply);
+		return {};
+	}
 
 	str_vec maps;
 
@@ -145,7 +221,7 @@ str_vec KatinaPluginNextMap::get_mapnames(const str& m, siz batch)
 
 	str line;
 	str item;
-	siss iss;
+
 	while(item != m && sgl(ifs, line))
 	{
 		siss(line) >> item >> item;
@@ -231,48 +307,14 @@ bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& tex
 		// rcon nextmap
 		// "nextmap" is:"vstr m13^7" default:"^7"
 
-		str reply;
-		if(!server.command("nextmap", reply))
-		{
-			plog("ERROR: parsing nextmap reply: " << reply);
-			return true;
-		}
-
-		bug_var(reply);
-
-		str m;
-		siss iss(reply);
-		if(!sgl(iss >> m >> m >> std::ws, m, '^'))
-		{
-			plog("ERROR: parsing nextmap reply: " << reply);
-			return true;
-		}
-
-		str_vec maps = get_mapnames(m, batch);
+		str_vec maps = get_mapnames(batch);
 
 		for(auto&& map: maps)
 			bug_var(map);
 
-		str sep;
-		soss oss;
-		oss << "\\n^7[^2#^3 Upcoming maps ^2#^7]";
-		for(siz i = 0; i < maps.size(); ++i)
-		{
-			str mapname = "^5";
-			for(const auto& c: maps[i])
-			{
-				if(std::isdigit(c))
-					mapname += str("^4") + c + "^5";
-				else
-					mapname += c;
-			}
-			str idx = std::to_string((10 * batch) + i + 1);
-			if(idx.size() < 3)
-				idx = str(3 - idx.size(), ' ') + idx;
-			bug("idx: [" << idx << "]");
-			oss << "\\n" << "\"" << idx + "^2: " + mapname << "\"";
-		}
-		server.msg_to(say_num, oss.str());
+		str msg = get_maplist(maps, batch);
+
+		server.msg_to(say_num, msg);
 	}
 
 	return true;
