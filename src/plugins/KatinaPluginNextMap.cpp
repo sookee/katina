@@ -116,6 +116,8 @@ str_vec KatinaPluginNextMap::get_mapnames(const str& m, siz batch)
 {
 	bug_func();
 	bug_var(m);
+	bug_var(batch);
+
 	str_vec maps;
 
 	str map_rot = katina.get_exp("nextmap.rot.file");
@@ -152,6 +154,8 @@ str_vec KatinaPluginNextMap::get_mapnames(const str& m, siz batch)
 		++i;
 	}
 
+	bug_var(i);
+	bug_var(line);
 	bug_var(item);
 
 	// find right batch
@@ -163,14 +167,16 @@ str_vec KatinaPluginNextMap::get_mapnames(const str& m, siz batch)
 //		ifs.seekg(0);
 //	}
 
-	while(i < 10 * batch)
+	bug_var((10 * batch) + 10);
+
+	while(i < (10 * batch) + 10)
 	{
 		do
 		{
 			maps.push_back(get_mapname(std::move(line)));
 			++i;
 		}
-		while(i < 10 * batch && sgl(ifs, line));
+		while(i < (10 * batch) + 10 && sgl(ifs, line));
 		ifs.clear();
 		ifs.seekg(0);
 	}
