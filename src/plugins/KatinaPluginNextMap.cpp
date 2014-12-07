@@ -141,6 +141,7 @@ str_vec KatinaPluginNextMap::get_mapnames(const str& m, siz batch)
 	// set m16 "map 13dream; set nextmap vstr m17"
 	// set m17 "map pul1ctf; set nextmap vstr m18"
 
+	siz i = 0;
 	str line;
 	str item;
 	siss iss;
@@ -148,13 +149,13 @@ str_vec KatinaPluginNextMap::get_mapnames(const str& m, siz batch)
 	{
 		siss(line) >> item >> item;
 		bug_var(item);
+		++i;
 	}
 
 	bug_var(item);
 
 	// find right batch
 
-	siz i = 0;
 //	while(i < 10 * batch)
 //	{
 //		for(; i < 10 * batch && sgl(ifs, line); ++i) {}
