@@ -256,7 +256,7 @@ bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& tex
 		soss oss;
 		for(siz i = 0; i < maps.size(); ++i)
 		{
-			oss << std::to_string(i + 1) + ": " + maps[i] << "\\n";
+			oss << std::to_string((10 * batch) + i + 1) + ": " + maps[i] << "\\n";
 		}
 		server.msg_to(say_num, oss.str());
 	}
