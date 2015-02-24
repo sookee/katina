@@ -124,24 +124,14 @@ extern const game_id null_id;
 class StatsDatabase
 : public Database
 {
-	bool dbtrace = false;
-
-	MYSQL_STMT *stmt_add_playerstats = 0;
-	std::array<MYSQL_BIND, 16> bind_add_playerstats;
-	std::array<siz, 15> siz_add_playerstats;
-	std::array<char, 8> guid_add_playerstats;
-	siz guid_length = 8;
-
 public:
 	StatsDatabase(): Database() {};
 	virtual ~StatsDatabase() {};
 
-	void init() override;
-	void deinit() override;
+	virtual void set_trace(bool state = true) = 0;
 
-	void set_trace(bool state = true) { dbtrace = state; }
-
-	game_id add_game(std::time_t timet, const str& host, const str& port, const str& mapname);
+	virtual game_id add_game(std::time_t timet, const str& host
+		, const str& port, const str& mapname) = 0;
 
 	/**
 	 *
@@ -152,42 +142,194 @@ public:
 	 * @param count
 	 * @return
 	 */
-	bool add_weaps(game_id id, const str& table, const GUID& guid, siz weap, siz count);
+	virtual bool add_weaps(game_id id, const str& table
+		, const GUID& guid, siz weap, siz count) = 0;
 
-	bool add_caps(game_id id, const GUID& guid, siz count);
-	bool add_time(game_id id, const GUID& guid, siz count);
+	virtual bool add_caps(game_id id, const GUID& guid, siz count) = 0;
+	virtual bool add_time(game_id id, const GUID& guid, siz count) = 0;
 
-	bool add_player(std::time_t timet, const GUID& guid, const str& name);
+	virtual bool add_player(std::time_t timet, const GUID& guid, const str& name) = 0;
 
-	bool add_ovo(game_id id, const GUID& guid1, const GUID& guid2, siz count);
+	virtual bool add_ovo(game_id id, const GUID& guid1, const GUID& guid2, siz count) = 0;
 
-	bool add_weapon_usage(game_id id, const GUID& guid, siz weap, siz shots);
-	bool add_mod_damage(game_id id, const GUID& guid, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv, float weightedHits);
+	virtual bool add_weapon_usage(game_id id, const GUID& guid, siz weap, siz shots) = 0;
+	virtual bool add_mod_damage(game_id id, const GUID& guid, siz mod, siz hits
+		, siz damage, siz hitsRecv, siz damageRecv, float weightedHits) = 0;
+	virtual bool add_playerstats(game_id id, const GUID& guid,
+		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
+		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
+		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,
+		siz carrierFrags, siz carrierFragsRecv) = 0;
+	virtual bool add_playerstats_ps(game_id id, const GUID& guid,
+		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
+		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
+		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,
+		siz carrierFrags, siz carrierFragsRecv) = 0;
+	virtual bool add_playerstats_ps(game_id id, const GUID& guid
+		, const struct stat& s) = 0;
+	virtual bool add_speed(game_id id, const GUID& guid,
+			siz dist, siz time, bool has_flag) = 0;
+
+	virtual bool read_map_votes(const str& mapname, guid_int_map& map_votes) = 0;
+
+	virtual bool set_preferred_name(const GUID& guid, const str& name) = 0;
+	virtual bool get_preferred_name(const GUID& guid, str& name) = 0;
+
+	virtual siz get_kills_per_cap(const str& sql_select_games = "") = 0;
+	virtual bool get_ingame_boss(const str& mapname
+		, const slot_guid_map& clients, GUID& guid, str& stats) = 0;
+	virtual bool get_ingame_champ(const str& mapname, GUID& guid, str& stats) = 0;
+	virtual bool get_ingame_stats(const GUID& guid, const str& mapname
+		, siz prev, str& stats, siz& skill) = 0;
+	virtual bool get_ingame_stats_c(const str& mapname, const slot_guid_map& clients
+		, const GUID& guid, siz prev, str& stats, siz& skill) = 0;
+	virtual bool get_ingame_crap(const str& mapname, const slot_guid_map& clients
+		, GUID& guid, str& stats) = 0;
+};
+
+//class StatsDatabaseFile
+//: public StatsDatabase
+//{
+//public:
+//	StatsDatabaseFile(): StatsDatabase() {};
+//	virtual ~StatsDatabaseFile() {};
+//
+//	void init() override {}
+//	void deinit() override {}
+//
+//	virtual void set_trace(bool state = true) {}
+//
+//	virtual game_id add_game(std::time_t timet, const str& host
+//		, const str& port, const str& mapname) override;
+//
+//	/**
+//	 *
+//	 * @param id
+//	 * @param table "kills" | "deaths"
+//	 * @param guid
+//	 * @param weap
+//	 * @param count
+//	 * @return
+//	 */
+//	virtual bool add_weaps(game_id id, const str& table
+//		, const GUID& guid, siz weap, siz count) override { return true; }
+//
+//	virtual bool add_caps(game_id id, const GUID& guid, siz count) override;
+//	virtual bool add_time(game_id id, const GUID& guid, siz count) override;
+//
+//	virtual bool add_player(std::time_t timet, const GUID& guid, const str& name) override;
+//
+//	virtual bool add_ovo(game_id id, const GUID& guid1, const GUID& guid2, siz count) override;
+//
+//	virtual bool add_weapon_usage(game_id id, const GUID& guid, siz weap, siz shots) override { return true; }
+//	virtual bool add_mod_damage(game_id id, const GUID& guid, siz mod, siz hits
+//		, siz damage, siz hitsRecv, siz damageRecv, float weightedHits) override { return true; }
+//	virtual bool add_playerstats(game_id id, const GUID& guid,
+//		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
+//		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
+//		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,
+//		siz carrierFrags, siz carrierFragsRecv) override { return true; }
+//	virtual bool add_playerstats_ps(game_id id, const GUID& guid,
+//		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
+//		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
+//		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,
+//		siz carrierFrags, siz carrierFragsRecv) override { return true; }
+//	virtual bool add_playerstats_ps(game_id id, const GUID& guid
+//		, const struct stat& s) override { return true; }
+//	virtual bool add_speed(game_id id, const GUID& guid,
+//			siz dist, siz time, bool has_flag) override { return true; }
+//
+//	virtual bool read_map_votes(const str& mapname, guid_int_map& map_votes) override;
+//
+//	virtual bool set_preferred_name(const GUID& guid, const str& name) override { return true; }
+//	virtual bool get_preferred_name(const GUID& guid, str& name) override { return true; }
+//
+//	virtual siz get_kills_per_cap(const str& sql_select_games = "") override { return true; }
+//	virtual bool get_ingame_boss(const str& mapname
+//		, const slot_guid_map& clients, GUID& guid, str& stats) override { return true; }
+//	virtual bool get_ingame_champ(const str& mapname, GUID& guid, str& stats) override { return true; }
+//	virtual bool get_ingame_stats(const GUID& guid, const str& mapname
+//		, siz prev, str& stats, siz& skill) override { return true; }
+//	virtual bool get_ingame_stats_c(const str& mapname, const slot_guid_map& clients
+//		, const GUID& guid, siz prev, str& stats, siz& skill) override { return true; }
+//	virtual bool get_ingame_crap(const str& mapname, const slot_guid_map& clients
+//		, GUID& guid, str& stats) override { return true; }
+//};
+
+class StatsDatabaseMySql
+: public StatsDatabase
+{
+	bool dbtrace = false;
+
+	MYSQL_STMT* stmt_add_playerstats = 0;
+	std::array<MYSQL_BIND, 16> bind_add_playerstats;
+	std::array<siz, 15> siz_add_playerstats;
+	std::array<char, 8> guid_add_playerstats;
+	siz guid_length = 8;
+
+public:
+	StatsDatabaseMySql(): StatsDatabase() {};
+	virtual ~StatsDatabaseMySql() {};
+
+	void init() override;
+	void deinit() override;
+
+	void set_trace(bool state = true) override { dbtrace = state; }
+
+	game_id add_game(std::time_t timet, const str& host
+		, const str& port, const str& mapname) override;
+
+	/**
+	 *
+	 * @param id
+	 * @param table "kills" | "deaths"
+	 * @param guid
+	 * @param weap
+	 * @param count
+	 * @return
+	 */
+	bool add_weaps(game_id id, const str& table
+		, const GUID& guid, siz weap, siz count) override;
+
+	bool add_caps(game_id id, const GUID& guid, siz count) override;
+	bool add_time(game_id id, const GUID& guid, siz count) override;
+
+	bool add_player(std::time_t timet, const GUID& guid, const str& name) override;
+
+	bool add_ovo(game_id id, const GUID& guid1, const GUID& guid2, siz count) override;
+
+	bool add_weapon_usage(game_id id, const GUID& guid, siz weap, siz shots) override;
+	bool add_mod_damage(game_id id, const GUID& guid, siz mod
+		, siz hits, siz damage, siz hitsRecv, siz damageRecv, float weightedHits) override;
 	bool add_playerstats(game_id id, const GUID& guid,
 		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
 		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
 		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,
-		siz carrierFrags, siz carrierFragsRecv);
+		siz carrierFrags, siz carrierFragsRecv) override;
 	bool add_playerstats_ps(game_id id, const GUID& guid,
 		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
 		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
 		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,
-		siz carrierFrags, siz carrierFragsRecv);
-	bool add_playerstats_ps(game_id id, const GUID& guid, const struct stat& s);
+		siz carrierFrags, siz carrierFragsRecv) override;
+	bool add_playerstats_ps(game_id id, const GUID& guid, const struct stat& s) override;
 	bool add_speed(game_id id, const GUID& guid,
-			siz dist, siz time, bool has_flag);
+			siz dist, siz time, bool has_flag) override;
 
-	bool read_map_votes(const str& mapname, guid_int_map& map_votes);
+	bool read_map_votes(const str& mapname, guid_int_map& map_votes) override;
 
-	bool set_preferred_name(const GUID& guid, const str& name);
-	bool get_preferred_name(const GUID& guid, str& name);
+	bool set_preferred_name(const GUID& guid, const str& name) override;
+	bool get_preferred_name(const GUID& guid, str& name) override;
 
-	siz get_kills_per_cap(const str& sql_select_games = "");
-	bool get_ingame_boss(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats);
-	bool get_ingame_champ(const str& mapname, GUID& guid, str& stats);
-	bool get_ingame_stats(const GUID& guid, const str& mapname, siz prev, str& stats, siz& skill);
-	bool get_ingame_stats_c(const str& mapname, const slot_guid_map& clients, const GUID& guid, siz prev, str& stats, siz& skill);
-	bool get_ingame_crap(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats);
+	siz get_kills_per_cap(const str& sql_select_games = "") override;
+	bool get_ingame_boss(const str& mapname, const slot_guid_map& clients
+		, GUID& guid, str& stats) override;
+	bool get_ingame_champ(const str& mapname, GUID& guid, str& stats) override;
+	bool get_ingame_stats(const GUID& guid, const str& mapname
+		, siz prev, str& stats, siz& skill) override;
+	bool get_ingame_stats_c(const str& mapname, const slot_guid_map& clients
+		, const GUID& guid, siz prev, str& stats, siz& skill) override;
+	bool get_ingame_crap(const str& mapname
+		, const slot_guid_map& clients, GUID& guid, str& stats) override;
 };
 
 class KatinaPluginStats
@@ -205,7 +347,7 @@ private:
 	const guid_siz_map& teams; // GUID -> 'R' | 'B'
 
 	RCon& server;
-	StatsDatabase db;
+	StatsDatabaseMySql db;
 
 	str host;
 	str port;

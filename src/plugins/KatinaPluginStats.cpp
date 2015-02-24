@@ -196,7 +196,7 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 		pbug("RUNNING THREAD: " << std::this_thread::get_id());
 		std::time_t start = std::time(0);
 
-		StatsDatabase db;
+		StatsDatabaseMySql db;
 		db.config(this->db);
 		if(!db.check())
 		{
@@ -1070,14 +1070,14 @@ void KatinaPluginStats::close()
 	trace();
 }
 
-// StatsDatabase
+// StatsDatabaseMySql
 
 const game_id bad_id(-1);
 const game_id null_id(0);
 
 static const str playerstats_sql = "insert into `playerstats` values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-void StatsDatabase::init()
+void StatsDatabaseMySql::init()
 {
 	// EXPERIMENTAL CODE
 	if(!stmt_add_playerstats)
@@ -1105,7 +1105,7 @@ void StatsDatabase::init()
 	}
 }
 
-void StatsDatabase::deinit()
+void StatsDatabaseMySql::deinit()
 {
 	if(stmt_add_playerstats)
 		mysql_stmt_close(stmt_add_playerstats);
@@ -1126,12 +1126,12 @@ bool mysql_timestamp(std::time_t timet, str& timestamp)
 		return false;
 	}
 
-	timestamp.assign(timef, times);;
+	timestamp.assign(timef, times);
 
 	return true;
 }
 
-game_id StatsDatabase::add_game(const std::time_t timet, const str& host, const str& port, const str& mapname)
+game_id StatsDatabaseMySql::add_game(const std::time_t timet, const str& host, const str& port, const str& mapname)
 {
 	if(dbtrace)
 		log("DATABASE: add_game(" << timet << ", " << host << ", " << port << ", " << mapname << ")");
@@ -1171,7 +1171,7 @@ game_id StatsDatabase::add_game(const std::time_t timet, const str& host, const 
  * @param count
  * @return
  */
-bool StatsDatabase::add_weaps(game_id id, const str& table, const GUID& guid, siz weap, siz count)
+bool StatsDatabaseMySql::add_weaps(game_id id, const str& table, const GUID& guid, siz weap, siz count)
 {
 	if(dbtrace)
 		log("DATABASE: add_weaps(" << id << ", " << table << ", " << guid << ", " << weap << ", " << count << ")");
@@ -1185,7 +1185,7 @@ bool StatsDatabase::add_weaps(game_id id, const str& table, const GUID& guid, si
 	return insert(sql);
 }
 
-bool StatsDatabase::add_caps(game_id id, const GUID& guid, siz count)
+bool StatsDatabaseMySql::add_caps(game_id id, const GUID& guid, siz count)
 {
 	if(dbtrace)
 		log("DATABASE: add_caps(" << id << ", " << guid << ", " << count << ")");
@@ -1199,7 +1199,7 @@ bool StatsDatabase::add_caps(game_id id, const GUID& guid, siz count)
 	return insert(sql);
 }
 
-bool StatsDatabase::add_time(game_id id, const GUID& guid, siz count)
+bool StatsDatabaseMySql::add_time(game_id id, const GUID& guid, siz count)
 {
 	if(dbtrace)
 		log("DATABASE: add_time(" << id << ", " << guid << ", " << count << ")");
@@ -1213,7 +1213,7 @@ bool StatsDatabase::add_time(game_id id, const GUID& guid, siz count)
 	return insert(sql);
 }
 
-bool StatsDatabase::add_player(const std::time_t timet, const GUID& guid, const str& name)
+bool StatsDatabaseMySql::add_player(const std::time_t timet, const GUID& guid, const str& name)
 {
 	if(dbtrace)
 		log("DATABASE: add_player(" << timet << ", " << guid << ", " << name << ")");
@@ -1241,7 +1241,7 @@ bool StatsDatabase::add_player(const std::time_t timet, const GUID& guid, const 
 	return insert(sql);
 }
 
-bool StatsDatabase::add_ovo(game_id id, const GUID& guid1, const GUID& guid2, siz count)
+bool StatsDatabaseMySql::add_ovo(game_id id, const GUID& guid1, const GUID& guid2, siz count)
 {
 	if(dbtrace)
 		log("DATABASE: add_ovo(" << id << ", " << guid1 << ", " << guid2 << ", " << count << ")");
@@ -1256,7 +1256,7 @@ bool StatsDatabase::add_ovo(game_id id, const GUID& guid1, const GUID& guid2, si
 }
 
 
-bool StatsDatabase::add_weapon_usage(game_id id, const GUID& guid, siz weap, siz shots)
+bool StatsDatabaseMySql::add_weapon_usage(game_id id, const GUID& guid, siz weap, siz shots)
 {
 	if(dbtrace)
 		log("DATABASE: add_weapon_usage(" << id << ", " << guid << ", " << weap << ", " << shots << ")");
@@ -1270,7 +1270,7 @@ bool StatsDatabase::add_weapon_usage(game_id id, const GUID& guid, siz weap, siz
 	return insert(sql);
 }
 
-bool StatsDatabase::add_mod_damage(game_id id, const GUID& guid, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv, float weightedHits)
+bool StatsDatabaseMySql::add_mod_damage(game_id id, const GUID& guid, siz mod, siz hits, siz damage, siz hitsRecv, siz damageRecv, float weightedHits)
 {
 	if(dbtrace)
 		log("DATABASE: add_mod_damage(" << id << ", " << guid << ", " << mod << ", " << hits << ", " << damage << ", " << hitsRecv << ", " << damageRecv << ", " << weightedHits << ")");
@@ -1284,7 +1284,7 @@ bool StatsDatabase::add_mod_damage(game_id id, const GUID& guid, siz mod, siz hi
 	return insert(sql);
 }
 
-bool StatsDatabase::add_playerstats(game_id id, const GUID& guid,
+bool StatsDatabaseMySql::add_playerstats(game_id id, const GUID& guid,
 	siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
 	siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
 	siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,
@@ -1309,7 +1309,7 @@ bool StatsDatabase::add_playerstats(game_id id, const GUID& guid,
 }
 
 // TODO: split these up into separate tables
-bool StatsDatabase::add_playerstats_ps(game_id id, const GUID& guid,
+bool StatsDatabaseMySql::add_playerstats_ps(game_id id, const GUID& guid,
 	siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
 	siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
 	siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged,
@@ -1372,7 +1372,7 @@ bool StatsDatabase::add_playerstats_ps(game_id id, const GUID& guid,
 	return true;
 }
 
-bool StatsDatabase::add_playerstats_ps(game_id id, const GUID& guid, const struct stat& s)
+bool StatsDatabaseMySql::add_playerstats_ps(game_id id, const GUID& guid, const struct stat& s)
 {
 	if(dbtrace)
 		log("DATABASE: add_playerstats_ps('"
@@ -1445,7 +1445,7 @@ bool StatsDatabase::add_playerstats_ps(game_id id, const GUID& guid, const struc
 	return true;
 }
 
-bool StatsDatabase::add_speed(game_id id, const GUID& guid,
+bool StatsDatabaseMySql::add_speed(game_id id, const GUID& guid,
 	siz dist, siz time, bool has_flag)
 {
 	if(dbtrace)
@@ -1461,7 +1461,7 @@ bool StatsDatabase::add_speed(game_id id, const GUID& guid,
 	return insert(sql);
 }
 
-bool StatsDatabase::set_preferred_name(const GUID& guid, const str& name)
+bool StatsDatabaseMySql::set_preferred_name(const GUID& guid, const str& name)
 {
 	if(dbtrace)
 		log("DATABASE: set_preferred_name(" << guid << ", " << name << ")");
@@ -1479,7 +1479,7 @@ bool StatsDatabase::set_preferred_name(const GUID& guid, const str& name)
 	return insert(sql);
 }
 
-bool StatsDatabase::get_preferred_name(const GUID& guid, str& name)
+bool StatsDatabaseMySql::get_preferred_name(const GUID& guid, str& name)
 {
 	if(dbtrace)
 		log("DATABASE: get_preferred_name(" << guid << ", " << name << ")");
@@ -1549,7 +1549,7 @@ str get_game_select_period(const str& mapname, siz prev = 0)
 	return sql.str();
 }
 
-bool StatsDatabase::get_ingame_champ(const str& mapname, GUID& guid, str& stats)
+bool StatsDatabaseMySql::get_ingame_champ(const str& mapname, GUID& guid, str& stats)
 {
 	return true;
 }
@@ -1569,7 +1569,7 @@ typedef std::map<str, stat_c> stat_map; // guid -> stat_c
 typedef stat_map::iterator stat_map_iter;
 typedef stat_map::const_iterator stat_map_citer;
 
-siz StatsDatabase::get_kills_per_cap(const str& sql_select_games)
+siz StatsDatabaseMySql::get_kills_per_cap(const str& sql_select_games)
 {
 	// -- get ratio of frags to caps
 
@@ -1637,7 +1637,7 @@ siz StatsDatabase::get_kills_per_cap(const str& sql_select_games)
 	return c ? (k / c) : 1;
 }
 
-bool StatsDatabase::get_ingame_boss(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats)
+bool StatsDatabaseMySql::get_ingame_boss(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats)
 {
 	if(dbtrace)
 		log("DATABASE: get_ingame_boss(" << mapname << ", " << clients.size() << ")");
@@ -1793,7 +1793,7 @@ bool StatsDatabase::get_ingame_boss(const str& mapname, const slot_guid_map& cli
 	return true;
 }
 
-bool StatsDatabase::get_ingame_stats_c(const str& mapname, const slot_guid_map& clients, const GUID& guid, siz prev, str& stats, siz& skill)
+bool StatsDatabaseMySql::get_ingame_stats_c(const str& mapname, const slot_guid_map& clients, const GUID& guid, siz prev, str& stats, siz& skill)
 {
 	if(dbtrace)
 		log("DATABASE: get_ingame_stats_c(" << guid << ", " << mapname << ", " << prev << ")");
@@ -2005,7 +2005,7 @@ bool StatsDatabase::get_ingame_stats_c(const str& mapname, const slot_guid_map& 
 	return true;
 }
 
-bool StatsDatabase::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, str& stats, siz& skill)
+bool StatsDatabaseMySql::get_ingame_stats(const GUID& guid, const str& mapname, siz prev, str& stats, siz& skill)
 {
 	if(dbtrace)
 		log("DATABASE: get_ingame_stats(" << guid << ", " << mapname << ", " << prev << ")");
@@ -2190,7 +2190,7 @@ bool StatsDatabase::get_ingame_stats(const GUID& guid, const str& mapname, siz p
 
 // TODO: Make boss, champ & stats return a proper GUID like this does scanning the clients
 // TODO: add some minumum requirements like minimum time/frags/caps etc...
-bool StatsDatabase::get_ingame_crap(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats)
+bool StatsDatabaseMySql::get_ingame_crap(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats)
 {
 	if(dbtrace)
 		log("DATABASE: get_ingame_crap(" << mapname << ", " << clients.size() << ")");

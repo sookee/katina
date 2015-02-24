@@ -160,7 +160,7 @@ void KatinaPluginNextMap::heartbeat(siz min, siz sec)
 
 	str msg = get_maplist(maps, 0);
 
-	server.msg_to_all(msg);
+	server.msg_to_all(msg, true);
 }
 
 str get_mapname(str line)
