@@ -1461,6 +1461,39 @@ bool StatsDatabaseMySql::add_speed(game_id id, const GUID& guid,
 	return insert(sql);
 }
 
+bool StatsDatabaseMySql::read_map_votes(const str& mapname, guid_int_map& map_votes)
+{
+	if(dbtrace)
+		log("DATABASE: read_map_votes(" << mapname << ")");
+
+	map_votes.clear();
+
+	str safe_mapname;
+	if(!escape(mapname, safe_mapname))
+	{
+		log("DATABASE: ERROR: failed to escape: " << mapname);
+		return bad_id;
+	}
+
+	soss oss;
+	oss << "select `guid`,`count` from `votes` where `type` = 'map' and `item` = '" << safe_mapname << "'";
+
+	str sql = oss.str();
+
+	str_vec_vec rows;
+	if(!select(sql, rows, 2))
+		return false;
+
+	for(siz i = 0; i < rows.size(); ++i)
+	{
+		if(dbtrace)
+			log("DATABASE: restoring vote: " << rows[i][0] << ": " << rows[i][1]);
+		map_votes[GUID(rows[i][0])] = to<int>(rows[i][1]);
+	}
+
+	return true;
+}
+
 bool StatsDatabaseMySql::set_preferred_name(const GUID& guid, const str& name)
 {
 	if(dbtrace)

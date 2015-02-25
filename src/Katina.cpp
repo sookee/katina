@@ -263,7 +263,7 @@ slot Katina::extract_num(const str& line)
 //	return null_guid;
 //}
 
-bool Katina::load_plugin(const str& file)
+bool Katina::load_plugin(const str& file, const unsigned priority)
 {
 	void* dl = 0;
 	KatinaPlugin* plugin = 0;
@@ -292,16 +292,8 @@ bool Katina::load_plugin(const str& file)
 	}
 
 	plugin->dl = dl;
+	plugin->priority = priority;
 
-//	if(!plugin->open())
-//	{
-//		log("PLUGIN LOAD: plugin failed to open");
-//		delete plugin;
-//		if(dlclose(dl))
-//			log("PLUGIN LOAD: plugin failed to unload: " << dlerror());
-//		return false;
-//	}
-//
 	plugins[plugin->get_id()] = plugin;
 	plugin_files[plugin->get_id()] = file;
 
@@ -378,6 +370,7 @@ bool Katina::reload_plugin(const str& id)
 
 bool Katina::open_plugin(const str& id)
 {
+	bug_func();
 	log("PLUGIN OPEN: " << id);
 
 	plugin_map_iter p = plugins.find(id);
@@ -403,10 +396,16 @@ bool Katina::open_plugin(const str& id)
 
 void Katina::load_plugins()
 {
+	bug_func();
 	log("Loading plugins:");
-	str_vec pluginfiles = get_exp_vec("plugin");
-	for(siz i = 0; i < pluginfiles.size(); ++i)
-		load_plugin(pluginfiles[i]);
+//	str_vec pluginfiles = get_exp_vec("plugin");
+	//	for(siz i = 0; i < pluginfiles.size(); ++i)
+	//		load_plugin(pluginfiles[i]);
+
+	unsigned priority = 0;
+	for(auto& file: get_exp_vec("plugin"))
+		if(load_plugin(file, priority))
+			++priority;
 
 	log("Opening plugins:");
 	for(plugin_map_iter p = plugins.begin(); p != plugins.end();)
@@ -523,6 +522,7 @@ bool Katina::load_config(const str& dir, const str& file, property_map& props)
 	while(sgl(ifs, line))
 	{
 		++no;
+//		bug(line << " " << no);
 
 		if((pos = line.find("//")) != str::npos)
 			line.erase(pos);
@@ -1482,33 +1482,33 @@ bool Katina::start(const str& dir)
 
 			now = base_now + (min * 60) + sec;
 
-			event_hold_vec defer_events_tmp;
-			do
+//			event_hold_vec defer_events_tmp;
+//			do
+//			{
+//				defer_events_tmp = defer_events;
+//				defer_events.clear(); // ready to be filled up again
+//
+//				for(const evtent_hold& e: defer_events_tmp)
+//					add_log_event(e.p, e.e, e.after);
+//
+//			} while(!defer_events.empty() && defer_events.size() < defer_events_tmp.size());
+//
+//			if(!defer_events.empty())
+//			{
+//				nlog("WARN: deferred events not set: " << defer_events.size());
+//				for(const evtent_hold& e: defer_events)
+//					nlog("Event: " << e.e << " after: " << join(e.after));
+//
+//				nlog("WARN: adding deferred events to end of list:");
+//				for(const evtent_hold& e: defer_events)
+//					add_log_event(e.p, e.e);
+//
+//				defer_events.clear();
+//			}
+
+			for(const auto& e: erase_events)
 			{
-				defer_events_tmp = defer_events;
-				defer_events.clear(); // ready to be filled up again
-
-				for(const evtent_hold& e: defer_events_tmp)
-					add_log_event(e.p, e.e, e.after);
-
-			} while(!defer_events.empty() && defer_events.size() < defer_events_tmp.size());
-
-			if(!defer_events.empty())
-			{
-				nlog("WARN: deferred events not set: " << defer_events.size());
-				for(const evtent_hold& e: defer_events)
-					nlog("Event: " << e.e << " after: " << join(e.after));
-
-				nlog("WARN: adding deferred events to end of list:");
-				for(const evtent_hold& e: defer_events)
-					add_log_event(e.p, e.e);
-
-				defer_events.clear();
-			}
-
-			for(const evtent_hold& e: erase_events)
-			{
-				plugin_lst_iter i = std::find(events[e.e].begin(), events[e.e].end(), e.p);
+				auto i = std::find(events[e.e].begin(), events[e.e].end(), e.p);
 				if(i != events[e.e].end())
 					events[e.e].erase(i);
 			}

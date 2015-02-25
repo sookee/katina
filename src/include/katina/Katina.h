@@ -89,7 +89,7 @@ enum event_t
 	, KE_LOG_CALLVOTE// mod_katina >= 0.1-beta
 };
 
-TYPEDEF_MAP(event_t, plugin_lst, event_map);
+TYPEDEF_MAP(event_t, plugin_vec, event_map);
 //typedef std::map<event_t, plugin_vec> event_map;
 //typedef event_map::iterator event_map_iter;
 //typedef event_map::const_iterator event_map_citer;
@@ -223,7 +223,7 @@ private:
     void init_rcon();
     
     void load_plugins();
-	bool load_plugin(const str& file);
+	bool load_plugin(const str& file, unsigned priority = 0);
 	bool open_plugin(const str& id);
 	bool unload_plugin(const str& id);
 	bool reload_plugin(const str& id);
@@ -629,63 +629,52 @@ public:
 			log("CVAR: " << plugin->get_id() << ": " << name << " = " << var);
 	}
 
-	struct evtent_hold
+	struct plugin_event
 	{
 		event_t e;
 		KatinaPlugin* p;
-		str_vec after;
-		bool operator==(const evtent_hold& erase) const { return e == erase.e && p == erase.p; }
+		bool operator==(const plugin_event& erase) const { return e == erase.e && p == erase.p; }
 	};
 
-	TYPEDEF_VEC(evtent_hold, event_hold_vec);
-	event_hold_vec erase_events;
-	event_hold_vec defer_events;
+	TYPEDEF_VEC(plugin_event, plugin_event_vec);
+	plugin_event_vec erase_events;
+//	event_hold_vec defer_events;
 
+	/**
+	 * Events are always sorted into the order inwhich the plugins handling them
+	 * were loaded. It is down to the plugin to have ensured it failed to open
+	 * if a dependant plugin was not already open at the time
+	 * @param plugin
+	 * @param e
+	 */
 	void add_log_event(class KatinaPlugin* plugin, event_t e)
 	{
+//		bug_func();
+//		bug_var(plugin);
+//		bug_var(e);
 		events[e].push_back(plugin);
-	}
-
-	void add_log_event(class KatinaPlugin* plugin, event_t e, const str_vec& after)
-	{
-		if(after.empty())
-			add_log_event(plugin, e);
-
-		plugin_vec found;
-		plugin_map_citer p;
-		for(const str& id: after)
-			if((p = plugins.find(id)) != plugins.cend())
-				found.push_back(p->second);
-
-		plugin_lst& list = events[e];
-
-		plugin_vec_iter pvi;
-		for(plugin_lst_iter pli = list.begin(); pli != list.end(); ++pli)
+//		bug("pre sort");
+		std::sort(std::begin(events[e]), std::end(events[e]), [](KatinaPlugin* l, KatinaPlugin* r)
 		{
-			if((pvi = std::find(found.begin(), found.end(), *pli)) == found.end())
-				continue;
-
-			found.erase(pvi);
-
-			if(found.empty())
-				{ list.insert(++pli, plugin); break; }
-		}
-
-		if(!found.empty())
-			defer_events.push_back({e, plugin, after});
+			return l->priority < r->priority;
+		});
+//		bug("pre erase");
+		auto from = std::unique(events[e].begin(), events[e].end());
+		if(from != events[e].end())
+			events[e].erase(from);
 	}
 
 	void del_log_event(class KatinaPlugin* plugin, event_t e)
 	{
-		plugin_lst_iter i = std::find(events[e].begin(), events[e].end(), plugin);
+		auto i = std::find(events[e].begin(), events[e].end(), plugin);
 		if(i != events[e].end())
 			erase_events.push_back({e, plugin}); // TODO: clang++ crashes here
 	}
 
 	void del_log_events(class KatinaPlugin* plugin)
 	{
-		for(const event_map_vt& vt: events)
-			for(const plugin_lst_vt& p: vt.second)
+		for(const auto& vt: events)
+			for(const auto& p: vt.second)
 				if(p == plugin)
 					erase_events.push_back({vt.first, p});
 	}

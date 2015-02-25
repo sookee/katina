@@ -3,6 +3,8 @@
 DEBUG = 1
 RELEASE = 0
 PREFIX = /usr/local
+CXX = g++
+CXXFLAGS = -std=c++11
 
 -include Makefile.local # override defaults
 

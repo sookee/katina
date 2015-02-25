@@ -169,17 +169,18 @@ KatinaPluginReports::KatinaPluginReports(Katina& katina)
 
 bool KatinaPluginReports::open()
 {
+	bug_func();
 	str_vec after;
 	if((stats = katina.get_plugin("katina::stats", "0.0")))
 	{
 		plog("Found: " << stats->get_name() << ": " << stats->get_version());
-		after.push_back("katina::stats");
+//		after.push_back("katina::stats");
 	}
 
 	if((votes = katina.get_plugin("katina::votes", "0.0")))
 	{
 		plog("Found: " << votes->get_name() << ": " << votes->get_version());
-		after.push_back("katina::votes");
+//		after.push_back("katina::votes");
 	}
 
 	client.off();
@@ -220,7 +221,7 @@ bool KatinaPluginReports::open()
 	katina.add_var_event(this, "reports.spam.kill", spamkill, false);
 	katina.add_var_event(this, "reports.spam.limit", spam_limit, (siz) 2);
 
-	katina.add_log_event(this, KE_EXIT, after);
+	katina.add_log_event(this, KE_EXIT);
 	katina.add_log_event(this, KE_KILL);
 	katina.add_log_event(this, KE_PUSH);
 	katina.add_log_event(this, KE_CTF);
@@ -262,6 +263,7 @@ str KatinaPluginReports::get_version() const
 
 bool KatinaPluginReports::init_game(siz min, siz sec, const str_map& cvars)
 {
+	trace();
 	flags[FL_RED] = 0;
 	flags[FL_BLUE] = 0;
 	caps.clear();
@@ -310,6 +312,7 @@ bool KatinaPluginReports::init_game(siz min, siz sec, const str_map& cvars)
 
 bool KatinaPluginReports::kill(siz min, siz sec, slot num1, slot num2, siz weap)
 {
+	trace();
 	if(!active)
 		return true;
 
@@ -336,6 +339,7 @@ bool KatinaPluginReports::kill(siz min, siz sec, slot num1, slot num2, siz weap)
 
 bool KatinaPluginReports::push(siz min, siz sec, slot num1, slot num2)
 {
+	trace();
 //	bug_func();
 //	bug_var(num1);
 //	bug_var(num2);
@@ -383,6 +387,7 @@ str KatinaPluginReports::get_nums_team(const GUID& guid)
 
 bool KatinaPluginReports::ctf(siz min, siz sec, slot num, siz team, siz act)
 {
+	trace();
 	if(!active)
 		return true;
 
@@ -467,6 +472,7 @@ bool KatinaPluginReports::ctf(siz min, siz sec, slot num, siz team, siz act)
 
 bool KatinaPluginReports::say(siz min, siz sec, const GUID& guid, const str& text)
 {
+	trace();
 	if(!active)
 		return true;
 
@@ -585,6 +591,7 @@ siz weapon_to_siz(const str& weapon)
 
 bool KatinaPluginReports::exit(siz min, siz sec)
 {
+	trace();
 	bug_func();
 	if(!active)
 		return true;
@@ -861,7 +868,6 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 
 void KatinaPluginReports::close()
 {
-
 }
 
 }} // katina::plugin
