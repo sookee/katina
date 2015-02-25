@@ -633,6 +633,7 @@ public:
 	{
 		event_t e;
 		KatinaPlugin* p;
+		plugin_event(event_t e, KatinaPlugin* p): e(e), p(p) {}
 		bool operator==(const plugin_event& erase) const { return e == erase.e && p == erase.p; }
 	};
 
@@ -647,28 +648,41 @@ public:
 	 * @param plugin
 	 * @param e
 	 */
-	void add_log_event(class KatinaPlugin* plugin, event_t e)
+	void add_log_eventX(class KatinaPlugin* plugin, event_t e)
 	{
-//		bug_func();
-//		bug_var(plugin);
-//		bug_var(e);
 		events[e].push_back(plugin);
-//		bug("pre sort");
+
 		std::sort(std::begin(events[e]), std::end(events[e]), [](KatinaPlugin* l, KatinaPlugin* r)
 		{
 			return l->priority < r->priority;
 		});
-//		bug("pre erase");
-		auto from = std::unique(events[e].begin(), events[e].end());
-		if(from != events[e].end())
-			events[e].erase(from);
+//
+//		auto from = std::unique(events[e].begin(), events[e].end());
+//		if(from != events[e].end())
+//			events[e].erase(from);
+	}
+
+	void add_log_event(class KatinaPlugin* plugin, event_t e)
+	{
+		auto lb = std::lower_bound(std::begin(events[e]), std::end(events[e]), plugin,
+		[](KatinaPlugin* l, KatinaPlugin* r)
+		{
+			return l->priority < r->priority;
+		});
+
+		if(lb != std::end(events[e]))
+			events[e].insert(lb, plugin);
+		else
+		{
+			events[e].push_back(plugin);
+		}
 	}
 
 	void del_log_event(class KatinaPlugin* plugin, event_t e)
 	{
 		auto i = std::find(events[e].begin(), events[e].end(), plugin);
 		if(i != events[e].end())
-			erase_events.push_back({e, plugin}); // TODO: clang++ crashes here
+			erase_events.emplace_back(e, plugin); // TODO: clang++ crashes here
 	}
 
 	void del_log_events(class KatinaPlugin* plugin)
@@ -676,7 +690,7 @@ public:
 		for(const auto& vt: events)
 			for(const auto& p: vt.second)
 				if(p == plugin)
-					erase_events.push_back({vt.first, p});
+					erase_events.emplace_back(vt.first, p);
 	}
 
 	/**

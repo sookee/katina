@@ -291,6 +291,15 @@ bool Katina::load_plugin(const str& file, const unsigned priority)
 		return false;
 	}
 
+	// ensure only one of each type of plugin
+	if(plugins.count(plugin->get_id()))
+	{
+		log("PLUGIN LOAD: duplicate plugin id: " << plugin->get_id());
+		if(dlclose(dl))
+			log("PLUGIN LOAD: plugin failed to unload: " << dlerror());
+		return false;
+	}
+
 	plugin->dl = dl;
 	plugin->priority = priority;
 
@@ -1397,11 +1406,14 @@ bool Katina::start(const str& dir)
 		rad iss;
 		//rad params;
 
+		unsigned retry_count = 0;
+
 		while(!done)
 		{
 //			off_scoper off;
 			if(!is.getline(line_data, sizeof(line_data)) || is.eof())
 			{
+				++retry_count;
 				if(rerun)
 					done = true;
 				std::this_thread::sleep_for(milliseconds(100));
@@ -1409,6 +1421,9 @@ bool Katina::start(const str& dir)
 				is.seekg(gpos);
 				continue;
 			}
+			if(retry_count)
+				bug_var(retry_count);
+			retry_count = 0; // reset
 
 			++line_number;
 			if(do_log_lines)
