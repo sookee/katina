@@ -239,13 +239,9 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 				katina.server.msg_to(i->first, katina.get_name() + " ^3You ^1LOVE ^3this map");
 			else if(map_votes.count(i->second) && map_votes[i->second] < 0)
 				katina.server.msg_to(i->first, katina.get_name() + " ^3You ^1HATE ^3this map");
-			else if(map_votes.count(i->second))
-				katina.server.msg_to(i->first, katina.get_name() + " ^3You neither ^1LOVE ^3nor ^1HATE ^3this map");
 			else
 			{
-				katina.server.msg_to(i->first, katina.get_name() + " ^3You have not yet voted for this map.", true);
-				katina.server.msg_to(i->first, katina.get_name() + " ^3You can say ^1!love map ^3 or ^1!hate map ^3 to express a preference.");
-				katina.server.msg_to(i->first, katina.get_name() + " ^3If you don't care say ^1!soso map ^3 to make this message disappear.");
+				katina.server.msg_to(i->first, katina.get_name() + " ^3Vote^7: ^1!love map^7, ^1!hate map^7 or ^1!soso map ^3");
 			}
 		}
 	}, katina.getClients()));

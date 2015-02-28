@@ -1,1 +1,2 @@
 export PREFIX = $(HOME)/dev
+export DEBUG_FLAGS = -O0 -g3
