@@ -429,6 +429,19 @@ void Katina::load_plugins()
 	}
 }
 
+bool Katina::has_plugin(const str& id, const str& version)
+{
+	plugin_map_iter i = plugins.find(id);
+
+	if(i == plugins.end())
+		return false;
+
+	if(i->second->get_version() < version)
+		return false;
+
+	return true;
+}
+
 KatinaPlugin* Katina::get_plugin(const str& id, const str& version)
 {
 	plugin_map_iter i = plugins.find(id);
@@ -615,7 +628,7 @@ bool Katina::init_pki()
 			continue;
 		}
 		log("Reading public keys: [" << id << "] " << file);
-		pki.add_client_key_file(id, expand_env(file, WRDE_SHOWERR|WRDE_UNDEF));
+		pki.add_client_key_file(id, config_dir + "/" + file);
 	}
 
 	return true;
@@ -1488,7 +1501,7 @@ bool Katina::start(const str& dir)
 					{
 						base_now = std::time(0);
 						bug("=========================");
-						bug("= BASE_TIME: " << base_now << " =");
+						log("= BASE_TIME: " << base_now << " =");
 						bug("=========================");
 					}
 				}
@@ -1496,30 +1509,6 @@ bool Katina::start(const str& dir)
 			}
 
 			now = base_now + (min * 60) + sec;
-
-//			event_hold_vec defer_events_tmp;
-//			do
-//			{
-//				defer_events_tmp = defer_events;
-//				defer_events.clear(); // ready to be filled up again
-//
-//				for(const evtent_hold& e: defer_events_tmp)
-//					add_log_event(e.p, e.e, e.after);
-//
-//			} while(!defer_events.empty() && defer_events.size() < defer_events_tmp.size());
-//
-//			if(!defer_events.empty())
-//			{
-//				nlog("WARN: deferred events not set: " << defer_events.size());
-//				for(const evtent_hold& e: defer_events)
-//					nlog("Event: " << e.e << " after: " << join(e.after));
-//
-//				nlog("WARN: adding deferred events to end of list:");
-//				for(const evtent_hold& e: defer_events)
-//					add_log_event(e.p, e.e);
-//
-//				defer_events.clear();
-//			}
 
 			for(const auto& e: erase_events)
 			{

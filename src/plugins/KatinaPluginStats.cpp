@@ -423,10 +423,13 @@ void KatinaPluginStats::check_bots_and_players()
 			if(!allow_bots)
 				stop_stats = true;
 		}
-		else if(ci->second == TEAM_R)
-			++human_players_r;
-		else if(ci->second == TEAM_B)
-			++human_players_b;
+		else
+		{
+			if(ci->second == TEAM_R)
+				++human_players_r;
+			else if(ci->second == TEAM_B)
+				++human_players_b;
+		}
 	}
 
 	siz players_r = human_players_r;

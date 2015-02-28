@@ -29,7 +29,13 @@ PLUGINS = \
 	katina-plugin-playerdb.so \
 	katina-plugin-example.so
 	
-all: $(PLUGINS)
+	TESTS = test-stats-stall-clients
+	
+all: $(PLUGINS) $(TESTS)
+
+test-stats-stall-clients: $(src_topdir)/plugins/test-stats-stall-clients.cpp
+	@echo Building $@
+	@$(CXX) $(CXXFLAGS) -o $@ $^
 
 katina-plugin-example.so: KatinaPluginExample.o
 	@echo Linking $@

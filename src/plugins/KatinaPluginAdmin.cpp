@@ -672,8 +672,12 @@ bool KatinaPluginAdmin::open()
 {
 	bug_func();
 
-	stats = katina.get_plugin("katina::stats", "0.1");
-	playerdb = katina.get_plugin("katina::playerdb", "0.1");
+	if(katina.has_plugin("katina::stats", "0.1"))
+		stats = katina.get_plugin("katina::stats", "0.1");
+	if(katina.has_plugin("katina::playerdb", "0.1"))
+		playerdb = katina.get_plugin("katina::playerdb", "0.1");
+
+
 
 	// remote.irc.client: insecure 127.0.0.1:7334 #zimsnew(*)
 	if(katina.has("admin.alert.irc.client"))
@@ -1012,6 +1016,8 @@ str secs_to_dhms(siz secs)
 
 bool KatinaPluginAdmin::votekill(const str& reason)
 {
+	static std::mutex mtx;
+	lock_guard lock(mtx);
 	pbug("VOTEKILL ACTIVATED: " << reason);
 	if(!server.command("!cancelvote"))
 		return false;
@@ -1084,11 +1090,15 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, slot num, const str& type, co
 
 	if(protect_admins)
 	{
+		plog("ADMIN PROTECT ACTIVE");
 		const GUID& voted_guid = katina.getClientGuid(to<slot>(info));
 		const str& kicked_name = katina.getPlayerName(voted_guid);
+		bug_var(voted_guid);
+		bug_var(kicked_name);
 
 		if(katina.is_admin(voted_guid))
 		{
+			plog("VOTE AGAINST ADMIN DETECTED");
 			if(type == "clientkick")
 			{
 				std::thread([this,kname,kicked_name]
@@ -1486,7 +1496,7 @@ bool KatinaPluginAdmin::say(const siz min, const siz sec, const GUID& guid, cons
 		str inip = playerdb ? playerdb->api(cmd):"";
 
 		if(!inip.find("ERROR:"))
-			plog("ERROR: calling playerdb::api(" << cmd);
+			plog("ERROR: calling playerdb::api(" << cmd << ")");
 
 		if(std::find_if(banned_ips.begin(), banned_ips.end(), [&](const str& ip){return !ip.find(inip);}) != banned_ips.end()
 		|| std::find(banned_guids.begin(), banned_guids.end(), str(guid)) != banned_guids.end())

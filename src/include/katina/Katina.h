@@ -460,6 +460,7 @@ public:
 	 * else nullptr if not loaded or id not recognized.
 	 */
 	KatinaPlugin* get_plugin(const str& id, const str& version);
+	bool has_plugin(const str& id, const str& version);
 
 	/**
 	 * Get a fully qualified typed pointer to a plugin, else
