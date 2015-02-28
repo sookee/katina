@@ -23,11 +23,13 @@ PLUGINS = \
 	katina-plugin-votes.so \
 	katina-plugin-nextmap.so \
 	katina-plugin-reports.so \
-	katina-plugin-wso.so \
 	katina-plugin-votectrl.so \
+	katina-plugin-playerdb.so
+
+UNUSED_PLUGINS = \
+	katina-plugin-example.so \
 	katina-plugin-teambalancer.so \
-	katina-plugin-playerdb.so \
-	katina-plugin-example.so
+	katina-plugin-wso.so
 	
 	TESTS = test-stats-stall-clients
 	
