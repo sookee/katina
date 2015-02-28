@@ -7,7 +7,7 @@ VER_FLAGS = \
 	-D DEV=\"$(shell git diff --quiet || echo -dev)\"
 
 # requirements
-REQ_CXX11_TEST := $(shell echo "int main(){}" | g++ -o /dev/null -x c++ -std=c++11 - 2> /dev/null; echo $$?)
+REQ_CXX11_TEST := $(shell bash -e echo "int main(){}" | $(CXX) -o /dev/null -x c++ -std=c++11 - 2> /dev/null; echo $$?)
 REQ_CXX11_FAIL := "ERROR: Requires g++ v4.7 or above to compile."
 REQ_CXX11 = if(($(REQ_CXX11_TEST))); then echo $(REQ_CXX11_FAIL); exit 1; fi
 
@@ -68,10 +68,11 @@ PROGRAMS = katina katina-votes katina-obscure-ips
 
 PREFIX ?= $(HOME)
 
-all: reqs $(LIBRARIES) $(PROGRAMS)
+#all: reqs $(LIBRARIES) $(PROGRAMS)
+all: $(LIBRARIES) $(PROGRAMS)
 
 reqs:
-	@$(REQ_GXX)
+	@$(REQ_CXX11)
 	@$(REQ_PCRE)
 	@$(REQ_MYSQL)
 
