@@ -1423,6 +1423,7 @@ bool Katina::start(const str& dir)
 		uns retry_idx = 0;
 		uns retry_count = 0;
 		uns retry_ave = 0;
+		uns prev_retry_ave = 0;
 		uns retry_sum = 0;
 		uns retry_min = 10;
 		uns retry_max = 1000;
@@ -1455,14 +1456,16 @@ bool Katina::start(const str& dir)
 				continue;
 			}
 //			if(retry_count)
-			bug_var(retry_count);
+//			bug_var(retry_count);
 
 			retry_sum -= retry_counts[retry_idx];
 			retry_counts[retry_idx] = retry_count;
 			retry_sum += retry_counts[retry_idx];
 			retry_ave = retry_sum / retry_counts.size();
 
-			bug_var(retry_ave);
+			if(retry_ave != prev_retry_ave)
+				bug_var(retry_ave);
+			prev_retry_ave = retry_ave;
 
 			++retry_idx;
 			if(retry_idx == retry_counts.size())
