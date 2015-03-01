@@ -1301,6 +1301,35 @@ bool Katina::read_backlog(const str& logname, std::ios::streampos pos)
 	return true;
 }
 
+struct running_info
+{
+	uns_vec retry_counts;
+	uns retry_idx = 0;
+	uns retry_count = 0;
+	uns retry_ave = 0;
+	uns prev_retry_ave = 0;
+	uns retry_sum = 0;
+	uns retry_min = 10;
+	uns retry_max = 1000;
+	uns retry_millis = 0;
+	uns prev_retry_millis = 0;
+
+	running_info(uns size = 30): retry_counts(size) {}
+	void add_val(uns v)
+	{
+		retry_sum -= retry_counts[retry_idx];
+		retry_counts[retry_idx] = retry_count;
+		retry_sum += retry_counts[retry_idx];
+		retry_ave = retry_sum / retry_counts.size();
+
+		++retry_idx;
+		if(retry_idx == retry_counts.size())
+			retry_idx = 0;
+
+		retry_count = 0; // reset
+	}
+};
+
 bool Katina::start(const str& dir)
 {
 	//on_scoper on();
@@ -1419,38 +1448,37 @@ bool Katina::start(const str& dir)
 		rad iss;
 		//rad params;
 
-		uns_vec retry_counts(30);
-		uns retry_idx = 0;
-		uns retry_count = 0;
-		uns retry_ave = 0;
-		uns prev_retry_ave = 0;
-		uns retry_sum = 0;
-		uns retry_min = 10;
-		uns retry_max = 1000;
-		uns retry_millis = 0;
-		uns prev_retry_millis = 0;
+		running_info rinfo;
 
 		while(!done)
 		{
 //			off_scoper off;
 			if(!is.getline(line_data, sizeof(line_data)) || is.eof())
 			{
-				++retry_count;
+				++rinfo.retry_count;
 				if(rerun)
 					done = true;
 
-				retry_millis = retry_min + (((retry_max - retry_min) / retry_max) * retry_ave);
-				if(retry_millis > retry_max)
-					retry_millis = retry_max;
-				if(retry_millis < retry_min)
-					retry_millis = retry_min;
+				if(!get("debug.running.info", false))
+					std::this_thread::sleep_for(milliseconds(100));
+				else
+				{
+					rinfo.retry_millis = rinfo.retry_min
+						+ (((rinfo.retry_max - rinfo.retry_min) / rinfo.retry_max) * rinfo.retry_ave);
+					if(rinfo.retry_millis > rinfo.retry_max)
+						rinfo.retry_millis = rinfo.retry_max;
+					if(rinfo.retry_millis < rinfo.retry_min)
+						rinfo.retry_millis = rinfo.retry_min;
 
-				if(prev_retry_millis != retry_millis)
-					bug_var(retry_millis);
+					if(rinfo.prev_retry_millis != rinfo.retry_millis)
+						bug_var(rinfo.retry_millis);
 
-				prev_retry_millis = retry_millis;
+					rinfo.prev_retry_millis = rinfo.retry_millis;
 
-				std::this_thread::sleep_for(milliseconds(100));
+					std::this_thread::sleep_for(milliseconds(rinfo.retry_millis));
+				}
+
+
 				is.clear();
 				is.seekg(gpos);
 				continue;
@@ -1458,20 +1486,13 @@ bool Katina::start(const str& dir)
 //			if(retry_count)
 //			bug_var(retry_count);
 
-			retry_sum -= retry_counts[retry_idx];
-			retry_counts[retry_idx] = retry_count;
-			retry_sum += retry_counts[retry_idx];
-			retry_ave = retry_sum / retry_counts.size();
-
-			if(retry_ave != prev_retry_ave)
-				bug_var(retry_ave);
-			prev_retry_ave = retry_ave;
-
-			++retry_idx;
-			if(retry_idx == retry_counts.size())
-				retry_idx = 0;
-
-			retry_count = 0; // reset
+			if(get("debug.running.info", false))
+			{
+				rinfo.add_val(rinfo.retry_count);
+				if(rinfo.retry_ave != rinfo.prev_retry_ave)
+					bug_var(rinfo.retry_ave);
+				rinfo.prev_retry_ave = rinfo.retry_ave;
+			}
 
 			++line_number;
 			if(do_log_lines)
