@@ -67,13 +67,13 @@ public:
 //	GUID() = delete;
 	GUID(): connected(false)
 	{
-		bug("CTOR NULL GUID: " << std::uppercase << (void*)this);
+//		bug("CTOR NULL GUID: " << std::uppercase << (void*)this);
 	}
 
 	~GUID()
 	{
-		if(!data)
-			bug("DTOR NULL GUID: " << std::uppercase << (void*)this);
+//		if(!data)
+//			bug("DTOR NULL GUID: " << std::uppercase << (void*)this);
 	}
 
 	explicit GUID(const str& s): src(s)

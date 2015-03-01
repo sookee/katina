@@ -1419,7 +1419,13 @@ bool Katina::start(const str& dir)
 		rad iss;
 		//rad params;
 
-		unsigned retry_count = 0;
+		uns_vec retry_counts(30);
+		uns retry_idx = 0;
+		uns retry_count = 0;
+		uns retry_ave = 0;
+		uns retry_sum = 0;
+		uns retry_min = 10;
+		uns retry_max = 1000;
 
 		while(!done)
 		{
@@ -1429,13 +1435,34 @@ bool Katina::start(const str& dir)
 				++retry_count;
 				if(rerun)
 					done = true;
+
+				uns retry_millis = retry_min + (((retry_max - retry_min) / retry_max) * retry_ave);
+				if(retry_millis > retry_max)
+					retry_millis = retry_max;
+				if(retry_millis < retry_min)
+					retry_millis = retry_min;
+
+				bug_var(retry_millis);
+
 				std::this_thread::sleep_for(milliseconds(100));
 				is.clear();
 				is.seekg(gpos);
 				continue;
 			}
-			if(retry_count)
-				bug_var(retry_count);
+//			if(retry_count)
+			bug_var(retry_count);
+
+			retry_sum -= retry_counts[retry_idx];
+			retry_counts[retry_idx] = retry_count;
+			retry_sum += retry_counts[retry_idx];
+			retry_ave = retry_sum / retry_counts.size();
+
+			bug_var(retry_ave);
+
+			++retry_idx;
+			if(retry_idx == retry_counts.size())
+				retry_idx = 0;
+
 			retry_count = 0; // reset
 
 			++line_number;

@@ -116,8 +116,8 @@ namespace katina { namespace types {
 
 typedef unsigned char byte;
 
+typedef unsigned uns;
 typedef std::size_t siz;
-
 typedef std::string str;
 
 //class str
@@ -158,18 +158,22 @@ typedef str::iterator str_iter;
 typedef str::const_iterator str_citer;
 
 TYPEDEF_VEC(int, int_vec);
+TYPEDEF_VEC(uns, uns_vec);
 TYPEDEF_VEC(siz, siz_vec);
 TYPEDEF_VEC(str, str_vec);
 
 TYPEDEF_SET(int, int_set);
+TYPEDEF_SET(uns, uns_set);
 TYPEDEF_SET(siz, siz_set);
 TYPEDEF_SET(str, str_set);
 
 TYPEDEF_MSET(int, int_mset);
+TYPEDEF_MSET(uns, uns_mset);
 TYPEDEF_MSET(siz, siz_mset);
 TYPEDEF_MSET(str, str_mset);
 
 TYPEDEF_MAP(int, int, int_map);
+TYPEDEF_MAP(uns, uns, uns_map);
 TYPEDEF_MAP(siz, siz, siz_map);
 TYPEDEF_MAP(str, str, str_map);
 
@@ -178,14 +182,17 @@ TYPEDEF_MMAP(siz, siz, siz_mmap);
 TYPEDEF_MMAP(str, str, str_mmap);
 
 TYPEDEF_MAP(str, int, str_int_map);
+TYPEDEF_MAP(str, uns, str_uns_map);
 TYPEDEF_MAP(str, siz, str_siz_map);
 TYPEDEF_MAP(int, str, int_str_map);
+TYPEDEF_MAP(uns, str, uns_str_map);
 TYPEDEF_MAP(siz, str, siz_str_map);
 TYPEDEF_MAP(str, std::time_t, siz_time_map);
 TYPEDEF_MAP(str, str_set, str_set_map);
 TYPEDEF_MAP(str, str_vec, str_vec_map);
 
 TYPEDEF_MMAP(int, str, int_str_mmap);
+TYPEDEF_MMAP(uns, str, uns_str_mmap);
 TYPEDEF_MMAP(siz, str, siz_str_mmap);
 
 // streams
