@@ -1426,6 +1426,8 @@ bool Katina::start(const str& dir)
 		uns retry_sum = 0;
 		uns retry_min = 10;
 		uns retry_max = 1000;
+		uns retry_millis = 0;
+		uns prev_retry_millis = 0;
 
 		while(!done)
 		{
@@ -1436,13 +1438,16 @@ bool Katina::start(const str& dir)
 				if(rerun)
 					done = true;
 
-				uns retry_millis = retry_min + (((retry_max - retry_min) / retry_max) * retry_ave);
+				retry_millis = retry_min + (((retry_max - retry_min) / retry_max) * retry_ave);
 				if(retry_millis > retry_max)
 					retry_millis = retry_max;
 				if(retry_millis < retry_min)
 					retry_millis = retry_min;
 
-				bug_var(retry_millis);
+				if(prev_retry_millis != retry_millis)
+					bug_var(retry_millis);
+
+				prev_retry_millis = retry_millis;
 
 				std::this_thread::sleep_for(milliseconds(100));
 				is.clear();
