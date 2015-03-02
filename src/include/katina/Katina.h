@@ -201,7 +201,7 @@ private:
 	bool active;
 
 	TYPEDEF_MAP(str, str_vec, property_map);
-	TYPEDEF_LST(slot, slot_lst);
+	//TYPEDEF_LST(slot, slot_lst);
 
 	str name;
 	str plugin;

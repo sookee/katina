@@ -370,17 +370,21 @@ void KatinaPluginStats::stall_clients()
 {
 	trace();
 
-	for(guid_stat_map_citer ci = stats.begin(); ci != stats.end(); ++ci)
-		stall_client(ci->first);
+	for(auto&& s: stats)
+		stall_client(s.first);
+
+//	for(guid_stat_map_citer ci = stats.begin(); ci != stats.end(); ++ci)
+//		stall_client(ci->first);
 }
 
 void KatinaPluginStats::unstall_clients()
 {
 	trace();
 
-	for(guid_stat_map_citer ci = stats.begin(); ci != stats.end(); ++ci)
-//		if(!katina.is_disconnected(ci->first))
-			unstall_client(ci->first);
+	for(auto&& s: stats)
+		unstall_client(s.first);
+//	for(guid_stat_map_citer ci = stats.begin(); ci != stats.end(); ++ci)
+//			unstall_client(ci->first);
 }
 
 void KatinaPluginStats::check_bots_and_players()
@@ -394,23 +398,6 @@ void KatinaPluginStats::check_bots_and_players()
 	siz human_players_b = 0;
 	siz bot_players_r = 0;
 	siz bot_players_b = 0;
-
-//	for(const auto& s: stats)
-//	{
-//		if(s.first.is_bot())
-//		{
-//			if(s.second.team == TEAM_R)
-//				++bot_players_r;
-//			else if(s.second.team == TEAM_B)
-//				++bot_players_b;
-//			if(!allow_bots)
-//				stop_stats = true;
-//		}
-//		else if(s.second.team == TEAM_R)
-//			++human_players_r;
-//		else if(s.second.team == TEAM_B)
-//			++human_players_b;
-//	}
 
 	for(guid_siz_map_citer ci = teams.begin(); ci != teams.end(); ++ci)
 	{
@@ -593,9 +580,20 @@ bool KatinaPluginStats::ctf(siz min, siz sec, slot num, siz team, siz act)
 	if(stop_stats)
 		return true;
 
+	if(num == slot::bad)
+	{
+		if(act == 3) // flag returned after timeout
+			return true;
+		else
+		{
+			log("ERROR: Unexpected bad slot");
+			return true;
+		}
+	}
+
 	const GUID& guid = katina.getClientGuid(num);
 
-	if(num != slot::bad && guid == null_guid)
+	if(guid == null_guid)
 	{
 		plog("ERROR: null guid: {" << katina.get_line_number() << "}");
 		return true;
