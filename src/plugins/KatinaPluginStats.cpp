@@ -216,50 +216,55 @@ bool KatinaPluginStats::exit(siz min, siz sec)
 		if(id == null_id || id == bad_id)
 			return true;
 
-		for(guid_stat_map_citer p = stats.begin(); p != stats.end(); ++p)
+		pbug_var(katina.get_line_number());
+
+		siz count;
+		for(auto&& p: stats)
 		{
-			if(!allow_bots && p->first.is_bot())
+			if(!allow_bots && p.first.is_bot())
 			{
-				ptbug("IGNORING BOT: " << p->second.name);
+				ptbug("IGNORING BOT: " << p.second.name);
 				continue;
 			}
 
-			db.add_player(now, p->first, p->second.name);
+			bug("--------------------------------------------------------------------------------");
 
-			if(p->second.hc < 100)
+			db.add_player(now, p.first, p.second.name);
+
+			if(p.second.hc < 100)
 			{
-				ptbug("IGNORING HANDICAP PLAYER: [" << p->second.hc << "] " << p->second.name);
+				ptbug("IGNORING HANDICAP PLAYER: [" << p.second.hc << "] " << p.second.name);
 				continue;
 			}
 
-			siz count;
+			if((count = map_get(p.second.flags, FL_CAPTURED)))
+				db.add_caps(id, p.first, count);
+
+			bug("--------------------------------------------------------------------------------");
+
 			for(std::set<siz>::iterator weap = db_weaps.begin(); weap != db_weaps.end(); ++weap)
 			{
-				if((count = map_get(p->second.kills, *weap)))
-					db.add_weaps(id, "kills", p->first, *weap, count);
-				if((count = map_get(p->second.deaths, *weap)))
-					db.add_weaps(id, "deaths", p->first, *weap, count);
+				if((count = map_get(p.second.kills, *weap)))
+					db.add_weaps(id, "kills", p.first, *weap, count);
+				if((count = map_get(p.second.deaths, *weap)))
+					db.add_weaps(id, "deaths", p.first, *weap, count);
 			}
 
-			pbug_var(katina.get_line_number());
-			if((count = map_get(p->second.flags, FL_CAPTURED)))
-				db.add_caps(id, p->first, count);
+			if((count = p.second.logged_time))
+				db.add_time(id, p.first, count);
 
-			if((count = p->second.logged_time))
-				db.add_time(id, p->first, count);
+			for(siz_map_citer wu = p.second.weapon_usage.begin(); wu != p.second.weapon_usage.end(); ++wu)
+				db.add_weapon_usage(id, p.first, wu->first, wu->second);
 
-			for(siz_map_citer wu = p->second.weapon_usage.begin(); wu != p->second.weapon_usage.end(); ++wu)
-				db.add_weapon_usage(id, p->first, wu->first, wu->second);
+			for(moddmg_map_citer md = p.second.mod_damage.begin(); md != p.second.mod_damage.end(); ++md)
+				db.add_mod_damage(id, p.first, md->first, md->second.hits, md->second.damage, md->second.hitsRecv, md->second.damageRecv, md->second.weightedHits);
 
-			for(moddmg_map_citer md = p->second.mod_damage.begin(); md != p->second.mod_damage.end(); ++md)
-				db.add_mod_damage(id, p->first, md->first, md->second.hits, md->second.damage, md->second.hitsRecv, md->second.damageRecv, md->second.weightedHits);
+			db.add_playerstats_ps(id, p.first, p.second);
 
-			db.add_playerstats_ps(id, p->first, p->second);
-
-			if(p->second.time && p->second.dist)
-				db.add_speed(id, p->first, p->second.dist, p->second.time, false);
-			if(p->second.time_f && p->second.dist_f)
-				db.add_speed(id, p->first, p->second.dist_f, p->second.time_f, true);
+			if(p.second.time && p.second.dist)
+				db.add_speed(id, p.first, p.second.dist, p.second.time, false);
+			if(p.second.time_f && p.second.dist_f)
+				db.add_speed(id, p.first, p.second.dist_f, p.second.time_f, true);
 		}
 
 		for(onevone_map_citer o = onevone.begin(); o != onevone.end(); ++o)
@@ -370,17 +375,21 @@ void KatinaPluginStats::stall_clients()
 {
 	trace();
 
-	for(guid_stat_map_citer ci = stats.begin(); ci != stats.end(); ++ci)
-		stall_client(ci->first);
+	for(auto&& s: stats)
+		stall_client(s.first);
+
+//	for(guid_stat_map_citer ci = stats.begin(); ci != stats.end(); ++ci)
+//		stall_client(ci->first);
 }
 
 void KatinaPluginStats::unstall_clients()
 {
 	trace();
 
-	for(guid_stat_map_citer ci = stats.begin(); ci != stats.end(); ++ci)
-//		if(!katina.is_disconnected(ci->first))
-			unstall_client(ci->first);
+	for(auto&& s: stats)
+		unstall_client(s.first);
+//	for(guid_stat_map_citer ci = stats.begin(); ci != stats.end(); ++ci)
+//			unstall_client(ci->first);
 }
 
 void KatinaPluginStats::check_bots_and_players()
@@ -394,23 +403,6 @@ void KatinaPluginStats::check_bots_and_players()
 	siz human_players_b = 0;
 	siz bot_players_r = 0;
 	siz bot_players_b = 0;
-
-//	for(const auto& s: stats)
-//	{
-//		if(s.first.is_bot())
-//		{
-//			if(s.second.team == TEAM_R)
-//				++bot_players_r;
-//			else if(s.second.team == TEAM_B)
-//				++bot_players_b;
-//			if(!allow_bots)
-//				stop_stats = true;
-//		}
-//		else if(s.second.team == TEAM_R)
-//			++human_players_r;
-//		else if(s.second.team == TEAM_B)
-//			++human_players_b;
-//	}
 
 	for(guid_siz_map_citer ci = teams.begin(); ci != teams.end(); ++ci)
 	{
@@ -593,9 +585,20 @@ bool KatinaPluginStats::ctf(siz min, siz sec, slot num, siz team, siz act)
 	if(stop_stats)
 		return true;
 
+	if(num == slot::bad)
+	{
+		if(act == 3) // flag returned after timeout
+			return true;
+		else
+		{
+			log("ERROR: Unexpected bad slot");
+			return true;
+		}
+	}
+
 	const GUID& guid = katina.getClientGuid(num);
 
-	if(num != slot::bad && guid == null_guid)
+	if(guid == null_guid)
 	{
 		plog("ERROR: null guid: {" << katina.get_line_number() << "}");
 		return true;
@@ -691,12 +694,12 @@ void KatinaPluginStats::heartbeat(siz min, siz sec)
 	db_scoper on(db);
 
 	str boss;
-	GUID guid;
+	str guid;
 
 	bug_var(guid);
 
-	if(db.get_ingame_boss(mapname, clients, guid, boss) && guid != null_guid)
-		server.msg_to_all("^7BOSS: " + katina.getPlayerName(guid) + "^7: " + boss, true);
+	if(db.get_ingame_boss(mapname, clients, guid, boss) && GUID(guid) != null_guid)
+		server.msg_to_all("^7BOSS: " + katina.getPlayerName(GUID(guid)) + "^7: " + boss, true);
 	else
 		server.msg_to_all("^7BOSS: ^3There is no boss on this map", true);
 }
@@ -987,10 +990,10 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 		bug("getting boss");
 
 		str stats;
-		GUID guid;
+		str guid;
 		db_scoper on(db);
-		if(db.get_ingame_boss(mapname, clients, guid, stats) && guid != null_guid)
-			server.msg_to_all("^7BOSS: " + katina.getPlayerName(guid) + "^7: " + stats, true);
+		if(db.get_ingame_boss(mapname, clients, guid, stats) && GUID(guid) != null_guid)
+			server.msg_to_all("^7BOSS: " + katina.getPlayerName(GUID(guid)) + "^7: " + stats, true);
 		else
 			server.msg_to_all("^7BOSS: ^3There is no boss on this map", true);
 	}
@@ -1007,10 +1010,10 @@ bool KatinaPluginStats::say(siz min, siz sec, const GUID& guid, const str& text)
 		bug("getting crappiest");
 
 		str stats;
-		GUID guid;
+		str guid;
 		db_scoper on(db);
-		if(db.get_ingame_crap(mapname, clients, guid, stats) && guid != null_guid)
-			server.msg_to_all("^7CRAPPIEST: " + katina.getPlayerName(guid) + "^7: " + stats, true);
+		if(db.get_ingame_crap(mapname, clients, guid, stats) && GUID(guid) != null_guid)
+			server.msg_to_all("^7CRAPPIEST: " + katina.getPlayerName(GUID(guid)) + "^7: " + stats, true);
 		else
 			server.msg_to_all("^7CRAPPIEST: ^3There is no crappiest on this map", true);
 	}
@@ -1585,7 +1588,7 @@ str get_game_select_period(const str& mapname, siz prev = 0)
 	return sql.str();
 }
 
-bool StatsDatabaseMySql::get_ingame_champ(const str& mapname, GUID& guid, str& stats)
+bool StatsDatabaseMySql::get_ingame_champ(const str& mapname, str& guid, str& stats)
 {
 	return true;
 }
@@ -1673,7 +1676,7 @@ siz StatsDatabaseMySql::get_kills_per_cap(const str& sql_select_games)
 	return c ? (k / c) : 1;
 }
 
-bool StatsDatabaseMySql::get_ingame_boss(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats)
+bool StatsDatabaseMySql::get_ingame_boss(const str& mapname, const slot_guid_map& clients, str& guid, str& stats)
 {
 	if(dbtrace)
 		log("DATABASE: get_ingame_boss(" << mapname << ", " << clients.size() << ")");
@@ -1809,8 +1812,9 @@ bool StatsDatabaseMySql::get_ingame_boss(const str& mapname, const slot_guid_map
 
 	if(maxi != guids.end())
 	{
-		guid = GUID(*maxi);
-		if(!guid.is_bot())
+		GUID nguid(*maxi);
+		guid = nguid;
+		if(!nguid.is_bot())
 		{
 			str fpad = stat_cs[*maxi].fph < 10 ? "00" : (stat_cs[*maxi].fph < 100 ? "0" : "");
 			str cpad = stat_cs[*maxi].cph < 10 ? "00" : (stat_cs[*maxi].cph < 100 ? "0" : "");
@@ -2226,7 +2230,7 @@ bool StatsDatabaseMySql::get_ingame_stats(const GUID& guid, const str& mapname, 
 
 // TODO: Make boss, champ & stats return a proper GUID like this does scanning the clients
 // TODO: add some minumum requirements like minimum time/frags/caps etc...
-bool StatsDatabaseMySql::get_ingame_crap(const str& mapname, const slot_guid_map& clients, GUID& guid, str& stats)
+bool StatsDatabaseMySql::get_ingame_crap(const str& mapname, const slot_guid_map& clients, str& guid, str& stats)
 {
 	if(dbtrace)
 		log("DATABASE: get_ingame_crap(" << mapname << ", " << clients.size() << ")");

@@ -125,9 +125,12 @@ slot Katina::getClientSlot(const GUID& guid) const
 
 const GUID&  Katina::getClientGuid(slot num) const
 {
-	for(slot_guid_map_citer it = clients.cbegin(); it != clients.cend(); ++it)
-		if(it->first == num)
-			return it->second;
+	for(auto&& client: clients)
+		if(client.first == num)
+			return client.second;
+//	for(slot_guid_map_citer it = clients.cbegin(); it != clients.cend(); ++it)
+//		if(it->first == num)
+//			return it->second;
 	return null_guid;
 }
 
@@ -692,7 +695,7 @@ void Katina::builtin_command(const GUID& guid, const str& text)
 			{
 				server.msg_to(num, "clients: " + std::to_string(clients.size()));
 				oss.str("");
-				for(slot_guid_map_vt p: clients)
+				for(auto&& p: clients)
 				{
 					oss << "{";
 					oss << (p.second.is_connected()?"C":"D");
@@ -984,15 +987,15 @@ bool Katina::initial_player_info()
 		if(guid.size() != 8)
 		{
 			bug("BOT FOUND: " << num);
-			clients[num] = GUID(num); // bot constructor
-			if(!clients[num].is_bot())
+			clients.emplace(num, GUID(num)); // bot constructor
+			if(!clients.at(num).is_bot())
 				log("ERROR: not set to bot");
 		}
 		else
 		{
 			bug("HUMAN FOUND: " << num);
-			clients[num] = GUID(guid);
-			if(clients[num].is_bot())
+			clients.emplace(num, GUID(guid));
+			if(clients.at(num).is_bot())
 				log("ERROR: set to bot");
 		}
 
@@ -1046,9 +1049,9 @@ bool Katina::initial_player_info()
 			log("ERROR: parsing status name: " << line);
 			continue;
 		}
-		players[clients[num]].assign(line.begin(), f).append(term);
+		players[clients.at(num)].assign(line.begin(), f).append(term);
 		bug_var(num);
-		bug_var(players[clients[num]]);
+		bug_var(players[clients.at(num)]);
 
 		iss.clear();
 		iss.str(str(f, line.end()));
@@ -1223,7 +1226,7 @@ bool Katina::read_backlog(const str& logname, std::ios::streampos pos)
 							log("ERROR: Parsing handicap: " << line_data_s.substr(pos + 4));
 					}
 
-					clients[num] = guid;
+					clients.emplace(num, guid);
 					players[guid] = name;
 					teams[guid] = team; // 1 = red, 2 = blue, 3 = spec
 				}
@@ -1495,6 +1498,8 @@ bool Katina::start(const str& dir)
 			}
 
 			++line_number;
+			//bug("LOGFILE LINE NUMBER: " << line_number);
+
 			if(do_log_lines)
 				nlog("LINE: " << line_data);
 
@@ -1813,9 +1818,11 @@ bool Katina::start(const str& dir)
 								break;
 							}
 //							bug_var(id);
-							GUID guid = GUID(slot(num));
-							if(id.size() == 32)
-								guid = GUID(id.substr(24));
+//							GUID guid = GUID(slot(num));
+//							if(id.size() == 32)
+//								guid = GUID(id.substr(24));
+
+							GUID guid(id.size() == 32 ? GUID(id.substr(24)) : GUID(slot(num)));
 
 //							bug_var(guid);
 							if(!guid)
@@ -1848,7 +1855,7 @@ bool Katina::start(const str& dir)
 //									teams.erase(f->second);
 //								}
 
-								clients[slot(num)] = guid;
+								clients.emplace(slot(num), guid);
 //								bug("XX ADDING PLAYER: " << name);
 								players[guid] = name;
 								teams[guid] = team; // 1 = red, 2 = blue, 3 = spec

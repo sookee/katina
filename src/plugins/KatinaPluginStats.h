@@ -177,14 +177,14 @@ public:
 
 	virtual siz get_kills_per_cap(const str& sql_select_games = "") = 0;
 	virtual bool get_ingame_boss(const str& mapname
-		, const slot_guid_map& clients, GUID& guid, str& stats) = 0;
-	virtual bool get_ingame_champ(const str& mapname, GUID& guid, str& stats) = 0;
+		, const slot_guid_map& clients, str& guid, str& stats) = 0;
+	virtual bool get_ingame_champ(const str& mapname, str& guid, str& stats) = 0;
 	virtual bool get_ingame_stats(const GUID& guid, const str& mapname
 		, siz prev, str& stats, siz& skill) = 0;
 	virtual bool get_ingame_stats_c(const str& mapname, const slot_guid_map& clients
 		, const GUID& guid, siz prev, str& stats, siz& skill) = 0;
 	virtual bool get_ingame_crap(const str& mapname, const slot_guid_map& clients
-		, GUID& guid, str& stats) = 0;
+		, str& guid, str& stats) = 0;
 };
 
 //class StatsDatabaseFile
@@ -322,14 +322,14 @@ public:
 
 	siz get_kills_per_cap(const str& sql_select_games = "") override;
 	bool get_ingame_boss(const str& mapname, const slot_guid_map& clients
-		, GUID& guid, str& stats) override;
-	bool get_ingame_champ(const str& mapname, GUID& guid, str& stats) override;
+		, str& guid, str& stats) override;
+	bool get_ingame_champ(const str& mapname, str& guid, str& stats) override;
 	bool get_ingame_stats(const GUID& guid, const str& mapname
 		, siz prev, str& stats, siz& skill) override;
 	bool get_ingame_stats_c(const str& mapname, const slot_guid_map& clients
 		, const GUID& guid, siz prev, str& stats, siz& skill) override;
 	bool get_ingame_crap(const str& mapname
-		, const slot_guid_map& clients, GUID& guid, str& stats) override;
+		, const slot_guid_map& clients, str& guid, str& stats) override;
 };
 
 class KatinaPluginStats

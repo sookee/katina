@@ -222,7 +222,7 @@ str KatinaPluginPlayerDb::api(const str& cmd, void* blob)
 	}
 	else if(call == "guid_to_ip")
 	{
-		GUID guid;
+		GUID guid(null_guid);
 		if(!(iss >> guid))
 			return "ERROR: parsing guid: " + cmd;
 

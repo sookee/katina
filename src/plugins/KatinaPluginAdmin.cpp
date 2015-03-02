@@ -82,9 +82,12 @@ str sanct_unescape(const str& param)
 sis& operator>>(sis& i, sanction& s)
 {
 	// 96BBD43E 4(S) 0
-	i >> s.guid >> s.type;
+	str guid;
+	i >> guid >> s.type;
 
-	pbug_var(s.guid);
+	s.guid.reset(new GUID(guid));
+
+	pbug_var(*s.guid);
 	pbug_var(s.type);
 
 	str params;
@@ -119,7 +122,7 @@ sis& operator>>(sis& i, sanction& s)
 
 sos& operator<<(sos& o, const sanction& s)
 {
-	o << s.guid << ' ' << s.type << "(";
+	o << *s.guid << ' ' << s.type << "(";
 	str sep;
 	for(const str& param: s.params)
 		{ o << sep << sanct_escape(param); sep = ","; }
@@ -183,8 +186,8 @@ bool KatinaPluginAdmin::load_sanctions()
 
 		str expires = s.expires ? ctime(&s.expires) : "PERMANENT";
 
-		plog("SANCTION LOAD: [" << expires << ": " << SANCT[s.type] << "] " << katina.getPlayerName(s.guid));
-		sanctions.push_back(s);
+		plog("SANCTION LOAD: [" << expires << ": " << SANCT[s.type] << "] " << katina.getPlayerName(*s.guid));
+		sanctions.emplace_back(std::move(s));
 	}
 
 	return true;
@@ -797,14 +800,19 @@ bool KatinaPluginAdmin::init_game(siz min, siz sec, const str_map& cvars)
 	slot num;
 	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end();)
 	{
+		if(!s->guid)
+		{
+			plog("ERROR: null GUID in sanction: " << s->type << ": " << s->expires);
+			continue;
+		}
 		// expired?
 		if(s->expires && s->expires >= katina.now)
 			{ s = sanctions.erase(s); save_sanctions(); continue; }
 
-		if((num = katina.getClientSlot(s->guid)) == slot::bad) // not connected
+		if((num = katina.getClientSlot(*s->guid)) == slot::bad) // not connected
 			{ ++s; continue; }
 
-		if(players.find(s->guid) == players.end())
+		if(players.find(*s->guid) == players.end())
 			{ ++s; continue; }
 
 		if(s->type == S_MUTEPP)
@@ -918,12 +926,17 @@ bool KatinaPluginAdmin::client_userinfo_changed(siz min, siz sec, slot num, siz 
 //	bug("SANCTION CHECK FOR: " << guid);
 	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end();)
 	{
+		if(!s->guid)
+		{
+			plog("ERROR: null GUID in sanction: " << s->type << ": " << s->expires);
+			continue;
+		}
 //		bug("SANCTION FOUND: " << s->type);
 		if(s->expires && s->expires >= katina.now)
 			{ s = sanctions.erase(s); save_sanctions(); continue; }
 
 //		bug("SANCTION CURRENT: " << (s->expires ? ctime(&s->expires):"PERMANENT"));
-		if(s->guid != guid)
+		if(*s->guid != guid)
 			{ ++s; continue; }
 
 //		bug("SANCTION APPLICABLE: " << s->guid);
@@ -1071,7 +1084,7 @@ bool KatinaPluginAdmin::callvote(siz min, siz sec, slot num, const str& type, co
 	}
 
 	for(const sanction& s: sanctions)
-		if((!s.expires || s.expires < katina.now) && s.type == S_VOTEBAN && s.guid == guid)
+		if((!s.expires || s.expires < katina.now) && s.type == S_VOTEBAN && *s.guid == guid)
 		{
 			std::thread([this,cname,kname](str expires, const str& reason)
 			{
@@ -1325,10 +1338,21 @@ bool KatinaPluginAdmin::remove_sanctions(const GUID& guid, siz type)
 	}
 	bool done = false;
 	for(sanction_lst_iter s = sanctions.begin(); s != sanctions.end();)
-		if(s->guid == guid && s->type == type)
-			{ s = sanctions.erase(s); done = true; }
-		else
+	{
+		if(!s->guid)
+		{
+			plog("ERROR: null GUID in sanction: " << s->type << ": " << s->expires);
+			continue;
+		}
+
+		if(*s->guid != guid || s->type != type)
 			++s;
+		else
+		{
+			s = sanctions.erase(s);
+			done = true;
+		}
+	}
 
 	if(!done)
 		return false;
@@ -1658,11 +1682,11 @@ bool KatinaPluginAdmin::say(const siz min, const siz sec, const GUID& guid, cons
 
 		sanction s;
 		s.type = S_MUTEPP;
-		s.guid = katina.getClientGuid(num);
+		s.guid.reset(new GUID(katina.getClientGuid(num)));
 		s.expires = duration_to_time(duration, minutes(5));
 		s.reason = reason;
 
-		if(s.guid == null_guid)
+		if(*s.guid == null_guid)
 		{
 			plog("ERROR: Null guid");
 			return true;
@@ -1671,9 +1695,12 @@ bool KatinaPluginAdmin::say(const siz min, const siz sec, const GUID& guid, cons
 		if(mutepp(num))
 			s.applied = true;
 
-		sanctions.push_back(s);
+		soss oss;
+		oss << *s.guid;
+
+		sanctions.emplace_back(std::move(s));
 		if(save_sanctions())
-			plog("mute++ applied to " << s.guid << " " << katina.getPlayerName(guid) << " by " << katina.getPlayerName(say_num));
+			plog("mute++ applied to " << oss.str() << " " << katina.getPlayerName(guid) << " by " << katina.getPlayerName(say_num));
 	}
 	else if(cmd == trans("!voteban") || cmd == trans("?voteban"))
 	{
@@ -1708,19 +1735,21 @@ bool KatinaPluginAdmin::say(const siz min, const siz sec, const GUID& guid, cons
 
 		sanction s;
 		s.type = S_VOTEBAN;
-		s.guid = katina.getClientGuid(perp);
+		s.guid.reset(new GUID(katina.getClientGuid(perp)));
 		s.expires = duration_to_time(duration, minutes(10));
 		s.reason = reason;
 
-		if(s.guid == null_guid)
+		if(*s.guid == null_guid)
 		{
 			plog("ERROR: Null guid");
 			return true;
 		}
 
-		sanctions.push_back(s);
+		str player_name = katina.getPlayerName(*s.guid);
+
+		sanctions.emplace_back(std::move(s));
 		if(save_sanctions())
-			tell_perp(say_num, perp, "^7" + katina.getPlayerName(s.guid) + "^3BANNED from voting by ^7" +  katina.getPlayerName(say_num));
+			tell_perp(say_num, perp, "^7" + player_name + "^3BANNED from voting by ^7" +  katina.getPlayerName(say_num));
 	}
 	else if(cmd == trans("!mapban") || cmd == trans("?mapban"))
 	{
@@ -1761,18 +1790,18 @@ bool KatinaPluginAdmin::say(const siz min, const siz sec, const GUID& guid, cons
 
 		sanction s;
 		s.type = S_MAPBAN;
-		s.guid = katina.getClientGuid(num);
+		s.guid.reset(new GUID(katina.getClientGuid(num)));
 		s.expires = duration_to_time(duration, minutes(20));
 		s.reason = reason;
 		s.params.push_back(katina.get_mapname());
 
-		if(s.guid == null_guid)
+		if(*s.guid == null_guid)
 		{
 			plog("ERROR: Null guid");
 			return true;
 		}
 
-		sanctions.push_back(s);
+		sanctions.emplace_back(std::move(s));
 		save_sanctions();
 
 		if(reteam(num, 's'))
@@ -1813,11 +1842,11 @@ bool KatinaPluginAdmin::say(const siz min, const siz sec, const GUID& guid, cons
 
 		sanction s;
 		s.type = S_FIXNAME;
-		s.guid = katina.getClientGuid(perp);
+		s.guid.reset(new GUID(katina.getClientGuid(perp)));
 		s.expires = 0; //duration_to_time("1h", hours(1));
 		s.params.push_back(name);
 
-		if(s.guid == null_guid)
+		if(*s.guid == null_guid)
 		{
 			plog("ERROR: Null guid");
 			return true;
@@ -1826,10 +1855,10 @@ bool KatinaPluginAdmin::say(const siz min, const siz sec, const GUID& guid, cons
 		if(fixname(perp, name))
 		{
 			s.applied = true;
-			tell_perp(say_num, perp, "^3FIXED NAME given to ^7" + katina.getPlayerName(s.guid) + " ^3by ^7" +  katina.getPlayerName(say_num));
+			tell_perp(say_num, perp, "^3FIXED NAME given to ^7" + katina.getPlayerName(*s.guid) + " ^3by ^7" +  katina.getPlayerName(say_num));
 		}
 
-		sanctions.push_back(s);
+		sanctions.emplace_back(std::move(s));
 		save_sanctions();
 	}
 	else if(cmd == trans("!reteam") || cmd == trans("?reteam") // working
@@ -1908,24 +1937,26 @@ bool KatinaPluginAdmin::say(const siz min, const siz sec, const GUID& guid, cons
 
 		sanction s;
 		s.type = S_RETEAM;
-		s.guid = katina.getClientGuid(perp);
+		s.guid.reset(new GUID(katina.getClientGuid(perp)));
 		s.expires = duration_to_time("5m", minutes(5));
 		s.params.push_back(team);
 		s.reason = reason;
 
-		if(s.guid == null_guid)
+		if(*s.guid == null_guid)
 		{
 			plog("ERROR: Null guid");
 			return true;
 		}
 
-		sanctions.push_back(s);
+		str player_name = katina.getPlayerName(*s.guid);
+
+		sanctions.emplace_back(std::move(s));
 
 		if(save_sanctions() && reteam(perp, team[0]))
 		{
-			s.applied = true;
+			sanctions.back().applied = true;
 			str sanct = spec ? "^3FORCED SPEC":"^3FORCED TEAM";
-			tell_perp(say_num, perp, sanct + " ^3given to ^7" + katina.getPlayerName(s.guid) + " ^3by ^7" +  katina.getPlayerName(say_num));
+			tell_perp(say_num, perp, sanct + " ^3given to ^7" + player_name + " ^3by ^7" +  katina.getPlayerName(say_num));
 		}
 	}
 	else if(cmd == trans("!warnonsight") || cmd == trans("?warnonsight"))
@@ -1942,10 +1973,10 @@ bool KatinaPluginAdmin::say(const siz min, const siz sec, const GUID& guid, cons
 			return true;
 		}
 
-		GUID perp;
-		str reason;
+		str reason, perp_in;
 
-		sgl(iss >> perp >> std::ws, reason);
+		sgl(iss >> perp_in >> std::ws, reason);
+		GUID perp(perp_in);
 
 		if(!perp)
 		{
@@ -1969,15 +2000,15 @@ bool KatinaPluginAdmin::say(const siz min, const siz sec, const GUID& guid, cons
 
 		sanction s;
 		s.type = S_WARN_ON_SIGHT;
-		s.guid = perp;
+		s.guid.reset(new GUID(perp));
 		s.expires = 0;
 		s.reason = reason;
 		//s.params.push_back(reason);
 
-		sanctions.push_back(s);
+		sanctions.emplace_back(std::move(s));
 
 		if(save_sanctions())
-			server.msg_to(say_num, "^3Warning set for ^1" + str(s.guid), true);
+			server.msg_to(say_num, "^3Warning set for ^1" + str(*sanctions.back().guid), true);
 	}
 
 	return true;

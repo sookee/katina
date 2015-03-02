@@ -76,7 +76,8 @@ enum
 
 struct sanction
 {
-	GUID guid;
+	typedef std::unique_ptr<GUID> GUIDUPtr;
+	GUIDUPtr guid;
 	siz type;
 	time_t expires;
 	str reason;
@@ -84,7 +85,21 @@ struct sanction
 
 	bool applied; // not stored to file
 
-	sanction(): type(0), expires(0), applied(false) {}
+	sanction(): guid(nullptr), type(0), expires(0), applied(false) {}
+	sanction(sanction&& s)
+	: guid(std::move(s.guid)), type(s.type), expires(s.expires)
+	, reason(std::move(s.reason)), params(std::move(s.params))
+	, applied(s.applied)
+	{
+	}
+	sanction(const sanction& s)
+	: type(s.type), expires(s.expires)
+	, reason(s.reason), params(s.params)
+	, applied(s.applied)
+	{
+		if(s.guid)
+			guid.reset(new GUID(*s.guid));
+	}
 
 	friend sis& operator>>(sis& i, sanction& s);
 	friend sos& operator<<(sos& o, const sanction& s);

@@ -64,16 +64,44 @@ private:
 
 public:
 
-//	GUID() = delete;
-	GUID(): connected(false)
+	GUID() = delete;
+	GUID(const GUID& guid): data(guid.data), bot(guid.bot), bad(guid.bad)
+	, src(guid.src), connected(guid.connected)
 	{
-//		bug("CTOR NULL GUID: " << std::uppercase << (void*)this);
 	}
+	GUID(GUID&& guid): data(guid.data), bot(guid.bot), bad(guid.bad)
+	, src(std::move(guid.src)), connected(guid.connected)
+	{
+	}
+//	GUID(): connected(false)
+//	{
+//		bug("CTOR NULL GUID: " << std::uppercase << (void*)this);
+//	}
 
 	~GUID()
 	{
 //		if(!data)
 //			bug("DTOR NULL GUID: " << std::uppercase << (void*)this);
+	}
+
+	GUID& operator=(const GUID& guid)
+	{
+		data = guid.data;
+		bad = guid.bad;
+		bot = guid.bot;
+		src = guid.src;
+		connected = guid.connected;
+		return *this;
+	}
+
+	GUID& operator=(GUID&& guid)
+	{
+		data = guid.data;
+		bad = guid.bad;
+		bot = guid.bot;
+		src = std::move(guid.src);
+		connected = guid.connected;
+		return *this;
 	}
 
 	explicit GUID(const str& s): src(s)
