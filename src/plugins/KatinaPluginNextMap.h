@@ -90,7 +90,10 @@ private:
 
 	siz announce_time = 0; // seconds before announce
 
+	siz get_batch_size() const { return katina.get("nextmap.batch.size", 3); } // replace this with call to katina.get()
+
 	str_vec get_mapnames(siz batch = 0);
+	str get_maplist(const str_vec& maps, siz batch = 0);
 
 public:
 	KatinaPluginNextMap(Katina& katina);

@@ -96,7 +96,7 @@ str KatinaPluginNextMap::get_version() const
 	return VERSION;
 }
 
-str get_maplist(const str_vec& maps, siz batch = 0)
+str KatinaPluginNextMap::get_maplist(const str_vec& maps, siz batch)
 {
 	soss oss;
 	oss << "\\n^7[^2#^3 Upcoming maps ^2#^7]";
@@ -110,7 +110,7 @@ str get_maplist(const str_vec& maps, siz batch = 0)
 			else
 				mapname += c;
 		}
-		str idx = std::to_string((10 * batch) + i + 1);
+		str idx = std::to_string((get_batch_size() * batch) + i + 1);
 		if(idx.size() < 3)
 			idx = str(3 - idx.size(), ' ') + idx;
 		bug("idx: [" << idx << "]");
@@ -174,6 +174,7 @@ str get_mapname(str line)
 
 str_vec KatinaPluginNextMap::get_mapnames(siz batch)
 {
+	// TODO: avoid commented out lines
 	bug_func();
 	bug_var(batch);
 
@@ -233,10 +234,12 @@ str_vec KatinaPluginNextMap::get_mapnames(siz batch)
 
 	// find right batch
 
+	siz batch_size = get_batch_size();
+
 	siz i = 0;
-	while(i < 10 * batch)
+	while(i < batch_size * batch)
 	{
-		for(; i < 10 * batch && sgl(ifs, line); ++i) {}
+		for(; i < batch_size * batch && sgl(ifs, line); ++i) {}
 		if(!ifs)
 		{
 			ifs.clear();
@@ -245,16 +248,16 @@ str_vec KatinaPluginNextMap::get_mapnames(siz batch)
 	}
 
 	bug_var(i);
-	bug_var((10 * batch) + 10);
+	bug_var((batch_size * batch) + batch_size);
 
-	while(i < (10 * batch) + 10)
+	while(i < (batch_size * batch) + batch_size)
 	{
 		do
 		{
 			maps.push_back(get_mapname(std::move(line)));
 			++i;
 		}
-		while(i < (10 * batch) + 10 && sgl(ifs, line));
+		while(i < (batch_size * batch) + batch_size && sgl(ifs, line));
 		ifs.clear();
 		ifs.seekg(0);
 	}
