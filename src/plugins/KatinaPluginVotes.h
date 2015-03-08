@@ -88,6 +88,8 @@ private:
 
 	// cvars
 	bool active;
+	bool announce;
+	siz announce_delay = 10; // relative secs b4 announce
 //	bool write;
 
 	bool votes_valid = false;

@@ -54,6 +54,8 @@ bool KatinaPluginVotes::open()
 {
 	katina.add_var_event(this, "votes.active", active, false);
 	katina.add_var_event(this, "votes.write", db.get_write_flag(), false);
+	katina.add_var_event(this, "votes.announce", announce, false);
+	katina.add_var_event(this, "votes.announce.delay", announce_delay, siz(10));
 
 	str default_db = katina.get("db");
 
@@ -171,10 +173,13 @@ bool KatinaPluginVotes::init_game(siz min, siz sec, const str_map& cvars)
 		announce_time = 0;
 	}
 
-	if(!announce_time)
-		announce_time = sec + katina.get("votes.announce.delay", 10);
+	if(announce)
+	{
+		if(!announce_time)
+			announce_time = sec + announce_delay;
 
-	katina.add_log_event(this, KE_HEARTBEAT);
+		katina.add_log_event(this, KE_HEARTBEAT);
+	}
 
 	return true;
 }
@@ -191,7 +196,6 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 {
 	if(!announce_time || min || sec < announce_time)
 		return;
-
 
 	pbug("HEARTBEAT");
 
