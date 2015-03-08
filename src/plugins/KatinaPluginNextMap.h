@@ -88,9 +88,14 @@ private:
 	str nextmap;
 	str rot_nextmap; // next map command on rotation
 
-	siz announce_time = 0; // seconds before announce
+	siz announce_time = 0; // absolute seconds before announce
 
-	siz get_batch_size() const { return katina.get("nextmap.batch.size", 3); } // replace this with call to katina.get()
+	// cvars
+	siz announce_delay = 6; // relative seconds to wait before announcing
+	bool announce_active = false;
+	siz announce_batch_size = 3;
+
+//	siz get_batch_size() const { return katina.get("nextmap.announce.batch.size", 3); } // replace this with call to katina.get()
 
 	str_vec get_mapnames(siz batch = 0);
 	str get_maplist(const str_vec& maps, siz batch = 0);

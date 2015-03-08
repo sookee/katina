@@ -72,6 +72,9 @@ bool KatinaPluginNextMap::open()
 
 	katina.add_var_event(this, "nextmap.active", active, false);
 	katina.add_var_event(this, "nextmap.enforcing", enforcing, false);
+	katina.add_var_event(this, "nextmap.announce.active", announce_active, false);
+	katina.add_var_event(this, "nextmap.announce.batch.size", announce_batch_size, siz(3));
+	katina.add_var_event(this, "nextmap.announce.delay", announce_delay, siz(6));
 
 	katina.add_log_event(this, KE_INIT_GAME);
 	katina.add_log_event(this, KE_WARMUP);
@@ -110,7 +113,7 @@ str KatinaPluginNextMap::get_maplist(const str_vec& maps, siz batch)
 			else
 				mapname += c;
 		}
-		str idx = std::to_string((get_batch_size() * batch) + i + 1);
+		str idx = std::to_string((announce_batch_size * batch) + i + 1);
 		if(idx.size() < 3)
 			idx = str(3 - idx.size(), ' ') + idx;
 		bug("idx: [" << idx << "]");
@@ -124,10 +127,13 @@ bool KatinaPluginNextMap::init_game(siz min, siz sec, const str_map& cvars)
 	if(!active)
 		return true;
 
-	if(!announce_time)
-		announce_time = sec + katina.get("nextmap.announce.delay", 6);
+	if(announce_active)
+	{
+		if(!announce_time)
+			announce_time = sec + announce_delay;
 
-	katina.add_log_event(this, KE_HEARTBEAT);
+		katina.add_log_event(this, KE_HEARTBEAT);
+	}
 
 	return true;
 }
@@ -234,12 +240,10 @@ str_vec KatinaPluginNextMap::get_mapnames(siz batch)
 
 	// find right batch
 
-	siz batch_size = get_batch_size();
-
 	siz i = 0;
-	while(i < batch_size * batch)
+	while(i < announce_batch_size * batch)
 	{
-		for(; i < batch_size * batch && sgl(ifs, line); ++i) {}
+		for(; i < announce_batch_size * batch && sgl(ifs, line); ++i) {}
 		if(!ifs)
 		{
 			ifs.clear();
@@ -248,16 +252,16 @@ str_vec KatinaPluginNextMap::get_mapnames(siz batch)
 	}
 
 	bug_var(i);
-	bug_var((batch_size * batch) + batch_size);
+	bug_var((announce_batch_size * batch) + announce_batch_size);
 
-	while(i < (batch_size * batch) + batch_size)
+	while(i < (announce_batch_size * batch) + announce_batch_size)
 	{
 		do
 		{
 			maps.push_back(get_mapname(std::move(line)));
 			++i;
 		}
-		while(i < (batch_size * batch) + batch_size && sgl(ifs, line));
+		while(i < (announce_batch_size * batch) + announce_batch_size && sgl(ifs, line));
 		ifs.clear();
 		ifs.seekg(0);
 	}
