@@ -148,8 +148,9 @@ public:
 	virtual bool ctf_exit(siz min, siz sec, siz r, siz b) { return true; }
 	virtual bool score_exit(siz min, siz sec, int score, siz ping, slot num, const str& name) { return true; }
 	virtual bool award(siz min, siz sec, slot num, siz awd) { return true; }
-	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) { return true; }
-	virtual bool sayteam(siz min, siz sec, const GUID& guid, const str& text) { return true; }
+//	virtual bool say(siz min, siz sec, slot num, const str& text) { return true; }
+	virtual bool say(siz min, siz sec, slot num, const str& text) { return true; }
+	virtual bool sayteam(siz min, siz sec, slot num, const str& text) { return true; }
 	virtual bool chat(siz min, siz sec, const str& text) { return true; }
 	virtual bool shutdown_game(siz min, siz sec) { return true; }
 	virtual bool exit(siz min, siz sec) { return true; }

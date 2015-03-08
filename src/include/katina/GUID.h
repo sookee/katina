@@ -158,7 +158,7 @@ TYPEDEF_CONTAINER_1(std::list, GUID, guid_lst);
 TYPEDEF_CONTAINER_2(std::map, GUID, str, guid_str_map);
 TYPEDEF_CONTAINER_2(std::map, GUID, siz, guid_siz_map);
 TYPEDEF_CONTAINER_2(std::map, GUID, int, guid_int_map);
-TYPEDEF_CONTAINER_2(std::map, slot, GUID, slot_guid_map);
+//TYPEDEF_CONTAINER_2(std::map, slot, GUID, slot_guid_map);
 
 extern const GUID null_guid;
 } // katina

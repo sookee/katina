@@ -251,7 +251,7 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 	}, katina.getClients()));
 }
 
-bool KatinaPluginVotes::sayteam(siz min, siz sec, const GUID& guid, const str& text)
+bool KatinaPluginVotes::sayteam(siz min, siz sec, slot num, const str& text)
 {
 	return say(min, sec, guid, text);
 }

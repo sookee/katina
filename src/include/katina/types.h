@@ -225,6 +225,9 @@ public:
 	explicit slot(int num): num(num) {}
 	slot(const slot& num): num(num.num) {}
 
+	slot& operator++() { ++num; return *this; }
+	slot operator++(int) { slot s(num); ++(*this); return s; }
+
 	bool operator<(const slot& s) const { return num < s.num; }
 	bool operator>(const slot& s) const { return num > s.num; }
 	bool operator==(const slot& s) const { return num == s.num; }
@@ -236,7 +239,7 @@ public:
 	friend sis& operator>>(sis& i, slot& s);
 
 	explicit operator str() const { return std::to_string(num); }
-	explicit operator siz() const { return num; }
+	operator siz() const { return num; }
 	explicit operator int() const { return num; }
 };
 

@@ -144,7 +144,7 @@ public:
 	virtual bool kill(siz min, siz sec, slot num1, slot num2, siz weap) override;
 	virtual bool push(siz min, siz sec, slot num1, slot num2) override;
 	virtual bool ctf(siz min, siz sec, slot num, siz team, siz act) override;
-	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) override;
+	virtual bool say(siz min, siz sec, slot num, const str& text) override;
 	virtual bool exit(siz min, siz sec) override;
 
 	virtual void close() override;

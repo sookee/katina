@@ -68,6 +68,7 @@ TYPEDEF_MAP(siz, mod_damage_stats, moddmg_map);
 
 struct stat
 {
+	GUID guid;
 	siz hc; // handicap
 
 	siz_map kills;
@@ -114,7 +115,9 @@ struct stat
 	{}
 };
 
-TYPEDEF_MAP(GUID, guid_siz_map, onevone_map);
+TYPEDEF_MAP(slot, siz, slot_siz_map);
+TYPEDEF_MAP(slot, slot_siz_map, onevone_map);
+TYPEDEF_MAP(slot, stat, slot_stat_map);
 TYPEDEF_MAP(GUID, stat, guid_stat_map);
 
 typedef my_ulonglong game_id;
@@ -177,13 +180,13 @@ public:
 
 	virtual siz get_kills_per_cap(const str& sql_select_games = "") = 0;
 	virtual bool get_ingame_boss(const str& mapname
-		, const slot_guid_map& clients, GUID& guid, str& stats) = 0;
+		, const client_arr& clients, GUID& guid, str& stats) = 0;
 	virtual bool get_ingame_champ(const str& mapname, GUID& guid, str& stats) = 0;
 	virtual bool get_ingame_stats(const GUID& guid, const str& mapname
 		, siz prev, str& stats, siz& skill) = 0;
-	virtual bool get_ingame_stats_c(const str& mapname, const slot_guid_map& clients
+	virtual bool get_ingame_stats_c(const str& mapname, const client_arr& clients
 		, const GUID& guid, siz prev, str& stats, siz& skill) = 0;
-	virtual bool get_ingame_crap(const str& mapname, const slot_guid_map& clients
+	virtual bool get_ingame_crap(const str& mapname, const client_arr& clients
 		, GUID& guid, str& stats) = 0;
 };
 
@@ -321,15 +324,15 @@ public:
 	bool get_preferred_name(const GUID& guid, str& name) override;
 
 	siz get_kills_per_cap(const str& sql_select_games = "") override;
-	bool get_ingame_boss(const str& mapname, const slot_guid_map& clients
+	bool get_ingame_boss(const str& mapname, const client_arr& clients
 		, GUID& guid, str& stats) override;
 	bool get_ingame_champ(const str& mapname, GUID& guid, str& stats) override;
 	bool get_ingame_stats(const GUID& guid, const str& mapname
 		, siz prev, str& stats, siz& skill) override;
-	bool get_ingame_stats_c(const str& mapname, const slot_guid_map& clients
+	bool get_ingame_stats_c(const str& mapname, const client_arr& clients
 		, const GUID& guid, siz prev, str& stats, siz& skill) override;
 	bool get_ingame_crap(const str& mapname
-		, const slot_guid_map& clients, GUID& guid, str& stats) override;
+		, const client_arr& clients, GUID& guid, str& stats) override;
 };
 
 class KatinaPluginStats
@@ -337,14 +340,15 @@ class KatinaPluginStats
 {
 public:
 
-	onevone_map onevone; // GUID -> GUID -> <count> //
-	guid_stat_map stats; // GUID -> <stat>
+	onevone_map onevone; // slot -> slot -> <count> //
+	slot_stat_map stats; // slot -> <stat>
+	guid_stat_map archives;
 
 private:
 	const str& mapname;
-	const slot_guid_map& clients; // slot -> GUID
+	const client_arr& clients; // slot -> GUID
 	const guid_str_map& players; // GUID -> name
-	const guid_siz_map& teams; // GUID -> 'R' | 'B'
+//	const guid_siz_map& teams; // GUID -> 'R' | 'B'
 
 	RCon& server;
 	StatsDatabaseMySql db;
@@ -370,8 +374,8 @@ private:
 
 	siz announce_time = 0; // seconds before announce
 
-	void stall_client(const GUID& guid);
-	void unstall_client(const GUID& guid);
+	void stall_client(slot num);
+	void unstall_client(slot num);
 	void stall_clients();
 	void unstall_clients();
 	void check_bots_and_players();
@@ -387,7 +391,7 @@ public:
 	// API
 
 	siz get_skill(const GUID& guid, const str& mapname);
-	const guid_stat_map* get_stats() { return &stats; }
+	const slot_stat_map* get_stats() { return &stats; }
 
     ///////////////////////////////////////////
 	// INTERFACE: KatinaPlugin
@@ -417,8 +421,8 @@ public:
 		siz fragsFace, siz fragsBack, siz fraggedInFace, siz fraggedInBack,
 		siz spawnKills, siz spawnKillsRecv, siz pushes, siz pushesRecv,
 		siz healthPickedUp, siz armorPickedUp, siz holyShitFrags, siz holyShitFragged) override;
-	bool say(siz min, siz sec, const GUID& guid, const str& text) override;
-	bool sayteam(siz min, siz sec, const GUID& guid, const str& text) override;
+	bool say(siz min, siz sec, slot num, const str& text) override;
+	bool sayteam(siz min, siz sec, slot num, const str& text) override;
 
 	void heartbeat(siz min, siz sec) override;
 	siz get_regularity(siz time_in_secs) const override { return 1; } // once per second

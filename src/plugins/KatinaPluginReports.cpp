@@ -661,7 +661,7 @@ bool KatinaPluginReports::exit(siz min, siz sec)
 		}
 	}
 
-	guid_stat_map* statsptr = nullptr;
+	slot_stat_map* statsptr = nullptr;
 	if(stats->api("get_stats", set_blob(statsptr)) != "OK:" || statsptr == nullptr)
 	{
 		log("ERROR: stats api call failed: " << statsptr);

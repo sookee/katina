@@ -24,7 +24,7 @@ typedef slot_float_map::iterator siz_float_map_iter;
 typedef slot_float_map::const_iterator siz_float_map_citer;
 typedef slot_float_map::value_type slot_float_map_pair;
 
-typedef std::list<guid_stat_map> stat_list;
+typedef std::list<slot_stat_map> stat_list;
 typedef stat_list::iterator stat_list_iter;
 typedef stat_list::const_iterator stat_list_citer;
 
@@ -196,7 +196,7 @@ public:
 	/**
 	 * Final score of complete CTF game
 	 */
-	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) override;
+	virtual bool say(siz min, siz sec, slot num, const str& text) override;
 	virtual bool exit(siz min, siz sec) override;
 
 	/**

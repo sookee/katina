@@ -126,9 +126,9 @@ private:
 	KatinaPlugin* playerdb = nullptr;
 
 	const str& mapname;
-	const slot_guid_map& clients; // slot -> GUID
+	const client_arr& clients; // slot -> GUID
 	const guid_str_map& players; // GUID -> name
-	const guid_siz_map& teams; // GUID -> 'R' | 'B'
+//	const guid_siz_map& teams; // GUID -> 'R' | 'B'
 	RCon& server;
 	
 	bool active;
@@ -244,33 +244,33 @@ public:
 
 	// INTERFACE: KatinaPlugin
 
-	virtual bool open() override;
+	bool open() override;
 
-	virtual str get_id() const override;
-	virtual str get_name() const override;
-	virtual str get_version() const override;
+	str get_id() const override;
+	str get_name() const override;
+	str get_version() const override;
 
 	//virtual void cvar_event(const str& name, const str& value);
 	
-	virtual bool init_game(siz min, siz sec, const str_map& cvars) override;
-	virtual bool warmup(siz min, siz sec) override;
-	virtual bool client_connect(siz min, siz sec, slot num) override;
-	virtual bool client_connect_info(siz min, siz sec, slot num, const GUID& guid, const str& ip) override;
-	virtual bool client_begin(siz min, siz sec, slot num) override;
-	virtual bool client_disconnect(siz min, siz sec, slot num) override;
-	virtual bool client_userinfo_changed(siz min, siz sec, slot num, siz team, const GUID& guid, const str& name, siz hc) override;
-	virtual bool client_switch_team(siz min, siz sec, slot num, siz teamBefore, siz teamNow) override;
-	virtual bool callvote(siz min, siz sec, slot num, const str& type, const str& info) override;
-	virtual bool kill(siz min, siz sec, slot num1, slot num2, siz weap) override;
-	virtual bool push(siz min, siz sec, slot num1, slot num2) override;
-	virtual bool ctf(siz min, siz sec, slot num, siz team, siz act) override;
-	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) override;
-	virtual bool chat(siz min, siz sec, const str& text) override;
-	virtual bool shutdown_game(siz min, siz sec) override;
-	virtual bool exit(siz min, siz sec) override;
-	virtual bool unknown(siz min, siz sec, const str& cmd, const str& params) override;
-	virtual void heartbeat(siz min, siz sec) override;
-	virtual void close() override;
+	bool init_game(siz min, siz sec, const str_map& cvars) override;
+	bool warmup(siz min, siz sec) override;
+	bool client_connect(siz min, siz sec, slot num) override;
+	bool client_connect_info(siz min, siz sec, slot num, const GUID& guid, const str& ip) override;
+	bool client_begin(siz min, siz sec, slot num) override;
+	bool client_disconnect(siz min, siz sec, slot num) override;
+	bool client_userinfo_changed(siz min, siz sec, slot num, siz team, const GUID& guid, const str& name, siz hc) override;
+	bool client_switch_team(siz min, siz sec, slot num, siz teamBefore, siz teamNow) override;
+	bool callvote(siz min, siz sec, slot num, const str& type, const str& info) override;
+	bool kill(siz min, siz sec, slot num1, slot num2, siz weap) override;
+	bool push(siz min, siz sec, slot num1, slot num2) override;
+	bool ctf(siz min, siz sec, slot num, siz team, siz act) override;
+	bool say(siz min, siz sec, slot num, const str& text) override;
+	bool chat(siz min, siz sec, const str& text) override;
+	bool shutdown_game(siz min, siz sec) override;
+	bool exit(siz min, siz sec) override;
+	bool unknown(siz min, siz sec, const str& cmd, const str& params) override;
+	void heartbeat(siz min, siz sec) override;
+	void close() override;
 };
 
 }} // katina::plugin

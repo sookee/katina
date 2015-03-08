@@ -115,7 +115,7 @@ public:
 	
 	bool init_game(siz min, siz sec, const str_map& cvars) override;
 	bool warmup(siz min, siz sec) override;
-	bool say(siz min, siz sec, const GUID& guid, const str& text) override;
+	bool say(siz min, siz sec, slot num, const str& text) override;
 	bool exit(siz min, siz sec) override;
 
 	void heartbeat(siz min, siz sec) override;

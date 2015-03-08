@@ -111,7 +111,7 @@ public:
 	virtual bool client_userinfo_changed(siz min, siz sec, slot num, siz team, const GUID& guid, const str& name, siz hc) override;
 	virtual bool ctf(siz min, siz sec, slot num, siz team, siz act) override;
 	virtual bool ctf_exit(siz min, siz sec, siz r, siz b) override;
-	virtual bool say(siz min, siz sec, const GUID& guid, const str& text) override;
+	virtual bool say(siz min, siz sec, slot num, const str& text) override;
 	virtual bool shutdown_game(siz min, siz sec) override;
 	virtual bool exit(siz min, siz sec) override;
 

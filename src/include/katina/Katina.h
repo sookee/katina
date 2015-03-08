@@ -40,6 +40,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include "PKI.h"
 #include "log.h"
 #include "radp.h"
+#include "codes.h"
 
 #include <list>
 //#include <pthread.h>
@@ -190,6 +191,30 @@ sos& operator<<(sos& o, const siz_set& s)
 const rad chk_ ## e = line_data + 7 + sizeof(QUOTE(e)) - 1; \
 const rad param_ ## e = chk_ ## e + 2
 
+struct client_t
+{
+	bool bot = false;
+	bool live = false;
+	str name;
+	GUID guid;
+	uns team;
+
+	void clear()
+	{
+		bot = false;
+//		bool connected = false; // needed?
+		live = false;
+		name.clear();
+		guid = null_guid;
+		team = TEAM_U;
+	}
+
+	operator bool() const { return live; }
+};
+
+// slot oriented
+typedef std::array<client_t, MAX_CLIENTS> client_arr;
+
 /**
  * This is the main log-file processing class.
  */
@@ -230,7 +255,7 @@ private:
     
 	bool initial_player_info();
 	bool read_backlog(const str& logname, std::ios::streampos pos);
-	void builtin_command(const GUID& guid, const str& text);
+	void builtin_command(slot num, const str& text);
 
 	// We try to keep map keys GUID based as slot numbers are defunct as soon
 	// as a client disconnects.
@@ -238,13 +263,15 @@ private:
 	// should only need to sync writing to data structures in Katina
 	// and reading from them in threads
 	std::mutex mtx;
-    std::array<bool, MAX_CLIENTS> connected;
-	slot_guid_map clients; // slot -> GUID // cleared when players disconnect and on game_begin()
+//    std::array<bool, MAX_CLIENTS> connected;
+//	slot_guid_map clients; // slot -> GUID // cleared when players disconnect and on game_begin()
 	guid_str_map players; // GUID -> name  // cleard before game_begin()
-	guid_siz_map teams; // GUID -> 0,1,2,3 // cleared when players disconnect and on game_begin()
-    std::array<str, MAX_CLIENTS> names;
+//	guid_siz_map teams; // GUID -> 0,1,2,3 // cleared when players disconnect and on game_begin()
+//    std::array<str, MAX_CLIENTS> names;
 
 	const static siz BUFFSIZE = 1024; // log buffer size
+
+	client_arr clients; // slot -> client_t // cleared when players disconnect and on game_begin()
 
 	/**
 	 * Location of the configuration folder.
@@ -363,17 +390,19 @@ public:
 	 * Find out if the player with the given GUID
 	 * recently disconnected from the server.
 	 */
-	bool is_disconnected(const GUID& guid) const
-	{
-		return !guid.is_connected();
-	}
+//	bool is_disconnected(const GUID& guid) const
+//	{
+//		return !guid.is_connected();
+//	}
 
 	/**
 	 * DEFINITIVELY if a client slot is connected or not.
 	 */
 	bool is_connected(slot num)
 	{
-		return connected[siz(num)];
+		if(num < slot::max)
+			return clients[num].live;
+		return false;
 	}
 
 	str_map svars; // server variables
@@ -396,7 +425,7 @@ public:
 	 * Get a read-only reference to the clients data
 	 * structure that maps slot numbers to GUIDs.
 	 */
-	const slot_guid_map& getClients() const { return clients; }
+	const client_arr& getClients() const { return clients; }
 
 //	/**
 //	 * Get a copy of the clients data
@@ -420,7 +449,7 @@ public:
 	 *
 	 * 0 = TEAM_U (unknown), 1 = TEAM_R (red), 2 = TEAM_B (blue), 3 = TEAM_S (specs)
 	 */
-	const guid_siz_map& getTeams() { return teams; }
+	//const guid_siz_map& getTeams() { return teams; }
 
 	/**
 	 * Get a cvar's value using rcon
@@ -428,8 +457,8 @@ public:
 	bool rconset(const str& cvar, str& val);
 
     siz getTeam(slot num) const;
-    siz getTeam(const GUID& guid) const;
-    str getPlayerName(slot num) const;
+//    siz getTeam(const GUID& guid) const;
+//    str getPlayerName(slot num) const;
     str getPlayerName(const GUID& guid) const;
     slot getClientSlot(const GUID& guid) const;
     const GUID& getClientGuid(slot num) const;
@@ -448,7 +477,9 @@ public:
 
     bool check_slot(slot num) const
     {
-    	return clients.find(num) != clients.end();
+    	if(num < MAX_CLIENTS)
+    		return clients[siz(num)].live;
+    	return false;
     }
 
 	str get_version() const;
@@ -598,7 +629,7 @@ public:
 	 *
 	 * @return true if rcon succeeded or false if it failed.
 	 */
-	bool chat_to(const GUID& guid, const str& text);
+	//bool chat_to(const GUID& guid, const str& text);
 
 	/**
 	 * Send public chat (via rcon) to a given player
