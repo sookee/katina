@@ -130,8 +130,8 @@ KatinaPluginPlayerDb::KatinaPluginPlayerDb(Katina& katina)
 , server(katina.server)
 , mapname(katina.get_mapname())
 , clients(katina.getClients())
-, players(katina.getPlayers())
-, teams(katina.getTeams())
+//, players(katina.getPlayers())
+//, teams(katina.getTeams())
 , active(true)
 {
 }

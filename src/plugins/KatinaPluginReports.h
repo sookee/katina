@@ -123,7 +123,7 @@ private:
 	str_vec notspam; // spam exceptions
 
 	str get_nums_team(slot num);
-	str get_nums_team(const GUID& guid);
+//	str get_nums_team(const GUID& guid);
 
 	guid_str_map names;
 

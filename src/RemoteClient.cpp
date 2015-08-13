@@ -154,7 +154,7 @@ bool PkiClient::send(const str& cmd, str& res)
 	}
 	
 	(ss << cmd).put('\0') << std::flush;
-	return std::getline(ss, res, '\0');
+	return bool(std::getline(ss, res, '\0'));
 }
 
 bool InsecureClient::configure(const str& params)

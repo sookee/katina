@@ -335,7 +335,7 @@ public:
 			fcntl(sd, F_SETFL, O_NONBLOCK);
 		buf.set_socket(sd);
 
-		return *this;
+		return bool(*this);
 	}
 };
 

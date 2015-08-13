@@ -201,51 +201,56 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 
 	announce_time = 0; // turn off
 
-	katina.add_future(std::async(std::launch::async, [this](slot_guid_map clients)
+	katina.add_future(std::async(std::launch::async, [this](client_arr clients)
 	{
-		for(slot_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
+		for(siz i = 0; i < clients.size(); ++i)
+//		for(auto i = clients.begin(); i != clients.end(); ++i)
 		{
 			// were they connected when the thread began?
-			if(i->second.is_bot() || !i->second.is_connected())
+			if(clients[i].bot || !clients[i].live)
 				continue;
 
 			{
 				// have they disconnected since the thread began?
 				lock_guard lock(katina.get_data_mutex());
-				const GUID& guid = katina.getClientGuid(i->first);
-				if(guid == null_guid || !guid.is_connected())
+				if(i >= katina.getClients().size() || katina.getClients()[i].bot || !katina.getClients()[i].live)
 					continue;
+//				const GUID& guid = katina.getClientGuid(i->first);
+//				if(guid == null_guid || !guid.is_connected())
+//					continue;
 			}
+
+			client_t& c = clients[i];
 
 			if(katina.is_live())
 				std::this_thread::sleep_for(milliseconds(2000));
 
-			pbug("ANNOUNCING VOTE TO: [" << i->first << ": " << i->second << "] " << katina.getPlayerName(i->second));
+			pbug("ANNOUNCING VOTE TO: [" << i << ": " << c.guid << "] " << c.name);
 
-			bug_var(i->first);
-			if(i->first == slot::bad)
+			bug_var(i);
+			if(i == slot::bad)
 			{
-				plog("ERROR: Bad client number: " << i->first);
+				plog("ERROR: Bad client number: " << i);
 				continue;
 			}
 
-			if(i->first >= slot::max)
+			if(i >= slot::max)
 			{
-				plog("ERROR: Client number too large: " << i->first);
+				plog("ERROR: Client number too large: " << i);
 				continue;
 			}
 
-			pbug_var(i->first);
-			pbug_var(i->second);
+			pbug_var(i);
+			pbug_var(c.guid);
 	//		pbug_var(map_votes[i->second]);
 
-			if(map_votes.count(i->second) && map_votes[i->second] > 0)
-				katina.server.msg_to(i->first, katina.get_name() + " ^3You ^1LOVE ^3this map");
-			else if(map_votes.count(i->second) && map_votes[i->second] < 0)
-				katina.server.msg_to(i->first, katina.get_name() + " ^3You ^1HATE ^3this map");
+			if(map_votes.count(c.guid) && map_votes[c.guid] > 0)
+				katina.server.msg_to(slot(i), katina.get_name() + " ^3You ^1LOVE ^3this map");
+			else if(map_votes.count(c.guid) && map_votes[c.guid] < 0)
+				katina.server.msg_to(slot(i), katina.get_name() + " ^3You ^1HATE ^3this map");
 			else
 			{
-				katina.server.msg_to(i->first, katina.get_name() + " ^3Vote^7: ^1!love map^7, ^1!hate map^7 or ^1!soso map ^3");
+				katina.server.msg_to(slot(i), katina.get_name() + " ^3Vote^7: ^1!love map^7, ^1!hate map^7 or ^1!soso map ^3");
 			}
 		}
 	}, katina.getClients()));
@@ -253,10 +258,10 @@ void KatinaPluginVotes::heartbeat(siz min, siz sec)
 
 bool KatinaPluginVotes::sayteam(siz min, siz sec, slot num, const str& text)
 {
-	return say(min, sec, guid, text);
+	return say(min, sec, num, text);
 }
 
-bool KatinaPluginVotes::say(siz min, siz sec, const GUID& guid, const str& text)
+bool KatinaPluginVotes::say(siz min, siz sec, slot num, const str& text)
 {
 	if(!active)
 		return true;
@@ -268,13 +273,15 @@ bool KatinaPluginVotes::say(siz min, siz sec, const GUID& guid, const str& text)
 	if(!(iss >> cmd) || cmd.empty() || (cmd[0] != '!' && cmd[0] != '?'))
 		return true;
 
-	slot say_num;
+//	slot say_num = num;
+	auto guid = katina.getClients()[num].guid;
 
-	if((say_num = katina.getClientSlot(guid)) == slot::bad)
-	{
-		plog("ERROR: Unable to get slot number from guid: " << guid);
-		return true;
-	}
+
+//	if((say_num = katina.getClientSlot(guid)) == slot::bad)
+//	{
+//		plog("ERROR: Unable to get slot number from guid: " << guid);
+//		return true;
+//	}
 
 	iss >> type;
 
@@ -295,22 +302,22 @@ bool KatinaPluginVotes::say(siz min, siz sec, const GUID& guid, const str& text)
 
 	if(cmd == "!help" || cmd == "?help")
 	{
-		katina.server.msg_to(say_num, "^7VOTES: ^2?love^7, ^2?hate^7");
+		katina.server.msg_to(num, "^7VOTES: ^2?love^7, ^2?hate^7");
 	}
 	else if(cmd == "?love")
 	{
-		katina.server.msg_to(say_num, "^7VOTES: ^3Vote to keep a feature like the current map");
-		katina.server.msg_to(say_num, "^7VOTES: ^3Use^7: !^2love map ^3if you want to keep the current map");
+		katina.server.msg_to(num, "^7VOTES: ^3Vote to keep a feature like the current map");
+		katina.server.msg_to(num, "^7VOTES: ^3Use^7: !^2love map ^3if you want to keep the current map");
 	}
 	else if(cmd == "?hate")
 	{
-		katina.server.msg_to(say_num, "^7VOTES: ^3Vote to lose a feature like the current map");
-		katina.server.msg_to(say_num, "^7VOTES: ^3Use^7: !^2hate map ^3if you want to lose the current map");
+		katina.server.msg_to(num, "^7VOTES: ^3Vote to lose a feature like the current map");
+		katina.server.msg_to(num, "^7VOTES: ^3Use^7: !^2hate map ^3if you want to lose the current map");
 	}
 	else if(cmd == "?soso")
 	{
-		katina.server.msg_to(say_num, "^7VOTES: ^3Vote if you don't care one way or the other about a feature");
-		katina.server.msg_to(say_num, "^7VOTES: ^3Use^7: !^2soso map ^3if you really don't mind if the map stays or goes");
+		katina.server.msg_to(num, "^7VOTES: ^3Vote if you don't care one way or the other about a feature");
+		katina.server.msg_to(num, "^7VOTES: ^3Use^7: !^2soso map ^3if you really don't mind if the map stays or goes");
 	}
 	else if(cmd == "!love")
 	{
@@ -321,11 +328,11 @@ bool KatinaPluginVotes::say(siz min, siz sec, const GUID& guid, const str& text)
 		}
 
 		if(map_votes.count(guid) && map_votes[guid] == 1)
-			katina.server.msg_to(say_num, "^3You have already voted for this map.", true);
+			katina.server.msg_to(num, "^3You have already voted for this map.", true);
 		else if(map_votes.count(guid))
-			katina.server.msg_to(say_num, "^3Your vote has changed for this map.", true);
+			katina.server.msg_to(num, "^3Your vote has changed for this map.", true);
 		else
-			katina.server.msg_to(say_num, "^7" + katina.getPlayerName(guid) + "^7: ^3Your vote will be counted.", true);
+			katina.server.msg_to(num, "^7" + katina.getPlayerName(guid) + "^7: ^3Your vote will be counted.", true);
 		map_votes[guid] = 1;
 	}
 	else if(cmd == "!hate")
@@ -337,11 +344,11 @@ bool KatinaPluginVotes::say(siz min, siz sec, const GUID& guid, const str& text)
 		}
 
 		if(map_votes.count(guid) && map_votes[guid] == -1)
-			katina.server.msg_to(say_num, "^3You have already voted for this map.", true);
+			katina.server.msg_to(num, "^3You have already voted for this map.", true);
 		else if(map_votes.count(guid))
-			katina.server.msg_to(say_num, "^3Your vote has changed for this map.", true);
+			katina.server.msg_to(num, "^3Your vote has changed for this map.", true);
 		else
-			katina.server.msg_to(say_num, "^7" + katina.getPlayerName(guid) + "^7: ^3Your vote will be counted.", true);
+			katina.server.msg_to(num, "^7" + katina.getPlayerName(guid) + "^7: ^3Your vote will be counted.", true);
 		map_votes[guid] = -1;
 	}
 	else if(cmd == "!soso")
@@ -353,11 +360,11 @@ bool KatinaPluginVotes::say(siz min, siz sec, const GUID& guid, const str& text)
 		}
 
 		if(map_votes.count(guid) && map_votes[guid] == 0)
-			katina.server.msg_to(say_num, "^3You have already voted for this map.", true);
+			katina.server.msg_to(num, "^3You have already voted for this map.", true);
 		else if(map_votes.count(guid))
-			katina.server.msg_to(say_num, "^3Your vote has changed for this map.", true);
+			katina.server.msg_to(num, "^3Your vote has changed for this map.", true);
 		else
-			katina.server.msg_to(say_num, "^7" + katina.getPlayerName(guid) + "^7: ^3Your vote will be counted.", true);
+			katina.server.msg_to(num, "^7" + katina.getPlayerName(guid) + "^7: ^3Your vote will be counted.", true);
 		map_votes[guid] = 0;
 	}
 	

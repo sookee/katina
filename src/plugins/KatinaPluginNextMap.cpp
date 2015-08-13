@@ -42,7 +42,7 @@ KatinaPluginNextMap::KatinaPluginNextMap(Katina& katina)
 , mapname(katina.get_mapname())
 , clients(katina.getClients())
 , players(katina.getPlayers())
-, teams(katina.getTeams())
+//, teams(katina.getTeams())
 , server(katina.server)
 , active(true)
 {
@@ -278,11 +278,11 @@ str_vec KatinaPluginNextMap::get_mapnames(siz batch)
 	return maps;
 }
 
-bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& text)
+bool KatinaPluginNextMap::say(siz min, siz sec, slot num, const str& text)
 {
 	bug_func();
 	bug_var(active);
-	bug_var(guid);
+	bug_var(num);
 	bug_var(text);
 	if(!active)
 		return true;
@@ -296,13 +296,13 @@ bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& tex
 
 	bug_var(cmd);
 
-	slot say_num;
-
-	if((say_num = katina.getClientSlot(guid)) == slot::bad)
-	{
-		plog("ERROR: Unable to get slot number from guid: " << guid);
-		return true;
-	}
+//	slot say_num;
+//
+//	if((say_num = katina.getClientSlot(guid)) == slot::bad)
+//	{
+//		plog("ERROR: Unable to get slot number from guid: " << guid);
+//		return true;
+//	}
 
 	if(cmd == "!maps")
 	{
@@ -321,7 +321,7 @@ bool KatinaPluginNextMap::say(siz min, siz sec, const GUID& guid, const str& tex
 
 		str msg = get_maplist(maps, batch);
 
-		server.msg_to(say_num, msg);
+		server.msg_to(num, msg);
 	}
 
 	return true;
@@ -349,10 +349,15 @@ bool KatinaPluginNextMap::exit(siz min, siz sec)
 
 	str sep;
 	soss sql;
-	for(slot_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
-		if(!i->second.is_bot() && i->second.is_connected())
-			if(!contains(katina.get_vec("nextmap.ignore.guid"), str(i->second)))
-				{ sql << sep << "'" << i->second << "'"; sep = ",";}
+//	for(slot_guid_map_citer i = clients.begin(); i != clients.end(); ++i)
+//		if(!i->second.is_bot() && i->second.is_connected())
+//			if(!contains(katina.get_vec("nextmap.ignore.guid"), str(i->second)))
+//				{ sql << sep << "'" << i->second << "'"; sep = ",";}
+
+	for(auto const& c: clients)
+		if(!c.bot && c.live)
+			if(!contains(katina.get_vec("nextmap.ignore.guid"), str(c.guid)))
+				{ sql << sep << "'" << c.guid << "'"; sep = ",";}
 
 	if(sql.str().empty())
 		return true; // no one connected/not ignored

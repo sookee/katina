@@ -68,7 +68,6 @@ TYPEDEF_MAP(siz, mod_damage_stats, moddmg_map);
 
 struct stat
 {
-	GUID guid;
 	siz hc; // handicap
 
 	siz_map kills;
@@ -115,9 +114,7 @@ struct stat
 	{}
 };
 
-TYPEDEF_MAP(slot, siz, slot_siz_map);
-TYPEDEF_MAP(slot, slot_siz_map, onevone_map);
-TYPEDEF_MAP(slot, stat, slot_stat_map);
+TYPEDEF_MAP(GUID, guid_siz_map, onevone_map);
 TYPEDEF_MAP(GUID, stat, guid_stat_map);
 
 typedef my_ulonglong game_id;
@@ -186,8 +183,6 @@ public:
 		, siz prev, str& stats, siz& skill) = 0;
 	virtual bool get_ingame_stats_c(const str& mapname, const client_arr& clients
 		, const GUID& guid, siz prev, str& stats, siz& skill) = 0;
-	virtual bool get_ingame_crap(const str& mapname, const client_arr& clients
-		, GUID& guid, str& stats) = 0;
 };
 
 //class StatsDatabaseFile
@@ -255,8 +250,6 @@ public:
 //		, siz prev, str& stats, siz& skill) override { return true; }
 //	virtual bool get_ingame_stats_c(const str& mapname, const slot_guid_map& clients
 //		, const GUID& guid, siz prev, str& stats, siz& skill) override { return true; }
-//	virtual bool get_ingame_crap(const str& mapname, const slot_guid_map& clients
-//		, GUID& guid, str& stats) override { return true; }
 //};
 
 class StatsDatabaseMySql
@@ -331,8 +324,6 @@ public:
 		, siz prev, str& stats, siz& skill) override;
 	bool get_ingame_stats_c(const str& mapname, const client_arr& clients
 		, const GUID& guid, siz prev, str& stats, siz& skill) override;
-	bool get_ingame_crap(const str& mapname
-		, const client_arr& clients, GUID& guid, str& stats) override;
 };
 
 class KatinaPluginStats
@@ -340,9 +331,8 @@ class KatinaPluginStats
 {
 public:
 
-	onevone_map onevone; // slot -> slot -> <count> //
-	slot_stat_map stats; // slot -> <stat>
-	guid_stat_map archives;
+	onevone_map onevone; // GUID -> GUID -> <count> //
+	guid_stat_map stats; // GUID -> <stat>
 
 private:
 	const str& mapname;
@@ -391,7 +381,7 @@ public:
 	// API
 
 	siz get_skill(const GUID& guid, const str& mapname);
-	const slot_stat_map* get_stats() { return &stats; }
+	const guid_stat_map* get_stats() { return &stats; }
 
     ///////////////////////////////////////////
 	// INTERFACE: KatinaPlugin

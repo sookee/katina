@@ -178,7 +178,7 @@ public:
 			return false;
 		}
 		(ss << cmd).put('\0') << std::flush;
-		return std::getline(ss, res, '\0');
+		return bool(std::getline(ss, res, '\0'));
 	}
 };
 
@@ -215,7 +215,7 @@ public:
 			return true;
 
 		ofs << IRC_to_plain(cmd) << std::endl;
-		return ifs ? std::getline(ifs, res) : "";
+		return bool(ifs ? std::getline(ifs, res) : ifs);
 	}
 };
 

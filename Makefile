@@ -11,7 +11,6 @@ CXXFLAGS = -std=c++11
 src = src
 
 REVISION = $(shell git log -n 1 --pretty=format:%h|tr [:lower:] [:upper:])
-
 REVISION_FLAGS = -D REVISION=\"$(REVISION)\"
 
 MYSQL_INCL = $(shell mysql_config --include)

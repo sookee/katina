@@ -223,7 +223,7 @@ bool KatinaPluginCallVoteCtrl::init_game(siz min, siz sec, const str_map& cvars)
 	return true;
 }
 
-bool KatinaPluginCallVoteCtrl::say(siz min, siz sec, const GUID& guid, const str& text)
+bool KatinaPluginCallVoteCtrl::say(siz min, siz sec, slot num, const str& text)
 {
 	if(enable_failed)
 		plog("WARN: ENABLE FAILED, REBOOTING: " << (vote_enable() ? "OK":"FAIL"));
@@ -235,39 +235,35 @@ bool KatinaPluginCallVoteCtrl::say(siz min, siz sec, const GUID& guid, const str
 
 	pbug_var(cmd);
 
-	slot say_num;
-
-	if((say_num = katina.getClientSlot(guid)) == slot::bad)
-	{
-		plog("ERROR: Unable to get slot number from guid: " << guid);
-		return true;
-	}
+	auto guid = katina.getClients()[num].guid;
+	auto name = katina.getClients()[num].name;
+	bool admin = katina.is_admin(katina.getClients()[num].guid);
 
 	//	!callvote on|off|enable|disable
 	if(cmd == "!help" || cmd == "?help")
 	{
-		if(!katina.is_admin(guid))
+		if(!admin)
 			return true;
 
-		katina.server.msg_to(say_num, "^7CALLV: ^2?callvote^7");
+		katina.server.msg_to(num, "^7CALLV: ^2?callvote^7");
 	}
 	else if(cmd == "?callvote")
 	{
-		if(!katina.is_admin(guid))
+		if(!admin)
 			return true;
 
-		katina.server.msg_to(say_num, "^7CALLV: ^3Adjust callvote control^7");
-		katina.server.msg_to(say_num, "^7CALLV: ^2!callvote on ^3Turn callvotes on");
-		katina.server.msg_to(say_num, "^7CALLV: ^2!callvote off ^3Turn callvotes off");
-		katina.server.msg_to(say_num, "^7CALLV: ^2!callvote enable ^3Enable automatic callvotes");
-		katina.server.msg_to(say_num, "^7CALLV: ^2!callvote disable ^3Disable automatic callvotes");
-		katina.server.msg_to(say_num, "^7CALLV: ^2!callvote <num of secs> ^3Set automatic callvotes timer");
+		katina.server.msg_to(num, "^7CALLV: ^3Adjust callvote control^7");
+		katina.server.msg_to(num, "^7CALLV: ^2!callvote on ^3Turn callvotes on");
+		katina.server.msg_to(num, "^7CALLV: ^2!callvote off ^3Turn callvotes off");
+		katina.server.msg_to(num, "^7CALLV: ^2!callvote enable ^3Enable automatic callvotes");
+		katina.server.msg_to(num, "^7CALLV: ^2!callvote disable ^3Disable automatic callvotes");
+		katina.server.msg_to(num, "^7CALLV: ^2!callvote <num of secs> ^3Set automatic callvotes timer");
 	}
 	else if(cmd == "!callvote")
 	{
-		if(!katina.is_admin(guid))
+		if(!admin)
 		{
-			plog("INFO: Unauthorized admin attempt from [" << guid << "] " << katina.getPlayerName(guid) << ": " << text);
+			plog("INFO: Unauthorized admin attempt from [" << guid << "] " << name << ": " << text);
 			return true;
 		}
 
@@ -283,15 +279,15 @@ bool KatinaPluginCallVoteCtrl::say(siz min, siz sec, const GUID& guid, const str
 		else if(param == "enable")
 		{
 			active = true;
-			server.msg_to(say_num, "^5Automatic callvote control enabled");
+			server.msg_to(num, "^5Automatic callvote control enabled");
 		}
 		else if(param == "disable")
 		{
 			active = false;
-			server.msg_to(say_num, "^5Automatic callvote control disabled");
+			server.msg_to(num, "^5Automatic callvote control disabled");
 		}
 		else if(convert(param, wait))
-			server.msg_to(say_num, "^5Callvote wait time set to ^7" + param + " ^5seconds");
+			server.msg_to(num, "^5Callvote wait time set to ^7" + param + " ^5seconds");
 		else
 			plog("WARN: Unknown !callvote parameter: " << param);
 	}
