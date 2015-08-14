@@ -694,20 +694,39 @@ public:
 //			events[e].erase(from);
 	}
 
+	/**
+	 * Events are added in order according to the priority of
+	 * the plugin that is determined at plugin load/open.
+	 */
 	void add_log_event(class KatinaPlugin* plugin, event_t e)
 	{
-		auto lb = std::lower_bound(std::begin(events[e]), std::end(events[e]), plugin,
-		[](KatinaPlugin* l, KatinaPlugin* r)
+		if(std::find(std::begin(events[e]), std::end(events[e]), plugin) != std::end(events[e]))
 		{
-			return l->priority < r->priority;
+			log("W: adding log event twice: [" << e << "] " << plugin->get_id());
+			return;
+		}
+		events[e].push_back(plugin);
+		std::sort(std::begin(events[e]), std::end(events[e]),
+		[](KatinaPlugin* lhs, KatinaPlugin* rhs)
+		{
+			return lhs->priority < rhs->priority;
 		});
 
-		if(lb != std::end(events[e]))
-			events[e].insert(lb, plugin);
-		else
-		{
-			events[e].push_back(plugin);
-		}
+		for(auto p: events[e])
+			bug("Event order for " << e << ": " << p->get_id() << " [" << p->priority << "]");
+
+//		auto lb = std::lower_bound(std::begin(events[e]), std::end(events[e]), plugin,
+//		[](KatinaPlugin* l, KatinaPlugin* r)
+//		{
+//			return l->priority < r->priority;
+//		});
+//
+//		if(lb != std::end(events[e]))
+//			events[e].insert(lb, plugin);
+//		else
+//		{
+//			events[e].push_back(plugin);
+//		}
 	}
 
 	void del_log_event(class KatinaPlugin* plugin, event_t e)

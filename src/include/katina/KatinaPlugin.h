@@ -66,6 +66,13 @@ public:
 	bool is_open() const { return opened; }
 
 	/**
+	 * return list of plugin ids for plugind that this plugin
+	 * optionally or otherwise depends on to be processed before
+	 * this one.
+	 */
+	virtual str_vec get_parent_plugin_ids() const { return {}; };
+
+	/**
 	 * This provides an opportunity for a plugin to initialise
 	 * itself.
 	 *

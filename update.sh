@@ -1,7 +1,7 @@
 #!/bin/bash
 
-make clean
+make -C build-debug clean
 git pull
-make all
-make install
+make -C build-debug all
+make -C build-debug install
 

@@ -132,22 +132,24 @@ public:
 
 	// INTERFACE: KatinaPlugin
 
-	virtual str api(const str& cmd, void* blob = nullptr) override;
+	str_vec get_parent_plugin_ids() const override;
 
-	virtual bool open() override;
+	str api(const str& cmd, void* blob = nullptr) override;
 
-	virtual str get_id() const override;
-	virtual str get_name() const override;
-	virtual str get_version() const override;
+	bool open() override;
 
-	virtual bool init_game(siz min, siz sec, const str_map& cvars) override;
-	virtual bool kill(siz min, siz sec, slot num1, slot num2, siz weap) override;
-	virtual bool push(siz min, siz sec, slot num1, slot num2) override;
-	virtual bool ctf(siz min, siz sec, slot num, siz team, siz act) override;
-	virtual bool say(siz min, siz sec, slot num, const str& text) override;
-	virtual bool exit(siz min, siz sec) override;
+	str get_id() const override;
+	str get_name() const override;
+	str get_version() const override;
 
-	virtual void close() override;
+	bool init_game(siz min, siz sec, const str_map& cvars) override;
+	bool kill(siz min, siz sec, slot num1, slot num2, siz weap) override;
+	bool push(siz min, siz sec, slot num1, slot num2) override;
+	bool ctf(siz min, siz sec, slot num, siz team, siz act) override;
+	bool say(siz min, siz sec, slot num, const str& text) override;
+	bool exit(siz min, siz sec) override;
+
+	void close() override;
 };
 
 }} // katina::plugin

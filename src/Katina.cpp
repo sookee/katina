@@ -345,6 +345,39 @@ bool Katina::open_plugin(const str& id)
 	return true;
 }
 
+struct node
+{
+	using ptr_vec = std::vector<node*>;
+	str id;
+	ptr_vec to;
+	node(const str& id = ""): id(id) {}
+};
+
+using node_vec = std::vector<node>;
+
+void dep_resolve(node* n, node::ptr_vec& seen, node::ptr_vec& resolved)
+{
+	bug("dep_resolve: " << n->id);
+	seen.push_back(n);
+	for(auto np: n->to)
+	{
+		if(std::find(resolved.begin(), resolved.end(), np) != resolved.end())
+		{
+			bug("   skipping: " << np->id);
+			continue;
+		}
+		if(std::find(seen.begin(), seen.end(), np) == seen.end())
+			dep_resolve(np, seen, resolved);
+		else
+		{
+			log("X: plugin " << n->id << " has a circular dependency with " << np->id);
+			continue;
+		}
+	}
+	bug("     adding: " << n->id);
+	resolved.push_back(n);
+}
+
 void Katina::load_plugins()
 {
 	bug_func();
@@ -357,6 +390,61 @@ void Katina::load_plugins()
 	for(auto& file: get_exp_vec("plugin"))
 		if(load_plugin(file, priority))
 			++priority;
+
+	// resolve dependencies
+	bug("== Resolving dependencies: =================================");
+	node_vec nodes;
+
+	for(auto& p: plugins)
+	{
+		bug("adding plugin id: " << p.first);
+		nodes.emplace_back(p.first);
+	}
+
+	bug("");
+
+	for(auto& n: nodes)
+	{
+		bug("plugin: " << n.id << " [" << &n << "]");
+		for(auto const& id: plugins[n.id]->get_parent_plugin_ids())
+		{
+			bool done = false;
+			for(auto& nn: nodes)
+			{
+				if(nn.id != id)
+					continue;
+				n.to.push_back(&nn);
+				bug("   dep: " << nn.id << " [" << &nn << "]");
+				done = true;
+				break;
+			}
+			if(!done)
+			{
+				log("W: dependency '" << id << "' for " << n.id << " not found");
+			}
+		}
+	}
+
+	node::ptr_vec seen;
+	node::ptr_vec resolved;
+
+	for(auto& n: nodes)
+		if(std::find(resolved.begin(), resolved.end(), &n) == resolved.end())
+			dep_resolve(&n, seen, resolved);
+
+	// resolved should now contain the priority order of the plugins
+
+	bug("");
+
+	priority = 0;
+	for(auto& n: resolved)
+	{
+		bug("resolved: " << n->id << "[" << priority << "]");
+		plugins[n->id]->priority = priority++;
+	}
+
+	// TODO: needs testing!!
+	bug("============================================================");
 
 	log("Opening plugins:");
 	for(plugin_map_iter p = plugins.begin(); p != plugins.end();)

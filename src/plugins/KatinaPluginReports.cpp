@@ -167,21 +167,19 @@ KatinaPluginReports::KatinaPluginReports(Katina& katina)
 {
 }
 
+str_vec KatinaPluginReports::get_parent_plugin_ids() const
+{
+ return {"katina::stats", "katina::votes"};
+}
+
 bool KatinaPluginReports::open()
 {
 	bug_func();
-	str_vec after;
 	if((stats = katina.get_plugin("katina::stats", "0.0")))
-	{
 		plog("Found: " << stats->get_name() << ": " << stats->get_version());
-//		after.push_back("katina::stats");
-	}
 
 	if((votes = katina.get_plugin("katina::votes", "0.0")))
-	{
 		plog("Found: " << votes->get_name() << ": " << votes->get_version());
-//		after.push_back("katina::votes");
-	}
 
 	client.off();
 	client.clear();
