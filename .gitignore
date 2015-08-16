@@ -1,0 +1,6 @@
+/.cproject
+/.project
+*.local
+*.o
+*.so.*
+/build-*
