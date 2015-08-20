@@ -345,38 +345,91 @@ bool Katina::open_plugin(const str& id)
 	return true;
 }
 
-struct node
-{
-	using ptr_vec = std::vector<node*>;
-	str id;
-	ptr_vec to;
-	node(const str& id = ""): id(id) {}
-};
+//struct node
+//{
+//	using ptr_vec = std::vector<node*>;
+//	str id;
+//	ptr_vec to;
+//	node(const str& id = ""): id(id) {}
+//};
+//
+//using node_vec = std::vector<node>;
+//
+//void dep_resolve(node* n, node::ptr_vec& seen, node::ptr_vec& resolved)
+//{
+//	bug("dep_resolve: " << n->id);
+//	seen.push_back(n);
+//	for(auto np: n->to)
+//	{
+//		if(std::find(resolved.begin(), resolved.end(), np) != resolved.end())
+//		{
+//			bug("   skipping: " << np->id);
+//			continue;
+//		}
+//		if(std::find(seen.begin(), seen.end(), np) == seen.end())
+//			dep_resolve(np, seen, resolved);
+//		else
+//		{
+//			log("X: plugin " << n->id << " has a circular dependency with " << np->id);
+//			continue;
+//		}
+//	}
+//	bug("     adding: " << n->id);
+//	resolved.push_back(n);
+//}
 
-using node_vec = std::vector<node>;
-
-void dep_resolve(node* n, node::ptr_vec& seen, node::ptr_vec& resolved)
+class Resolver
 {
-	bug("dep_resolve: " << n->id);
-	seen.push_back(n);
-	for(auto np: n->to)
+	str_vec seen;
+	str_vec resolved;
+	std::map<str, str_vec> deps;
+
+	void resolve(str const& d)
 	{
-		if(std::find(resolved.begin(), resolved.end(), np) != resolved.end())
+		bug("dep_resolve: " << d);
+		seen.push_back(d);
+		for(auto const& nd: deps[d])
 		{
-			bug("   skipping: " << np->id);
-			continue;
+			if(std::find(resolved.begin(), resolved.end(), nd) != resolved.end())
+				continue;
+			else if(std::find(seen.begin(), seen.end(), nd) == seen.end())
+				resolve(nd);
+			else
+			{
+				log("E: plugin " << d << " has a circular dependency with " << nd);
+				continue;
+			}
 		}
-		if(std::find(seen.begin(), seen.end(), np) == seen.end())
-			dep_resolve(np, seen, resolved);
-		else
-		{
-			log("X: plugin " << n->id << " has a circular dependency with " << np->id);
-			continue;
-		}
+		bug("     adding: " << d);
+		resolved.push_back(d);
 	}
-	bug("     adding: " << n->id);
-	resolved.push_back(n);
-}
+
+public:
+	void clear()
+	{
+		seen.clear();
+		resolved.clear();
+		deps.clear();
+	}
+
+	void add(str const& a)
+	{
+		deps[a];
+	}
+
+	void add(str const& a, str const& b)
+	{
+		deps[a].push_back(b);
+	}
+
+	str_vec const& resolve()
+	{
+		for(auto const& d: deps)
+			if(std::find(resolved.begin(), resolved.end(), d.first) == resolved.end())
+				resolve(d.first);
+		return resolved;
+	}
+};
 
 void Katina::load_plugins()
 {
@@ -393,54 +446,91 @@ void Katina::load_plugins()
 
 	// resolve dependencies
 	bug("== Resolving dependencies: =================================");
-	node_vec nodes;
+	str_vec deps;
 
 	for(auto& p: plugins)
 	{
 		bug("adding plugin id: " << p.first);
-		nodes.emplace_back(p.first);
+		deps.emplace_back(p.first);
 	}
 
 	bug("");
 
-	for(auto& n: nodes)
+	Resolver resolver;
+
+	for(auto const& d: deps)
 	{
-		bug("plugin: " << n.id << " [" << &n << "]");
-		for(auto const& id: plugins[n.id]->get_parent_plugin_ids())
+		bug("plugin: " << d);
+		resolver.add(d);
+		for(auto const& id: plugins[d]->get_parent_plugin_ids())
 		{
 			bool done = false;
-			for(auto& nn: nodes)
+			for(auto const& dd: deps)
 			{
-				if(nn.id != id)
+				if(dd != id)
 					continue;
-				n.to.push_back(&nn);
-				bug("   dep: " << nn.id << " [" << &nn << "]");
+				resolver.add(d, id);
+				bug("   dep: " << id);
 				done = true;
 				break;
 			}
 			if(!done)
 			{
-				log("W: dependency '" << id << "' for " << n.id << " not found");
+				log("W: dependency '" << id << "' for " << d << " not found");
 			}
 		}
 	}
 
-	node::ptr_vec seen;
-	node::ptr_vec resolved;
-
-	for(auto& n: nodes)
-		if(std::find(resolved.begin(), resolved.end(), &n) == resolved.end())
-			dep_resolve(&n, seen, resolved);
-
+//	bug("== Resolving dependencies: =================================");
+//	node_vec nodes;
+//
+//	for(auto& p: plugins)
+//	{
+//		bug("adding plugin id: " << p.first);
+//		nodes.emplace_back(p.first);
+//	}
+//
+//	bug("");
+//
+//	for(auto& n: nodes)
+//	{
+//		bug("plugin: " << n.id << " [" << &n << "]");
+//		for(auto const& id: plugins[n.id]->get_parent_plugin_ids())
+//		{
+//			bool done = false;
+//			for(auto& nn: nodes)
+//			{
+//				if(nn.id != id)
+//					continue;
+//				n.to.push_back(&nn);
+//				bug("   dep: " << nn.id << " [" << &nn << "]");
+//				done = true;
+//				break;
+//			}
+//			if(!done)
+//			{
+//				log("W: dependency '" << id << "' for " << n.id << " not found");
+//			}
+//		}
+//	}
+//
+//	node::ptr_vec seen;
+//	node::ptr_vec resolved;
+//
+//	for(auto& n: nodes)
+//		if(std::find(resolved.begin(), resolved.end(), &n) == resolved.end())
+//			dep_resolve(&n, seen, resolved);
+//
 	// resolved should now contain the priority order of the plugins
 
 	bug("");
 
 	priority = 0;
-	for(auto& n: resolved)
+//	for(auto& n: resolved)
+	for(auto const& id: resolver.resolve())
 	{
-		bug("resolved: " << n->id << "[" << priority << "]");
-		plugins[n->id]->priority = priority++;
+		bug("resolved: " << id << "[" << priority << "]");
+		plugins[id]->priority = priority++;
 	}
 
 	// TODO: needs testing!!
