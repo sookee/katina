@@ -831,7 +831,8 @@ void Katina::builtin_command(slot num, const str& text)
 
 				for(siz i = 0; i< clients.size(); ++i)
 					if(clients[i].live)
-						sorted.emplace(clients[i].team, i);
+						sorted.insert(std::make_pair(clients[i].team, i));
+//						sorted.emplace(clients[i].team, i);
 
 				server.msg_to(num, "teams: " + std::to_string(sorted.size()));
 
