@@ -134,7 +134,7 @@ katina-votes.o: $(src_topdir)/katina-votes.cpp $(INCLUDES)
 
 %.o: $(src_topdir)/%.cpp $(src_topdir)/include/katina/*.h
 	@echo Compiling $@
-	@$(CXX) -fPIC -I$(src_topdir)/include $(CXXFLAGS) $(MYSQL_INCL) -c -o $@ $<
+	@$(CXX) $(CXXFLAGS) -fPIC -I$(src_topdir)/include $(MYSQL_INCL) -c -o $@ $<
 
 install: $(PROGRAMS) $(LIBRARIES)
 	@mkdir -p $(PREFIX)/bin
