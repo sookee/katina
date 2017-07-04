@@ -370,14 +370,18 @@ enum
 	// (not fully implemented yet)
 	KATINA_MACHINE_ONLY = (0 << 1)
 
-
 	// log messages contain Push: messages
 	, KATINA_PUSH = (1 << 1)
+
 	// log "say:" messages contain client number, name length
+	// HH:MM say <num> <length> <client-name>: <mesage>
 	// 00:00 say: 5 11 Player Name: message
 	// unless KATINA_MACHINE_ONLY is set giving only client number
 	// 00:00 say: 5: message
 	, KATINA_SAY = (2 << 1)
+
+	// number of enum entries (excluding this one).
+	, KATINA_FLAG_BITS = 3
 };
 
 }} // katina::types

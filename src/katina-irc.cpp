@@ -68,7 +68,7 @@ void* processor(void* vp);
 
 
 inline
-str stamp()
+str stamp_secs_dot_ms()
 {
 	time_t rawtime = std::time(0);
 	tm* timeinfo = std::localtime(&rawtime);

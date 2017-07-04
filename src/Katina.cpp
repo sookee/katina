@@ -29,10 +29,6 @@ http://www.gnu.org/licenses/gpl-2.0.html
 '-----------------------------------------------------------------*/
 
 #include <dlfcn.h>
-#include <cassert>
-#include <ctime>
-#include <string>
-#include <cstring>
 
 #include <katina/Katina.h>
 #include <katina/KatinaPlugin.h>
@@ -49,6 +45,12 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <katina/log.h>
 
 #include <katina/radp.h>
+
+#include <ctime>
+#include <string>
+#include <cstring>
+#include <bitset>
+#include <cassert>
 
 #define ID "katina"
 
@@ -405,6 +407,9 @@ class Resolver
 	}
 
 public:
+
+	// clear internal state without
+	// reducing memory allocation
 	void clear()
 	{
 		seen.clear();
@@ -412,14 +417,27 @@ public:
 		deps.clear();
 	}
 
+	// clear and reduce memory consumption
+	// to minimum
+	void clean(unsigned reserve_guess = 20)
+	{
+		str_vec().swap(seen);
+		seen.reserve(reserve_guess);
+		str_vec().swap(resolved);
+		resolved.reserve(reserve_guess);
+		std::map<str, str_vec>().swap(deps);
+	}
+
 	void add(str const& a)
 	{
 		deps[a];
+		seen.reserve(deps.size());
 	}
 
 	void add(str const& a, str const& b)
 	{
 		deps[a].push_back(b);
+		seen.reserve(deps.size());
 	}
 
 	str_vec const& resolve()
@@ -1744,6 +1762,10 @@ bool Katina::start(const str& dir)
 				{
 					if(*rsp(param_KatinaFlags, mod_katina_flags))
 						nlog("ERROR: parsing: " << cmd);
+					else
+					{
+						log("setting mod_katina_flags: " << std::bitset<KATINA_FLAG_BITS>(mod_katina_flags));
+					}
 				}
 			break;
 
@@ -2145,7 +2167,8 @@ bool Katina::start(const str& dir)
 							param_text = iss + 2;
 						}
 					}
-					else if(mod_katina_flags & KATINA_SAY)
+					// if KATINA_SAY or if we failed to parse KATINA_MACHINE_ONLY
+					else if((mod_katina_flags & KATINA_SAY) || !param_text)
 					{
 						// say: 5 8 Gurtrude: text
 						siz length;
@@ -2162,7 +2185,13 @@ bool Katina::start(const str& dir)
 					else
 					{
 						if((num = siz(extract_num(param_say))) == siz(slot::bad))
+						{
+							// FIXME:
+//							2015-08-23 22:27:51: ERROR: Unable to locate slot when parsing say: 2 13 UnnamedPlayer: :o {218} [Katina.cpp] (2165)
+//							2015-08-23 22:27:51: ERROR: Client num range: -1 {218} [Katina.cpp] (2173)
+
 							nlog("ERROR: Unable to locate slot when parsing say: " << param_say);
+						}
 						else
 						{
 							param_text = param_say + clients[num].name.size() + 2;
